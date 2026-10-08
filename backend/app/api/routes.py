@@ -18,7 +18,7 @@ from sqlalchemy.orm import Session
 from app.clients.ah import ah_client, convert_ah_recipe
 from app.clients.extractor import extract_recipe, fetch_url, suggest_gluten_free
 from app.clients.mealie import MealieClient, clean_search, convert_recipe
-from app.matching import MATCH_VERSION, choose, is_equipment, is_pantry, needed, pack_size, packs_for
+from app.matching import MATCH_VERSION, choose, is_equipment, is_pantry, needed, pack_size, packs_for, query_terms, search_queries
 from app.config import settings
 from app.database import get_db
 from app.logging_config import logger
@@ -302,14 +302,23 @@ async def _automatch(ingredients: list[dict], gluten_free: bool = False, force: 
     sem = asyncio.Semaphore(4)
 
     async def find(term: str) -> dict | None:
-        query = clean_search(term)
-        async with sem:
-            try:
-                products = await ah_client.search_products(query, size=12)
-            except Exception as e:
-                logger.warning("AH search failed for %s: %s", term, e)
-                return None
-        return choose(products, query)
+        query, _, flags = query_terms(term)
+        if not query:
+            return None
+        products: list[dict] = []
+        seen: set = set()
+        for q in search_queries(query):
+            async with sem:
+                try:
+                    found = await ah_client.search_products(q, size=12)
+                except Exception as e:
+                    logger.warning("AH search failed for %s: %s", q, e)
+                    continue
+            for p in found:
+                if p.get("id") not in seen:
+                    seen.add(p.get("id"))
+                    products.append(p)
+        return choose(products, query, flags)
 
     def apply_quantity(ing: dict, product: dict) -> None:
         need = needed(ing.get("text", ""))

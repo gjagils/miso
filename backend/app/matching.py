@@ -10,7 +10,7 @@ from fractions import Fraction
 
 from app.clients.mealie import clean_search
 
-MATCH_VERSION = 3
+MATCH_VERSION = 4
 
 # Basisspullen die je meestal in huis hebt: niet automatisch op de lijst
 PANTRY = {
@@ -122,44 +122,212 @@ def is_pantry(search: str, text: str = "") -> bool:
 
 
 def _tokens(s: str) -> list[str]:
-    return [t for t in re.split(r"[^a-zà-ÿ0-9]+", s.lower()) if len(t) > 1]
+    return [t for t in re.split(r"[^a-zà-ÿ0-9]+", s.lower().replace("'", "")) if len(t) > 1]
 
 
 def _stem(t: str) -> str:
-    for suf in ("en", "s", "e"):
-        if t.endswith(suf) and len(t) - len(suf) >= 4:
-            return t[: -len(suf)]
+    """Grof enkelvoud, consequent voor beide kanten: uien->ui, eieren->ei, tomaten/tomaat->tomat,
+    sjalotten->sjalot, kampioentjes/kampioentje->kampioentj, pinda's->pinda, citroenen->citroen."""
+    t = t.replace("'", "")
+    for suf, keep in (("eren", 2), ("ien", 1), ("en", 3), ("s", 3)):
+        if t.endswith(suf) and len(t) - len(suf) >= keep:
+            t = t[: -len(suf)] + ("i" if suf == "ien" else "")
+            break
+    if t.endswith("e") and len(t) >= 5:
+        t = t[:-1]
+    t = re.sub(r"(aa|ee|oo|uu)", lambda m: m.group(0)[0], t)
+    t = re.sub(r"([bcdfgklmnprstvz])\1$", r"\1", t)
     return t
 
 
-def score(product: dict, query: str) -> float:
+# Woorden die iets over vorm/maat/verpakking zeggen, niet over wélk product: niet zoeken, niet eisen
+DESCRIPTORS = {
+    "middelgroot", "middelgrote", "groot", "grote", "klein", "kleine", "flink", "flinke", "rijp", "rijpe",
+    "diepvries", "bevroren", "gedroogd", "gedroogde", "gekookt", "gekookte", "vers", "verse",
+    "biologisch", "biologische", "bio", "in", "blik", "pot", "potje", "zak", "pak", "of", "en", "een", "van",
+    "met", "de", "het", "voor", "naar", "smaak", "iets", "ongeveer", "ca", "stevig", "stevige", "handvol",
+    "bevroren", "fijngesneden", "gesneden", "geraspt", "geraspte", "ah", "hele", "heel", "excellent",
+    "afbakbroodje", "stijl",
+}
+# Vaste vertalingen van receptwoorden naar hoe AH het noemt
+SYNONYMS = [
+    (r"\b(kippen|kip)bouillon(blokjes?|tabletten|tablet)?\b", "bouillon kip"),
+    (r"\b(runder|rund)bouillon(blokjes?|tabletten|tablet)?\b", "bouillon rund"),
+    (r"\b(groente)bouillon(blokjes?|tabletten|tablet)?\b", "bouillon groente"),
+    (r"\b(bos)?paddenstoelenbouillon(blokjes?|tabletten|tablet)?\b", "bouillon paddenstoel"),
+    (r"\bbouillon(blokjes?|tabletten|tablet)\b", "bouillon"),
+    (r"\bjasmijnrijst\b", "jasmijn rijst"),
+    (r"\blasagnevel(len)?\b", "lasagne"),
+    (r"\bscharrelei(eren)?\b", "eieren"),
+    (r"\bei(eren)?\b", "eieren"),
+    (r"\bspecerijenmelange\b", ""),
+    (r"\bkruidenmix\b", ""),
+]
+# Merk-/variantwoorden in producttitels die niets over het product zelf zeggen
+TITLE_NOISE = {"ah", "biologisch", "terra", "excellent", "basic", "scharrel", "plantaardig", "stuks", "stuk",
+               "grootverpakking", "schaal", "verse", "vers", "per", "pack", "zacht", "romig", "ca", "en", "met",
+               "iets", "hele", "heel", "gele", "witte", "extra", "vierge", "naturel", "losse", "middelgrote",
+               "vrije", "uitloop", "kg", "gram", "ml", "deelblokjes", "grof", "fijn", "fijne"}
+# Woorden die van een product iets anders maken dan het ingrediënt ("Peer siroop", "Curry madras verspakket")
+OTHER_PRODUCT = {"siroop", "sap", "saus", "chips", "toast", "salami", "smaak", "snack", "snacks", "reep", "koek",
+                 "taart", "cake", "mix", "spread", "drank", "thee", "verspakket", "maaltijd", "salade", "soep",
+                 "pie", "roomkaas", "melba", "chocolade", "ijs", "dressing", "tapenade", "worst", "pizza",
+                 "wrap", "burger", "kroket", "nuggets", "olijfmix", "woksmaakmaker", "kruidenmix", "marinade"}
+# Rassen/soorten die AH als productnaam gebruikt zonder het woord zelf ("AH Conference schaal" = peren)
+VARIETY = {"conference": "peer", "doyenne": "peer", "elstar": "appel", "jonagold": "appel", "granny": "appel",
+           "trostomaten": "tomaten", "cherrytomaten": "tomaten", "uitloopeieren": "eieren"}
+# Losse woorden die je in de zoekterm kunt splitsen ("risottorijst" -> "risotto rijst")
+HEADS = ("rijst", "cheese", "kaas", "saus", "brood", "olie", "azijn", "vlokken", "poeder", "bonen", "pasta",
+         "noedels", "melk", "room", "boter")
+HERBS = {"koriander", "peterselie", "dille", "basilicum", "munt", "bieslook", "tijm", "rozemarijn", "dragon",
+         "salie", "kervel", "oregano", "citroengras", "gember"}
+
+
+def query_terms(text: str) -> tuple[str, list[str], set[str]]:
+    """Zoekterm voor AH, de woorden die in het product moeten zitten en vlaggen (fresh/dried/frozen)."""
+    term = clean_search(text).lower()
+    for pat, rep in SYNONYMS:
+        term = re.sub(pat, rep, term)
+    words = _tokens(term)
+    flags = set()
+    low = f" {text.lower()} "
+    if " vers" in low:
+        flags.add("fresh")
+    if "gedroogd" in low:
+        flags.add("dried")
+    if "diepvries" in low:
+        flags.add("frozen")
+    keep = [w for w in words if w not in DESCRIPTORS and not w.isdigit()]
+    if not keep:
+        keep = words
+    if keep and keep[-1] in HERBS and "dried" not in flags and not re.search(r"\b(tl|el|theelepel|eetlepel)\b", low):
+        flags.add("fresh")  # "5 g koriander" = verse koriander; "1 tl koriander" = gedroogd
+    return " ".join(keep), keep, flags
+
+
+def _same(q: str, t: str) -> int:
+    """2 = zelfde woord, 1 = samenstelling met dit woord als kern achteraan ("babyspinazie" bij "spinazie",
+    of "scharrelkipfilet" bij "kipfilet"), 0 = niet."""
+    qs, ts = _stem(q), _stem(t)
+    if q == t or qs == ts or plural(q) == t or plural(t) == q or _stem(plural(q)) == ts:
+        return 2
+    if len(q) >= 3 and len(t) - len(q) >= 3 and (t.endswith(q) or ts.endswith(qs)):
+        return 1
+    if len(t) >= 4 and len(q) - len(t) >= 3 and (q.endswith(t) or qs.endswith(ts)):
+        return 1
+    return 0
+
+
+def _concat_match(q: str, content: list[str]) -> list[int] | None:
+    """'risottorijst' = 'risotto'+'rijst', 'cottagecheese' = 'cottage'+'cheese'."""
+    for i in range(len(content)):
+        for j in range(i + 2, min(len(content), i + 3) + 1):
+            if _stem("".join(content[i:j])) == _stem(q):
+                return list(range(i, j))
+    return None
+
+
+def score(product: dict, query: str, flags: set[str] | None = None) -> float:
     """Hoger = beter. Negatief = niet gebruiken."""
+    flags = flags or set()
     title = (product.get("name") or "").lower()
     category = (product.get("category") or "").lower()
     if category in BAD_CATEGORIES or any(w in title for w in BAD_WORDS):
         return -100
     if product.get("available") is False:
         return -100
-    q = [_stem(t) for t in _tokens(query) if t not in {"en", "of", "de", "het", "een", "van", "met"}]
-    t_tokens = [_stem(t) for t in _tokens(title)]
-    if q and not all(any(qt in tt or tt in qt for tt in t_tokens) for qt in q):
-        return -50  # niet alle zoekwoorden terug te vinden in de titel
-    extra = max(0, len(t_tokens) - len(q) - 2)
+    q = [t for t in _tokens(query) if t not in DESCRIPTORS] or _tokens(query)
+    qraw = set(_tokens(query))
+    content = [VARIETY.get(t, t) for t in _tokens(title) if (t not in TITLE_NOISE or t in qraw) and not t.isdigit()]
     brand = (product.get("brand") or "").lower()
+    for b in _tokens(brand):  # merknaam weg uit de inhoud ("Verstegen Komijnzaad" -> komijnzaad)
+        if b in content and b not in q:
+            content.remove(b)
+    matched_t: set[int] = set()
+    s = 60.0
+    for qt in q:
+        best = max(((_same(qt, t), i) for i, t in enumerate(content)), default=(0, -1))
+        if best[0] < 2:
+            parts = _concat_match(qt, content)  # eerst: aaneengeschreven ("risottorijst" = risotto + rijst)
+            if parts is not None:
+                matched_t.update(parts)
+                continue
+        if best[0] == 0:
+            return -50  # zoekwoord niet in het product
+        matched_t.add(best[1])
+        s -= 0 if best[0] == 2 else 8
+    extra = [t for i, t in enumerate(content) if i not in matched_t]
+    s -= 7 * len(extra)
+    qset = set(q)
+    if any(t in OTHER_PRODUCT and t not in qset for t in extra):
+        s -= 45  # ander soort product
+    if " met " in f" {title} ":
+        after = _tokens(title.split(" met ", 1)[1])
+        if any(t not in qset and t not in TITLE_NOISE and not t.isdigit() for t in after):
+            s -= 20  # "Peer met appel", "Rode bieten met ui": samengesteld product
+    if content and 0 not in matched_t and extra and extra[0] == content[0]:
+        s -= 45  # het product gaat over iets anders ("roomkaas met gember", "sap appel peer")
+    if q and content and (q[-1] in content[-1] or _same(q[-1], content[-1])):
+        s += 4
     organic = "biologisch" in title or product.get("organic")
-    huismerk = brand == "ah" or title.startswith("ah ")
-    s = 50 - extra * 4
+    huismerk = brand.startswith("ah") or title.startswith("ah ")
     if organic:
-        s += 25
+        s += 6  # voorkeur bij verder gelijke producten, wint niet van een betere match
     if huismerk:
-        s += 15
-    if q and t_tokens[-1:] and q[-1] in t_tokens[-1]:
-        s += 5  # kernwoord staat achteraan ("AH Rode uien")
+        s += 10
+    if "fresh" in flags and category.startswith("soepen, sauzen, kruiden"):
+        s -= 40  # verse kruiden, geen potje gedroogd
+    if "dried" in flags and category.startswith("groente"):
+        s -= 20
+    if "frozen" in flags and category == "diepvries":
+        s += 8
     return s
 
 
-def choose(products: list[dict], query: str) -> dict | None:
-    ranked = sorted(((score(p, query), i, p) for i, p in enumerate(products)), key=lambda x: (-x[0], x[1]))
-    if ranked and ranked[0][0] > 0:
+def choose(products: list[dict], query: str, flags: set[str] | None = None) -> dict | None:
+    ranked = sorted(((score(p, query, flags), i, p) for i, p in enumerate(products)), key=lambda x: (-x[0], x[1]))
+    if ranked and ranked[0][0] >= 30:
         return ranked[0][2]
     return None
+
+
+def plural(word: str) -> str:
+    """Nederlands meervoud (genoeg voor AH-titels): ui->uien, citroen->citroenen, sjalot->sjalotten,
+    peer->peren, kampioentje->kampioentjes, tomaat->tomaten."""
+    w = word
+    if w.endswith(("je", "ie")) or w.endswith(("a", "o", "u", "i")) and not w.endswith("ui"):
+        return w + "s"
+    if w.endswith("ui") or w.endswith("ei"):
+        return w + "en"
+    if w.endswith("e"):
+        return w + "n"
+    m = re.match(r"^(.*?)([aeiou])\2([^aeiou])$", w)
+    if m:  # tomaat -> tomaten, peer -> peren
+        return m.group(1) + m.group(2) + m.group(3) + "en"
+    if len(w) > 6 and w.endswith(("on", "el", "er", "em", "en")):
+        return w + "s"  # champignon -> champignons
+    if re.search(r"[^aeiou][aeiou][bdfgklmnprst]$", w) and 3 < len(w) <= 6 and not w.endswith(("oen", "ier", "ien")):
+        return w + w[-1] + "en"  # sjalot -> sjalotten
+    return w + "en"
+
+
+def _split_compound(word: str) -> str:
+    for head in HEADS:
+        if word.endswith(head) and len(word) - len(head) >= 3:
+            return f"{word[: -len(head)]} {head}"
+    return word
+
+
+def search_queries(query: str) -> list[str]:
+    """Meerdere zoekopdrachten: zoals het er staat, in meervoud, en biologisch (voorkeur)."""
+    words = query.split()
+    out = [query]
+    split = " ".join(_split_compound(w) for w in words)
+    if split != query:
+        out.append(split)
+    if words:
+        pl = " ".join(words[:-1] + [plural(words[-1])])
+        if pl != query:
+            out.append(pl)
+    out.append(f"biologisch {query}")
+    return out

@@ -1,0 +1,116 @@
+# AH "Productsuggesties" bij Allerhande-recepten (maatstaf), opgehaald 2026-10-08 van ah.nl.
+# Regel: ingrediënt|AH-product|verpakking|aantal. "#titel ~basis1;basis2" = recept + wat AH als "al in huis" ziet.
+#Panlasagne met zalm en broccoli ~milde olijfolie
+2 middelgrote ui|AH Gele uien|1 kg|1
+3 teen knoflook|AH Knoflook|2 stuks|1
+250 g diepvries zalmfilet|AH Zalmfilet|250 g|1
+200 g Zuivelspread Naturel|AH Zuivelspread naturel|200 g|1
+10 lasagnevel|AH Lasagne|500 g|1
+500 g broccoli|AH Broccoli|500 g|1
+5 g verse dille|AH Dille|20 g|1
+#Eenpansorzo met pastinaak, kip en peer ~milde olijfolie
+235 g scharrelkipdijfilet|AH Scharrel kipdijfilet|ca. 530 g|1
+2 middelgrote ui|AH Gele uien|1 kg|1
+3 teen knoflook|AH Knoflook|2 stuks|1
+800 g biologische pastinaak|AH Biologisch Pastinaak|400 g|2
+0.25 tl chilivlokken|Verstegen Chili vlokken|28 g|1
+1 tl komijnzaad|Verstegen Komijnzaad|40 g|1
+300 g biologische volkorenorzo|AH Orzo volkoren|500 g|1
+1 peer|AH Conference schaal|4 stuks|1
+0.5 biologische citroen|AH Biologisch Citroenen|300 g|1
+7.5 g verse peterselie|AH Peterselie|45 g|1
+#Rijsttraybake met kip en tempeh ~natuurazijn
+125 g tempeh|AH Terra Tempeh|250 g|1
+150 g scharrelkipfilet|AH Scharrel kipfilet 2 stuks|300 g|1
+1.5 el ketjap manis|AH Ketjap manis|0,5 l|1
+0.5 el sambal oelek|AH Sambal oelek|280 g|1
+150 g witte snelkookrijst|AH Witte snelkookrijst|400 g|1
+450 g diepvries nasi-bamigroente|AH Nasi bami groente|450 g|1
+1 rode ui|AH Rode uien|1 kg|1
+#Eenpansrisotto met kip, champignons en ’nduja ~
+400 g champignons|AH Witte champignons|250 g|2
+60 g ongezouten roomboter|De Zaanse Hoeve Roomboter ongezouten|250 g|1
+35 g 'nduja|AH Nduja|70 g|1
+2 middelgrote ui|AH Gele uien|1 kg|1
+3 teen knoflook|AH Knoflook|2 stuks|1
+200 g scharrelkipfilet|AH Scharrel kipfilet 2 stuks|300 g|1
+300 g risottorijst|AH Risotto rijst|500 g|1
+1 bospaddenstoelenbouillontablet|AH Bouillon paddenstoel|120 g|1
+60 g Grana Padano 32+|AH Italiaanse grana padano 32+ stuk|200 g|1
+#Zalmzijde en herfstgroente uit de airfryer ~milde olijfolie
+600 g pastinaak|AH Biologisch Pastinaak|400 g|2
+500 g gekookte rode biet|AH Biologisch Rode bieten gekookt|500 g|1
+450 g jasmijnrijst|Unirice Perfumed jasmin rice|2 kg|1
+1 biologische citroen|AH Biologisch Citroenen|300 g|1
+800 g AH Excellent hele zalmzijde (diepvries)|AH Excellent Hele zalmzijde|ca. 800 g|1
+1 sjalot|AH Sjalotten|500 g|1
+1 tl korianderzaad|Verstegen Korianderzaad|24 g|1
+1 el grove mosterd|De Huisman Zaanse mosterd grof gemalen|335 g|1
+150 ml slagroom|AH Slagroom|250 ml|1
+10 g verse koriander|AH Koriander|15 g|1
+#Gezonde tomatensoep ~
+2 middelgrote ui|AH Gele uien|1 kg|1
+3 teen knoflook|AH Knoflook|2 stuks|1
+22 g verse basilicum|AH Basilicum|22 g|1
+800 g gepelde tomaten in blik|AH Tomaten gepeld|400 g|2
+400 g witte bonen in pot|AH Terra Biologisch witte bonen|360 g|2
+2 tl harissa kruidenmix|Verstegen World spice blend harissa|34 g|1
+4 el extra vierge olijfolie|AH Olijfolie extra vierge|250 ml|1
+4 kampioentje (afbakbroodje)|AH Kampioentjes|240 g|1
+200 g cottagecheese|AH Cottage cheese|200 g|1
+#Silken tofu met knoflook-sojasaus ~
+600 g silken tofu|AH Terra Silken tofu|300 g|2
+3 teen knoflook|AH Knoflook|2 stuks|1
+1 bosui|AH Bosui|per bosje|1
+3 g verse koriander|AH Koriander|15 g|1
+3 el sojasaus|AH Sojasaus|250 ml|1
+2 el rijstazijn|AH Rijstazijn|150 ml|1
+2 tl sesamolie|AH Sesamolie|250 ml|1
+2 tl rietsuiker|AH Rietsuiker|500 g|1
+1 el crispy chili in oil|Old Mother Crispy chili in oil|210 g|1
+2 tl sesamzaad|AH Sesamzaad|100 g|1
+#Linzensoep met venkelworst en spinazie ~milde olijfolie
+2 middelgrote ui|AH Gele uien|1 kg|1
+3 teen knoflook|AH Knoflook|2 stuks|1
+5 g tijm|AH Tijm|15 g|1
+250 g fijne soepgroente|AH Fijne soepgroente|250 g|1
+350 g gedroogde groene linzen|AH Terra Biologisch groene linzen|500 g|1
+1 kippenbouillonblokje|AH Bouillon kip|120 g|1
+2 varkensbraadworst|AH Braadworst 4 stuks|4 stuks|1
+0.5 tl venkelzaad|Verstegen Venkelzaad|28 g|1
+450 g verse spinazie|AH Spinazie grootverpakking|600 g|1
+#Aardappelsalade met mosterdmayo ~milde olijfolie
+1 kg iets kruimige aardappel|AH Iets kruimige aardappelen|1 kg|1
+4 middelgrote ui|AH Gele uien|1 kg|1
+1 el honing|AH Honing|350 g|1
+2 tl gedroogde rozemarijn|Verstegen Rozemarijn|20 g|1
+50 g ongebrande walnoten|AH Terra Walnoten ongebrand|200 g|1
+4 el mayonaise|AH Mayonaise zacht en romig|170 ml|1
+2 el yoghurt Griekse stijl 10%|AH Yoghurt Griekse stijl 10% vet|500 g|1
+2 tl grove mosterd|De Huisman Zaanse mosterd grof gemalen|335 g|1
+50 g babyspinazie|AH Babyspinazie|100 g|1
+1 el kappertjes|AH Kappertjes|100 g|1
+#Noedelsalade met pindadressing en gebakken ei van Isa ~zonnebloemolie
+250 g volkoren woknoedels|AH Woknoedels volkoren|250 g|1
+400 g fijngesneden spitskool|AH Fijngesneden spitskool|200 g|2
+2 biologische limoen|AH Biologisch Limoenen|3 stuks|1
+1 komkommer|AH Komkommer|per stuk|1
+400 g winterpeen|AH Winterpeen|per stuk|1
+2 teen knoflook|AH Knoflook|2 stuks|1
+15 g verse gember|AH Biologisch Gember|150 g|1
+4 el AH 100% pindakaas naturel|AH Terra Plantaardig 100% pindakaas naturel|350 g|1
+1 bosui|AH Bosui|per bosje|1
+300 g AH Pinda's ongezouten|AH Ongezouten pinda's|250 g|2
+4 middelgroot scharrelei|AH Witte vrije uitloopeieren M|6 stuks|1
+#Eiercurry met spinazie en naan ~zonnebloemolie
+6 middelgroot scharrelei|AH Witte vrije uitloopeieren M|6 stuks|1
+500 g iets kruimige aardappel|AH Iets kruimige aardappelen|1 kg|1
+2 middelgrote ui|AH Gele uien|1 kg|1
+4 teen knoflook|AH Knoflook|2 stuks|1
+10 g verse gember|AH Biologisch Gember|150 g|1
+50 g ongezouten cashewnoten|AH Cashewnoten ongezouten|170 g|1
+2 el curry madras specerijenmelange|Euroma Curry Madras by Jonnie Boer|59 g|1
+400 g tomatenblokjes|AH Tomatenblokjes|400 g|1
+450 g diepvries gesneden bladspinazie|AH Bladspinazie grof gesneden|450 g|1
+200 g mini naanbrood volkoren|AH Mini naan brood volkoren|200 g|1
+5 g verse koriander|AH Koriander|15 g|1
