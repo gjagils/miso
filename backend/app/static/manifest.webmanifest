@@ -1,10 +1,11 @@
 {
-  "name": "AH Recepten",
-  "short_name": "Recepten",
+  "name": "Miso",
+  "short_name": "Miso",
+  "description": "Altijd iets lekkers op de planning.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#fafafa",
-  "theme_color": "#00a0e2",
+  "background_color": "#FFF6E8",
+  "theme_color": "#FF8A00",
   "lang": "nl",
   "icons": [
     {"src": "/static/icons/icon-192.png", "sizes": "192x192", "type": "image/png"},

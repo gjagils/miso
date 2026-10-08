@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Deze week</h1>
+<div class="page-head"><img src="/static/miso/miso-idea.webp" alt="" width="76" height="76" loading="lazy"><h1>Deze week</h1></div>
 {% for d in days %}
 <div class="day-card {% if d.today %}today{% endif %}">
-    <h3>{{ d.label }}{% if d.today %} · vandaag{% endif %}</h3>
+    <h3>{{ d.label }}{% if d.today %} <span class="today-pill">vandaag</span>{% endif %}</h3>
     {% for r in d.recipes %}
     <a class="day-recipe" href="/recipe/{{ r.id }}/koken">
         {% if r.image_url %}<img src="{{ r.image_url }}" alt="" loading="lazy" referrerpolicy="no-referrer">{% else %}<div class="thumb"></div>{% endif %}
@@ -15,5 +15,5 @@
     {% endfor %}
 </div>
 {% endfor %}
-<p class="muted">Plannen? Ga naar <a href="/weekmenu">Weekmenu</a>.</p>
+<p class="muted">Zin in iets anders? Plan het in het <a href="/weekmenu">Weekmenu</a>.</p>
 {% endblock %}

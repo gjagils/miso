@@ -1,11 +1,12 @@
 {% extends "base.html" %}
+{% block title %}Recepten - Miso{% endblock %}
 {% block content %}
 <h1>Recepten</h1>
 
 <section class="settings-section">
     <h2>Nieuw recept</h2>
     {% if not has_api_key %}
-    <p style="color: var(--red);">ANTHROPIC_API_KEY is niet ingesteld; importeren werkt pas daarna.</p>
+    <p class="msg-err">ANTHROPIC_API_KEY is niet ingesteld; importeren werkt pas daarna.</p>
     {% endif %}
     <form id="import-form">
         <div class="form-group">
@@ -25,9 +26,9 @@
 {% if recipes %}
 <div class="recipe-grid">
     {% for r in recipes %}
-    <a href="/recipe/{{ r.id }}" class="recipe-card" style="text-decoration:none;color:inherit;">
+    <a href="/recipe/{{ r.id }}" class="recipe-card" style="text-decoration:none">
         {% if r.image_url %}<img src="{{ r.image_url }}" alt="" loading="lazy" referrerpolicy="no-referrer">
-        {% else %}<div class="recipe-card-placeholder"></div>{% endif %}
+        {% else %}<div class="recipe-card-placeholder"><img src="/static/miso/miso-hungry.webp" alt="" width="80" height="80" loading="lazy"></div>{% endif %}
         <div class="recipe-card-body">
             <h3>{{ r.name }}</h3>
             <p>{{ r.servings }}{% if r.servings and r.total_time %} · {% endif %}{{ r.total_time }}</p>
@@ -36,7 +37,7 @@
     {% endfor %}
 </div>
 {% else %}
-<p class="muted">Nog geen recepten. Zet hierboven je eerste recept om.</p>
+<div class="empty-state"><img src="/static/miso/miso-hungry.webp" alt="" width="140" height="140" loading="lazy"><h2>Miso heeft honger</h2><p>Nog geen recepten. Zet hierboven je eerste recept om en Miso doet de rest.</p></div>
 {% endif %}
 {% endblock %}
 

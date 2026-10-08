@@ -1,7 +1,7 @@
 {% extends "base.html" %}
-{% block title %}Instellingen - AH Recepten{% endblock %}
+{% block title %}Instellingen - Miso{% endblock %}
 {% block content %}
-<h1>Instellingen</h1>
+<div class="page-head"><img src="/static/miso/miso-tech.webp" alt="" width="76" height="76" loading="lazy"><h1>Instellingen</h1></div>
 
 <section class="settings-section">
     <h2>Status</h2>
@@ -31,8 +31,8 @@
             <button type="submit" class="btn btn-primary">Importeren</button>
         </div>
     </form>
-    {% if mealie_error %}<p style="color: #c0392b; margin-top: 0.5rem;">{{ mealie_error }}</p>{% endif %}
-    {% if mealie_result %}<p style="color: #27ae60; margin-top: 0.5rem;">{{ mealie_result }}</p>{% endif %}
+    {% if mealie_error %}<p class="msg-err" role="alert"><img src="/static/miso/miso-surprised.webp" alt="" width="56" height="56" loading="lazy"><span>{{ mealie_error }}</span></p>{% endif %}
+    {% if mealie_result %}<p class="msg-ok" role="status"><img src="/static/miso/miso-celebrate.webp" alt="" width="56" height="56" loading="lazy"><span>{{ mealie_result }}</span></p>{% endif %}
 </section>
 
 <section class="settings-section">
@@ -40,7 +40,7 @@
     <p class="muted">Koppel je AH-account in twee stappen. Daarna ververst de app het token automatisch.</p>
     <div style="margin-top: 0.75rem;">
         <p><strong>Stap 1:</strong> Log in bij Albert Heijn</p>
-        <a href="{{ ah_login_url }}" target="_blank" class="btn" style="display: inline-block; margin: 0.5rem 0;">Inloggen bij ah.nl &rarr;</a>
+        <a href="{{ ah_login_url }}" target="_blank" class="btn btn-ah" style="margin: 0.5rem 0;">Inloggen bij ah.nl &rarr;</a>
         <p class="muted" style="margin-top: 0.25rem;">
             Na het inloggen probeert de browser naar <code>appie://...</code> te gaan. Die pagina laadt niet; dat is normaal.
         </p>
@@ -52,8 +52,8 @@
                 <button type="submit" class="btn">Koppelen</button>
             </div>
         </form>
-        {% if ah_login_error %}<p style="color: #c0392b; margin-top: 0.5rem;">{{ ah_login_error }}</p>{% endif %}
-        {% if ah_login_success %}<p style="color: #27ae60; margin-top: 0.5rem;">Succesvol gekoppeld!</p>{% endif %}
+        {% if ah_login_error %}<p class="msg-err" role="alert"><img src="/static/miso/miso-surprised.webp" alt="" width="56" height="56" loading="lazy"><span>{{ ah_login_error }}</span></p>{% endif %}
+        {% if ah_login_success %}<p class="msg-ok" role="status"><img src="/static/miso/miso-celebrate.webp" alt="" width="56" height="56" loading="lazy"><span>Succesvol gekoppeld!</span></p>{% endif %}
     </div>
 </section>
 {% endblock %}

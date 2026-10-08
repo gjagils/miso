@@ -1,7 +1,7 @@
 {% extends "base.html" %}
-{% block title %}Weekmenu - AH Recepten{% endblock %}
+{% block title %}Weekmenu - Miso{% endblock %}
 {% block content %}
-<h1>Weekmenu</h1>
+<div class="page-head"><img src="/static/miso/miso-idea.webp" alt="" width="76" height="76" loading="lazy"><h1>Weekmenu</h1></div>
 <div class="week-nav">
     <a class="btn btn-sm" href="/weekmenu?week={{ prev_week }}">&larr; Vorige</a>
     <strong>Week van {{ week }}</strong>
@@ -9,14 +9,16 @@
 </div>
 
 {% if not recipes %}
-<p>Nog geen recepten. <a href="/recepten">Voeg er eerst een toe.</a></p>
+<div class="empty-state"><img src="/static/miso/miso-confused.webp" alt="" width="140" height="140" loading="lazy"><p>Nog geen recepten om te plannen. <a href="/recepten">Voeg er eerst een toe.</a></p></div>
 {% else %}
 <div id="days"></div>
 
 <div class="status-box" id="status-box"></div>
+<div class="week-actions">
 <button class="btn btn-primary" id="lock-btn" {% if not has_token %}disabled title="Koppel eerst AH in Instellingen"{% endif %}></button>
 <button class="btn" id="sync-btn" {% if not has_token %}disabled{% endif %}>Controleer en vul aan</button>
-<span id="msg" class="muted"></span>
+<span id="msg" class="muted" role="status"></span>
+</div>
 {% endif %}
 {% endblock %}
 
@@ -47,13 +49,14 @@ function renderDays() {
         const card = document.createElement("div");
         card.className = "day-card";
         card.innerHTML = `<h3>${d.label}</h3>`;
+        if (d.date === new Date().toLocaleDateString("sv-SE")) card.classList.add("today");
         (plan[d.date] || []).forEach((id, idx) => {
             const row = document.createElement("div");
             row.className = "day-recipe";
             row.innerHTML = `<span></span>`;
             row.firstChild.textContent = nameOf(id);
             const rm = document.createElement("button");
-            rm.className = "btn btn-sm btn-danger"; rm.textContent = "✕";
+            rm.className = "btn btn-sm btn-danger"; rm.textContent = "✕"; rm.setAttribute("aria-label", "Verwijderen");
             rm.onclick = () => { plan[d.date].splice(idx, 1); savePlan(); renderDays(); };
             row.appendChild(rm);
             card.appendChild(row);
@@ -61,8 +64,7 @@ function renderDays() {
         const sel = document.createElement("select");
         sel.innerHTML = `<option value="">+ recept toevoegen</option>` +
             RECIPES.map(r => `<option value="${r.id}">${r.name.replace(/</g, "&lt;")}</option>`).join("");
-        sel.style.cssText = "width:100%;min-height:44px;margin-top:0.4rem;";
-        sel.onchange = () => {
+                sel.onchange = () => {
             if (!sel.value) return;
             (plan[d.date] = plan[d.date] || []).push(parseInt(sel.value));
             savePlan(); renderDays();
@@ -77,7 +79,7 @@ function renderStatus() {
     const lock = document.getElementById("lock-btn");
     let html = "";
     if (status.locked) html += `<span class="chip">vastgezet</span> `;
-    if (status.complete) html += `<span class="chip">alle ${status.needed} producten staan op je AH-lijstje</span>`;
+    if (status.complete) html += `<div class="status-hero"><img src="/static/miso/miso-celebrate.webp" alt="" width="64" height="64"><span class="chip">alle ${status.needed} producten staan op je AH-lijstje</span></div>`;
     else if (!status.needed && !status.unmatched.length) html += `<span class="muted">Nog niets gepland.</span>`;
     else {
         if (status.missing.length) html += `<p><span class="chip chip-warn">nog ${status.missing.length} producten niet op je lijstje</span></p><ul>` +

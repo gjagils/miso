@@ -1,13 +1,18 @@
 {% extends "base.html" %}
-{% block title %}Inloggen - AH Recepten{% endblock %}
+{% block title %}Inloggen - Miso{% endblock %}
 {% block content %}
-<h1>Inloggen</h1>
+<div class="login-wrap">
+<img class="hero" src="/static/miso/miso-classic.webp" alt="Miso, de oranje kat" width="220" height="220">
+<h1>Mis<span style="color:var(--miso-orange)">o</span></h1>
+<p class="tagline">Altijd iets lekkers op de planning.</p>
+<p class="sub">Weekmenu. Boodschappen. Samen lekker eten.</p>
 <form method="post" action="/login" class="settings-section">
-    <p class="muted" style="margin-bottom: 0.75rem;">Vul de pincode van het gezin in.</p>
+    <p class="muted" style="margin-bottom: 0.75rem;">Vul de pincode van het gezin in, dan zet Miso de pan alvast op.</p>
     <div class="form-group">
         <input type="password" name="pin" inputmode="numeric" autocomplete="current-password" class="form-input" autofocus>
         <button class="btn btn-primary" type="submit">Inloggen</button>
     </div>
-    {% if error %}<p style="color: var(--red); margin-top: 0.5rem;">{{ error }}</p>{% endif %}
+    {% if error %}<p class="msg-err" role="alert"><img src="/static/miso/miso-surprised.webp" alt="" width="56" height="56" loading="lazy"><span>{{ error }}</span></p>{% endif %}
 </form>
+</div>
 {% endblock %}

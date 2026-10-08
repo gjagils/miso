@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% block title %}{{ recipe.name }} - AH Recepten{% endblock %}
+{% block title %}{{ recipe.name }} - Miso{% endblock %}
 {% block content %}
 <p class="breadcrumb"><a href="/recepten">Recepten</a> / {{ recipe.name }}</p>
 <h1>{{ recipe.name }}</h1>
-{% if recipe.image_url %}<img src="{{ recipe.image_url }}" alt="" referrerpolicy="no-referrer" style="max-width:100%;max-height:300px;border-radius:8px;margin-bottom:1rem;">{% endif %}
+{% if recipe.image_url %}<img class="recipe-hero" src="{{ recipe.image_url }}" alt="" referrerpolicy="no-referrer">{% endif %}
 <p class="muted">{{ recipe.servings }}{% if recipe.servings and recipe.total_time %} · {% endif %}{{ recipe.total_time }}
     {% if recipe.source_url %} · <a href="{{ recipe.source_url }}" target="_blank" rel="noopener">bron</a>{% endif %}</p>
 {% if recipe.description %}<p style="margin: 0.5rem 0 1rem;">{{ recipe.description }}</p>{% endif %}
@@ -12,7 +12,7 @@
 
 <section class="settings-section">
     <h2>Glutenvrij voor minstens 1 persoon</h2>
-    <select id="gf-mode" style="min-height:44px;width:100%;max-width:420px;">
+    <select id="gf-mode" style="width:100%;max-width:420px;">
         <option value="none" {% if recipe.gf_mode == "none" %}selected{% endif %}>Niet nodig</option>
         <option value="extra" {% if recipe.gf_mode == "extra" %}selected{% endif %}>Extra glutenvrij product erbij (voor 1 persoon)</option>
         <option value="replace" {% if recipe.gf_mode == "replace" %}selected{% endif %}>Ingrediënt voor iedereen vervangen</option>
@@ -27,10 +27,10 @@
 
 <section class="settings-section">
     <h2>Ingrediënten</h2>
-    <div style="margin-bottom: 0.75rem;">
+    <div class="week-actions" style="margin-bottom: 0.75rem;">
         <button class="btn" id="automatch-btn">Koppel aan AH-producten</button>
         <button class="btn btn-primary" id="cart-btn" {% if not has_token %}disabled title="Koppel eerst AH in Instellingen"{% endif %}>Zet op AH-lijstje</button>
-        <span id="status" class="muted" style="margin-left: 0.5rem;"></span>
+        <span id="status" class="muted"></span>
     </div>
     <table class="settings-table" id="ingredients"></table>
 </section>
@@ -88,11 +88,25 @@ function render() {
         const prod = document.createElement("td");
         if (!ing.skip) {
             const label = document.createElement("span");
-            label.textContent = p ? `${p.name} (${p.unit_size || ""}) € ${p.price}` : "geen product";
-            if (!p) label.className = "muted";
+            if (p) {
+                label.className = "ah-prod";
+                if (p.image_url) {
+                    const im = document.createElement("img");
+                    im.src = p.image_url; im.alt = ""; im.width = 36; im.height = 36;
+                    im.loading = "lazy"; im.referrerPolicy = "no-referrer";
+                    label.appendChild(im);
+                }
+                const nm = document.createElement("span"); nm.className = "name"; nm.textContent = p.name;
+                const pk = document.createElement("span"); pk.className = "pack"; pk.textContent = p.unit_size || "";
+                const pr = document.createElement("span"); pr.className = "price"; pr.textContent = `€ ${p.price}`;
+                label.append(nm, pk, pr);
+            } else {
+                label.className = "chip chip-warn ah-none";
+                label.textContent = "geen AH-product gekoppeld";
+            }
             const search = document.createElement("input");
             search.className = "form-input"; search.value = ing.search || "";
-            search.style.cssText = "width:9rem;margin:0 0.4rem;font-size:0.85rem;";
+            search.setAttribute("aria-label", "Zoekterm voor AH-product");
             const btn = document.createElement("button");
             btn.className = "btn btn-sm"; btn.textContent = "Zoek";
             const results = document.createElement("select");

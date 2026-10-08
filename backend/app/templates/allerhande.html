@@ -1,7 +1,7 @@
 {% extends "base.html" %}
-{% block title %}AH-recepten - AH Recepten{% endblock %}
+{% block title %}Allerhande - Miso{% endblock %}
 {% block content %}
-<h1>AH-recepten</h1>
+<div class="page-head"><img src="/static/miso/miso-foodie.webp" alt="" width="76" height="76" loading="lazy"><h1>Allerhande</h1></div>
 <p class="muted" style="margin-bottom: 1rem;">Zoek in Allerhande en zet recepten in je eigen bibliotheek. Daarna werken ze net als je andere recepten: in het weekmenu en op je boodschappenlijstje.</p>
 
 <form method="get" action="/allerhande" class="form-group" style="margin-bottom: 1rem;">
@@ -9,8 +9,8 @@
     <button class="btn btn-primary" type="submit">Zoeken</button>
 </form>
 
-{% if error %}<p style="color: var(--red);">{{ error }}</p>{% endif %}
-{% if q and not results and not error %}<p class="muted">Niets gevonden.</p>{% endif %}
+{% if error %}<p class="msg-err" role="alert"><img src="/static/miso/miso-surprised.webp" alt="" width="56" height="56" loading="lazy"><span>{{ error }}</span></p>{% endif %}
+{% if q and not results and not error %}<div class="empty-state"><img src="/static/miso/miso-confused.webp" alt="" width="120" height="120" loading="lazy"><p>Niets gevonden. Probeer een ander woord, dan snuffelt Miso verder.</p></div>{% endif %}
 
 <table class="settings-table">
     {% for r in results %}
