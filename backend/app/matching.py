@@ -11,7 +11,7 @@ from fractions import Fraction
 
 from app.clients.mealie import clean_search
 
-MATCH_VERSION = 11
+MATCH_VERSION = 12
 
 # Basisspullen die je meestal in huis hebt: niet automatisch op de lijst
 PANTRY = {
@@ -103,6 +103,10 @@ def needed(text: str) -> dict | None:
     amount, unit = parsed
     if m:
         amount *= PERSONS  # "per persoon: 1 stuk" -> 4
+    if unit == "stuk":
+        for word, grams in PIECE_WEIGHT.items():
+            if word in low:
+                return {"amount": amount, "unit": "stuk", "spoon": False, "piece_g": grams}
     if unit in _TO_BASE:
         base, factor = _TO_BASE[unit]
         return {"amount": amount * factor, "unit": base, "spoon": unit in ("el", "tl")}
@@ -136,9 +140,14 @@ def packs_for(need: dict | None, pack: dict | None) -> int | None:
             return max(1, math.ceil(need["amount"] * 5 / pack["amount"] - 1e-9))
     if need and need["unit"] == "stuk" and pack and pack["unit"] == "stuk" and need["amount"] > 10:
         return 1  # "30 stuks" is eerder een maat dan een aantal verpakkingen
-    if not need or not pack or need["unit"] != pack["unit"] or not pack["amount"]:
+    if not need or not pack or not pack["amount"]:
         return None
-    return max(1, math.ceil(need["amount"] / pack["amount"] - 1e-9))
+    if need["unit"] == "stuk" and pack["unit"] == "g" and need.get("piece_g"):
+        return max(1, math.ceil(need["amount"] * need["piece_g"] / pack["amount"] - 0.15))
+    if need["unit"] != pack["unit"]:
+        return None
+    slack = 0.03 if need["unit"] in ("g", "ml") else 1e-9  # zoals AH: 250 g bij pakken van 225 g = 2 pakken
+    return max(1, math.ceil(need["amount"] / pack["amount"] - slack))
 
 
 EQUIPMENT = {
@@ -263,6 +272,7 @@ SYNONYMS = [
     (r"\bcranberry'?s\b", "cranberries"),
     (r"\b(?!uitjes)(\w*[aeiou]t)jes\b", r"\1"),  # verkleinwoord: sjalotjes -> sjalot, tomaatjes -> tomaat
     (r"\bgrove\b", "grof"),
+    (r"\bgemalen korianderzaad\b|\bkorianderzaad,? gemalen\b", "koriander gemalen"),
     (r"\btortilla'?s?\b", "tortilla wraps"),
     (r"\b50\s*-\s*50\s*burgers?\b|\bhalf-om-half burgers?\b", "half om half burgers"),
     (r"\bscharrel(\w{4,})\b", r"\1"),  # "scharrelkipfilet" -> kipfilet (variant, geen product)
@@ -281,7 +291,7 @@ TITLE_NOISE = {"ah", "biologisch", "terra", "excellent", "basic", "scharrel", "p
                "grootverpakking", "schaal", "verse", "vers", "per", "pack", "zacht", "romig", "ca", "en", "met",
                "iets", "hele", "heel", "gele", "witte", "extra", "vierge", "naturel", "losse", "middelgrote",
                "vrije", "uitloop", "kg", "gram", "ml", "deelblokjes", "grof", "fijn", "fijne", "world", "spice",
-               "blend", "perfumed", "naturel"}
+               "blend", "perfumed", "naturel", "strooier", "navulling", "pot", "potje", "zakje", "doos", "fles"}
 # Woorden die van een product iets anders maken dan het ingrediënt ("Peer siroop", "Curry madras verspakket")
 OTHER_PRODUCT = {"siroop", "sap", "saus", "chips", "toast", "salami", "smaak", "snack", "snacks", "reep", "koek",
                  "taart", "cake", "mix", "spread", "drank", "thee", "verspakket", "maaltijd", "salade", "soep",
@@ -304,7 +314,15 @@ OTHER_SUFFIX = ("wraps", "wrap", "biscuits", "biscuit", "tapenade", "sticks", "t
 # Kenmerken die in het product staan maar niet in het recept: verkeerd product
 MARKED = ("gemarineerd", "glutenvrij", "geiten", "geit", "lactosevrij", "suikervrij", "light", "zero", "gevuld",
           "gepaneerd", "vegan", "vegetarisch", "knoflook", "kruiden", "pikant", "pittig", "truffel", "volkoren",
-          "minder", "spaanse", "deelblokjes")
+          "minder", "spaanse", "deelblokjes", "gegrild", "gegrilde", "gekruid", "gekruide", "meergranen",
+          "vloeibaar", "vloeibare")
+# Kenmerken die het recept vraagt en die het product dan ook moet hebben
+REQUIRED = ("gemalen", "gerookt", "gerookte", "zongedroogd", "zongedroogde", "vastkokend", "vastkokende", "gezeefd",
+            "ongezouten", "geroosterd", "geroosterde")
+# Gewicht per stuk om "2 kipfilets" naar pakken van ~300 g om te rekenen
+PIECE_WEIGHT = {"kipfilet": 150, "kipdijfilet": 100, "heekfilet": 120, "zalmfilet": 125, "kabeljauwfilet": 125,
+                "biefstuk": 150, "varkenshaas": 400, "hamburger": 125, "burger": 125, "schnitzel": 150,
+                "slavink": 100, "braadworst": 100, "kipdrumstick": 110, "kippenpoot": 250}
 COLORS = {"rode", "rood", "groene", "groen", "gele", "geel", "witte", "wit", "zwarte", "zwart", "oranje", "paarse"}
 CONFLICTS = [({"vastkokend", "vastkokende"}, {"kruimig", "kruimige"}), ({"kruimig", "kruimige"}, {"vastkokend", "vastkokende"}),
              ({"scherp", "scherpe"}, {"mild", "milde"}), ({"zoet", "zoete"}, {"pittig", "pittige", "scherp"})]
@@ -454,7 +472,12 @@ def score(product: dict, query: str, flags: set[str] | None = None, need: dict |
     if " met " in f" {title} ":
         after = _tokens(title.split(" met ", 1)[1])
         if any(t not in qset and t not in TITLE_NOISE and not t.isdigit() for t in after):
-            s -= 20  # "Peer met appel", "Rode bieten met ui": samengesteld product
+            s -= 35  # "Peer met appel", "Cashewnoten met ras el hanout": samengesteld product
+    for r in REQUIRED:
+        if r in qraw and not any(t.startswith(r[:7]) for t in title_tokens):
+            s -= 10  # recept vraagt "gemalen"/"gerookt", product heeft het niet
+    if q and _stem(q[_head_index(q)]).startswith("paprika") and not qraw & COLORS and title_tokens & {"groene", "groen"}:
+        s -= 10  # paprika zonder kleur: rood/mix, niet groen
     nouns = [i for i, t in enumerate(content) if not (len(t) > 3 and t.endswith(("e", "se", "ge")) and t not in qset)]
     first_noun = nouns[0] if nouns else 0
     if content and first_noun not in matched_t and content[first_noun] in extra and len(content) > 1:
@@ -470,7 +493,8 @@ def score(product: dict, query: str, flags: set[str] | None = None, need: dict |
     else:
         s -= 12  # A-merk alleen als er geen AH-variant is
     head = _stem(q[_head_index(q)]) if q else ""
-    if head in {_stem(w) for w in PRODUCE | HERBS} and not category.startswith(("groente", "fruit")):
+    if ((head in {_stem(w) for w in PRODUCE} or (head in {_stem(w) for w in HERBS} and "dried" not in flags)) or (head and any(head.endswith(_stem(w)) for w in ("tomaat", "sla", "ui")) and "canned" not in flags)) \
+            and not category.startswith(("groente", "fruit")):
         s -= 35  # verse groente/fruit/kruiden horen uit de groente-afdeling
     if head in {_stem(w) for w in SPICES} and not category.startswith(("soepen, sauzen, kruiden", "groente",
                                                                        "pasta, rijst, wereldkeuken")):
@@ -501,7 +525,7 @@ def score(product: dict, query: str, flags: set[str] | None = None, need: dict |
         packs = packs_for(need, pack)
         if packs:
             waste = (packs * pack["amount"] - need["amount"]) / max(need["amount"], 1e-9)
-            s -= min(15.0, 6.0 * max(0.0, waste - 0.5))  # 250 g nodig -> geen grootverpakking
+            s -= min(25.0 if need["unit"] == "stuk" else 15.0, 6.0 * max(0.0, waste - 0.5))  # geen grootverpakking
             s -= 4 * (packs - 1)  # liever 1 pak van 300 g dan 2 van 150 g
     return s
 
