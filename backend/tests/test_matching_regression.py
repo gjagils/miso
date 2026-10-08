@@ -183,3 +183,16 @@ def test_live_ah_search_returns_plausible_product(query, word):
     product = choose(products, query)
     assert product and word in product["name"].lower() and product["id"]
     assert pack_size(product["unit_size"]) is not None or product["unit_size"]
+
+
+def test_shopping_list_items_have_description_and_no_duplicate_products():
+    from app.clients.ah import build_list_items
+
+    body = build_list_items([
+        {"product_id": 7, "quantity": 2, "name": "AH Halloumi"},
+        {"product_id": 7, "quantity": 1, "name": "AH Halloumi"},
+        {"product_id": 9, "name": "AH Rode uien"},
+    ])
+    assert [b["productId"] for b in body] == [7, 9]
+    assert body[0]["quantity"] == 3 and body[0]["description"] == "AH Halloumi"
+    assert all(b["type"] == "SHOPPABLE" and b["originCode"] == "PRD" and b["strikeThrough"] is False for b in body)

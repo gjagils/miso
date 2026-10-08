@@ -22,6 +22,27 @@ DEFAULT_HEADERS = {
 }
 
 
+def build_list_items(items: list[dict]) -> list[dict]:
+    """Body-items voor PATCH shoppinglist/v2/items (zoals de AH-app/appie-go): met `description`
+    (productnaam) en `strikeThrough`; dubbele productId's worden samengevoegd (AH weigert die)."""
+    merged: dict[int, dict] = {}
+    for item in items:
+        pid = item["product_id"]
+        qty = max(1, int(item.get("quantity", 1)))
+        if pid in merged:
+            merged[pid]["quantity"] += qty
+        else:
+            merged[pid] = {
+                "productId": pid,
+                "quantity": qty,
+                "description": item.get("name") or "",
+                "originCode": "PRD",
+                "type": "SHOPPABLE",
+                "strikeThrough": False,
+            }
+    return list(merged.values())
+
+
 class AHClient:
     def __init__(self) -> None:
         self._anonymous_token: str | None = None
@@ -219,15 +240,7 @@ class AHClient:
             **DEFAULT_HEADERS,
             "Authorization": f"Bearer {self._user_token}",
         }
-        cart_items = [
-            {
-                "originCode": "PRD",
-                "productId": item["product_id"],
-                "quantity": item.get("quantity", 1),
-                "type": "SHOPPABLE",
-            }
-            for item in items
-        ]
+        cart_items = build_list_items(items)
         async with httpx.AsyncClient() as client:
             logger.info("Adding %d items to AH cart", len(cart_items))
             resp = await client.patch(
