@@ -249,3 +249,15 @@ def test_basket_put_sends_current_order_id(monkeypatch):
 def test_quantity_rules_from_integration_doc(line, size, packs):
     from app.matching import packs_for
     assert packs_for(needed(line), pack_size(size)) == packs
+
+
+def test_rematch_clears_old_wrong_product_when_nothing_good_is_found(monkeypatch):
+    async def nothing(query, size=10):
+        return [{"id": 1, "name": "AH Biologisch Italiaanse witte wijn azijn", "category": "Soepen, sauzen, kruiden, olie",
+                 "brand": "AH", "unit_size": "500 ml"}]
+
+    monkeypatch.setattr(routes.ah_client, "search_products", nothing)
+    ings = _ings("1 dl witte wijn (droog)")
+    ings[0]["product"] = {"id": 1, "name": "AH Biologisch Italiaanse witte wijn azijn"}  # oude, foute koppeling
+    asyncio.run(routes._automatch(ings, force=True))
+    assert ings[0]["product"] is None

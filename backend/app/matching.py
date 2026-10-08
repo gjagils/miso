@@ -11,7 +11,7 @@ from fractions import Fraction
 
 from app.clients.mealie import clean_search
 
-MATCH_VERSION = 10
+MATCH_VERSION = 11
 
 # Basisspullen die je meestal in huis hebt: niet automatisch op de lijst
 PANTRY = {

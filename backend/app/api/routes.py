@@ -377,6 +377,9 @@ async def _automatch(ingredients: list[dict], gluten_free: bool = False, force: 
                 ing["product"], n = product, n + 1
                 ing["source"] = "geleerd" if learned else "auto"
                 apply_quantity(ing, product)
+            elif ing.get("product") and not ing.get("manual"):
+                ing["product"] = None  # nieuwe regels vinden niets goeds: oude (foute) koppeling weghalen
+                ing.pop("source", None)
             ing["match_v"] = MATCH_VERSION
         if gluten_free and ing.get("gluten") and not ing.get("gf_product") and ing.get("gf_search"):
             product = await find(ing["gf_search"])
