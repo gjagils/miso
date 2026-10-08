@@ -11,7 +11,7 @@ from fractions import Fraction
 
 from app.clients.mealie import clean_search
 
-MATCH_VERSION = 7
+MATCH_VERSION = 8
 
 # Basisspullen die je meestal in huis hebt: niet automatisch op de lijst
 PANTRY = {
@@ -46,10 +46,13 @@ BAD_WORDS = {"bakmix", "kauwgom", "pastilles", "drop", "shampoo", "zeep", "parfu
 _UNIT_ALIASES = {
     "g": "g", "gr": "g", "gram": "g", "kg": "kg", "ml": "ml", "cl": "cl", "dl": "dl", "l": "l",
     "el": "el", "eetlepel": "el", "eetlepels": "el", "tl": "tl", "theelepel": "tl", "theelepels": "tl",
-    "stuk": "stuk", "stuks": "stuk", "st": "stuk", "teen": "stuk", "tenen": "stuk", "teentje": "stuk",
-    "teentjes": "stuk", "blik": "stuk", "blikje": "stuk", "blikjes": "stuk", "pot": "stuk", "potje": "stuk",
+    "stuk": "stuk", "stuks": "stuk", "st": "stuk", "teen": "teen", "tenen": "teen", "teentje": "teen",
+    "teentjes": "teen", "stengel": "deel", "stengels": "deel", "blad": "deel", "blaadje": "deel", "blaadjes": "deel",
+    "partje": "deel", "partjes": "deel", "schijf": "deel", "schijfje": "deel", "schijfjes": "deel", "reepje": "deel",
+    "reepjes": "deel", "scheut": "deel", "scheutje": "deel", "klont": "deel", "klontje": "deel", "handvol": "deel",
+    "handje": "deel", "snufje": "deel", "stukje": "deel", "stukjes": "deel", "blik": "stuk", "blikje": "stuk", "blikjes": "stuk", "pot": "stuk", "potje": "stuk",
     "zakje": "stuk", "zak": "stuk", "pak": "stuk", "bosje": "bos", "bos": "bos", "bosjes": "bos",
-    "takje": "takje", "takjes": "takje", "plak": "stuk", "plakje": "stuk", "plakjes": "stuk",
+    "takje": "deel", "takjes": "deel", "plak": "deel", "plakje": "deel", "plakjes": "deel",
 }
 _TO_BASE = {"kg": ("g", 1000), "g": ("g", 1), "l": ("ml", 1000), "dl": ("ml", 100), "cl": ("ml", 10),
             "ml": ("ml", 1), "el": ("ml", 15), "tl": ("ml", 5)}
@@ -110,7 +113,17 @@ def pack_size(unit_size: str) -> dict | None:
 
 
 def packs_for(need: dict | None, pack: dict | None) -> int | None:
-    """Aantal verpakkingen, of None als de eenheden niet vergelijkbaar zijn."""
+    """Aantal verpakkingen, of None als de eenheden niet vergelijkbaar zijn.
+
+    Tenen knoflook: een bol heeft ~8 tenen (~5 g per teen). Stengels/blaadjes/takjes zijn een deel van één
+    product en tellen nooit als hele stuks ("4 stengels bleekselderij" = 1 bleekselderij)."""
+    if need and pack and need["unit"] == "teen" and pack["amount"]:
+        if pack["unit"] == "stuk":
+            return max(1, math.ceil(math.ceil(need["amount"] / 8) / pack["amount"]))
+        if pack["unit"] == "g":
+            return max(1, math.ceil(need["amount"] * 5 / pack["amount"] - 1e-9))
+    if need and need["unit"] == "stuk" and pack and pack["unit"] == "stuk" and need["amount"] > 10:
+        return 1  # "30 stuks" is eerder een maat dan een aantal verpakkingen
     if not need or not pack or need["unit"] != pack["unit"] or not pack["amount"]:
         return None
     return max(1, math.ceil(need["amount"] / pack["amount"] - 1e-9))

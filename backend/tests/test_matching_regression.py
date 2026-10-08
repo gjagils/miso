@@ -57,7 +57,7 @@ def test_search_terms_hold_for_every_real_ingredient_line():
 @pytest.mark.parametrize("line,amount,unit", [
     ("250 g halloumi", 250, "g"), ("1kg kruimige aardappels", 1000, "g"), ("7 1/2 el olijfolie", 112.5, "ml"),
     ("1 1/2 el balsamico", 22.5, "ml"), ("½ bosje munt", 0.5, "bos"), ("1½ stuk(s) aubergine", 1.5, "stuk"),
-    ("2 teentjes knoflook", 2, "stuk"), ("400 g tomaten in blik", 400, "g"), ("Roomboter 1½ el", 22.5, "ml"),
+    ("2 teentjes knoflook", 2, "teen"), ("400 g tomaten in blik", 400, "g"), ("Roomboter 1½ el", 22.5, "ml"),
 ])
 def test_amounts_golden(line, amount, unit):
     n = needed(line)
@@ -236,3 +236,16 @@ def test_basket_put_sends_current_order_id(monkeypatch):
     monkeypatch.setattr(ah, "_user_call", fake_call)
     asyncio.run(ah.set_order_items(object(), [{"product_id": 9, "quantity": 1}]))
     assert seen["headers"] == {"appie-current-order-id": "1234"} and "order/v1/items" in seen["url"]
+
+
+@pytest.mark.parametrize("line,size,packs", [
+    ("4 stengels bleekselderij", "per stuk", None),   # deel van één product -> 1 (geen vergelijking)
+    ("3 tenen knoflook", "2 stuks", 1),                 # 1 bol is genoeg
+    ("12 tenen knoflook", "2 stuks", 1),                # 2 bollen in een netje van 2
+    ("20 tenen knoflook", "2 stuks", 2),
+    ("3 tenen knoflook", "100 g", 1),
+    ("2 takjes rozemarijn", "15 g", None),
+])
+def test_quantity_rules_from_integration_doc(line, size, packs):
+    from app.matching import packs_for
+    assert packs_for(needed(line), pack_size(size)) == packs
