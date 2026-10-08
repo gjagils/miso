@@ -19,7 +19,7 @@ from sqlalchemy.orm import Session
 from app.clients.ah import ah_client, convert_ah_recipe
 from app.clients.extractor import extract_recipe, fetch_url, suggest_gluten_free
 from app.clients.mealie import MealieClient, clean_search, convert_recipe
-from app.matching import MATCH_VERSION, choose, is_equipment, is_pantry, needed, pack_size, packs_for, query_terms, search_queries
+from app.matching import MATCH_VERSION, choose, container_count, has_no_product, is_equipment, is_pantry, needed, pack_size, packs_for, query_terms, search_queries
 from app.config import settings
 from app.database import get_db
 from app.logging_config import logger
@@ -329,7 +329,7 @@ async def _automatch(ingredients: list[dict], gluten_free: bool = False, force: 
             return None
         products: list[dict] = []
         seen: set = set()
-        for q in search_queries(query):
+        for q in search_queries(query, flags):
             async with sem:
                 try:
                     found = await ah_client.search_products(q, size=20)
@@ -349,7 +349,7 @@ async def _automatch(ingredients: list[dict], gluten_free: bool = False, force: 
         packs = packs_for(need, pack)
         ing["need"] = need if packs is not None else None
         ing["pack"] = pack if packs is not None else None
-        ing["quantity"] = packs or 1
+        ing["quantity"] = packs or container_count(ing.get("text", "")) or 1
 
     async def match(ing: dict) -> int:
         if ing.get("skip") and not ing.get("auto_skip"):
@@ -361,7 +361,8 @@ async def _automatch(ingredients: list[dict], gluten_free: bool = False, force: 
         search = ing.get("search") or ing.get("text", "")
         text = ing.get("text", "").strip()
         if (not clean_search(search) or text.startswith("*") or text.endswith(":") or len(text.split()) > 12
-                or is_pantry(search, ing.get("text", "")) or is_equipment(search, ing.get("text", ""))):
+                or is_pantry(search, ing.get("text", "")) or is_equipment(search, ing.get("text", ""))
+                or has_no_product(search)):
             ing.update(skip=True, auto_skip=True, product=None, match_v=MATCH_VERSION)
             return 0
         if ing.get("auto_skip"):

@@ -23,9 +23,25 @@ struct Ingredient: Decodable, Identifiable {
     let quantity: String?
     let pantry: Bool?
     let unitSize: String?
+    let productId: Int?
+    let productImage: String?
+    let gfProductId: Int?
+
+    /// Aantal verpakkingen (de server rekent dit uit; minimaal 1, net als de web-versie).
+    var packs: Int {
+        let q = Int((Double(quantity ?? "") ?? 0).rounded(.up))
+        return q > 0 ? q : 1
+    }
 
     enum CodingKeys: String, CodingKey {
         case text, skip, gluten, gfSearch, product, gfProduct, quantity, pantry, unitSize
+        case productId, productImage, gfProductId
+    }
+
+    private static func lenientInt(_ c: KeyedDecodingContainer<CodingKeys>, _ key: CodingKeys) -> Int? {
+        if let i = try? c.decodeIfPresent(Int.self, forKey: key) { return i }
+        if let s = try? c.decodeIfPresent(String.self, forKey: key) { return Int(s) }
+        return nil
     }
 
     init(from decoder: Decoder) throws {
@@ -38,6 +54,9 @@ struct Ingredient: Decodable, Identifiable {
         gfProduct = try? c.decodeIfPresent(String.self, forKey: .gfProduct)
         pantry = try? c.decodeIfPresent(Bool.self, forKey: .pantry)
         unitSize = try? c.decodeIfPresent(String.self, forKey: .unitSize)
+        productId = Self.lenientInt(c, .productId)
+        productImage = try? c.decodeIfPresent(String.self, forKey: .productImage)
+        gfProductId = Self.lenientInt(c, .gfProductId)
         if let s = try? c.decodeIfPresent(String.self, forKey: .quantity) {
             quantity = s
         } else if let d = try? c.decodeIfPresent(Double.self, forKey: .quantity) {
@@ -122,6 +141,9 @@ struct AHRecipeHit: Decodable, Identifiable {
     let title: String
     let servings: String
     let url: String
+    /// Optioneel: oudere servers sturen deze velden niet mee.
+    let time: String?
+    let imageUrl: String?
     var saved: Bool
 }
 
@@ -136,4 +158,31 @@ struct AddResult: Decodable {
 struct GlutenSuggestResult: Decodable {
     let ok: Bool
     let error: String?
+}
+
+// MARK: - Wat eten we? (kiezen -> inplannen -> boodschappen)
+
+struct RecipeIDsBody: Encodable {
+    let recipeIds: [Int]
+    enum CodingKeys: String, CodingKey { case recipeIds = "recipe_ids" }
+}
+
+struct EmptyBody: Encodable {}
+
+struct BasketFillResult: Decodable {
+    let ok: Bool
+    let added: Int?
+    let error: String?
+}
+
+struct BasketClearResult: Decodable {
+    let ok: Bool
+    let removed: Int?
+    let error: String?
+}
+
+struct ListLinkResult: Decodable {
+    let ok: Bool
+    let url: String
+    let count: Int
 }

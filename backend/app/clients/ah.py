@@ -198,6 +198,7 @@ class AHClient:
                     "available": bool(product.get("availableOnline", True)) and product.get("isOrderable", True) is not False,
                     "organic": "biologisch" in " ".join(product.get("propertyIcons") or []).lower(),
                     "unit_price": product.get("unitPriceDescription", ""),
+                    "nix18": bool(product.get("nix18")),
                 }
             )
         logger.debug("Found %d AH products for '%s'", len(products), query)

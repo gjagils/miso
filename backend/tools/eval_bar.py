@@ -44,7 +44,7 @@ def parse_bar() -> list[dict]:
 def core(name: str) -> set[str]:
     """Kernwoorden van een productnaam, zonder merk/variant ("AH Biologisch Citroenen" -> {citroen})."""
     brandless = re.sub(r"^(de zaanse hoeve|de huisman|natuurfarm de boed|old mother|verstegen|euroma|unirice|"
-                       r"biofan|kühne|fundo|souq|hak|ah|de)\s+", "", name.lower())
+                       r"biofan|kühne|fundo|souq|hak|marne|ah|de)\s+", "", name.lower())
     return {_stem(t) for t in _tokens(brandless) if t not in VARIANT_WORDS and not t.isdigit()}
 
 
@@ -52,7 +52,8 @@ def core(name: str) -> set[str]:
 SOFT = {_stem(w) for w in ("ongezouten", "ongebrande", "grof", "grove", "gemalen", "vloeibare", "mini", "fijne",
                             "naturel", "witte", "wit", "italiaanse", "japanse", "gesneden", "pittig", "zaanse",
                             "vet", "stijl", "gekookt", "iets", "kruimige", "deelblokjes", "creme", "crèmehoning",
-                            "kastanjechampignons", "trostomaten")}
+                            "kastanjechampignons", "trostomaten", "platte", "franse", "limburgse", "zaanse",
+                            "gemalen", "midden", "middelscherp", "limburgs", "vrije")}
 
 
 def verdict(ours: str | None, theirs: str) -> str:
@@ -65,7 +66,15 @@ def verdict(ours: str | None, theirs: str) -> str:
     if a == b:
         return "zelfde soort"
     extra = (a - b) | (b - a)
-    compound = any((x.endswith(y) or y.endswith(x)) and min(len(x), len(y)) >= 4 for x in a for y in b)
+    if "".join(sorted(a, key=len, reverse=False)) in {"".join(b)} or "".join(a) in {"".join(sorted(b))} or \
+            any("".join(p) == "".join(sorted(b)) for p in [sorted(a)]) or "".join(sorted(a)) == "".join(sorted(b)) or \
+            {"".join(a)} & {"".join(b)} or (len(a) == 2 and "".join(sorted(a, key=lambda w: -len(w))) in b) or \
+            (len(a) == 2 and any(x + y in b for x in a for y in a if x != y)) or \
+            (len(b) == 2 and any(x + y in a for x in b for y in b if x != y)):
+        return "zelfde soort"  # "soja saus" = "sojasaus"
+    small = a if len(a) <= len(b) else b
+    compound = any((x.endswith(y) or y.endswith(x)) and (min(len(x), len(y)) >= 4 or {y} == small or {x} == small)
+                   for x in a for y in b)
     rest = {e for e in extra if not any((e.endswith(o) or o.endswith(e)) and min(len(e), len(o)) >= 4
                                         for o in (a | b) - {e})}
     if (a & b or compound) and all(e in SOFT or any(e.startswith(x) or x.startswith(e) for x in SOFT) for e in rest):

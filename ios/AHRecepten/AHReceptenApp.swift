@@ -46,9 +46,10 @@ struct RootView: View {
     var body: some View {
         TabView {
             WeekOverviewView().tabItem { Label("Vandaag", systemImage: "calendar") }
+            // "Wat eten we?" vervangt het oude AH-tabblad: Allerhande zoeken en toevoegen zit nu in deze flow.
+            KiezenView().tabItem { Label("Wat eten we?", systemImage: "fork.knife") }
             RecipesView().tabItem { Label("Recepten", systemImage: "book") }
             PlanView().tabItem { Label("Weekmenu", systemImage: "list.bullet.rectangle") }
-            AllerhandeView().tabItem { Label("AH", systemImage: "cart") }
             SettingsView().tabItem { Label("Meer", systemImage: "gearshape") }
         }
     }

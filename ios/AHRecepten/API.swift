@@ -96,3 +96,60 @@ struct API {
         return result.token
     }
 }
+
+// MARK: - Wat eten we? (dezelfde endpoints en payloads als backend/app/templates/kiezen.html)
+
+extension API {
+    /// Eigen recepten, gefilterd op naam (lege zoekterm = alles).
+    func recipes(query: String = "") async throws -> [RecipeSummary] {
+        let q = query.trimmingCharacters(in: .whitespaces)
+        let items = q.isEmpty ? [] : [URLQueryItem(name: "q", value: q)]
+        let result: RecipesResponse = try await get("api/recipes", query: items)
+        return result.recipes
+    }
+
+    func recipe(id: Int) async throws -> RecipeDetail {
+        try await get("api/recipes/\(id)")
+    }
+
+    func searchAllerhande(_ query: String) async throws -> [AHRecipeHit] {
+        let result: AHSearchResponse = try await get(
+            "api/allerhande/search", query: [URLQueryItem(name: "q", value: query)]
+        )
+        return result.results
+    }
+
+    /// Allerhande-recept in de eigen bibliotheek zetten (form: recipe_id). Bestaat het al, dan komt het bestaande id terug.
+    func addAllerhande(id: Int) async throws -> AddResult {
+        try await post("api/allerhande/add", form: ["recipe_id": String(id)])
+    }
+
+    func week(_ start: String?) async throws -> WeekResponse {
+        try await get("api/week", query: start.map { [URLQueryItem(name: "week", value: $0)] } ?? [])
+    }
+
+    /// Hele week opslaan: {week, days: {"YYYY-MM-DD": [recipe ids]}}.
+    func savePlan(week: String, days: [String: [Int]]) async throws -> SavePlanResult {
+        try await post("api/plan", json: SavePlanBody(week: week, days: days))
+    }
+
+    /// Zet wat de week nog nodig heeft op het AH-lijstje; met locked=true wordt de week ook vastgezet.
+    func syncWeek(_ week: String, locked: Bool?) async throws -> SyncResult {
+        try await post("api/plan/sync", json: SyncBody(week: week, locked: locked))
+    }
+
+    /// Producten van deze recepten in het AH-mandje zetten. Bestelt niets.
+    func fillBasket(recipeIDs: [Int]) async throws -> BasketFillResult {
+        try await post("api/basket/fill", json: RecipeIDsBody(recipeIds: recipeIDs))
+    }
+
+    /// Haalt weg wat Miso in het mandje zette. Bestelt niets.
+    func clearBasket() async throws -> BasketClearResult {
+        try await post("api/basket/clear", json: EmptyBody())
+    }
+
+    /// ah.nl-link die de (samengevoegde) producten via de eigen AH-sessie op 'Mijn lijst' zet.
+    func listLink(recipeIDs: [Int]) async throws -> ListLinkResult {
+        try await post("api/list-link", json: RecipeIDsBody(recipeIds: recipeIDs))
+    }
+}
