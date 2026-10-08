@@ -11,7 +11,7 @@ from fractions import Fraction
 
 from app.clients.mealie import clean_search
 
-MATCH_VERSION = 12
+MATCH_VERSION = 13
 
 # Basisspullen die je meestal in huis hebt: niet automatisch op de lijst
 PANTRY = {
@@ -245,6 +245,8 @@ DESCRIPTORS = {
     "erbij", "zelf", "toevoegen", "opt", "optioneel", "stukje", "stukjes", "blaadjes", "takjes", "snufje", "scheutje",
     "plakjes", "partjes", "teentjes", "tenen", "liter", "dl", "ml", "gram", "kg", "g", "stuk", "stuks", "per", "persoon",
     "stukken", "garnering", "garneren", "serveren", "liefst", "bijvoorbeeld", "bv", "evt", "eventueel", "naar", "keuze",
+    "sneet", "sneden", "tak", "takje", "scheut", "scheuten", "zakken", "beker", "bekers", "milliliter", "milliliters",
+    "grams", "flinke", "flink", "aan", "tip",
 }
 # Vaste vertalingen van receptwoorden naar hoe AH het noemt
 SYNONYMS = [
@@ -272,6 +274,13 @@ SYNONYMS = [
     (r"\bcranberry'?s\b", "cranberries"),
     (r"\b(?!uitjes)(\w*[aeiou]t)jes\b", r"\1"),  # verkleinwoord: sjalotjes -> sjalot, tomaatjes -> tomaat
     (r"\bgrove\b", "grof"),
+    (r"\brices?\b", "rijst"), (r"\bbasils?\b", "basilicum"), (r"\b(bouillon )?cubes?\b", "bouillon"),
+    (r"\bkazen\b", "kaas"), (r"\bfetakaas\b", "feta"), (r"\bharde kaas\b", "grana padano"),
+    (r"\bhokkaidopompoen(en)?\b", "pompoen"), (r"\b(kriel|mini ?kriel)(aardappel(s|en)?|tjes|s)?\b", "krieltjes"),
+    (r"\baardappeltjes\b", "krieltjes"), (r"\bcherry ?trostomaat(jes|en)?\b", "cherrytomaten"),
+    (r"\btrostomaat(jes|en)? aan (de )?tak\b", "trostomaten"), (r"\blaurier(blaadjes|bladeren|blad)\b", "laurier"),
+    (r"\bgranaatappelpitten\b", "granaatappelpitjes"), (r"\bburgerbroodjes\b", "hamburgerbroodjes"),
+    (r"\btijgergarnalen\b", "garnalen"), (r"\bde cecco\b", ""),
     (r"\bgemalen korianderzaad\b|\bkorianderzaad,? gemalen\b", "koriander gemalen"),
     (r"\btortilla'?s?\b", "tortilla wraps"),
     (r"\b50\s*-\s*50\s*burgers?\b|\bhalf-om-half burgers?\b", "half om half burgers"),
@@ -304,7 +313,7 @@ COMPOUND_OK = {"baby", "mini", "bio", "buffel", "kastanje", "cherry", "tros", "p
                "grof", "fijn", "mais", "kikker", "bruine", "kidney", "ijsberg", "veld", "eikenblad", "boeren",
                "winter", "bos", "lente", "zoete", "zure", "slag", "kook", "kruimige", "vastkokende", "mozzarella",
                "kers", "trostomaat", "snoep", "romaine", "boterhammen", "pasta", "volle-", "tuin", "kaas", "hand",
-               "pers", "tomaten", "jus"}
+               "pers", "tomaten", "jus", "wok", "mie", "rijst", "udon", "hand"}
 # Woordeinden die van een product iets anders maken ("tortilla wraps", "kaas biscuits", "tomaat tapenade")
 OTHER_SUFFIX = ("wraps", "wrap", "biscuits", "biscuit", "tapenade", "sticks", "tussendoortje", "burritos", "burrito",
                 "saus", "pilsener", "partymix", "noodles", "hummus", "dip", "dipsaus", "chips", "crackers", "koekjes",
@@ -351,7 +360,8 @@ def query_terms(text: str) -> tuple[str, list[str], set[str]]:
     for pat, rep in SYNONYMS:
         term = re.sub(pat, rep, term)
     term = re.sub(r"\b(?!\w+se\b)(\w+) kruiden\b", r"\1", term)  # "harissa kruiden" -> harissa, "italiaanse kruiden" blijft
-    words = _tokens(term)
+    words = list(dict.fromkeys(_tokens(term)))  # "kaneelstokje kaneelstokje"
+    term = " ".join(words)
     flags = set()
     low = f" {text.lower()} "
     if " vers" in low:
@@ -425,6 +435,7 @@ def score(product: dict, query: str, flags: set[str] | None = None, need: dict |
         return -100
     q = [t for t in _tokens(query) if t not in DESCRIPTORS] or _tokens(query)
     qraw = set(_tokens(query))
+    title = unicodedata.normalize("NFKD", title).encode("ascii", "ignore").decode() or title  # Taugé -> tauge
     content = [VARIETY.get(t, t) for t in _tokens(title) if (t not in TITLE_NOISE or t in qraw) and not t.isdigit()]
     brand = (product.get("brand") or "").lower()
     for b in _tokens(brand):  # merknaam weg uit de inhoud ("Verstegen Komijnzaad" -> komijnzaad)
