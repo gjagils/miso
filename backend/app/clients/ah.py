@@ -246,7 +246,9 @@ class AHClient:
                     headers=headers,
                     json={"items": cart_items},
                 )
-            resp.raise_for_status()
+            if resp.is_error:
+                logger.error("AH shopping list %s: %s | body sent: %s", resp.status_code, resp.text[:500], cart_items[:5])
+                raise ValueError(f"AH weigerde de boodschappenlijst ({resp.status_code}): {resp.text[:300]}")
             logger.info("Successfully added items to AH cart")
             return resp.json()
 
