@@ -13,3 +13,18 @@ services:
     volumes:
       - ${DATA_DIR:-./data}:/app/data
     restart: on-failure:5
+
+  # Eenmalige AH-inlogproxy: open http://<nas>:9928/start om je AH-account te koppelen
+  miso-login:
+    build: ./backend
+    container_name: Miso-login
+    network_mode: bridge
+    command: ["uvicorn", "app.ah_login_proxy:app", "--host", "0.0.0.0", "--port", "8001"]
+    ports:
+      - 9928:8001
+    environment:
+      TZ: Europe/Amsterdam
+      APP_PIN: ${APP_PIN:-}
+    volumes:
+      - ${DATA_DIR:-./data}:/app/data
+    restart: on-failure:5
