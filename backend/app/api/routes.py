@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session
 
 from app.clients.ah import ah_client, convert_ah_recipe
 from app.clients.extractor import extract_recipe, fetch_url, suggest_gluten_free
-from app.clients.mealie import MealieClient, convert_recipe
+from app.clients.mealie import MealieClient, clean_search, convert_recipe
 from app.config import settings
 from app.database import get_db
 from app.logging_config import logger
