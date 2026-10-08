@@ -10,7 +10,7 @@ from fractions import Fraction
 
 from app.clients.mealie import clean_search
 
-MATCH_VERSION = 5
+MATCH_VERSION = 6
 
 # Basisspullen die je meestal in huis hebt: niet automatisch op de lijst
 PANTRY = {
@@ -146,7 +146,7 @@ DESCRIPTORS = {
     "diepvries", "bevroren", "gedroogd", "gedroogde", "vers", "verse",
     "biologisch", "biologische", "bio", "in", "blik", "pot", "potje", "zak", "pak", "of", "en", "een", "van",
     "met", "de", "het", "voor", "naar", "smaak", "iets", "ongeveer", "ca", "stevig", "stevige", "handvol",
-    "bevroren", "fijngesneden", "gesneden", "geraspt", "geraspte", "ah", "hele", "heel", "excellent",
+    "bevroren", "geraspt", "geraspte", "ah", "hele", "heel", "excellent",
     "afbakbroodje", "stijl",
 }
 # Vaste vertalingen van receptwoorden naar hoe AH het noemt
@@ -200,6 +200,10 @@ def query_terms(text: str) -> tuple[str, list[str], set[str]]:
         flags.add("frozen")
     if re.search(r"kruidenmix|specerij|gemalen|\bpoeder|\bzaad\b|zaadjes", low):
         flags.add("dried")
+    for pct in re.findall(r"(\d+(?:[.,]\d+)?)\s*%", low):
+        flags.add(f"pct:{pct.replace(',', '.')}")
+    if re.search(r"\bbiologisch", low):
+        flags.add("organic")
     keep = [w for w in words if w not in DESCRIPTORS and not w.isdigit()]
     if not keep:
         keep = words
@@ -285,9 +289,14 @@ def score(product: dict, query: str, flags: set[str] | None = None, need: dict |
     if "dried" in flags and category.startswith("groente"):
         s -= 20
     if re.search(r"\b\d+-pack\b|\bmultipack\b", title) or re.match(r"^\s*\d+\s*x\s", product.get("unit_size") or ""):
-        s -= 8  # meerdere verpakkingen in één: alleen als het echt nodig is
+        s -= 15  # meerdere verpakkingen in één: alleen als het echt nodig is
     if "frozen" in flags:
-        s += 8 if category == "diepvries" else -12
+        s += 8 if category == "diepvries" else -30
+    for f in flags:
+        if f.startswith("pct:") and not re.search(rf"\b{re.escape(f[4:])}\s*%", title):
+            s -= 40  # "Griekse yoghurt 10%" is niet de 2%-variant
+    if "organic" in flags and not organic:
+        s -= 20  # recept vraagt expliciet biologisch
     if "dried" in flags and category.startswith("soepen, sauzen, kruiden"):
         s += 6
     if "dried" in flags and re.search(r"\bpasta\b|\bpittig\b", title):
@@ -298,6 +307,7 @@ def score(product: dict, query: str, flags: set[str] | None = None, need: dict |
         if packs:
             waste = (packs * pack["amount"] - need["amount"]) / max(need["amount"], 1e-9)
             s -= min(15.0, 6.0 * max(0.0, waste - 0.5))  # 250 g nodig -> geen grootverpakking
+            s -= 4 * (packs - 1)  # liever 1 pak van 300 g dan 2 van 150 g
     return s
 
 

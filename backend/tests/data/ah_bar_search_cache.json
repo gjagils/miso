@@ -1498,6 +1498,7 @@
    "unit_size": "500 g"
   }
  ],
+ "biologisch fijngesneden spitskool": [],
  "biologisch gekookte rode biet": [
   {
    "available": true,
@@ -1744,6 +1745,85 @@
    "price": "2.49",
    "unit_price": "prijs per kg €9.58",
    "unit_size": "400 g"
+  }
+ ],
+ "biologisch gesneden bladspinazie": [
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Groente, aardappelen",
+   "id": 525234,
+   "name": "AH Biologisch Gesneden shiitake",
+   "organic": true,
+   "price": "2.99",
+   "unit_price": "prijs per kg €19.93",
+   "unit_size": "150 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Bakkerij",
+   "id": 531314,
+   "name": "AH Biologisch Batard volkoren zonnepit gesneden",
+   "organic": true,
+   "price": "2.69",
+   "unit_price": null,
+   "unit_size": "per stuk"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Diepvries",
+   "id": 609027,
+   "name": "AH Biologisch OerDesem blond gesneden vriesvers",
+   "organic": true,
+   "price": "3.29",
+   "unit_price": null,
+   "unit_size": "per stuk"
+  },
+  {
+   "available": true,
+   "brand": "AH Liefde & Passie",
+   "category": "Bakkerij",
+   "id": 590306,
+   "name": "AH Liefde & Passie Biologisch OerDesem blond gesneden",
+   "organic": true,
+   "price": "3.29",
+   "unit_price": null,
+   "unit_size": "per stuk"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Groente, aardappelen",
+   "id": 101181,
+   "name": "AH Biologisch Rode bieten gesneden",
+   "organic": true,
+   "price": "1.59",
+   "unit_price": "prijs per kg €4.68",
+   "unit_size": "340 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Bakkerij",
+   "id": 605428,
+   "name": "AH Biologisch OerDesem bio meergranen heel gesneden",
+   "organic": true,
+   "price": "2.99",
+   "unit_price": null,
+   "unit_size": "per stuk"
+  },
+  {
+   "available": true,
+   "brand": "Hak",
+   "category": "Groente, aardappelen",
+   "id": 203283,
+   "name": "Hak Gesneden bonen",
+   "organic": true,
+   "price": "2.39",
+   "unit_price": "normale prijs per kg €11.95",
+   "unit_size": "340 g"
   }
  ],
  "biologisch grana padano": [],
@@ -7591,6 +7671,19 @@
    "unit_size": "250 g"
   }
  ],
+ "fijngesneden spitskolen": [
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 395949,
+   "name": "AH Fijngesneden spitskool",
+   "organic": false,
+   "price": "1.09",
+   "unit_price": "prijs per kg €5.45",
+   "unit_size": "200 g"
+  }
+ ],
  "fijngesneden spitskool": [
   {
    "available": true,
@@ -8522,6 +8615,32 @@
    "price": "1.59",
    "unit_price": "prijs per kg €3.98",
    "unit_size": "400 g"
+  }
+ ],
+ "gesneden bladspinazie": [
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 67746,
+   "name": "AH Bladspinazie grof gesneden",
+   "organic": false,
+   "price": "1.25",
+   "unit_price": "prijs per kg €2.78",
+   "unit_size": "450 g"
+  }
+ ],
+ "gesneden bladspinazies": [
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 67746,
+   "name": "AH Bladspinazie grof gesneden",
+   "organic": false,
+   "price": "1.25",
+   "unit_price": "prijs per kg €2.78",
+   "unit_size": "450 g"
   }
  ],
  "grana padano": [
