@@ -10,7 +10,7 @@ from fractions import Fraction
 
 from app.clients.mealie import clean_search
 
-MATCH_VERSION = 4
+MATCH_VERSION = 5
 
 # Basisspullen die je meestal in huis hebt: niet automatisch op de lijst
 PANTRY = {
@@ -143,7 +143,7 @@ def _stem(t: str) -> str:
 # Woorden die iets over vorm/maat/verpakking zeggen, niet over wélk product: niet zoeken, niet eisen
 DESCRIPTORS = {
     "middelgroot", "middelgrote", "groot", "grote", "klein", "kleine", "flink", "flinke", "rijp", "rijpe",
-    "diepvries", "bevroren", "gedroogd", "gedroogde", "gekookt", "gekookte", "vers", "verse",
+    "diepvries", "bevroren", "gedroogd", "gedroogde", "vers", "verse",
     "biologisch", "biologische", "bio", "in", "blik", "pot", "potje", "zak", "pak", "of", "en", "een", "van",
     "met", "de", "het", "voor", "naar", "smaak", "iets", "ongeveer", "ca", "stevig", "stevige", "handvol",
     "bevroren", "fijngesneden", "gesneden", "geraspt", "geraspte", "ah", "hele", "heel", "excellent",
@@ -167,14 +167,15 @@ SYNONYMS = [
 TITLE_NOISE = {"ah", "biologisch", "terra", "excellent", "basic", "scharrel", "plantaardig", "stuks", "stuk",
                "grootverpakking", "schaal", "verse", "vers", "per", "pack", "zacht", "romig", "ca", "en", "met",
                "iets", "hele", "heel", "gele", "witte", "extra", "vierge", "naturel", "losse", "middelgrote",
-               "vrije", "uitloop", "kg", "gram", "ml", "deelblokjes", "grof", "fijn", "fijne"}
+               "vrije", "uitloop", "kg", "gram", "ml", "deelblokjes", "grof", "fijn", "fijne", "world", "spice",
+               "blend", "perfumed", "naturel"}
 # Woorden die van een product iets anders maken dan het ingrediënt ("Peer siroop", "Curry madras verspakket")
 OTHER_PRODUCT = {"siroop", "sap", "saus", "chips", "toast", "salami", "smaak", "snack", "snacks", "reep", "koek",
                  "taart", "cake", "mix", "spread", "drank", "thee", "verspakket", "maaltijd", "salade", "soep",
                  "pie", "roomkaas", "melba", "chocolade", "ijs", "dressing", "tapenade", "worst", "pizza",
                  "wrap", "burger", "kroket", "nuggets", "olijfmix", "woksmaakmaker", "kruidenmix", "marinade"}
 # Rassen/soorten die AH als productnaam gebruikt zonder het woord zelf ("AH Conference schaal" = peren)
-VARIETY = {"conference": "peer", "doyenne": "peer", "elstar": "appel", "jonagold": "appel", "granny": "appel",
+VARIETY = {"jasmin": "jasmijn", "jasmine": "jasmijn", "rice": "rijst", "conference": "peer", "doyenne": "peer", "elstar": "appel", "jonagold": "appel", "granny": "appel",
            "trostomaten": "tomaten", "cherrytomaten": "tomaten", "uitloopeieren": "eieren"}
 # Losse woorden die je in de zoekterm kunt splitsen ("risottorijst" -> "risotto rijst")
 HEADS = ("rijst", "cheese", "kaas", "saus", "brood", "olie", "azijn", "vlokken", "poeder", "bonen", "pasta",
@@ -197,6 +198,8 @@ def query_terms(text: str) -> tuple[str, list[str], set[str]]:
         flags.add("dried")
     if "diepvries" in low:
         flags.add("frozen")
+    if re.search(r"kruidenmix|specerij|gemalen|\bpoeder|\bzaad\b|zaadjes", low):
+        flags.add("dried")
     keep = [w for w in words if w not in DESCRIPTORS and not w.isdigit()]
     if not keep:
         keep = words
@@ -224,10 +227,12 @@ def _concat_match(q: str, content: list[str]) -> list[int] | None:
         for j in range(i + 2, min(len(content), i + 3) + 1):
             if _stem("".join(content[i:j])) == _stem(q):
                 return list(range(i, j))
+            if j - i == 2 and _stem(content[i + 1] + content[i]) == _stem(q):  # "orzo volkoren" = volkorenorzo
+                return [i, i + 1]
     return None
 
 
-def score(product: dict, query: str, flags: set[str] | None = None) -> float:
+def score(product: dict, query: str, flags: set[str] | None = None, need: dict | None = None) -> float:
     """Hoger = beter. Negatief = niet gebruiken."""
     flags = flags or set()
     title = (product.get("name") or "").lower()
@@ -279,13 +284,25 @@ def score(product: dict, query: str, flags: set[str] | None = None) -> float:
         s -= 40  # verse kruiden, geen potje gedroogd
     if "dried" in flags and category.startswith("groente"):
         s -= 20
-    if "frozen" in flags and category == "diepvries":
-        s += 8
+    if re.search(r"\b\d+-pack\b|\bmultipack\b", title) or re.match(r"^\s*\d+\s*x\s", product.get("unit_size") or ""):
+        s -= 8  # meerdere verpakkingen in één: alleen als het echt nodig is
+    if "frozen" in flags:
+        s += 8 if category == "diepvries" else -12
+    if "dried" in flags and category.startswith("soepen, sauzen, kruiden"):
+        s += 6
+    if "dried" in flags and re.search(r"\bpasta\b|\bpittig\b", title):
+        s -= 15  # kruidenmix gevraagd, geen pasta
+    if need and not need.get("spoon"):  # eetlepels zijn altijd een fractie van de fles
+        pack = pack_size(product.get("unit_size", ""))
+        packs = packs_for(need, pack)
+        if packs:
+            waste = (packs * pack["amount"] - need["amount"]) / max(need["amount"], 1e-9)
+            s -= min(15.0, 6.0 * max(0.0, waste - 0.5))  # 250 g nodig -> geen grootverpakking
     return s
 
 
-def choose(products: list[dict], query: str, flags: set[str] | None = None) -> dict | None:
-    ranked = sorted(((score(p, query, flags), i, p) for i, p in enumerate(products)), key=lambda x: (-x[0], x[1]))
+def choose(products: list[dict], query: str, flags: set[str] | None = None, need: dict | None = None) -> dict | None:
+    ranked = sorted(((score(p, query, flags, need), i, p) for i, p in enumerate(products)), key=lambda x: (-x[0], x[1]))
     if ranked and ranked[0][0] >= 30:
         return ranked[0][2]
     return None

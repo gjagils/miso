@@ -7,8 +7,8 @@ import asyncio
 
 from tools.eval_bar import run
 
-MIN_GOOD_PCT = 92.0     # gelijk of zelfde soort als AH (2026-10-08: 93.2)
-MIN_LINKED_PCT = 97.0   # ingrediënten met een product (2026-10-08: 98.1)
+MIN_GOOD_PCT = 93.0     # gelijk of zelfde soort als AH (2026-10-08 ronde 3: 94.2)
+MIN_LINKED_PCT = 98.0   # ingrediënten met een product (ronde 3: 99.0)
 MIN_QTY_PCT = 90.0      # aantal verpakkingen gelijk aan AH (2026-10-08: 94.8)
 
 

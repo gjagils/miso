@@ -301,8 +301,9 @@ async def _automatch(ingredients: list[dict], gluten_free: bool = False, force: 
     verpakkingen berekenen. Handmatig gekozen producten blijven staan."""
     sem = asyncio.Semaphore(4)
 
-    async def find(term: str) -> dict | None:
+    async def find(term: str, text: str = "") -> dict | None:
         query, _, flags = query_terms(term)
+        need = needed(text or term)
         if not query:
             return None
         products: list[dict] = []
@@ -310,15 +311,16 @@ async def _automatch(ingredients: list[dict], gluten_free: bool = False, force: 
         for q in search_queries(query):
             async with sem:
                 try:
-                    found = await ah_client.search_products(q, size=12)
+                    found = await ah_client.search_products(q, size=20)
                 except Exception as e:
                     logger.warning("AH search failed for %s: %s", q, e)
                     continue
             for p in found:
-                if p.get("id") not in seen:
-                    seen.add(p.get("id"))
+                key = (p.get("id"), p.get("name"), p.get("unit_size"))  # multipacks delen soms het id
+                if key not in seen:
+                    seen.add(key)
                     products.append(p)
-        return choose(products, query, flags)
+        return choose(products, query, flags, need)
 
     def apply_quantity(ing: dict, product: dict) -> None:
         need = needed(ing.get("text", ""))
@@ -343,7 +345,7 @@ async def _automatch(ingredients: list[dict], gluten_free: bool = False, force: 
         if ing.get("auto_skip"):
             ing.update(skip=False, auto_skip=False)
         if search and (not ing.get("product") or ((force or stale) and not ing.get("manual"))):
-            product = await find(search)
+            product = await find(search, ing.get("text", ""))
             if product:
                 ing["product"], n = product, n + 1
                 apply_quantity(ing, product)

@@ -565,6 +565,94 @@
    "price": "3.19",
    "unit_price": "prijs per kg €354.44",
    "unit_size": "9 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Maaltijden, salades",
+   "id": 598374,
+   "name": "AH Pastasaus pomodori basilicum 2-pack",
+   "organic": false,
+   "price": "4.98",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Maza",
+   "category": "Vegetarisch, vegan en plantaardig",
+   "id": 611400,
+   "name": "Maza Hoemoes tomaat basilicum 4-pack",
+   "organic": false,
+   "price": "10.36",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 556728,
+   "name": "AH Pastasaus basilicum",
+   "organic": false,
+   "price": "1.25",
+   "unit_price": "prijs per kg €2.40",
+   "unit_size": "520 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Bakkerij",
+   "id": 619413,
+   "name": "AH Focaccia basilicum tomaat 3-pack",
+   "organic": false,
+   "price": "8.07",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Mutti",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 602604,
+   "name": "Mutti Pastasaus met basilicum 3-pack",
+   "organic": false,
+   "price": "11.97",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 416658,
+   "name": "AH Biologisch Basis tomatensaus basilicum",
+   "organic": true,
+   "price": "1.55",
+   "unit_price": "prijs per kg €3.97",
+   "unit_size": "390 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Bakkerij",
+   "id": 580122,
+   "name": "AH Focaccia basilicum tomaat 2-pack",
+   "organic": false,
+   "price": "5.38",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Ella's kitchen",
+   "category": "Baby en kind",
+   "id": 628764,
+   "name": "Ella's kitchen Maize sticks tomaat basilicum 7m+ 3-pack",
+   "organic": false,
+   "price": "5.97",
+   "unit_price": null,
+   "unit_size": "3 stuks"
   }
  ],
  "basilicumen": [
@@ -699,6 +787,94 @@
    "price": "2.69",
    "unit_price": "normale prijs per kg €244.55",
    "unit_size": "11 g"
+  },
+  {
+   "available": true,
+   "brand": "Maza",
+   "category": "Vegetarisch, vegan en plantaardig",
+   "id": 413076,
+   "name": "Maza Hoemoes tomaat basilicum",
+   "organic": false,
+   "price": "2.59",
+   "unit_price": "prijs per kg €12.95",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Terra",
+   "category": "Vlees",
+   "id": 577215,
+   "name": "AH Terra Biologisch falafel tomaat basilicum",
+   "organic": true,
+   "price": "2.99",
+   "unit_price": "prijs per kg €19.93",
+   "unit_size": "150 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 416658,
+   "name": "AH Biologisch Basis tomatensaus basilicum",
+   "organic": true,
+   "price": "1.55",
+   "unit_price": "prijs per kg €3.97",
+   "unit_size": "390 g"
+  },
+  {
+   "available": true,
+   "brand": "Ella's kitchen",
+   "category": "Baby en kind",
+   "id": 628832,
+   "name": "Ella's kitchen Maize sticks tomaat basilicum 7m+ 5-pack",
+   "organic": false,
+   "price": "9.95",
+   "unit_price": null,
+   "unit_size": "5 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 455615,
+   "name": "AH Tomaten passata gezeefd basilicum",
+   "organic": false,
+   "price": "1.69",
+   "unit_price": "prijs per kg €2.45",
+   "unit_size": "690 g"
+  },
+  {
+   "available": true,
+   "brand": "Mutti",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 461887,
+   "name": "Mutti Pastasaus met basilicum",
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "prijs per kg €9.98",
+   "unit_size": "400 g"
+  },
+  {
+   "available": true,
+   "brand": "Ella's kitchen",
+   "category": "Baby en kind",
+   "id": 550911,
+   "name": "Ella's kitchen Maize sticks tomaat basilicum 7m+",
+   "organic": true,
+   "price": "1.99",
+   "unit_price": "prijs per kg €124.38",
+   "unit_size": "16 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Bakkerij",
+   "id": 524338,
+   "name": "AH Focaccia basilicum tomaat",
+   "organic": false,
+   "price": "2.69",
+   "unit_price": null,
+   "unit_size": "2 stuks"
   }
  ],
  "biologisch babyspinazie": [],
@@ -1219,6 +1395,94 @@
    "price": "1.29",
    "unit_price": "prijs per kg €61.43",
    "unit_size": "21 g"
+  },
+  {
+   "available": true,
+   "brand": "De Kleine Keuken",
+   "category": "Baby en kind",
+   "id": 616892,
+   "name": "De Kleine Keuken Biologische bites haver & aardbei 12m+",
+   "organic": true,
+   "price": "1.89",
+   "unit_price": "prijs per kg €37.80",
+   "unit_size": "50 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Baby en kind",
+   "id": 172552,
+   "name": "AH Biologisch Fruithapje appel blauwe bes aardbei 8m+",
+   "organic": true,
+   "price": "1.15",
+   "unit_price": "prijs per kg €5.75",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "Ella's kitchen",
+   "category": "Baby en kind",
+   "id": 388962,
+   "name": "Ella's kitchen Biologische Aardbeien yoghurt 6m+",
+   "organic": true,
+   "price": "1.65",
+   "unit_price": "prijs per kg €18.33",
+   "unit_size": "90 g"
+  },
+  {
+   "available": true,
+   "brand": "Ella's kitchen",
+   "category": "Baby en kind",
+   "id": 587956,
+   "name": "Ella's kitchen Maize sticks aardbei & appel 7m+",
+   "organic": true,
+   "price": "1.99",
+   "unit_price": "prijs per kg €124.38",
+   "unit_size": "16 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Groente, aardappelen",
+   "id": 186650,
+   "name": "AH Biologisch Prei",
+   "organic": true,
+   "price": "0.99",
+   "unit_price": null,
+   "unit_size": "per stuk"
+  },
+  {
+   "available": true,
+   "brand": "De Kleine Keuken",
+   "category": "Baby en kind",
+   "id": 492662,
+   "name": "De Kleine Keuken Biologische fruitmix rozijn aardbei 18m+",
+   "organic": true,
+   "price": "3.09",
+   "unit_price": "prijs per kg €36.79",
+   "unit_size": "84 g"
+  },
+  {
+   "available": true,
+   "brand": "De Kleine Keuken",
+   "category": "Baby en kind",
+   "id": 585621,
+   "name": "De Kleine Keuken Biologische rijstwafeltjes aardbei 7m+",
+   "organic": true,
+   "price": "1.89",
+   "unit_price": "prijs per kg €54.00",
+   "unit_size": "35 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Baby en kind",
+   "id": 576937,
+   "name": "AH Biologisch Luchtige babysnacks aardbei banaan 7m+",
+   "organic": true,
+   "price": "0.99",
+   "unit_price": "prijs per kg €49.50",
+   "unit_size": "20 g"
   }
  ],
  "biologisch fijne soepgroente": [
@@ -1232,6 +1496,30 @@
    "price": "1.19",
    "unit_price": "prijs per kg €2.38",
    "unit_size": "500 g"
+  }
+ ],
+ "biologisch gekookte rode biet": [
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Groente, aardappelen",
+   "id": 218641,
+   "name": "AH Biologisch Rode bieten gekookt",
+   "organic": true,
+   "price": "1.49",
+   "unit_price": "prijs per kg €2.98",
+   "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Groente, aardappelen",
+   "id": 446488,
+   "name": "AH Biologisch Mini rode gekookte bieten",
+   "organic": true,
+   "price": "1.29",
+   "unit_price": "prijs per kg €5.16",
+   "unit_size": "250 g"
   }
  ],
  "biologisch gember": [
@@ -1366,6 +1654,61 @@
    "price": "2.69",
    "unit_price": null,
    "unit_size": "20 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Zonnatura",
+   "category": "Frisdrank, sappen, water",
+   "id": 469378,
+   "name": "Zonnatura Kombucha gember",
+   "organic": true,
+   "price": "2.99",
+   "unit_price": "prijs per liter €9.06",
+   "unit_size": "330 ml"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Fruit, verse sappen",
+   "id": 580508,
+   "name": "AH Biologisch Ginger mango verse appel mango gember",
+   "organic": true,
+   "price": "1.19",
+   "unit_price": "normale prijs per liter €9.52",
+   "unit_size": "125 ml"
+  },
+  {
+   "available": true,
+   "brand": "BioToday",
+   "category": "Fruit, verse sappen",
+   "id": 549686,
+   "name": "BioToday Premium gember-cranberry drankje",
+   "organic": true,
+   "price": "11.99",
+   "unit_price": "prijs per liter €23.98",
+   "unit_size": "0,5 l"
+  },
+  {
+   "available": true,
+   "brand": "De Frisdrank Fabriek",
+   "category": "Frisdrank, sappen, water",
+   "id": 589162,
+   "name": "De Frisdrank Fabriek Gember limoen",
+   "organic": true,
+   "price": "1.79",
+   "unit_price": "prijs per liter €7.16",
+   "unit_size": "250 ml"
+  },
+  {
+   "available": false,
+   "brand": "AH Biologisch",
+   "category": "Groente, aardappelen",
+   "id": 230741,
+   "name": "AH Biologisch Gember los",
+   "organic": true,
+   "price": "1.1",
+   "unit_price": "prijs per kg €10.98",
+   "unit_size": "per 100 gram"
   }
  ],
  "biologisch gepelde tomaten": [
@@ -1730,6 +2073,39 @@
    "price": "1.29",
    "unit_price": "prijs per kg €5.86",
    "unit_size": "220 g"
+  },
+  {
+   "available": true,
+   "brand": "Ibis Rice",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 613345,
+   "name": "Ibis Rice Semi-milled long grain rice",
+   "organic": true,
+   "price": "2.89",
+   "unit_price": "prijs per kg €5.78",
+   "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 435948,
+   "name": "AH Biologisch Volkoren Basmati rijst",
+   "organic": true,
+   "price": "1.49",
+   "unit_price": "prijs per kg €3.73",
+   "unit_size": "400 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 435950,
+   "name": "AH Biologisch Basmati rijst",
+   "organic": true,
+   "price": "1.49",
+   "unit_price": "prijs per kg €3.73",
+   "unit_size": "400 g"
   }
  ],
  "biologisch kampioentje": [],
@@ -2986,6 +3362,94 @@
    "price": "1.05",
    "unit_price": "prijs per kg €2.10",
    "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Ontbijtgranen, beleg",
+   "id": 438136,
+   "name": "AH Biologisch Volkoren muesli fruit & noten",
+   "organic": true,
+   "price": "2.19",
+   "unit_price": "prijs per kg €4.87",
+   "unit_size": "450 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Bakkerij",
+   "id": 604006,
+   "name": "AH Biologisch Bakkersbollen volkoren meerzaden",
+   "organic": true,
+   "price": "2.49",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Ontbijtgranen, beleg",
+   "id": 437378,
+   "name": "AH Biologisch Volkoren krokante muesli vier noten",
+   "organic": true,
+   "price": "2.69",
+   "unit_price": "prijs per kg €7.69",
+   "unit_size": "350 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Bakkerij",
+   "id": 531314,
+   "name": "AH Biologisch Batard volkoren zonnepit gesneden",
+   "organic": true,
+   "price": "2.69",
+   "unit_price": null,
+   "unit_size": "per stuk"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 577697,
+   "name": "AH Biologisch Mienestjes volkoren",
+   "organic": true,
+   "price": "1.39",
+   "unit_price": "prijs per kg €3.09",
+   "unit_size": "450 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 569022,
+   "name": "AH Hamsterpasta volkoren",
+   "organic": true,
+   "price": "1.79",
+   "unit_price": "prijs per kg €3.58",
+   "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "Smaakt",
+   "category": "Bakkerij",
+   "id": 227850,
+   "name": "Smaakt Volkoren boekweitmeel",
+   "organic": true,
+   "price": "4.19",
+   "unit_price": "prijs per kg €10.48",
+   "unit_size": "400 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Bakkerij",
+   "id": 458887,
+   "name": "AH Biologisch Robuust volkoren broodjes",
+   "organic": true,
+   "price": "2.49",
+   "unit_price": null,
+   "unit_size": "4 stuks"
   }
  ],
  "biologisch volkorenorzo": [
@@ -3535,6 +3999,94 @@
    "price": "4.99",
    "unit_price": "prijs per liter €9.98",
    "unit_size": "0,5 l"
+  },
+  {
+   "available": true,
+   "brand": "Kleinste Soepfabriek",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 623818,
+   "name": "Kleinste Soepfabriek Vloeibaar bouillonblokje kip biologisch",
+   "organic": true,
+   "price": "2.79",
+   "unit_price": "prijs per liter €18.60",
+   "unit_size": "150 ml"
+  },
+  {
+   "available": true,
+   "brand": "Maggi",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 189390,
+   "name": "Maggi Bouillon kippen",
+   "organic": false,
+   "price": "2.15",
+   "unit_price": "prijs per kg €13.96",
+   "unit_size": "154 g"
+  },
+  {
+   "available": true,
+   "brand": "Knorr",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 237242,
+   "name": "Knorr Kippen bouillon",
+   "organic": false,
+   "price": "1.79",
+   "unit_price": "prijs per kg €11.93",
+   "unit_size": "15 x 10 g"
+  },
+  {
+   "available": true,
+   "brand": "Knorr",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 67600,
+   "name": "Knorr Drinkbouillon kip",
+   "organic": false,
+   "price": "1.39",
+   "unit_price": null,
+   "unit_size": "5 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Maggi",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 623831,
+   "name": "Maggi Opkikker drinkbouillon kip",
+   "organic": false,
+   "price": "1.49",
+   "unit_price": "prijs per kg €53.21",
+   "unit_size": "28 g"
+  },
+  {
+   "available": true,
+   "brand": "Maggi",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 447336,
+   "name": "Maggi Smaakmaker kippensoep",
+   "organic": false,
+   "price": "1.79",
+   "unit_price": "prijs per kg €34.42",
+   "unit_size": "52 g"
+  },
+  {
+   "available": true,
+   "brand": "Maggi",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 627868,
+   "name": "Maggi Opkikker drinkbouillon kip 6-pack",
+   "organic": false,
+   "price": "8.94",
+   "unit_price": null,
+   "unit_size": "6 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Calnort",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 617526,
+   "name": "Calnort Kippenbouillon",
+   "organic": false,
+   "price": "1.79",
+   "unit_price": "prijs per kg €7.16",
+   "unit_size": "250 g"
   }
  ],
  "bouillon kipen": [
@@ -3669,6 +4221,94 @@
    "price": "1.79",
    "unit_price": "prijs per kg €34.42",
    "unit_size": "52 g"
+  },
+  {
+   "available": true,
+   "brand": "Maggi",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 198974,
+   "name": "Maggi Kippen bouillon minder zout",
+   "organic": false,
+   "price": "1.69",
+   "unit_price": "prijs per kg €23.47",
+   "unit_size": "72 g"
+  },
+  {
+   "available": true,
+   "brand": "Maggi",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 189390,
+   "name": "Maggi Bouillon kippen",
+   "organic": false,
+   "price": "2.15",
+   "unit_price": "prijs per kg €13.96",
+   "unit_size": "154 g"
+  },
+  {
+   "available": true,
+   "brand": "Fundo",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 421474,
+   "name": "Fundo Bouillon kip",
+   "organic": false,
+   "price": "4.99",
+   "unit_price": "prijs per liter €9.98",
+   "unit_size": "0,5 l"
+  },
+  {
+   "available": true,
+   "brand": "Kleinste Soepfabriek",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 623818,
+   "name": "Kleinste Soepfabriek Vloeibaar bouillonblokje kip biologisch",
+   "organic": true,
+   "price": "2.79",
+   "unit_price": "prijs per liter €18.60",
+   "unit_size": "150 ml"
+  },
+  {
+   "available": true,
+   "brand": "Knorr",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 237242,
+   "name": "Knorr Kippen bouillon",
+   "organic": false,
+   "price": "1.79",
+   "unit_price": "prijs per kg €11.93",
+   "unit_size": "15 x 10 g"
+  },
+  {
+   "available": true,
+   "brand": "Knorr",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 67600,
+   "name": "Knorr Drinkbouillon kip",
+   "organic": false,
+   "price": "1.39",
+   "unit_price": null,
+   "unit_size": "5 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Maggi",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 623830,
+   "name": "Maggi Opkikker drinkbouillon oosterse kip",
+   "organic": false,
+   "price": "1.49",
+   "unit_price": "prijs per kg €35.48",
+   "unit_size": "42 g"
+  },
+  {
+   "available": true,
+   "brand": "Calnort",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 617526,
+   "name": "Calnort Kippenbouillon",
+   "organic": false,
+   "price": "1.79",
+   "unit_price": "prijs per kg €7.16",
+   "unit_size": "250 g"
   }
  ],
  "bouillon paddenstoel": [
@@ -3840,6 +4480,94 @@
    "price": "2.49",
    "unit_price": "prijs per kg €6.23",
    "unit_size": "400 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 617528,
+   "name": "AH Broccoliroosjes",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €9.95",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 399570,
+   "name": "AH Broccolirijst",
+   "organic": false,
+   "price": "2.19",
+   "unit_price": "prijs per kg €5.48",
+   "unit_size": "400 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 192851,
+   "name": "AH Bimi",
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "prijs per kg €14.95",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "Olvarit",
+   "category": "Baby en kind",
+   "id": 388755,
+   "name": "Olvarit Broccoli kalkoen aardappel 12m+",
+   "organic": false,
+   "price": "1.79",
+   "unit_price": "prijs per kg €7.16",
+   "unit_size": "250 g"
+  },
+  {
+   "available": true,
+   "brand": "Olvarit",
+   "category": "Baby en kind",
+   "id": 606084,
+   "name": "Olvarit Ratatouille met broccoli 6m+",
+   "organic": false,
+   "price": "1.55",
+   "unit_price": "prijs per kg €7.75",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Terra",
+   "category": "Maaltijden, salades",
+   "id": 435433,
+   "name": "AH Terra Pureersoep broccoli spinazie",
+   "organic": false,
+   "price": "4.49",
+   "unit_price": "normale prijs per kg €9.98",
+   "unit_size": "450 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 117618,
+   "name": "AH Broccoli, wortel, bloemkool",
+   "organic": false,
+   "price": "2.69",
+   "unit_price": "prijs per kg €6.73",
+   "unit_size": "400 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 369971,
+   "name": "AH Bloemkool broccoli kleinverpakking",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €9.95",
+   "unit_size": "200 g"
   }
  ],
  "broccolis": [
@@ -3998,6 +4726,94 @@
    "price": "13.45",
    "unit_price": null,
    "unit_size": "5 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Knorr",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 624066,
+   "name": "Knorr Cup-a-soup champignon ham 2-pack",
+   "organic": false,
+   "price": "4.3",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Knorr",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 624068,
+   "name": "Knorr Cup-a-soup champignon ham 6-pack",
+   "organic": false,
+   "price": "12.9",
+   "unit_price": null,
+   "unit_size": "6 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Knorr",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 624067,
+   "name": "Knorr Cup-a-soup champignon ham 4-pack",
+   "organic": false,
+   "price": "8.6",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Unox",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 624717,
+   "name": "Unox Unox Romige Paddenstoelensoep 2-pack",
+   "organic": false,
+   "price": "9.98",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Unox",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 624718,
+   "name": "Unox Unox Romige Paddenstoelensoep 4-pack",
+   "organic": false,
+   "price": "19.96",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Unox",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 624719,
+   "name": "Unox Unox Romige Paddenstoelensoep 6-pack",
+   "organic": false,
+   "price": "29.94",
+   "unit_price": null,
+   "unit_size": "6 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Unox",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 624711,
+   "name": "Unox Unox Romige kip-champignonsoep 2-pack",
+   "organic": false,
+   "price": "9.98",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Unox",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 624712,
+   "name": "Unox Unox Romige kip-champignonsoep 4-pack",
+   "organic": false,
+   "price": "19.96",
+   "unit_price": null,
+   "unit_size": "4 stuks"
   }
  ],
  "champignonsen": [
@@ -4154,6 +4970,94 @@
    "price": "9.98",
    "unit_price": null,
    "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Unox",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 624712,
+   "name": "Unox Unox Romige kip-champignonsoep 4-pack",
+   "organic": false,
+   "price": "19.96",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Unox",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 624713,
+   "name": "Unox Unox Romige kip-champignonsoep 6-pack",
+   "organic": false,
+   "price": "29.94",
+   "unit_price": null,
+   "unit_size": "6 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Dr. Oetker",
+   "category": "Diepvries",
+   "id": 627704,
+   "name": "Dr. Oetker Bistro baguette champignons 2-pack",
+   "organic": false,
+   "price": "4.7",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Dr. Oetker",
+   "category": "Diepvries",
+   "id": 627738,
+   "name": "Dr. Oetker Bistro baguette champignons 3-pack",
+   "organic": false,
+   "price": "7.05",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Unox",
+   "category": "Vlees",
+   "id": 624468,
+   "name": "Unox Ragout champignon 2-pack",
+   "organic": false,
+   "price": "5.98",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 620421,
+   "name": "AH Biologisch Champignon soep met room 4-pack",
+   "organic": false,
+   "price": "9.56",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Knorr",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 624060,
+   "name": "Knorr Champignonsaus 2-pack",
+   "organic": false,
+   "price": "2.9",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Knorr",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 624062,
+   "name": "Knorr Champignonsaus 4-pack",
+   "organic": false,
+   "price": "5.8",
+   "unit_price": null,
+   "unit_size": "4 stuks"
   }
  ],
  "chili vlokken": [
@@ -4349,6 +5253,94 @@
    "price": "20.98",
    "unit_price": null,
    "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Sun",
+   "category": "Huishouden",
+   "id": 625204,
+   "name": "Sun All-in-one citroen tabletten 4pack",
+   "organic": false,
+   "price": "41.96",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Dreft",
+   "category": "Huishouden",
+   "id": 622958,
+   "name": "Dreft Platinum+ vaatwastabletten citroen 6pk",
+   "organic": false,
+   "price": "176.94",
+   "unit_price": null,
+   "unit_size": "6 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Cif",
+   "category": "Huishouden",
+   "id": 608624,
+   "name": "Cif Schuurmiddel citroen cream 4-pack",
+   "organic": false,
+   "price": "11.56",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Dreft",
+   "category": "Huishouden",
+   "id": 622955,
+   "name": "Dreft Platinum plus citroen 2-pack",
+   "organic": false,
+   "price": "44.98",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Dreft",
+   "category": "Huishouden",
+   "id": 622957,
+   "name": "Dreft Platinum plus citroen 6-pack",
+   "organic": false,
+   "price": "134.94",
+   "unit_price": null,
+   "unit_size": "6 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH Terra",
+   "category": "Vegetarisch, vegan en plantaardig",
+   "id": 622354,
+   "name": "AH Terra Hummus citroen 3-pack",
+   "organic": false,
+   "price": "8.07",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH Terra",
+   "category": "Vegetarisch, vegan en plantaardig",
+   "id": 622355,
+   "name": "AH Terra Hummus citroen 4-pack",
+   "organic": false,
+   "price": "10.76",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Sun",
+   "category": "Huishouden",
+   "id": 625203,
+   "name": "Sun All-in-one citroen tabletten 2-pack",
+   "organic": false,
+   "price": "45.98",
+   "unit_price": null,
+   "unit_size": "2 stuks"
   }
  ],
  "citroens": [
@@ -4483,6 +5475,17 @@
    "price": "0.69",
    "unit_price": "prijs per liter €3.45",
    "unit_size": "200 ml"
+  },
+  {
+   "available": true,
+   "brand": "Yummygums",
+   "category": "Gezondheid en sport",
+   "id": 588475,
+   "name": "Yummygums Sunny D3 citroensmaak",
+   "organic": false,
+   "price": "17.99",
+   "unit_price": null,
+   "unit_size": "60 stuks"
   }
  ],
  "cottage cheese": [
@@ -4617,6 +5620,50 @@
    "price": "3.98",
    "unit_price": null,
    "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Danone",
+   "category": "Kaas",
+   "id": 607858,
+   "name": "Danone Hüttenkäse original 2-pack",
+   "organic": false,
+   "price": "7.58",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 560658,
+   "name": "AH Cottage cheese light",
+   "organic": false,
+   "price": "0.75",
+   "unit_price": "prijs per kg €3.75",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 400467,
+   "name": "AH Cottage cheese",
+   "organic": false,
+   "price": "0.75",
+   "unit_price": "prijs per kg €3.75",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Kaas",
+   "id": 400468,
+   "name": "AH Biologisch Cottage cheese",
+   "organic": true,
+   "price": "1.39",
+   "unit_price": "prijs per kg €6.95",
+   "unit_size": "200 g"
   }
  ],
  "cottagecheese": [
@@ -4751,6 +5798,50 @@
    "price": "3.98",
    "unit_price": null,
    "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Danone",
+   "category": "Kaas",
+   "id": 607858,
+   "name": "Danone Hüttenkäse original 2-pack",
+   "organic": false,
+   "price": "7.58",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 560658,
+   "name": "AH Cottage cheese light",
+   "organic": false,
+   "price": "0.75",
+   "unit_price": "prijs per kg €3.75",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 400467,
+   "name": "AH Cottage cheese",
+   "organic": false,
+   "price": "0.75",
+   "unit_price": "prijs per kg €3.75",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Kaas",
+   "id": 400468,
+   "name": "AH Biologisch Cottage cheese",
+   "organic": true,
+   "price": "1.39",
+   "unit_price": "prijs per kg €6.95",
+   "unit_size": "200 g"
   }
  ],
  "cottagecheesen": [
@@ -4885,6 +5976,50 @@
    "price": "3.98",
    "unit_price": null,
    "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Danone",
+   "category": "Kaas",
+   "id": 607858,
+   "name": "Danone Hüttenkäse original 2-pack",
+   "organic": false,
+   "price": "7.58",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 560658,
+   "name": "AH Cottage cheese light",
+   "organic": false,
+   "price": "0.75",
+   "unit_price": "prijs per kg €3.75",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 400467,
+   "name": "AH Cottage cheese",
+   "organic": false,
+   "price": "0.75",
+   "unit_price": "prijs per kg €3.75",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Kaas",
+   "id": 400468,
+   "name": "AH Biologisch Cottage cheese",
+   "organic": true,
+   "price": "1.39",
+   "unit_price": "prijs per kg €6.95",
+   "unit_size": "200 g"
   }
  ],
  "crispy chili in oil": [
@@ -5469,6 +6604,94 @@
    "price": "4.58",
    "unit_price": null,
    "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Remia",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 589869,
+   "name": "Remia Curry saus zero added sugar",
+   "organic": false,
+   "price": "2.59",
+   "unit_price": "prijs per liter €5.18",
+   "unit_size": "0,5 l"
+  },
+  {
+   "available": true,
+   "brand": "Fairtrade Original",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 199251,
+   "name": "Fairtrade Original Kruidenpasta groene curry",
+   "organic": false,
+   "price": "2.39",
+   "unit_price": "prijs per kg €34.14",
+   "unit_size": "70 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 602501,
+   "name": "AH Curry saus",
+   "organic": false,
+   "price": "2.09",
+   "unit_price": "prijs per liter €2.61",
+   "unit_size": "0,8 l"
+  },
+  {
+   "available": true,
+   "brand": "Remia",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 166522,
+   "name": "Remia Curry saus",
+   "organic": false,
+   "price": "2.29",
+   "unit_price": "prijs per liter €4.58",
+   "unit_size": "0,5 l"
+  },
+  {
+   "available": true,
+   "brand": "Hela",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 420246,
+   "name": "Hela Kruiden ketchup curry original",
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "prijs per liter €5.98",
+   "unit_size": "0,5 l"
+  },
+  {
+   "available": true,
+   "brand": "Euroma",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 575489,
+   "name": "Euroma Curry Madras by Jonnie Boer",
+   "organic": false,
+   "price": "3.29",
+   "unit_price": "prijs per kg €55.76",
+   "unit_size": "59 g"
+  },
+  {
+   "available": true,
+   "brand": "Patak's",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 203813,
+   "name": "Patak's Mild curry paste",
+   "organic": false,
+   "price": "3.29",
+   "unit_price": "prijs per kg €19.94",
+   "unit_size": "165 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 581524,
+   "name": "AH Boemboe gele curry",
+   "organic": false,
+   "price": "0.99",
+   "unit_price": "prijs per kg €10.42",
+   "unit_size": "95 g"
   }
  ],
  "diepvries gesneden bladspinazie": [
@@ -5785,6 +7008,94 @@
    "price": "11.16",
    "unit_price": null,
    "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 621585,
+   "name": "AH Gemarineerd kaasblokjes mosterddille 3pk",
+   "organic": false,
+   "price": "8.37",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Yildriz",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 202516,
+   "name": "Yildriz Noorse mosterd dille saus",
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "prijs per liter €11.28",
+   "unit_size": "265 ml"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 621584,
+   "name": "AH Gemarineerd kaasblokjes mosterddille 2pk",
+   "organic": false,
+   "price": "5.58",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Knorr",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 159532,
+   "name": "Knorr Mix vis-dillesaus",
+   "organic": false,
+   "price": "1.45",
+   "unit_price": "prijs per kg €34.52",
+   "unit_size": "42 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Excellent",
+   "category": "Vis",
+   "id": 621422,
+   "name": "AH Excellent Gerookte zalm met dille",
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "normale prijs per kg €49.88",
+   "unit_size": "ca. 80 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 597482,
+   "name": "AH Komkommer dille dressing 2-pack",
+   "organic": false,
+   "price": "3.58",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 604946,
+   "name": "AH Mosterd dille dip kleintjes",
+   "organic": false,
+   "price": "1.49",
+   "unit_price": "normale prijs per kg €29.80",
+   "unit_size": "50 g"
+  },
+  {
+   "available": true,
+   "brand": "Wyngaard",
+   "category": "Kaas",
+   "id": 439790,
+   "name": "Wyngaard Kaas Mosterd dille",
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "prijs per kg €26.60",
+   "unit_size": "150 g"
   }
  ],
  "dillen": [
@@ -5919,6 +7230,94 @@
    "price": "1.45",
    "unit_price": "prijs per kg €34.52",
    "unit_size": "42 g"
+  },
+  {
+   "available": true,
+   "brand": "Euroma",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 189147,
+   "name": "Euroma Dille vriesdroog",
+   "organic": false,
+   "price": "3.29",
+   "unit_price": "prijs per kg €253.08",
+   "unit_size": "13 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 430909,
+   "name": "AH Komkommer dille dressing",
+   "organic": false,
+   "price": "1.79",
+   "unit_price": "prijs per liter €5.97",
+   "unit_size": "300 ml"
+  },
+  {
+   "available": true,
+   "brand": "Wyngaard",
+   "category": "Kaas",
+   "id": 439790,
+   "name": "Wyngaard Kaas Mosterd dille",
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "prijs per kg €26.60",
+   "unit_size": "150 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Excellent",
+   "category": "Vis",
+   "id": 621422,
+   "name": "AH Excellent Gerookte zalm met dille",
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "normale prijs per kg €49.88",
+   "unit_size": "ca. 80 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 604946,
+   "name": "AH Mosterd dille dip kleintjes",
+   "organic": false,
+   "price": "1.49",
+   "unit_price": "normale prijs per kg €29.80",
+   "unit_size": "50 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 621586,
+   "name": "AH Gemarineerd kaasblokjes mosterddille 4pk",
+   "organic": false,
+   "price": "11.16",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 621585,
+   "name": "AH Gemarineerd kaasblokjes mosterddille 3pk",
+   "organic": false,
+   "price": "8.37",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 621584,
+   "name": "AH Gemarineerd kaasblokjes mosterddille 2pk",
+   "organic": false,
+   "price": "5.58",
+   "unit_price": null,
+   "unit_size": "2 stuks"
   }
  ],
  "eieren": [
@@ -6053,6 +7452,94 @@
    "price": "9.56",
    "unit_price": null,
    "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Bakkerij",
+   "id": 617946,
+   "name": "AH Brabantse eierkoeken 2-pack",
+   "organic": false,
+   "price": "4.78",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Johma",
+   "category": "Borrel, chips, snacks",
+   "id": 617692,
+   "name": "Johma Ei salade XL voordeelpak 2-packb",
+   "organic": false,
+   "price": "10.38",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 170914,
+   "name": "AH Ei salade",
+   "organic": false,
+   "price": "1.59",
+   "unit_price": "prijs per kg €5.30",
+   "unit_size": "300 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Zuivel, eieren",
+   "id": 442922,
+   "name": "AH Witte vrije uitloopeieren M",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": null,
+   "unit_size": "6 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Zuivel, eieren",
+   "id": 567385,
+   "name": "AH Verse scharreleieren L/XL 3-pack",
+   "organic": false,
+   "price": "12.57",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Zuivel, eieren",
+   "id": 130273,
+   "name": "AH Verse scharreleieren M",
+   "organic": false,
+   "price": "6.99",
+   "unit_price": null,
+   "unit_size": "20 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Zuivel, eieren",
+   "id": 618342,
+   "name": "AH Verse scharreleieren M 3-pack",
+   "organic": false,
+   "price": "20.97",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Zuivel, eieren",
+   "id": 442940,
+   "name": "AH Biologisch Eieren S M L",
+   "organic": true,
+   "price": "6.49",
+   "unit_price": null,
+   "unit_size": "15 stuks"
   }
  ],
  "eierennen": [],
@@ -6211,6 +7698,30 @@
    "unit_size": "250 g"
   }
  ],
+ "gekookte rode bieten": [
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Groente, aardappelen",
+   "id": 218641,
+   "name": "AH Biologisch Rode bieten gekookt",
+   "organic": true,
+   "price": "1.49",
+   "unit_price": "prijs per kg €2.98",
+   "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Groente, aardappelen",
+   "id": 446488,
+   "name": "AH Biologisch Mini rode gekookte bieten",
+   "organic": true,
+   "price": "1.29",
+   "unit_price": "prijs per kg €5.16",
+   "unit_size": "250 g"
+  }
+ ],
  "gember": [
   {
    "available": true,
@@ -6343,6 +7854,94 @@
    "price": "2.99",
    "unit_price": "prijs per liter €5.98",
    "unit_size": "0,5 l"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Koek, snoep, chocolade",
+   "id": 517701,
+   "name": "AH Roomboter gemberkoekjes",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €14.74",
+   "unit_size": "135 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Fruit, verse sappen",
+   "id": 588972,
+   "name": "AH Hot ginger 75% gember verse gember appel",
+   "organic": false,
+   "price": "1.19",
+   "unit_price": "normale prijs per liter €9.52",
+   "unit_size": "125 ml"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Fruit, verse sappen",
+   "id": 575175,
+   "name": "AH Ginger strawberry verse gember appel",
+   "organic": false,
+   "price": "1.19",
+   "unit_price": "normale prijs per liter €9.52",
+   "unit_size": "125 ml"
+  },
+  {
+   "available": true,
+   "brand": "Zonnatura",
+   "category": "Koffie, thee",
+   "id": 196087,
+   "name": "Zonnatura Groene thee gember",
+   "organic": true,
+   "price": "2.69",
+   "unit_price": null,
+   "unit_size": "20 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Fruit, verse sappen",
+   "id": 619650,
+   "name": "AH Vers geperst sap appel gember citron 4pk",
+   "organic": false,
+   "price": "10.36",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Fruit, verse sappen",
+   "id": 619648,
+   "name": "AH Vers geperst sap appel gember citron 2pk",
+   "organic": false,
+   "price": "5.18",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Go-Tan",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 122322,
+   "name": "Go-Tan Gehakte gember",
+   "organic": false,
+   "price": "2.25",
+   "unit_price": "prijs per kg €22.50",
+   "unit_size": "100 g"
+  },
+  {
+   "available": true,
+   "brand": "Conimex",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 628917,
+   "name": "Conimex Crispy coating gember knoflook 2-pack",
+   "organic": false,
+   "price": "2.38",
+   "unit_price": null,
+   "unit_size": "2 stuks"
   }
  ],
  "gemberren": [
@@ -6477,6 +8076,94 @@
    "price": "2.59",
    "unit_price": "normale prijs per liter €14.80",
    "unit_size": "175 ml"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Koffie, thee",
+   "id": 567273,
+   "name": "AH Biologisch Groene thee gember citroengras",
+   "organic": true,
+   "price": "1.55",
+   "unit_price": null,
+   "unit_size": "20 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Kesbeke",
+   "category": "Koffie, thee",
+   "id": 617410,
+   "name": "Kesbeke Vers gesneden gember citroen",
+   "organic": false,
+   "price": "4.89",
+   "unit_price": "prijs per kg €22.23",
+   "unit_size": "220 g"
+  },
+  {
+   "available": true,
+   "brand": "Go-Tan",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 122322,
+   "name": "Go-Tan Gehakte gember",
+   "organic": false,
+   "price": "2.25",
+   "unit_price": "prijs per kg €22.50",
+   "unit_size": "100 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 415243,
+   "name": "AH Adjuma peper",
+   "organic": false,
+   "price": "0.59",
+   "unit_price": null,
+   "unit_size": "per stuk"
+  },
+  {
+   "available": true,
+   "brand": "Peijnenburg",
+   "category": "Ontbijtgranen, beleg",
+   "id": 594615,
+   "name": "Peijnenburg Ontbijtkoek gember ongesneden",
+   "organic": false,
+   "price": "2.49",
+   "unit_price": "prijs per kg €7.16",
+   "unit_size": "348 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 415244,
+   "name": "AH Jalapeño peper groen",
+   "organic": false,
+   "price": "0.59",
+   "unit_price": null,
+   "unit_size": "per stuk"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 221518,
+   "name": "AH Pepermix",
+   "organic": false,
+   "price": "2.29",
+   "unit_price": "prijs per kg €30.53",
+   "unit_size": "75 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 234031,
+   "name": "AH Rawit pepertjes",
+   "organic": false,
+   "price": "2.39",
+   "unit_price": "prijs per kg €47.80",
+   "unit_size": "50 g"
   }
  ],
  "gepelde tomaten": [
@@ -7338,6 +9025,94 @@
    "price": "2.19",
    "unit_price": "normale prijs per kg €10.95",
    "unit_size": "205 g"
+  },
+  {
+   "available": true,
+   "brand": "Hak",
+   "category": "Groente, aardappelen",
+   "id": 569515,
+   "name": "Hak Linzen",
+   "organic": false,
+   "price": "1.49",
+   "unit_price": "normale prijs per kg €6.48",
+   "unit_size": "380 g"
+  },
+  {
+   "available": true,
+   "brand": "Amaizin",
+   "category": "Groente, aardappelen",
+   "id": 606102,
+   "name": "Amaizin Biologische linzen",
+   "organic": true,
+   "price": "2.29",
+   "unit_price": "prijs per kg €8.64",
+   "unit_size": "400 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Terra",
+   "category": "Groente, aardappelen",
+   "id": 365957,
+   "name": "AH Terra Biologisch linzen",
+   "organic": true,
+   "price": "1.39",
+   "unit_price": "prijs per kg €6.62",
+   "unit_size": "360 g"
+  },
+  {
+   "available": true,
+   "brand": "Bonduelle",
+   "category": "Groente, aardappelen",
+   "id": 468583,
+   "name": "Bonduelle Linzen bio",
+   "organic": true,
+   "price": "2.99",
+   "unit_price": "prijs per kg €11.28",
+   "unit_size": "310 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 440523,
+   "name": "AH Rode linzensoep verspakket",
+   "organic": false,
+   "price": "4.99",
+   "unit_price": null,
+   "unit_size": "6 pers | 25 min"
+  },
+  {
+   "available": true,
+   "brand": "AH Terra",
+   "category": "Groente, aardappelen",
+   "id": 585663,
+   "name": "AH Terra Linzen mediterraan gekruid",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €9.95",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "Bonduelle",
+   "category": "Groente, aardappelen",
+   "id": 195554,
+   "name": "Bonduelle Linzen",
+   "organic": false,
+   "price": "1.49",
+   "unit_price": "prijs per kg €11.46",
+   "unit_size": "160 g"
+  },
+  {
+   "available": true,
+   "brand": "Bonduelle",
+   "category": "Groente, aardappelen",
+   "id": 104082,
+   "name": "Bonduelle Linzen",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €7.51",
+   "unit_size": "310 g"
   }
  ],
  "groene linzennen": [
@@ -7472,6 +9247,94 @@
    "price": "7.17",
    "unit_price": null,
    "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 617227,
+   "name": "AH Tapenade groene olijf 4-pack",
+   "organic": false,
+   "price": "9.56",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Vitakraft",
+   "category": "Koffie, thee",
+   "id": 627116,
+   "name": "Vitakraft Lick & snack leverworst 3-pack",
+   "organic": false,
+   "price": "8.97",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Vitakraft",
+   "category": "Koffie, thee",
+   "id": 627110,
+   "name": "Vitakraft Lick & snack leverworst 2-pack",
+   "organic": false,
+   "price": "5.98",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Huishouden",
+   "id": 167553,
+   "name": "AH Vloeibare groene zeep",
+   "organic": false,
+   "price": "1.49",
+   "unit_price": "prijs per liter €1.99",
+   "unit_size": "0,75 l"
+  },
+  {
+   "available": true,
+   "brand": "Chiquita",
+   "category": "Fruit, verse sappen",
+   "id": 595324,
+   "name": "Chiquita Groene bananen",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": null,
+   "unit_size": "5 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Koffie, thee",
+   "id": 458809,
+   "name": "AH Biologisch Groene thee puur",
+   "organic": true,
+   "price": "1.55",
+   "unit_price": null,
+   "unit_size": "20 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Koek, snoep, chocolade",
+   "id": 559263,
+   "name": "AH Menthol groentjes",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €6.63",
+   "unit_size": "300 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 215707,
+   "name": "AH Groene asperges",
+   "organic": false,
+   "price": "5.99",
+   "unit_price": "prijs per kg €17.11",
+   "unit_size": "350 g"
   }
  ],
  "grove mosterd": [
@@ -7698,6 +9561,28 @@
    "price": "5.38",
    "unit_price": null,
    "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Fish Tales",
+   "category": "Vis",
+   "id": 593941,
+   "name": "Fish Tales Sardines in harissa",
+   "organic": false,
+   "price": "3.29",
+   "unit_price": "prijs per kg €38.71",
+   "unit_size": "120 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 627590,
+   "name": "AH Harissa olijven",
+   "organic": false,
+   "price": "3.29",
+   "unit_price": "prijs per kg €25.31",
+   "unit_size": "130 g"
   }
  ],
  "harissa kruidenmix": [
@@ -7867,6 +9752,28 @@
    "price": "1.95",
    "unit_price": "normale prijs per kg €9.75",
    "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 622420,
+   "name": "AH Yoghurtdip harissa 2-pack",
+   "organic": false,
+   "price": "5.38",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 627590,
+   "name": "AH Harissa olijven",
+   "organic": false,
+   "price": "3.29",
+   "unit_price": "prijs per kg €25.31",
+   "unit_size": "130 g"
   }
  ],
  "honing": [
@@ -8023,6 +9930,94 @@
    "price": "5.37",
    "unit_price": null,
    "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Koek, snoep, chocolade",
+   "id": 617832,
+   "name": "AH Biologisch Honing stroopwafels 4-pack",
+   "organic": false,
+   "price": "9.96",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Koek, snoep, chocolade",
+   "id": 617831,
+   "name": "AH Biologisch Honing stroopwafels 3-pack",
+   "organic": false,
+   "price": "7.47",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Jean Bâton",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 629048,
+   "name": "Jean Bâton Dressing honey mustard 3-pack",
+   "organic": false,
+   "price": "7.17",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 619180,
+   "name": "AH Geitenkaas honing 40+ 3-pack",
+   "organic": false,
+   "price": "7.95",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 619181,
+   "name": "AH Geitenkaas honing 40+ 4-pack",
+   "organic": false,
+   "price": "10.6",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Koek, snoep, chocolade",
+   "id": 618812,
+   "name": "AH Biologisch Roomboter honing mini stroopwafels 2-pck",
+   "organic": false,
+   "price": "4.58",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Koek, snoep, chocolade",
+   "id": 618813,
+   "name": "AH Biologisch Roomboter honing mini stroopwafels 3-pck",
+   "organic": false,
+   "price": "6.87",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Mellona",
+   "category": "Ontbijtgranen, beleg",
+   "id": 228999,
+   "name": "Mellona Vloeibare honing",
+   "organic": true,
+   "price": "7.29",
+   "unit_price": "prijs per kg €16.20",
+   "unit_size": "450 g"
   }
  ],
  "honingen": [
@@ -8179,6 +10174,94 @@
    "price": "7.17",
    "unit_price": null,
    "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 619180,
+   "name": "AH Geitenkaas honing 40+ 3-pack",
+   "organic": false,
+   "price": "7.95",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 619181,
+   "name": "AH Geitenkaas honing 40+ 4-pack",
+   "organic": false,
+   "price": "10.6",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Koek, snoep, chocolade",
+   "id": 618812,
+   "name": "AH Biologisch Roomboter honing mini stroopwafels 2-pck",
+   "organic": false,
+   "price": "4.58",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Koek, snoep, chocolade",
+   "id": 618813,
+   "name": "AH Biologisch Roomboter honing mini stroopwafels 3-pck",
+   "organic": false,
+   "price": "6.87",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Honinghuis",
+   "category": "Ontbijtgranen, beleg",
+   "id": 450802,
+   "name": "Honinghuis Bloemenhoning",
+   "organic": false,
+   "price": "6.99",
+   "unit_price": "prijs per kg €19.97",
+   "unit_size": "350 g"
+  },
+  {
+   "available": true,
+   "brand": "Strepsils",
+   "category": "Gezondheid en sport",
+   "id": 123452,
+   "name": "Strepsils Keeltabletten citroen & honing",
+   "organic": false,
+   "price": "9.99",
+   "unit_price": null,
+   "unit_size": "36 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Langnese",
+   "category": "Ontbijtgranen, beleg",
+   "id": 106862,
+   "name": "Langnese Bee easy",
+   "organic": false,
+   "price": "5.99",
+   "unit_price": "prijs per kg €11.98",
+   "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "Honinghuis",
+   "category": "Ontbijtgranen, beleg",
+   "id": 588917,
+   "name": "Honinghuis 100% Nederlandse bloemenhoning",
+   "organic": false,
+   "price": "8.95",
+   "unit_price": "prijs per kg €25.57",
+   "unit_size": "350 g"
   }
  ],
  "iets kruimige aardappel": [
@@ -8436,6 +10519,94 @@
    "price": "1.75",
    "unit_price": "prijs per kg €1.75",
    "unit_size": "1 kg"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 124193,
+   "name": "AH Risotto rijst",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €3.98",
+   "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 80149,
+   "name": "AH Pandan rijst",
+   "organic": false,
+   "price": "1.49",
+   "unit_price": "prijs per kg €3.73",
+   "unit_size": "400 g"
+  },
+  {
+   "available": true,
+   "brand": "Ella's kitchen",
+   "category": "Baby en kind",
+   "id": 628741,
+   "name": "Ella's kitchen Kiplekkere ovenschotel met rijst 6m 3-pk",
+   "organic": false,
+   "price": "7.17",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 583715,
+   "name": "AH Sushi rijst",
+   "organic": false,
+   "price": "2.49",
+   "unit_price": "prijs per kg €4.98",
+   "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 525395,
+   "name": "AH Biologisch Pandan rijst",
+   "organic": true,
+   "price": "1.65",
+   "unit_price": "prijs per kg €4.13",
+   "unit_size": "400 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 525401,
+   "name": "AH Sushi rijst",
+   "organic": false,
+   "price": "2.49",
+   "unit_price": "prijs per kg €4.98",
+   "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "Lassie",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 62372,
+   "name": "Lassie Gele Rijst",
+   "organic": false,
+   "price": "1.79",
+   "unit_price": "prijs per kg €5.51",
+   "unit_size": "325 g"
+  },
+  {
+   "available": true,
+   "brand": "Ibis Rice",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 613345,
+   "name": "Ibis Rice Semi-milled long grain rice",
+   "organic": true,
+   "price": "2.89",
+   "unit_price": "prijs per kg €5.78",
+   "unit_size": "500 g"
   }
  ],
  "jasmijn rijsten": [
@@ -8570,6 +10741,61 @@
    "price": "3.29",
    "unit_price": "normale prijs per liter €3.29",
    "unit_size": "1 l"
+  },
+  {
+   "available": true,
+   "brand": "Air Wick",
+   "category": "Koken, tafelen, vrije tijd",
+   "id": 550405,
+   "name": "Air Wick Geurstokjes fresia en jasmijn",
+   "organic": false,
+   "price": "6.99",
+   "unit_price": "prijs per liter €279.60",
+   "unit_size": "25 ml"
+  },
+  {
+   "available": true,
+   "brand": "Air Wick",
+   "category": "Huishouden",
+   "id": 497801,
+   "name": "Air Wick Jasmijn & pioenroos navulling",
+   "organic": false,
+   "price": "5.99",
+   "unit_price": "prijs per liter €299.50",
+   "unit_size": "20 ml"
+  },
+  {
+   "available": true,
+   "brand": "Lenor",
+   "category": "Huishouden",
+   "id": 622965,
+   "name": "Lenor Wasverzachter robijn jasmijn 2-pack",
+   "organic": false,
+   "price": "19.98",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Robijn",
+   "category": "Huishouden",
+   "id": 608825,
+   "name": "Robijn Wasverzachter jasmijn sandelhout 2-pack",
+   "organic": false,
+   "price": "14.7",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Robijn",
+   "category": "Huishouden",
+   "id": 608827,
+   "name": "Robijn Wasverzachter jasmijn sandelhout 8-pack",
+   "organic": false,
+   "price": "58.8",
+   "unit_price": null,
+   "unit_size": "8 stuks"
   }
  ],
  "jasmijnrijst": [],
@@ -8775,6 +11001,50 @@
    "price": "None",
    "unit_price": null,
    "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Groente, aardappelen",
+   "id": 620723,
+   "name": "AH Biologisch Kappertjes 4-pack",
+   "organic": false,
+   "price": "None",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 617472,
+   "name": "AH Kapperappeltjes 2-pack",
+   "organic": false,
+   "price": "3.98",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 604942,
+   "name": "AH Loaded dip zalm met kappertjes",
+   "organic": false,
+   "price": "3.29",
+   "unit_price": "prijs per kg €21.93",
+   "unit_size": "150 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 62825,
+   "name": "AH Kappertjes",
+   "organic": false,
+   "price": "0.49",
+   "unit_price": "prijs per kg €8.17",
+   "unit_size": "100 g"
   }
  ],
  "kappertjesen": [
@@ -8909,6 +11179,50 @@
    "price": "None",
    "unit_price": null,
    "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Groente, aardappelen",
+   "id": 620722,
+   "name": "AH Biologisch Kappertjes 3-pack",
+   "organic": false,
+   "price": "None",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Groente, aardappelen",
+   "id": 620723,
+   "name": "AH Biologisch Kappertjes 4-pack",
+   "organic": false,
+   "price": "None",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 617472,
+   "name": "AH Kapperappeltjes 2-pack",
+   "organic": false,
+   "price": "3.98",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 62825,
+   "name": "AH Kappertjes",
+   "organic": false,
+   "price": "0.49",
+   "unit_price": "prijs per kg €8.17",
+   "unit_size": "100 g"
   }
  ],
  "ketjap manis": [
@@ -9166,6 +11480,94 @@
    "price": "1.99",
    "unit_price": "prijs per kg €11.06",
    "unit_size": "180 g"
+  },
+  {
+   "available": true,
+   "brand": "A Trade Mark",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 242674,
+   "name": "A Trade Mark Ketjap manis",
+   "organic": false,
+   "price": "5.29",
+   "unit_price": "prijs per liter €5.29",
+   "unit_size": "1 l"
+  },
+  {
+   "available": true,
+   "brand": "Go-Tan",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 386520,
+   "name": "Go-Tan Original wok ketjap sesam",
+   "organic": false,
+   "price": "2.69",
+   "unit_price": "prijs per liter €11.21",
+   "unit_size": "240 ml"
+  },
+  {
+   "available": true,
+   "brand": "Conimex",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 38411,
+   "name": "Conimex Mix voor babi ketjap",
+   "organic": false,
+   "price": "1.79",
+   "unit_price": "normale prijs per kg €22.38",
+   "unit_size": "80 g"
+  },
+  {
+   "available": true,
+   "brand": "Vanka-Kawat",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 199109,
+   "name": "Vanka-Kawat Kaki tiga ketjap medja no.1",
+   "organic": false,
+   "price": "3.29",
+   "unit_price": "prijs per liter €6.58",
+   "unit_size": "0,5 l"
+  },
+  {
+   "available": true,
+   "brand": "Go-Tan",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 553343,
+   "name": "Go-Tan Ketjap manis",
+   "organic": false,
+   "price": "2.25",
+   "unit_price": "prijs per liter €8.33",
+   "unit_size": "270 ml"
+  },
+  {
+   "available": true,
+   "brand": "Kokki Djawa",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 627328,
+   "name": "Kokki Djawa Ketjap marinade",
+   "organic": false,
+   "price": "2.29",
+   "unit_price": "prijs per liter €9.16",
+   "unit_size": "250 ml"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Maaltijden, salades",
+   "id": 221485,
+   "name": "AH Kip ketjap L",
+   "organic": false,
+   "price": "5.49",
+   "unit_price": "prijs per kg €12.20",
+   "unit_size": "450 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Maaltijden, salades",
+   "id": 597737,
+   "name": "AH Mihoen kip ketjap",
+   "organic": false,
+   "price": "4.99",
+   "unit_price": "prijs per kg €11.09",
+   "unit_size": "450 g"
   }
  ],
  "kippenbouillonblokje": [],
@@ -9299,6 +11701,94 @@
    "name": "AH Excellent Aioli zwarte knoflook 3-pack",
    "organic": false,
    "price": "8.97",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH Excellent",
+   "category": "Borrel, chips, snacks",
+   "id": 622334,
+   "name": "AH Excellent Aioli zwarte knoflook 4-pack",
+   "organic": false,
+   "price": "11.96",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 621567,
+   "name": "AH Cocktailgarnalen knoflooksaus 3-pack",
+   "organic": false,
+   "price": "11.07",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 621566,
+   "name": "AH Cocktailgarnalen knoflooksaus 2-pack",
+   "organic": false,
+   "price": "7.38",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 621568,
+   "name": "AH Cocktailgarnalen knoflooksaus 4-pack",
+   "organic": false,
+   "price": "14.76",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Boursin",
+   "category": "Kaas",
+   "id": 612839,
+   "name": "Boursin Plantaardig knoflook fijne kruiden 3pack",
+   "organic": false,
+   "price": "10.47",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 506230,
+   "name": "AH Zuivelspread knoflook & kruiden",
+   "organic": false,
+   "price": "1.39",
+   "unit_price": "prijs per kg €6.95",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "Paturain",
+   "category": "Kaas",
+   "id": 626153,
+   "name": "Paturain Paturain Knoflook fijne kruiden 3-pack",
+   "organic": false,
+   "price": "13.17",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH Excellent",
+   "category": "Vegetarisch, vegan en plantaardig",
+   "id": 621549,
+   "name": "AH Excellent Zwarte knoflook pate 3-pack",
+   "organic": false,
+   "price": "5.97",
    "unit_price": null,
    "unit_size": "3 stuks"
   }
@@ -9435,6 +11925,94 @@
    "price": "1.69",
    "unit_price": "prijs per kg €4.33",
    "unit_size": "390 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vis",
+   "id": 617435,
+   "name": "AH Roerbak garnalen knoflook 4-pack",
+   "organic": false,
+   "price": "21.96",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Maaltijden, salades",
+   "id": 621116,
+   "name": "AH Woksmaakmaker knoflook 3-pack",
+   "organic": false,
+   "price": "5.37",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH Excellent",
+   "category": "Borrel, chips, snacks",
+   "id": 621615,
+   "name": "AH Excellent Mediterrane olijfmix met knoflook 2-pack",
+   "organic": false,
+   "price": "6.58",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Go-Tan",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 122302,
+   "name": "Go-Tan Gehakte knoflook",
+   "organic": false,
+   "price": "2.29",
+   "unit_price": "prijs per kg €22.90",
+   "unit_size": "100 g"
+  },
+  {
+   "available": true,
+   "brand": "Haust",
+   "category": "Borrel, chips, snacks",
+   "id": 627847,
+   "name": "Haust Toast en chips knoflook 2-pack",
+   "organic": false,
+   "price": "3.58",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Boursin",
+   "category": "Zuivel, eieren",
+   "id": 612836,
+   "name": "Boursin Cuisine knoflook & fijne kruiden 3-pack",
+   "organic": false,
+   "price": "8.97",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 217336,
+   "name": "AH Groene olijven met knoflook",
+   "organic": false,
+   "price": "3.39",
+   "unit_price": "prijs per kg €13.04",
+   "unit_size": "260 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 377126,
+   "name": "AH Knoflook",
+   "organic": false,
+   "price": "2.59",
+   "unit_price": "prijs per kg €10.36",
+   "unit_size": "250 g"
   }
  ],
  "komijnzaad": [
@@ -9661,6 +12239,94 @@
    "price": "3.98",
    "unit_price": null,
    "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 502305,
+   "name": "AH Snoepgroente komkommer",
+   "organic": false,
+   "price": "2.29",
+   "unit_price": "normale prijs per kg €9.96",
+   "unit_size": "230 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 465600,
+   "name": "AH Snoepgroente komkommer",
+   "organic": false,
+   "price": "5.79",
+   "unit_price": "prijs per kg €8.27",
+   "unit_size": "700 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 376549,
+   "name": "AH Komkommersalade",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €11.37",
+   "unit_size": "175 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 591518,
+   "name": "AH Midi komkommers",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Bieze",
+   "category": "Maaltijden, salades",
+   "id": 203228,
+   "name": "Bieze Rauwkost komkommer",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €7.96",
+   "unit_size": "250 g"
+  },
+  {
+   "available": true,
+   "brand": "Philadelphia",
+   "category": "Kaas",
+   "id": 613312,
+   "name": "Philadelphia Feta komkommer",
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "prijs per kg €17.09",
+   "unit_size": "175 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Fruit, verse sappen",
+   "id": 610093,
+   "name": "AH 80% Groentesap komkommer spinazie",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "normale prijs per liter €7.96",
+   "unit_size": "250 ml"
+  },
+  {
+   "available": true,
+   "brand": "AH Hamsterchef",
+   "category": "Kaas",
+   "id": 623678,
+   "name": "AH Hamsterchef Zuivelspread light komkommer",
+   "organic": false,
+   "price": "1.39",
+   "unit_price": "prijs per kg €11.58",
+   "unit_size": "120 g"
   }
  ],
  "komkommers": [
@@ -9795,6 +12461,94 @@
    "price": "5.37",
    "unit_price": null,
    "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 621543,
+   "name": "AH Zoetzure komkommer 3-pack",
+   "organic": false,
+   "price": "10.17",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 621544,
+   "name": "AH Zoetzure komkommer 4-pack",
+   "organic": false,
+   "price": "13.56",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 626151,
+   "name": "AH AH Snoepgroente komkommer 3-pack",
+   "organic": false,
+   "price": "17.37",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Bieze",
+   "category": "Maaltijden, salades",
+   "id": 203228,
+   "name": "Bieze Rauwkost komkommer",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €7.96",
+   "unit_size": "250 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 375965,
+   "name": "AH Komkommer salade",
+   "organic": false,
+   "price": "1.69",
+   "unit_price": "prijs per kg €5.63",
+   "unit_size": "300 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 591518,
+   "name": "AH Midi komkommers",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 376549,
+   "name": "AH Komkommersalade",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €11.37",
+   "unit_size": "175 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Terra",
+   "category": "Borrel, chips, snacks",
+   "id": 522401,
+   "name": "AH Terra Plantaardig groentespread komkommer",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €13.27",
+   "unit_size": "150 g"
   }
  ],
  "koriander": [
@@ -9929,6 +12683,61 @@
    "price": "1.89",
    "unit_price": null,
    "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Bakkerij",
+   "id": 597490,
+   "name": "AH Mini naanbrood knoflook koriander 2-pack",
+   "organic": false,
+   "price": "3.78",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 197964,
+   "name": "AH Geitenkaas koriander 50+ plak",
+   "organic": false,
+   "price": "5.54",
+   "unit_price": "prijs per kg €25.76",
+   "unit_size": "ca. 215 g"
+  },
+  {
+   "available": true,
+   "brand": "Tilda",
+   "category": "Bakkerij",
+   "id": 592088,
+   "name": "Tilda Naanbrood knoflook koriander",
+   "organic": false,
+   "price": "3.29",
+   "unit_price": "prijs per kg €10.97",
+   "unit_size": "300 g"
+  },
+  {
+   "available": true,
+   "brand": "Maza",
+   "category": "Vegetarisch, vegan en plantaardig",
+   "id": 202856,
+   "name": "Maza Hoemoes koriander limoen",
+   "organic": false,
+   "price": "2.59",
+   "unit_price": "prijs per kg €12.95",
+   "unit_size": "200 g"
+  },
+  {
+   "available": false,
+   "brand": "AH Biologisch",
+   "category": "Groente, aardappelen",
+   "id": 230802,
+   "name": "AH Biologisch Koriander pot",
+   "organic": true,
+   "price": "2.19",
+   "unit_price": null,
+   "unit_size": "per stuk"
   }
  ],
  "korianders": [
@@ -10063,6 +12872,61 @@
    "price": "5.54",
    "unit_price": "prijs per kg €25.76",
    "unit_size": "ca. 215 g"
+  },
+  {
+   "available": true,
+   "brand": "Euroma",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 197876,
+   "name": "Euroma Korianderblad vriesdroog",
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "prijs per kg €373.75",
+   "unit_size": "8 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Bakkerij",
+   "id": 597490,
+   "name": "AH Mini naanbrood knoflook koriander 2-pack",
+   "organic": false,
+   "price": "3.78",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Tilda",
+   "category": "Bakkerij",
+   "id": 592088,
+   "name": "Tilda Naanbrood knoflook koriander",
+   "organic": false,
+   "price": "3.29",
+   "unit_price": "prijs per kg €10.97",
+   "unit_size": "300 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Bakkerij",
+   "id": 620044,
+   "name": "AH Mini naanbrood knoflook koriander 3-pack",
+   "organic": false,
+   "price": "5.67",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": false,
+   "brand": "AH Biologisch",
+   "category": "Groente, aardappelen",
+   "id": 230802,
+   "name": "AH Biologisch Koriander pot",
+   "organic": true,
+   "price": "2.19",
+   "unit_price": null,
+   "unit_size": "per stuk"
   }
  ],
  "korianderzaad": [
@@ -10490,6 +13354,94 @@
    "price": "13.16",
    "unit_price": null,
    "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Knorr",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 624336,
+   "name": "Knorr Lasagne bolognese XL 2-pack",
+   "organic": false,
+   "price": "9.98",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Knorr",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 624338,
+   "name": "Knorr Lasagne bolognese XL 4-pack",
+   "organic": false,
+   "price": "19.96",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Knorr",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 624337,
+   "name": "Knorr Lasagne bolognese XL 3-pack",
+   "organic": false,
+   "price": "14.97",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Knorr",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 624333,
+   "name": "Knorr Wereldgerechten lasagne bolognese 2-pack",
+   "organic": false,
+   "price": "8.9",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Knorr",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 624334,
+   "name": "Knorr Wereldgerechten lasagne bolognese 3-pack",
+   "organic": false,
+   "price": "13.35",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Knorr",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 624335,
+   "name": "Knorr Wereldgerechten lasagne bolognese 4-pack",
+   "organic": false,
+   "price": "17.8",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Knorr",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 624207,
+   "name": "Knorr Maaltijdmix lasagne bolognese 2-pack",
+   "organic": false,
+   "price": "3.98",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Knorr",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 624209,
+   "name": "Knorr Maaltijdmix lasagne bolognese 4-pack",
+   "organic": false,
+   "price": "7.96",
+   "unit_price": null,
+   "unit_size": "4 stuks"
   }
  ],
  "lasagnen": [
@@ -10657,6 +13609,94 @@
    "price": "5.97",
    "unit_price": null,
    "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 467978,
+   "name": "AH Lasagne",
+   "organic": false,
+   "price": "1.75",
+   "unit_price": "prijs per kg €3.50",
+   "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "Knorr",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 624291,
+   "name": "Knorr Tratorria lasagne tradizionale 2-pack",
+   "organic": false,
+   "price": "9.98",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Knorr",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 624292,
+   "name": "Knorr Tratorria lasagne tradizionale 3-pack",
+   "organic": false,
+   "price": "14.97",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Knorr",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 624293,
+   "name": "Knorr Tratorria lasagne tradizionale 4-pack",
+   "organic": false,
+   "price": "19.96",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Honig",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 2110,
+   "name": "Honig Basis voor lasagnesaus",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €15.92",
+   "unit_size": "125 g"
+  },
+  {
+   "available": true,
+   "brand": "Honig",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 46302,
+   "name": "Honig Basis voor lasagnesaus tradizionale",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €15.92",
+   "unit_size": "125 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 543646,
+   "name": "AH Biologisch Lasagne volkoren",
+   "organic": true,
+   "price": "1.49",
+   "unit_price": "prijs per kg €5.96",
+   "unit_size": "250 g"
+  },
+  {
+   "available": true,
+   "brand": "Grand' Italia",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 132975,
+   "name": "Grand' Italia Besciamella voor lasagne",
+   "organic": false,
+   "price": "3.69",
+   "unit_price": "prijs per kg €9.23",
+   "unit_size": "400 g"
   }
  ],
  "lasagnevel": [
@@ -10826,6 +13866,94 @@
    "price": "2.99",
    "unit_price": "prijs per liter €5.98",
    "unit_size": "0,5 l"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 398477,
+   "name": "AH Biologisch Citroensap",
+   "organic": true,
+   "price": "1.35",
+   "unit_price": "prijs per liter €5.40",
+   "unit_size": "250 ml"
+  },
+  {
+   "available": true,
+   "brand": "Upfront",
+   "category": "Gezondheid en sport",
+   "id": 599563,
+   "name": "Upfront Clear whey limonade limoen munt smaak",
+   "organic": false,
+   "price": "19.99",
+   "unit_price": "prijs per kg €66.63",
+   "unit_size": "300 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Frisdrank, sappen, water",
+   "id": 517553,
+   "name": "AH Biologisch Limoen munt siroop",
+   "organic": true,
+   "price": "2.99",
+   "unit_price": "prijs per liter €5.98",
+   "unit_size": "0,5 l"
+  },
+  {
+   "available": true,
+   "brand": "Karvan Cévitam",
+   "category": "Frisdrank, sappen, water",
+   "id": 612364,
+   "name": "Karvan Cévitam Refresh Zero limoen & munt siroop 3-pack",
+   "organic": false,
+   "price": "12.87",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Frisdrank, sappen, water",
+   "id": 511136,
+   "name": "AH Licht&zonder prik limoen & passievrucht",
+   "organic": false,
+   "price": "1.39",
+   "unit_price": "prijs per liter €0.93",
+   "unit_size": "1,5 l"
+  },
+  {
+   "available": true,
+   "brand": "Optimel",
+   "category": "Zuivel, eieren",
+   "id": 608508,
+   "name": "Optimel Drinkyoghurt limoen 4-pack",
+   "organic": false,
+   "price": "7.96",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Upfront",
+   "category": "Gezondheid en sport",
+   "id": 607228,
+   "name": "Upfront Gel pro ice limoen munt smaak",
+   "organic": false,
+   "price": "2.29",
+   "unit_price": "prijs per kg €35.23",
+   "unit_size": "65 g"
+  },
+  {
+   "available": true,
+   "brand": "Optimel",
+   "category": "Zuivel, eieren",
+   "id": 61760,
+   "name": "Optimel Drinkyoghurt limoen",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per liter €1.99",
+   "unit_size": "1 l"
   }
  ],
  "limoenen": [
@@ -10960,6 +14088,94 @@
    "price": "1.55",
    "unit_price": null,
    "unit_size": "20 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Maza",
+   "category": "Vegetarisch, vegan en plantaardig",
+   "id": 202856,
+   "name": "Maza Hoemoes koriander limoen",
+   "organic": false,
+   "price": "2.59",
+   "unit_price": "prijs per kg €12.95",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "Optimel",
+   "category": "Zuivel, eieren",
+   "id": 61760,
+   "name": "Optimel Drinkyoghurt limoen",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per liter €1.99",
+   "unit_size": "1 l"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Fruit, verse sappen",
+   "id": 218172,
+   "name": "AH Vers geperst sap blauwe bes appel limoen",
+   "organic": false,
+   "price": "2.59",
+   "unit_price": "prijs per liter €5.18",
+   "unit_size": "500 ml"
+  },
+  {
+   "available": true,
+   "brand": "Ajax",
+   "category": "Huishouden",
+   "id": 323336,
+   "name": "Ajax Limoen allesreiniger",
+   "organic": false,
+   "price": "2.95",
+   "unit_price": "normale prijs per liter €2.36",
+   "unit_size": "1,25 l"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Gezondheid en sport",
+   "id": 594163,
+   "name": "AH Clear whey protein poeder citroen limoen",
+   "organic": false,
+   "price": "7.99",
+   "unit_price": "prijs per kg €39.95",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 398477,
+   "name": "AH Biologisch Citroensap",
+   "organic": true,
+   "price": "1.35",
+   "unit_price": "prijs per liter €5.40",
+   "unit_size": "250 ml"
+  },
+  {
+   "available": true,
+   "brand": "Red Bull",
+   "category": "Frisdrank, sappen, water",
+   "id": 627040,
+   "name": "Red Bull Sudachi limoen sugarfree 12-pack",
+   "organic": false,
+   "price": "18.69",
+   "unit_price": "prijs per liter €6.23",
+   "unit_size": "12 x 0,25 l"
+  },
+  {
+   "available": true,
+   "brand": "Seepje",
+   "category": "Huishouden",
+   "id": 434050,
+   "name": "Seepje Afwasmiddel tintelfrisse limoen geur",
+   "organic": false,
+   "price": "3.29",
+   "unit_price": "prijs per liter €6.58",
+   "unit_size": "0,5 l"
   }
  ],
  "mayonaise": [
@@ -11020,14 +14236,14 @@
   },
   {
    "available": true,
-   "brand": "Calvé",
+   "brand": "Thomy",
    "category": "Soepen, sauzen, kruiden, olie",
-   "id": 2037,
-   "name": "Calvé Mayonaise",
+   "id": 609268,
+   "name": "Thomy Mayo 50%",
    "organic": false,
-   "price": "3.99",
-   "unit_price": "prijs per liter €8.87",
-   "unit_size": "450 ml"
+   "price": "1.99",
+   "unit_price": "prijs per kg €11.71",
+   "unit_size": "170 g"
   },
   {
    "available": true,
@@ -11116,9 +14332,108 @@
    "price": "6.38",
    "unit_price": null,
    "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Hellmann's",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 608693,
+   "name": "Hellmann's Real mayonaise 250 3-pack",
+   "organic": false,
+   "price": "9.57",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 598185,
+   "name": "AH Pesto mayonaise 2-pack",
+   "organic": false,
+   "price": "4.58",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 619246,
+   "name": "AH Pesto mayonaise 3-pack",
+   "organic": false,
+   "price": "6.87",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 619247,
+   "name": "AH Pesto mayonaise 4-pack",
+   "organic": false,
+   "price": "9.16",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Jean Bâton",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 629043,
+   "name": "Jean Bâton Mayo absolutely vegan 3-pack",
+   "organic": false,
+   "price": "8.97",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Jean Bâton",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 629036,
+   "name": "Jean Bâton Mayonnaise black truffle 3-pack",
+   "organic": false,
+   "price": "8.07",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Oliehoorn",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 516636,
+   "name": "Oliehoorn Mayonaise",
+   "organic": false,
+   "price": "4.19",
+   "unit_price": "prijs per liter €5.59",
+   "unit_size": "0,75 l"
+  },
+  {
+   "available": true,
+   "brand": "Conimex",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 628916,
+   "name": "Conimex Crispy Chili mayo 2-pack",
+   "organic": false,
+   "price": "6.58",
+   "unit_price": null,
+   "unit_size": "2 stuks"
   }
  ],
  "mayonaisen": [
+  {
+   "available": true,
+   "brand": "Calvé",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 429373,
+   "name": "Calvé Mayonaise",
+   "organic": false,
+   "price": "4.09",
+   "unit_price": "prijs per liter €6.29",
+   "unit_size": "650 ml"
+  },
   {
    "available": true,
    "brand": "Thomy",
@@ -11129,17 +14444,6 @@
    "price": "1.99",
    "unit_price": "prijs per kg €11.71",
    "unit_size": "170 g"
-  },
-  {
-   "available": true,
-   "brand": "Hellmann's",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 516642,
-   "name": "Hellmann's Real",
-   "organic": false,
-   "price": "5.59",
-   "unit_price": "prijs per liter €8.60",
-   "unit_size": "0,65 l"
   },
   {
    "available": true,
@@ -11176,14 +14480,14 @@
   },
   {
    "available": true,
-   "brand": "Hellmann's",
+   "brand": "Thomy",
    "category": "Soepen, sauzen, kruiden, olie",
-   "id": 576658,
-   "name": "Hellmann's Plant-based",
+   "id": 609268,
+   "name": "Thomy Mayo 50%",
    "organic": false,
-   "price": "3.99",
-   "unit_price": "prijs per liter €11.74",
-   "unit_size": "340 ml"
+   "price": "1.99",
+   "unit_price": "prijs per kg €11.71",
+   "unit_size": "170 g"
   },
   {
    "available": true,
@@ -11283,6 +14587,94 @@
    "price": "4.58",
    "unit_price": null,
    "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 619246,
+   "name": "AH Pesto mayonaise 3-pack",
+   "organic": false,
+   "price": "6.87",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 619247,
+   "name": "AH Pesto mayonaise 4-pack",
+   "organic": false,
+   "price": "9.16",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Jean Bâton",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 629043,
+   "name": "Jean Bâton Mayo absolutely vegan 3-pack",
+   "organic": false,
+   "price": "8.97",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Jean Bâton",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 629036,
+   "name": "Jean Bâton Mayonnaise black truffle 3-pack",
+   "organic": false,
+   "price": "8.07",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 467626,
+   "name": "AH Mayonaise",
+   "organic": false,
+   "price": "2.35",
+   "unit_price": "prijs per liter €3.13",
+   "unit_size": "0,75 l"
+  },
+  {
+   "available": true,
+   "brand": "Conimex",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 628916,
+   "name": "Conimex Crispy Chili mayo 2-pack",
+   "organic": false,
+   "price": "6.58",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Conimex",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 628919,
+   "name": "Conimex Crispy Chili mayo 3-pack",
+   "organic": false,
+   "price": "9.87",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Jean Bâton",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 629052,
+   "name": "Jean Bâton Mayonnaise spicy sriracha 3-pack",
+   "organic": false,
+   "price": "8.97",
+   "unit_price": null,
+   "unit_size": "3 stuks"
   }
  ],
  "middelgroot scharrelei": [
@@ -11720,6 +15112,39 @@
    "price": "3.78",
    "unit_price": null,
    "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Bakkerij",
+   "id": 620045,
+   "name": "AH Mini naanbrood naturel 3-pack",
+   "organic": false,
+   "price": "5.67",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Bakkerij",
+   "id": 597489,
+   "name": "AH Mini naan brood volkoren 2-pack",
+   "organic": false,
+   "price": "3.78",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Bakkerij",
+   "id": 620044,
+   "name": "AH Mini naanbrood knoflook koriander 3-pack",
+   "organic": false,
+   "price": "5.67",
+   "unit_price": null,
+   "unit_size": "3 stuks"
   }
  ],
  "mini naanbrood volkorens": [
@@ -12264,6 +15689,94 @@
    "price": "3.99",
    "unit_price": "prijs per kg €23.47",
    "unit_size": "170 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Borrel, chips, snacks",
+   "id": 170309,
+   "name": "AH Biologisch Cashewnoten ongezouten",
+   "organic": true,
+   "price": "4.49",
+   "unit_price": "prijs per kg €28.06",
+   "unit_size": "160 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 610776,
+   "name": "AH Ras el hanout cashewnoten ongezouten",
+   "organic": false,
+   "price": "2.49",
+   "unit_price": "prijs per kg €16.60",
+   "unit_size": "150 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 559267,
+   "name": "AH Ongezouten cashewnoten",
+   "organic": false,
+   "price": "4.99",
+   "unit_price": "prijs per kg €22.18",
+   "unit_size": "225 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 559300,
+   "name": "AH Ongezouten cashewmix",
+   "organic": false,
+   "price": "2.49",
+   "unit_price": "normale prijs per kg €24.90",
+   "unit_size": "100 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 610768,
+   "name": "AH Sourcream cashewnoten ongezouten 3-pack",
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "prijs per kg €19.93",
+   "unit_size": "150 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 610779,
+   "name": "AH Chili lime cashewnoten ongezouten",
+   "organic": false,
+   "price": "2.49",
+   "unit_price": "prijs per kg €16.60",
+   "unit_size": "150 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 610773,
+   "name": "AH Sourcream cashewnoten ongezouten",
+   "organic": false,
+   "price": "2.49",
+   "unit_price": "prijs per kg €16.60",
+   "unit_size": "150 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 610777,
+   "name": "AH Katsu curry cashewnoten ongezouten",
+   "organic": false,
+   "price": "2.49",
+   "unit_price": "prijs per kg €16.60",
+   "unit_size": "150 g"
   }
  ],
  "ongezouten cashewnotens": [
@@ -12398,6 +15911,94 @@
    "price": "2.49",
    "unit_price": "normale prijs per kg €24.90",
    "unit_size": "100 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 559300,
+   "name": "AH Ongezouten cashewmix",
+   "organic": false,
+   "price": "2.49",
+   "unit_price": "normale prijs per kg €24.90",
+   "unit_size": "100 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 610768,
+   "name": "AH Sourcream cashewnoten ongezouten 3-pack",
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "prijs per kg €19.93",
+   "unit_size": "150 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 610779,
+   "name": "AH Chili lime cashewnoten ongezouten",
+   "organic": false,
+   "price": "2.49",
+   "unit_price": "prijs per kg €16.60",
+   "unit_size": "150 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 610773,
+   "name": "AH Sourcream cashewnoten ongezouten",
+   "organic": false,
+   "price": "2.49",
+   "unit_price": "prijs per kg €16.60",
+   "unit_size": "150 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 610777,
+   "name": "AH Katsu curry cashewnoten ongezouten",
+   "organic": false,
+   "price": "2.49",
+   "unit_price": "prijs per kg €16.60",
+   "unit_size": "150 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 610776,
+   "name": "AH Ras el hanout cashewnoten ongezouten",
+   "organic": false,
+   "price": "2.49",
+   "unit_price": "prijs per kg €16.60",
+   "unit_size": "150 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Borrel, chips, snacks",
+   "id": 170309,
+   "name": "AH Biologisch Cashewnoten ongezouten",
+   "organic": true,
+   "price": "4.49",
+   "unit_price": "prijs per kg €28.06",
+   "unit_size": "160 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 559267,
+   "name": "AH Ongezouten cashewnoten",
+   "organic": false,
+   "price": "4.99",
+   "unit_price": "prijs per kg €22.18",
+   "unit_size": "225 g"
   }
  ],
  "ongezouten room boter": [
@@ -12531,6 +16132,94 @@
    "organic": false,
    "price": "3.19",
    "unit_price": "prijs per kg €12.76",
+   "unit_size": "250 g"
+  },
+  {
+   "available": true,
+   "brand": "Blue Band",
+   "category": "Zuivel, eieren",
+   "id": 514805,
+   "name": "Blue Band Heerlijk romig ongezouten",
+   "organic": false,
+   "price": "2.39",
+   "unit_price": "normale prijs per kg €9.56",
+   "unit_size": "250 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Zuivel, eieren",
+   "id": 618237,
+   "name": "AH Biologisch Roomboter ongezouten 2-pack",
+   "organic": false,
+   "price": "5.78",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Echte Boter",
+   "category": "Zuivel, eieren",
+   "id": 366071,
+   "name": "Echte Boter Cupjesverpakking ongezouten",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": null,
+   "unit_size": "10 x 10 g"
+  },
+  {
+   "available": true,
+   "brand": "Kerrygold",
+   "category": "Zuivel, eieren",
+   "id": 429627,
+   "name": "Kerrygold Pure Ierse boter ongezouten",
+   "organic": false,
+   "price": "4.29",
+   "unit_price": "prijs per kg €17.16",
+   "unit_size": "250 g"
+  },
+  {
+   "available": true,
+   "brand": "Lurpak",
+   "category": "Zuivel, eieren",
+   "id": 451444,
+   "name": "Lurpak Smeerbaar ongezouten",
+   "organic": false,
+   "price": "5.89",
+   "unit_price": "prijs per kg €11.78",
+   "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "Campina",
+   "category": "Zuivel, eieren",
+   "id": 159871,
+   "name": "Campina Botergoud ongezouten grasboter",
+   "organic": false,
+   "price": "3.39",
+   "unit_price": "prijs per kg €15.07",
+   "unit_size": "225 g"
+  },
+  {
+   "available": true,
+   "brand": "Campina",
+   "category": "Zuivel, eieren",
+   "id": 48307,
+   "name": "Campina Grasboter ongezouten roomboter",
+   "organic": false,
+   "price": "3.39",
+   "unit_price": "prijs per kg €13.56",
+   "unit_size": "250 g"
+  },
+  {
+   "available": true,
+   "brand": "Lurpak",
+   "category": "Zuivel, eieren",
+   "id": 172761,
+   "name": "Lurpak Smeerbaar ongezouten",
+   "organic": false,
+   "price": "2.95",
+   "unit_price": "prijs per kg €11.80",
    "unit_size": "250 g"
   }
  ],
@@ -12666,6 +16355,94 @@
    "price": "5.78",
    "unit_price": null,
    "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Kerrygold",
+   "category": "Zuivel, eieren",
+   "id": 429627,
+   "name": "Kerrygold Pure Ierse boter ongezouten",
+   "organic": false,
+   "price": "4.29",
+   "unit_price": "prijs per kg €17.16",
+   "unit_size": "250 g"
+  },
+  {
+   "available": true,
+   "brand": "Echte Boter",
+   "category": "Zuivel, eieren",
+   "id": 366065,
+   "name": "Echte Boter Roomboter ongezouten",
+   "organic": false,
+   "price": "3.19",
+   "unit_price": "prijs per kg €12.76",
+   "unit_size": "250 g"
+  },
+  {
+   "available": true,
+   "brand": "Lurpak",
+   "category": "Zuivel, eieren",
+   "id": 451444,
+   "name": "Lurpak Smeerbaar ongezouten",
+   "organic": false,
+   "price": "5.89",
+   "unit_price": "prijs per kg €11.78",
+   "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "Campina",
+   "category": "Zuivel, eieren",
+   "id": 159871,
+   "name": "Campina Botergoud ongezouten grasboter",
+   "organic": false,
+   "price": "3.39",
+   "unit_price": "prijs per kg €15.07",
+   "unit_size": "225 g"
+  },
+  {
+   "available": true,
+   "brand": "Campina",
+   "category": "Zuivel, eieren",
+   "id": 48307,
+   "name": "Campina Grasboter ongezouten roomboter",
+   "organic": false,
+   "price": "3.39",
+   "unit_price": "prijs per kg €13.56",
+   "unit_size": "250 g"
+  },
+  {
+   "available": true,
+   "brand": "Campina",
+   "category": "Zuivel, eieren",
+   "id": 60374,
+   "name": "Campina Botergoud ongezouten roomboter",
+   "organic": false,
+   "price": "3.39",
+   "unit_price": "prijs per kg €13.56",
+   "unit_size": "250 g"
+  },
+  {
+   "available": true,
+   "brand": "Lurpak",
+   "category": "Zuivel, eieren",
+   "id": 548039,
+   "name": "Lurpak Roomboter ongezouten",
+   "organic": false,
+   "price": "2.89",
+   "unit_price": "prijs per kg €14.45",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Zuivel, eieren",
+   "id": 618240,
+   "name": "AH Biologisch Roomboter ongezouten 5-pack",
+   "organic": false,
+   "price": "14.45",
+   "unit_price": null,
+   "unit_size": "5 stuks"
   }
  ],
  "ongezouten roomboters": [
@@ -12799,6 +16576,94 @@
    "organic": false,
    "price": "3.19",
    "unit_price": "prijs per kg €12.76",
+   "unit_size": "250 g"
+  },
+  {
+   "available": true,
+   "brand": "Blue Band",
+   "category": "Zuivel, eieren",
+   "id": 514805,
+   "name": "Blue Band Heerlijk romig ongezouten",
+   "organic": false,
+   "price": "2.39",
+   "unit_price": "normale prijs per kg €9.56",
+   "unit_size": "250 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Zuivel, eieren",
+   "id": 618237,
+   "name": "AH Biologisch Roomboter ongezouten 2-pack",
+   "organic": false,
+   "price": "5.78",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Echte Boter",
+   "category": "Zuivel, eieren",
+   "id": 366071,
+   "name": "Echte Boter Cupjesverpakking ongezouten",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": null,
+   "unit_size": "10 x 10 g"
+  },
+  {
+   "available": true,
+   "brand": "Kerrygold",
+   "category": "Zuivel, eieren",
+   "id": 429627,
+   "name": "Kerrygold Pure Ierse boter ongezouten",
+   "organic": false,
+   "price": "4.29",
+   "unit_price": "prijs per kg €17.16",
+   "unit_size": "250 g"
+  },
+  {
+   "available": true,
+   "brand": "Lurpak",
+   "category": "Zuivel, eieren",
+   "id": 451444,
+   "name": "Lurpak Smeerbaar ongezouten",
+   "organic": false,
+   "price": "5.89",
+   "unit_price": "prijs per kg €11.78",
+   "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "Campina",
+   "category": "Zuivel, eieren",
+   "id": 159871,
+   "name": "Campina Botergoud ongezouten grasboter",
+   "organic": false,
+   "price": "3.39",
+   "unit_price": "prijs per kg €15.07",
+   "unit_size": "225 g"
+  },
+  {
+   "available": true,
+   "brand": "Campina",
+   "category": "Zuivel, eieren",
+   "id": 48307,
+   "name": "Campina Grasboter ongezouten roomboter",
+   "organic": false,
+   "price": "3.39",
+   "unit_price": "prijs per kg €13.56",
+   "unit_size": "250 g"
+  },
+  {
+   "available": true,
+   "brand": "Lurpak",
+   "category": "Zuivel, eieren",
+   "id": 172761,
+   "name": "Lurpak Smeerbaar ongezouten",
+   "organic": false,
+   "price": "2.95",
+   "unit_price": "prijs per kg €11.80",
    "unit_size": "250 g"
   }
  ],
@@ -12934,6 +16799,17 @@
    "price": "1.09",
    "unit_price": "prijs per kg €5.45",
    "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "Gourmet",
+   "category": "Huisdier",
+   "id": 568989,
+   "name": "Gourmet Nature's creations kabeljauw pastinaak",
+   "organic": false,
+   "price": "1.25",
+   "unit_price": "prijs per kg €14.71",
+   "unit_size": "85 g"
   }
  ],
  "pastinaken": [
@@ -13068,6 +16944,17 @@
    "price": "8.45",
    "unit_price": null,
    "unit_size": "5 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Gourmet",
+   "category": "Huisdier",
+   "id": 568989,
+   "name": "Gourmet Nature's creations kabeljauw pastinaak",
+   "organic": false,
+   "price": "1.25",
+   "unit_price": "prijs per kg €14.71",
+   "unit_size": "85 g"
   }
  ],
  "peer": [
@@ -13202,6 +17089,94 @@
    "price": "13.74",
    "unit_price": null,
    "unit_size": "6 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Fruit, verse sappen",
+   "id": 192752,
+   "name": "AH Gestoofde peertjes op lichte siroop",
+   "organic": false,
+   "price": "2.19",
+   "unit_price": "prijs per kg €12.51",
+   "unit_size": "350 g"
+  },
+  {
+   "available": true,
+   "brand": "Aarts",
+   "category": "Fruit, verse sappen",
+   "id": 165308,
+   "name": "Aarts Gestoofde peertjes",
+   "organic": false,
+   "price": "3.29",
+   "unit_price": "prijs per kg €11.75",
+   "unit_size": "560 g"
+  },
+  {
+   "available": true,
+   "brand": "Olvarit",
+   "category": "Baby en kind",
+   "id": 388752,
+   "name": "Olvarit Appel banaan peer 8m+",
+   "organic": false,
+   "price": "1.45",
+   "unit_price": "prijs per kg €7.25",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Fruit, verse sappen",
+   "id": 104110,
+   "name": "AH Zoete stoofpeertjes",
+   "organic": false,
+   "price": "3.39",
+   "unit_price": "prijs per kg €16.14",
+   "unit_size": "350 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Baby en kind",
+   "id": 217832,
+   "name": "AH Biologisch Fruithapje peer blauwe bes 6m+",
+   "organic": true,
+   "price": "1.15",
+   "unit_price": "prijs per kg €5.75",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Frisdrank, sappen, water",
+   "id": 485743,
+   "name": "AH Siroop peer 0% suiker toegevoegd",
+   "organic": false,
+   "price": "3.29",
+   "unit_price": "prijs per liter €4.39",
+   "unit_size": "0,75 l"
+  },
+  {
+   "available": true,
+   "brand": "1Fruit",
+   "category": "Frisdrank, sappen, water",
+   "id": 608902,
+   "name": "1Fruit Peer drink",
+   "organic": false,
+   "price": "0.99",
+   "unit_price": "prijs per liter €4.95",
+   "unit_size": "200 ml"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Baby en kind",
+   "id": 172554,
+   "name": "AH Biologisch Fruithapje peer 4m+",
+   "organic": true,
+   "price": "0.99",
+   "unit_price": "prijs per kg €7.92",
+   "unit_size": "125 g"
   }
  ],
  "peren": [
@@ -13336,6 +17311,94 @@
    "price": "3.29",
    "unit_price": "prijs per kg €11.75",
    "unit_size": "560 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Fruit, verse sappen",
+   "id": 617969,
+   "name": "AH Conference schaal 3-pack",
+   "organic": false,
+   "price": "7.47",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Appelsientje",
+   "category": "Frisdrank, sappen, water",
+   "id": 218326,
+   "name": "Appelsientje Goudappeltje voordeelpak",
+   "organic": false,
+   "price": "3.69",
+   "unit_price": "prijs per liter €2.46",
+   "unit_size": "1,5 l"
+  },
+  {
+   "available": true,
+   "brand": "De Appelaere",
+   "category": "Frisdrank, sappen, water",
+   "id": 195824,
+   "name": "De Appelaere Appelsap",
+   "organic": false,
+   "price": "3.29",
+   "unit_price": "prijs per liter €4.39",
+   "unit_size": "0,75 l"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Fruit, verse sappen",
+   "id": 192752,
+   "name": "AH Gestoofde peertjes op lichte siroop",
+   "organic": false,
+   "price": "2.19",
+   "unit_price": "prijs per kg €12.51",
+   "unit_size": "350 g"
+  },
+  {
+   "available": true,
+   "brand": "Kindly's",
+   "category": "Maaltijden, salades",
+   "id": 196942,
+   "name": "Kindly's Perenrood",
+   "organic": false,
+   "price": "2.29",
+   "unit_price": "prijs per kg €11.45",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Fruit, verse sappen",
+   "id": 104110,
+   "name": "AH Zoete stoofpeertjes",
+   "organic": false,
+   "price": "3.39",
+   "unit_price": "prijs per kg €16.14",
+   "unit_size": "350 g"
+  },
+  {
+   "available": true,
+   "brand": "Raak",
+   "category": "Frisdrank, sappen, water",
+   "id": 614407,
+   "name": "Raak Vruchtensiroop peren zero sugar 4-pack",
+   "organic": false,
+   "price": "13.96",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Van de Boom",
+   "category": "Frisdrank, sappen, water",
+   "id": 404281,
+   "name": "Van de Boom Peer 6-pack",
+   "organic": false,
+   "price": "3.49",
+   "unit_price": "prijs per liter €2.91",
+   "unit_size": "6 x 0,2 l"
   }
  ],
  "peterselie": [
@@ -13470,6 +17533,83 @@
    "price": "6.99",
    "unit_price": "prijs per kg €31.77",
    "unit_size": "220 g"
+  },
+  {
+   "available": false,
+   "brand": "AH Biologisch",
+   "category": "Groente, aardappelen",
+   "id": 197308,
+   "name": "AH Biologisch Peterselie pot",
+   "organic": true,
+   "price": "2.19",
+   "unit_price": null,
+   "unit_size": "per stuk"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vis",
+   "id": 621008,
+   "name": "AH Vis ovenschotel met peterselie 2-pack",
+   "organic": false,
+   "price": "None",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vis",
+   "id": 621009,
+   "name": "AH Vis ovenschotel met peterselie 3-pack",
+   "organic": false,
+   "price": "None",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vis",
+   "id": 621010,
+   "name": "AH Vis ovenschotel met peterselie 5-pack",
+   "organic": false,
+   "price": "None",
+   "unit_price": null,
+   "unit_size": "5 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vis",
+   "id": 622838,
+   "name": "AH Krokante zalmstick citron peterselie 2pk",
+   "organic": false,
+   "price": "None",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vis",
+   "id": 622839,
+   "name": "AH Krokante zalmstick citron peterselie 3pk",
+   "organic": false,
+   "price": "None",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vis",
+   "id": 622840,
+   "name": "AH Krokante zalmstick citron peterselie 4pk",
+   "organic": false,
+   "price": "None",
+   "unit_price": null,
+   "unit_size": "4 stuks"
   }
  ],
  "peterselies": [
@@ -13604,6 +17744,83 @@
    "price": "6.99",
    "unit_price": "prijs per kg €31.77",
    "unit_size": "220 g"
+  },
+  {
+   "available": false,
+   "brand": "AH Biologisch",
+   "category": "Groente, aardappelen",
+   "id": 197308,
+   "name": "AH Biologisch Peterselie pot",
+   "organic": true,
+   "price": "2.19",
+   "unit_price": null,
+   "unit_size": "per stuk"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vis",
+   "id": 621008,
+   "name": "AH Vis ovenschotel met peterselie 2-pack",
+   "organic": false,
+   "price": "None",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vis",
+   "id": 621009,
+   "name": "AH Vis ovenschotel met peterselie 3-pack",
+   "organic": false,
+   "price": "None",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vis",
+   "id": 621010,
+   "name": "AH Vis ovenschotel met peterselie 5-pack",
+   "organic": false,
+   "price": "None",
+   "unit_price": null,
+   "unit_size": "5 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vis",
+   "id": 622838,
+   "name": "AH Krokante zalmstick citron peterselie 2pk",
+   "organic": false,
+   "price": "None",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vis",
+   "id": 622839,
+   "name": "AH Krokante zalmstick citron peterselie 3pk",
+   "organic": false,
+   "price": "None",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vis",
+   "id": 622840,
+   "name": "AH Krokante zalmstick citron peterselie 4pk",
+   "organic": false,
+   "price": "None",
+   "unit_price": null,
+   "unit_size": "4 stuks"
   }
  ],
  "pinda kaas naturel": [
@@ -13738,6 +17955,28 @@
    "price": "5.49",
    "unit_price": "prijs per kg €5.49",
    "unit_size": "1 kg"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Ontbijtgranen, beleg",
+   "id": 622706,
+   "name": "AH Smeuige pindakaas naturel 3-pack",
+   "organic": false,
+   "price": "16.47",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Ontbijtgranen, beleg",
+   "id": 461685,
+   "name": "AH Pindakaas naturel",
+   "organic": false,
+   "price": "1.39",
+   "unit_price": "prijs per kg €2.32",
+   "unit_size": "600 g"
   }
  ],
  "pindakaas naturel": [
@@ -13872,6 +18111,28 @@
    "price": "5.49",
    "unit_price": "prijs per kg €5.49",
    "unit_size": "1 kg"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Ontbijtgranen, beleg",
+   "id": 622706,
+   "name": "AH Smeuige pindakaas naturel 3-pack",
+   "organic": false,
+   "price": "16.47",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Ontbijtgranen, beleg",
+   "id": 461685,
+   "name": "AH Pindakaas naturel",
+   "organic": false,
+   "price": "1.39",
+   "unit_price": "prijs per kg €2.32",
+   "unit_size": "600 g"
   }
  ],
  "pindakaas naturels": [
@@ -14006,6 +18267,28 @@
    "price": "5.49",
    "unit_price": "prijs per kg €5.49",
    "unit_size": "1 kg"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Ontbijtgranen, beleg",
+   "id": 622706,
+   "name": "AH Smeuige pindakaas naturel 3-pack",
+   "organic": false,
+   "price": "16.47",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Ontbijtgranen, beleg",
+   "id": 461685,
+   "name": "AH Pindakaas naturel",
+   "organic": false,
+   "price": "1.39",
+   "unit_price": "prijs per kg €2.32",
+   "unit_size": "600 g"
   }
  ],
  "pindas ongezouten": [
@@ -15235,6 +19518,94 @@
    "price": "3.49",
    "unit_price": "prijs per liter €11.63",
    "unit_size": "300 ml"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 480501,
+   "name": "AH Scrocchi rozemarijn zeezout",
+   "organic": false,
+   "price": "2.19",
+   "unit_price": "normale prijs per kg €10.95",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "Marcel's Green Soap",
+   "category": "Huishouden",
+   "id": 470478,
+   "name": "Marcel's Green Soap Allesreiniger lavendel & rozemarijn",
+   "organic": false,
+   "price": "3.69",
+   "unit_price": "normale prijs per liter €4.92",
+   "unit_size": "0,75 l"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 480506,
+   "name": "AH Borreltoast rozemarijn zeezout",
+   "organic": false,
+   "price": "2.19",
+   "unit_price": "normale prijs per kg €17.52",
+   "unit_size": "125 g"
+  },
+  {
+   "available": true,
+   "brand": "Bolletje",
+   "category": "Bakkerij",
+   "id": 517828,
+   "name": "Bolletje Ciabatta crackers rozemarijn",
+   "organic": false,
+   "price": "2.59",
+   "unit_price": "normale prijs per kg €13.63",
+   "unit_size": "190 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Bakkerij",
+   "id": 230652,
+   "name": "AH Rozemarijn zeezout focaccia",
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "prijs per kg €8.54",
+   "unit_size": "350 g"
+  },
+  {
+   "available": true,
+   "brand": "Kneipp",
+   "category": "Drogisterij",
+   "id": 575982,
+   "name": "Kneipp Douchegel new energy rozemarijn",
+   "organic": false,
+   "price": "6.65",
+   "unit_price": "prijs per liter €33.25",
+   "unit_size": "200 ml"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Bakkerij",
+   "id": 517998,
+   "name": "AH Dunne crackers rozemarijn geitenkaas",
+   "organic": false,
+   "price": "0.99",
+   "unit_price": "prijs per kg €9.90",
+   "unit_size": "100 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Maaltijden, salades",
+   "id": 227237,
+   "name": "AH Stoommaaltijd kip rozemarijn",
+   "organic": false,
+   "price": "6.99",
+   "unit_price": "prijs per kg €15.53",
+   "unit_size": "450 g"
   }
  ],
  "rozemarijnen": [
@@ -15369,6 +19740,94 @@
    "price": "2.99",
    "unit_price": "prijs per kg €213.57",
    "unit_size": "14 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Koffie, thee",
+   "id": 508339,
+   "name": "AH Biologisch Yerba mate brandnetel rozemarijn",
+   "organic": true,
+   "price": "1.55",
+   "unit_price": null,
+   "unit_size": "20 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 597255,
+   "name": "AH Halve kriel rozemarijn zeezout",
+   "organic": false,
+   "price": "1.49",
+   "unit_price": "prijs per kg €2.98",
+   "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 603431,
+   "name": "AH Aardappel ovenschaal rozemarijn zeezout",
+   "organic": false,
+   "price": "2.39",
+   "unit_price": "prijs per kg €5.31",
+   "unit_size": "450 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Excellent",
+   "category": "Borrel, chips, snacks",
+   "id": 605278,
+   "name": "AH Excellent Nocellara rozemarijn peper olijven",
+   "organic": false,
+   "price": "3.29",
+   "unit_price": "prijs per kg €29.91",
+   "unit_size": "110 g"
+  },
+  {
+   "available": true,
+   "brand": "Aviko",
+   "category": "Diepvries",
+   "id": 187357,
+   "name": "Aviko Aardappel gratin met tijm & rozemarijn",
+   "organic": false,
+   "price": "5.99",
+   "unit_price": "prijs per kg €14.98",
+   "unit_size": "400 g"
+  },
+  {
+   "available": true,
+   "brand": "Euroma",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 607547,
+   "name": "Euroma Rozemarijn vriesdroog",
+   "organic": false,
+   "price": "4.99",
+   "unit_price": "prijs per kg €172.07",
+   "unit_size": "29 g"
+  },
+  {
+   "available": true,
+   "brand": "Leev",
+   "category": "Ontbijtgranen, beleg",
+   "id": 541509,
+   "name": "Leev Linzenwafels rozemarijn 3-pack",
+   "organic": true,
+   "price": "2.29",
+   "unit_price": "prijs per kg €42.41",
+   "unit_size": "54 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 480506,
+   "name": "AH Borreltoast rozemarijn zeezout",
+   "organic": false,
+   "price": "2.19",
+   "unit_price": "normale prijs per kg €17.52",
+   "unit_size": "125 g"
   }
  ],
  "sambal oelek": [
@@ -15571,6 +20030,94 @@
    "price": "1.89",
    "unit_price": "prijs per kg €18.90",
    "unit_size": "100 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 595371,
+   "name": "AH Smeerkaas sambal 48+",
+   "organic": false,
+   "price": "1.39",
+   "unit_price": "prijs per kg €6.95",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "Koningsvogel",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 591787,
+   "name": "Koningsvogel Sambal manis",
+   "organic": false,
+   "price": "3.89",
+   "unit_price": "prijs per kg €13.89",
+   "unit_size": "280 g"
+  },
+  {
+   "available": true,
+   "brand": "Koningsvogel",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 591785,
+   "name": "Koningsvogel Sambal brandal",
+   "organic": false,
+   "price": "3.89",
+   "unit_price": "prijs per kg €13.89",
+   "unit_size": "280 g"
+  },
+  {
+   "available": true,
+   "brand": "Conimex",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 412046,
+   "name": "Conimex Sambal oelek",
+   "organic": false,
+   "price": "3.09",
+   "unit_price": "normale prijs per kg €8.24",
+   "unit_size": "375 g"
+  },
+  {
+   "available": true,
+   "brand": "Conimex",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 412055,
+   "name": "Conimex Sambal brandal",
+   "organic": false,
+   "price": "2.29",
+   "unit_price": "normale prijs per kg €11.45",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "Faja Lobi",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 460781,
+   "name": "Faja Lobi Madam jeanette sambal",
+   "organic": false,
+   "price": "3.19",
+   "unit_price": "prijs per kg €16.36",
+   "unit_size": "195 g"
+  },
+  {
+   "available": true,
+   "brand": "Koningsvogel",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 591788,
+   "name": "Koningsvogel Surinaamse sambal",
+   "organic": false,
+   "price": "3.89",
+   "unit_price": "prijs per kg €14.41",
+   "unit_size": "270 g"
+  },
+  {
+   "available": true,
+   "brand": "Lekker Bekkie",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 592107,
+   "name": "Lekker Bekkie Javaanse sambal",
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "prijs per kg €20.62",
+   "unit_size": "145 g"
   }
  ],
  "scharrelei": [
@@ -15839,6 +20386,94 @@
    "price": "6.49",
    "unit_price": "prijs per kg €12.25",
    "unit_size": "530 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 531848,
+   "name": "AH Scharrel kipdijfilet",
+   "organic": false,
+   "price": "8.85",
+   "unit_price": "prijs per kg €11.49",
+   "unit_size": "770 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 619702,
+   "name": "AH Scharrel kipfilet plakjes gerookt 5-pack",
+   "organic": false,
+   "price": "18.45",
+   "unit_price": null,
+   "unit_size": "5 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 619705,
+   "name": "AH Scharrel kipfilet stukjes roerbak 4-pack",
+   "organic": false,
+   "price": "21.96",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 619707,
+   "name": "AH Scharrel kipfilet stukjes roerbak 6-pack",
+   "organic": false,
+   "price": "32.94",
+   "unit_price": null,
+   "unit_size": "6 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 451141,
+   "name": "AH Scharrel kipfilet blokjes",
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "prijs per kg €19.95",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 619717,
+   "name": "AH Scharrel kipfiletreepjes gerookt 5-pack",
+   "organic": false,
+   "price": "27.45",
+   "unit_price": null,
+   "unit_size": "5 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 533083,
+   "name": "AH Scharrel kipfilet 2 stuks",
+   "organic": false,
+   "price": "4.49",
+   "unit_price": "prijs per kg €14.97",
+   "unit_size": "300 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 619331,
+   "name": "AH Scharrel kipblokjes",
+   "organic": false,
+   "price": "6.79",
+   "unit_price": "prijs per kg €11.32",
+   "unit_size": "600 g"
   }
  ],
  "scharrelkipdijfileten": [],
@@ -15974,6 +20609,94 @@
    "price": "32.94",
    "unit_price": null,
    "unit_size": "6 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 619717,
+   "name": "AH Scharrel kipfiletreepjes gerookt 5-pack",
+   "organic": false,
+   "price": "27.45",
+   "unit_price": null,
+   "unit_size": "5 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 618819,
+   "name": "AH Scharrel gebraden kipfilet caesar 5-pack",
+   "organic": false,
+   "price": "18.95",
+   "unit_price": null,
+   "unit_size": "5 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vleeswaren",
+   "id": 620072,
+   "name": "AH Scharrel kipfilet kleinverpakking 2-pack",
+   "organic": false,
+   "price": "4.58",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vleeswaren",
+   "id": 598040,
+   "name": "AH Scharrel kipfilet bieslook 2-pack",
+   "organic": false,
+   "price": "7.38",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vleeswaren",
+   "id": 620073,
+   "name": "AH Scharrel kipfilet kleinverpakking 3-pack",
+   "organic": false,
+   "price": "6.87",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 619724,
+   "name": "AH Scharrel krokante kipfiletburger 2st 4pk",
+   "organic": false,
+   "price": "13.96",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vleeswaren",
+   "id": 137939,
+   "name": "AH Scharrel kipfilet",
+   "organic": false,
+   "price": "3.69",
+   "unit_price": "prijs per kg €29.52",
+   "unit_size": "ca. 125 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 533079,
+   "name": "AH Scharrel kipfilet 3 stuks",
+   "organic": false,
+   "price": "8.29",
+   "unit_price": "prijs per kg €13.82",
+   "unit_size": "600 g"
   }
  ],
  "scharrelkipfileten": [
@@ -16744,6 +21467,94 @@
    "price": "1.99",
    "unit_price": "prijs per kg €7.96",
    "unit_size": "250 g"
+  },
+  {
+   "available": true,
+   "brand": "Devon Cream Company",
+   "category": "Zuivel, eieren",
+   "id": 225502,
+   "name": "Devon Cream Company English clotted cream",
+   "organic": false,
+   "price": "4.39",
+   "unit_price": "prijs per kg €25.82",
+   "unit_size": "170 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Diepvries",
+   "id": 67836,
+   "name": "AH Slagroomijs",
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "prijs per liter €2.99",
+   "unit_size": "1 l"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Zuivel, eieren",
+   "id": 475116,
+   "name": "AH Geslagen room light",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €7.96",
+   "unit_size": "250 g"
+  },
+  {
+   "available": true,
+   "brand": "MinusL",
+   "category": "Zuivel, eieren",
+   "id": 231418,
+   "name": "MinusL Slagroom lactosevrij",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €9.95",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "Campina",
+   "category": "Zuivel, eieren",
+   "id": 221000,
+   "name": "Campina Slagroom royaal",
+   "organic": false,
+   "price": "2.79",
+   "unit_price": "prijs per kg €12.40",
+   "unit_size": "225 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Zuivel, eieren",
+   "id": 191621,
+   "name": "AH Biologisch Verse slagroom",
+   "organic": true,
+   "price": "1.49",
+   "unit_price": "prijs per liter €5.96",
+   "unit_size": "250 ml"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Bakkerij",
+   "id": 191176,
+   "name": "AH Slagroomsoesjes",
+   "organic": false,
+   "price": "3.49",
+   "unit_price": null,
+   "unit_size": "11 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Diepvries",
+   "id": 585023,
+   "name": "AH Slagroomsoesjes bananensmaak",
+   "organic": false,
+   "price": "3.49",
+   "unit_price": "prijs per kg €14.54",
+   "unit_size": "240 g"
   }
  ],
  "slagromen": [],
@@ -16890,6 +21701,94 @@
    "price": "5.97",
    "unit_price": null,
    "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Campina",
+   "category": "Zuivel, eieren",
+   "id": 221000,
+   "name": "Campina Slagroom royaal",
+   "organic": false,
+   "price": "2.79",
+   "unit_price": "prijs per kg €12.40",
+   "unit_size": "225 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Zuivel, eieren",
+   "id": 475116,
+   "name": "AH Geslagen room light",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €7.96",
+   "unit_size": "250 g"
+  },
+  {
+   "available": true,
+   "brand": "Blue Band",
+   "category": "Vegetarisch, vegan en plantaardig",
+   "id": 583041,
+   "name": "Blue Band Finesse plantaardig alternatief slagroom",
+   "organic": false,
+   "price": "1.79",
+   "unit_price": "normale prijs per liter €7.16",
+   "unit_size": "250 ml"
+  },
+  {
+   "available": true,
+   "brand": "MinusL",
+   "category": "Zuivel, eieren",
+   "id": 231418,
+   "name": "MinusL Slagroom lactosevrij",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €9.95",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Koek, snoep, chocolade",
+   "id": 436603,
+   "name": "AH Slagroom cacao truffels",
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "prijs per kg €26.60",
+   "unit_size": "150 g"
+  },
+  {
+   "available": true,
+   "brand": "Campina",
+   "category": "Zuivel, eieren",
+   "id": 608460,
+   "name": "Campina Vla slagroom vanille smaak 3-pack",
+   "organic": false,
+   "price": "7.17",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Campina",
+   "category": "Zuivel, eieren",
+   "id": 608444,
+   "name": "Campina Echte slagroom 4-pack",
+   "organic": false,
+   "price": "7.96",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Zuivel, eieren",
+   "id": 622851,
+   "name": "AH Slagroom vol & romig 3-pack",
+   "organic": false,
+   "price": "23.97",
+   "unit_price": null,
+   "unit_size": "3 stuks"
   }
  ],
  "soja saus": [
@@ -17024,6 +21923,94 @@
    "price": "2.99",
    "unit_price": "prijs per liter €5.98",
    "unit_size": "0,5 l"
+  },
+  {
+   "available": true,
+   "brand": "Lee Kum Kee",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 577701,
+   "name": "Lee Kum Kee Premium lichte sojasaus",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €13.27",
+   "unit_size": "150 g"
+  },
+  {
+   "available": true,
+   "brand": "Lee Kum Kee",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 232692,
+   "name": "Lee Kum Kee Premium donkere sojasaus",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €13.27",
+   "unit_size": "150 g"
+  },
+  {
+   "available": true,
+   "brand": "Kikkoman",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 553350,
+   "name": "Kikkoman Soy sauce less salt",
+   "organic": false,
+   "price": "6.99",
+   "unit_price": "prijs per liter €14.56",
+   "unit_size": "480 ml"
+  },
+  {
+   "available": true,
+   "brand": "Kikkoman",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 494409,
+   "name": "Kikkoman Sojasaus glutenvrij",
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "prijs per liter €26.60",
+   "unit_size": "150 ml"
+  },
+  {
+   "available": true,
+   "brand": "Saitaku",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 203825,
+   "name": "Saitaku Sushi soy sauce",
+   "organic": false,
+   "price": "3.19",
+   "unit_price": "prijs per liter €21.27",
+   "unit_size": "150 ml"
+  },
+  {
+   "available": true,
+   "brand": "Conimex",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 122321,
+   "name": "Conimex Sojasaus",
+   "organic": false,
+   "price": "4.19",
+   "unit_price": "normale prijs per liter €23.94",
+   "unit_size": "175 ml"
+  },
+  {
+   "available": true,
+   "brand": "Go-Tan",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 606850,
+   "name": "Go-Tan Soy sauce Japanese less salt",
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "prijs per liter €14.78",
+   "unit_size": "270 ml"
+  },
+  {
+   "available": true,
+   "brand": "Conimex",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 151717,
+   "name": "Conimex Woksaus zoete soja",
+   "organic": false,
+   "price": "2.69",
+   "unit_price": "normale prijs per liter €15.37",
+   "unit_size": "175 ml"
   }
  ],
  "sojasaus": [
@@ -17158,6 +22145,94 @@
    "price": "3.15",
    "unit_price": "prijs per liter €21.72",
    "unit_size": "145 ml"
+  },
+  {
+   "available": true,
+   "brand": "Mee Chun",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 235150,
+   "name": "Mee Chun Best soy sauce",
+   "organic": false,
+   "price": "2.59",
+   "unit_price": "prijs per liter €10.36",
+   "unit_size": "250 ml"
+  },
+  {
+   "available": true,
+   "brand": "Go-Tan",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 606850,
+   "name": "Go-Tan Soy sauce Japanese less salt",
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "prijs per liter €14.78",
+   "unit_size": "270 ml"
+  },
+  {
+   "available": true,
+   "brand": "Lee Kum Kee",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 577701,
+   "name": "Lee Kum Kee Premium lichte sojasaus",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €13.27",
+   "unit_size": "150 g"
+  },
+  {
+   "available": true,
+   "brand": "Kikkoman",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 494409,
+   "name": "Kikkoman Sojasaus glutenvrij",
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "prijs per liter €26.60",
+   "unit_size": "150 ml"
+  },
+  {
+   "available": true,
+   "brand": "Lee Kum Kee",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 232692,
+   "name": "Lee Kum Kee Premium donkere sojasaus",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €13.27",
+   "unit_size": "150 g"
+  },
+  {
+   "available": true,
+   "brand": "Conimex",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 122321,
+   "name": "Conimex Sojasaus",
+   "organic": false,
+   "price": "4.19",
+   "unit_price": "normale prijs per liter €23.94",
+   "unit_size": "175 ml"
+  },
+  {
+   "available": true,
+   "brand": "Saitaku",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 203825,
+   "name": "Saitaku Sushi soy sauce",
+   "organic": false,
+   "price": "3.19",
+   "unit_price": "prijs per liter €21.27",
+   "unit_size": "150 ml"
+  },
+  {
+   "available": true,
+   "brand": "Conimex",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 151717,
+   "name": "Conimex Woksaus zoete soja",
+   "organic": false,
+   "price": "2.69",
+   "unit_price": "normale prijs per liter €15.37",
+   "unit_size": "175 ml"
   }
  ],
  "sojasausen": [
@@ -17292,6 +22367,94 @@
    "price": "3.99",
    "unit_price": "prijs per liter €7.98",
    "unit_size": "0,5 l"
+  },
+  {
+   "available": true,
+   "brand": "Lee Kum Kee",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 577701,
+   "name": "Lee Kum Kee Premium lichte sojasaus",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €13.27",
+   "unit_size": "150 g"
+  },
+  {
+   "available": true,
+   "brand": "Kikkoman",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 494409,
+   "name": "Kikkoman Sojasaus glutenvrij",
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "prijs per liter €26.60",
+   "unit_size": "150 ml"
+  },
+  {
+   "available": true,
+   "brand": "Pearl River Bridge",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 606849,
+   "name": "Pearl River Bridge Superior light soy sauce",
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "prijs per liter €5.98",
+   "unit_size": "0,5 l"
+  },
+  {
+   "available": true,
+   "brand": "Mee Chun",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 235150,
+   "name": "Mee Chun Best soy sauce",
+   "organic": false,
+   "price": "2.59",
+   "unit_price": "prijs per liter €10.36",
+   "unit_size": "250 ml"
+  },
+  {
+   "available": true,
+   "brand": "Go-Tan",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 606850,
+   "name": "Go-Tan Soy sauce Japanese less salt",
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "prijs per liter €14.78",
+   "unit_size": "270 ml"
+  },
+  {
+   "available": true,
+   "brand": "Saitaku",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 606854,
+   "name": "Saitaku Ponzu seasoning with yuzu citrus",
+   "organic": false,
+   "price": "3.49",
+   "unit_price": "prijs per liter €23.27",
+   "unit_size": "150 ml"
+  },
+  {
+   "available": true,
+   "brand": "Conimex",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 122321,
+   "name": "Conimex Sojasaus",
+   "organic": false,
+   "price": "4.19",
+   "unit_price": "normale prijs per liter €23.94",
+   "unit_size": "175 ml"
+  },
+  {
+   "available": true,
+   "brand": "Saitaku",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 203825,
+   "name": "Saitaku Sushi soy sauce",
+   "organic": false,
+   "price": "3.19",
+   "unit_price": "prijs per liter €21.27",
+   "unit_size": "150 ml"
   }
  ],
  "spinazie": [
@@ -17426,6 +22589,94 @@
    "price": "1.39",
    "unit_price": "prijs per kg €13.90",
    "unit_size": "100 g"
+  },
+  {
+   "available": true,
+   "brand": "Iglo",
+   "category": "Groente, aardappelen",
+   "id": 226440,
+   "name": "Iglo Spinazie à la crème",
+   "organic": false,
+   "price": "2.29",
+   "unit_price": "prijs per kg €3.05",
+   "unit_size": "750 g"
+  },
+  {
+   "available": true,
+   "brand": "Iglo",
+   "category": "Groente, aardappelen",
+   "id": 486429,
+   "name": "Iglo Spinazie à la crème",
+   "organic": false,
+   "price": "1.59",
+   "unit_price": "prijs per kg €3.18",
+   "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "Iglo",
+   "category": "Groente, aardappelen",
+   "id": 486424,
+   "name": "Iglo Spinazie fijn gehakt",
+   "organic": false,
+   "price": "1.59",
+   "unit_price": "prijs per kg €3.18",
+   "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Groente, aardappelen",
+   "id": 409997,
+   "name": "AH Biologisch Bladspinazie deelblokjes",
+   "organic": true,
+   "price": "1.39",
+   "unit_price": "prijs per kg €3.09",
+   "unit_size": "450 g"
+  },
+  {
+   "available": true,
+   "brand": "Olvarit",
+   "category": "Baby en kind",
+   "id": 388951,
+   "name": "Olvarit Spinazie kip aardappel 12m+",
+   "organic": false,
+   "price": "1.79",
+   "unit_price": "prijs per kg €7.16",
+   "unit_size": "250 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Terra",
+   "category": "Maaltijden, salades",
+   "id": 435433,
+   "name": "AH Terra Pureersoep broccoli spinazie",
+   "organic": false,
+   "price": "4.49",
+   "unit_price": "normale prijs per kg €9.98",
+   "unit_size": "450 g"
+  },
+  {
+   "available": true,
+   "brand": "Iglo",
+   "category": "Groente, aardappelen",
+   "id": 171351,
+   "name": "Iglo Spinazie met boursin",
+   "organic": false,
+   "price": "3.49",
+   "unit_price": "prijs per kg €7.76",
+   "unit_size": "450 g"
+  },
+  {
+   "available": true,
+   "brand": "Iglo",
+   "category": "Groente, aardappelen",
+   "id": 226439,
+   "name": "Iglo Spinazie fijn gehakt",
+   "organic": false,
+   "price": "2.39",
+   "unit_price": "prijs per kg €3.19",
+   "unit_size": "750 g"
   }
  ],
  "spinazies": [
@@ -17560,6 +22811,94 @@
    "price": "4.49",
    "unit_price": "normale prijs per kg €9.98",
    "unit_size": "450 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Groente, aardappelen",
+   "id": 409997,
+   "name": "AH Biologisch Bladspinazie deelblokjes",
+   "organic": true,
+   "price": "1.39",
+   "unit_price": "prijs per kg €3.09",
+   "unit_size": "450 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Groente, aardappelen",
+   "id": 235203,
+   "name": "AH Biologisch Spinazie",
+   "organic": true,
+   "price": "2.69",
+   "unit_price": "prijs per kg €13.45",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "Iglo",
+   "category": "Groente, aardappelen",
+   "id": 171351,
+   "name": "Iglo Spinazie met boursin",
+   "organic": false,
+   "price": "3.49",
+   "unit_price": "prijs per kg €7.76",
+   "unit_size": "450 g"
+  },
+  {
+   "available": true,
+   "brand": "Iglo",
+   "category": "Groente, aardappelen",
+   "id": 226440,
+   "name": "Iglo Spinazie à la crème",
+   "organic": false,
+   "price": "2.29",
+   "unit_price": "prijs per kg €3.05",
+   "unit_size": "750 g"
+  },
+  {
+   "available": true,
+   "brand": "Bolletje",
+   "category": "Bakkerij",
+   "id": 507071,
+   "name": "Bolletje 50% groente crackers spinazie",
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "normale prijs per kg €14.95",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "Iglo",
+   "category": "Groente, aardappelen",
+   "id": 486429,
+   "name": "Iglo Spinazie à la crème",
+   "organic": false,
+   "price": "1.59",
+   "unit_price": "prijs per kg €3.18",
+   "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "Iglo",
+   "category": "Groente, aardappelen",
+   "id": 474803,
+   "name": "Iglo Biologische spinazie à la crème",
+   "organic": true,
+   "price": "2.99",
+   "unit_price": "prijs per kg €6.64",
+   "unit_size": "450 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Terra",
+   "category": "Vlees",
+   "id": 580543,
+   "name": "AH Terra Spinazie schnitzel",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €9.95",
+   "unit_size": "200 g"
   }
  ],
  "spitskolen": [
@@ -18032,6 +23371,83 @@
    "price": "10.69",
    "unit_price": null,
    "unit_size": "20 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Aviko",
+   "category": "Diepvries",
+   "id": 187357,
+   "name": "Aviko Aardappel gratin met tijm & rozemarijn",
+   "organic": false,
+   "price": "5.99",
+   "unit_price": "prijs per kg €14.98",
+   "unit_size": "400 g"
+  },
+  {
+   "available": true,
+   "brand": "Ella's kitchen",
+   "category": "Baby en kind",
+   "id": 628806,
+   "name": "Ella's kitchen Kiplekkere ovenschotel met tijm 8m+ 4-pk",
+   "organic": false,
+   "price": "12.36",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Ella's kitchen",
+   "category": "Baby en kind",
+   "id": 628840,
+   "name": "Ella's kitchen Kiplekkere ovenschotel met tijm 8m+ 5-pk",
+   "organic": false,
+   "price": "15.45",
+   "unit_price": null,
+   "unit_size": "5 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Bakkerij",
+   "id": 622729,
+   "name": "AH Snackcrackers tijm & rozemarijn 2-pack",
+   "organic": false,
+   "price": "3.98",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Dampo",
+   "category": "Gezondheid en sport",
+   "id": 176955,
+   "name": "Dampo Hoest pastilles tijm smaak",
+   "organic": false,
+   "price": "5.69",
+   "unit_price": null,
+   "unit_size": "24 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Brandt & Levie",
+   "category": "Vlees",
+   "id": 619319,
+   "name": "Brandt & Levie Braadworst citroen & tijm",
+   "organic": false,
+   "price": "5.69",
+   "unit_price": "prijs per kg €33.47",
+   "unit_size": "170 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Bakkerij",
+   "id": 603859,
+   "name": "AH Snackcrackers tijm & rozemarijn",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €19.90",
+   "unit_size": "100 g"
   }
  ],
  "tijmen": [
@@ -18166,6 +23582,94 @@
    "price": "1.09",
    "unit_price": null,
    "unit_size": "per stuk"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Bakkerij",
+   "id": 112339,
+   "name": "AH Extra lang lekker tijger bruin heel",
+   "organic": false,
+   "price": "1.09",
+   "unit_price": null,
+   "unit_size": "per stuk"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Bakkerij",
+   "id": 485691,
+   "name": "AH Tijger volkoren half",
+   "organic": false,
+   "price": "1.09",
+   "unit_price": null,
+   "unit_size": "per stuk"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Bakkerij",
+   "id": 485695,
+   "name": "AH Tijger wit half",
+   "organic": false,
+   "price": "1.09",
+   "unit_price": null,
+   "unit_size": "per stuk"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Bakkerij",
+   "id": 523355,
+   "name": "AH Extra lang lekker tijger volkoren half",
+   "organic": false,
+   "price": "0.65",
+   "unit_price": null,
+   "unit_size": "per stuk"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Bakkerij",
+   "id": 200973,
+   "name": "AH Extra lang lekker tijger wit heel",
+   "organic": false,
+   "price": "1.09",
+   "unit_price": null,
+   "unit_size": "per stuk"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Bakkerij",
+   "id": 36136,
+   "name": "AH Extra lang lekker tijger wit half",
+   "organic": false,
+   "price": "0.65",
+   "unit_price": null,
+   "unit_size": "per stuk"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Bakkerij",
+   "id": 53734,
+   "name": "AH Extra lang lekker tijger bruin half",
+   "organic": false,
+   "price": "0.65",
+   "unit_price": null,
+   "unit_size": "per stuk"
+  },
+  {
+   "available": true,
+   "brand": "Duyvis",
+   "category": "Borrel, chips, snacks",
+   "id": 614343,
+   "name": "Duyvis Tijgernootjes BBQ Paprika 4-pack",
+   "organic": false,
+   "price": "13.16",
+   "unit_price": null,
+   "unit_size": "4 stuks"
   }
  ],
  "tomaten": [
@@ -18825,6 +24329,94 @@
    "price": "12.9",
    "unit_price": null,
    "unit_size": "6 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vleeswaren",
+   "id": 619178,
+   "name": "AH Gehakt met ui 3-pack",
+   "organic": false,
+   "price": "8.67",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vleeswaren",
+   "id": 619179,
+   "name": "AH Gehakt met ui 4-pack",
+   "organic": false,
+   "price": "11.56",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 618679,
+   "name": "AH Gehaktbal met ui en jus 4-pack",
+   "organic": false,
+   "price": "17.96",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 439146,
+   "name": "AH Rode uien",
+   "organic": false,
+   "price": "1.25",
+   "unit_price": "prijs per kg €1.25",
+   "unit_size": "1 kg"
+  },
+  {
+   "available": true,
+   "brand": "Knorr",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 624164,
+   "name": "Knorr Good potatoes spek & ui 6-pack",
+   "organic": false,
+   "price": "13.74",
+   "unit_price": null,
+   "unit_size": "6 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Knorr",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 624163,
+   "name": "Knorr Good potatoes spek & ui 4-pack",
+   "organic": false,
+   "price": "9.16",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Knorr",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 624162,
+   "name": "Knorr Good potatoes spek & ui 2-pack",
+   "organic": false,
+   "price": "4.58",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 41078,
+   "name": "AH Gesneden uien",
+   "organic": false,
+   "price": "1.79",
+   "unit_price": "prijs per kg €11.93",
+   "unit_size": "150 g"
   }
  ],
  "uien": [
@@ -18959,6 +24551,94 @@
    "price": "1.99",
    "unit_price": null,
    "unit_size": "6 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Conimex",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 628402,
+   "name": "Conimex Gebakken uitjes 2-pack",
+   "organic": false,
+   "price": "2.5",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 490280,
+   "name": "AH Rode uien",
+   "organic": false,
+   "price": "1.09",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Maaltijden, salades",
+   "id": 619515,
+   "name": "AH Pie runderstoof ui 3-pack",
+   "organic": false,
+   "price": "11.85",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Conimex",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 628429,
+   "name": "Conimex Gebakken uitjes 4-pack",
+   "organic": false,
+   "price": "5.0",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Conimex",
+   "category": "Pasta, rijst, wereldkeuken",
+   "id": 628433,
+   "name": "Conimex Gebakken uitjes 6-pack",
+   "organic": false,
+   "price": "7.5",
+   "unit_price": null,
+   "unit_size": "6 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 618679,
+   "name": "AH Gehaktbal met ui en jus 4-pack",
+   "organic": false,
+   "price": "17.96",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vleeswaren",
+   "id": 617821,
+   "name": "AH Filet americain ei en ui 4-pack",
+   "organic": false,
+   "price": "12.76",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vleeswaren",
+   "id": 619178,
+   "name": "AH Gehakt met ui 3-pack",
+   "organic": false,
+   "price": "8.67",
+   "unit_price": null,
+   "unit_size": "3 stuks"
   }
  ],
  "varkensbraadworst": [
@@ -20171,6 +25851,94 @@
    "price": "1.19",
    "unit_price": "prijs per kg €3.31",
    "unit_size": "360 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Terra",
+   "category": "Groente, aardappelen",
+   "id": 805,
+   "name": "AH Terra Witte bonen in tomatensaus",
+   "organic": false,
+   "price": "0.59",
+   "unit_price": "prijs per kg €1.64",
+   "unit_size": "360 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Terra",
+   "category": "Groente, aardappelen",
+   "id": 585657,
+   "name": "AH Terra Witte bonen tomatensaus",
+   "organic": false,
+   "price": "0.69",
+   "unit_price": "prijs per kg €3.45",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "Hak",
+   "category": "Groente, aardappelen",
+   "id": 202199,
+   "name": "Hak Witte bonen",
+   "organic": false,
+   "price": "3.39",
+   "unit_price": "normale prijs per kg €7.06",
+   "unit_size": "720 g"
+  },
+  {
+   "available": true,
+   "brand": "Bold Bean Co",
+   "category": "Groente, aardappelen",
+   "id": 606106,
+   "name": "Bold Bean Co Queen boter bonen",
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "prijs per kg €9.98",
+   "unit_size": "570 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Terra",
+   "category": "Groente, aardappelen",
+   "id": 469880,
+   "name": "AH Terra Biologisch witte bonen",
+   "organic": true,
+   "price": "1.99",
+   "unit_price": "prijs per kg €3.98",
+   "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "Bold Bean Co",
+   "category": "Groente, aardappelen",
+   "id": 606114,
+   "name": "Bold Bean Co Queen witte bonen",
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "prijs per kg €9.98",
+   "unit_size": "570 g"
+  },
+  {
+   "available": true,
+   "brand": "Valle del sole",
+   "category": "Groente, aardappelen",
+   "id": 198413,
+   "name": "Valle del sole Witte bonen",
+   "organic": false,
+   "price": "3.09",
+   "unit_price": "prijs per kg €3.43",
+   "unit_size": "900 g"
+  },
+  {
+   "available": true,
+   "brand": "Hak",
+   "category": "Groente, aardappelen",
+   "id": 610265,
+   "name": "Hak Witte bonen 4-pack",
+   "organic": false,
+   "price": "8.76",
+   "unit_price": null,
+   "unit_size": "4 stuks"
   }
  ],
  "witte bonen in pot": [
@@ -20439,6 +26207,94 @@
    "price": "0.69",
    "unit_price": "prijs per kg €3.45",
    "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "Hak",
+   "category": "Groente, aardappelen",
+   "id": 202199,
+   "name": "Hak Witte bonen",
+   "organic": false,
+   "price": "3.39",
+   "unit_price": "normale prijs per kg €7.06",
+   "unit_size": "720 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Terra",
+   "category": "Groente, aardappelen",
+   "id": 805,
+   "name": "AH Terra Witte bonen in tomatensaus",
+   "organic": false,
+   "price": "0.59",
+   "unit_price": "prijs per kg €1.64",
+   "unit_size": "360 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Terra",
+   "category": "Groente, aardappelen",
+   "id": 469880,
+   "name": "AH Terra Biologisch witte bonen",
+   "organic": true,
+   "price": "1.99",
+   "unit_price": "prijs per kg €3.98",
+   "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Terra",
+   "category": "Groente, aardappelen",
+   "id": 101182,
+   "name": "AH Terra Biologisch witte bonen in tomatensaus",
+   "organic": true,
+   "price": "1.19",
+   "unit_price": "prijs per kg €3.31",
+   "unit_size": "360 g"
+  },
+  {
+   "available": true,
+   "brand": "Bold Bean Co",
+   "category": "Groente, aardappelen",
+   "id": 606106,
+   "name": "Bold Bean Co Queen boter bonen",
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "prijs per kg €9.98",
+   "unit_size": "570 g"
+  },
+  {
+   "available": true,
+   "brand": "Hak",
+   "category": "Groente, aardappelen",
+   "id": 610265,
+   "name": "Hak Witte bonen 4-pack",
+   "organic": false,
+   "price": "8.76",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Valle del sole",
+   "category": "Groente, aardappelen",
+   "id": 198413,
+   "name": "Valle del sole Witte bonen",
+   "organic": false,
+   "price": "3.09",
+   "unit_price": "prijs per kg €3.43",
+   "unit_size": "900 g"
+  },
+  {
+   "available": true,
+   "brand": "Hak",
+   "category": "Groente, aardappelen",
+   "id": 610545,
+   "name": "Hak Witte bonen in tomatensaus 4-pack",
+   "organic": false,
+   "price": "8.76",
+   "unit_price": null,
+   "unit_size": "4 stuks"
   }
  ],
  "witte snelkook rijst": [
@@ -20766,6 +26622,94 @@
    "price": "1.69",
    "unit_price": "prijs per kg €1.69",
    "unit_size": "1 kg"
+  },
+  {
+   "available": true,
+   "brand": "Dodoni",
+   "category": "Zuivel, eieren",
+   "id": 575467,
+   "name": "Dodoni Griekse yoghurt 5% vet",
+   "organic": false,
+   "price": "4.99",
+   "unit_price": "prijs per kg €4.99",
+   "unit_size": "1 kg"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Zuivel, eieren",
+   "id": 228639,
+   "name": "AH Yoghurt Griekse stijl 0% vet",
+   "organic": false,
+   "price": "1.69",
+   "unit_price": "prijs per kg €3.38",
+   "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Zuivel, eieren",
+   "id": 177509,
+   "name": "AH Yoghurt Griekse stijl 5% vet",
+   "organic": false,
+   "price": "1.79",
+   "unit_price": "prijs per kg €3.58",
+   "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Zuivel, eieren",
+   "id": 585999,
+   "name": "AH Biologisch Yoghurt Griekse stijl 2%",
+   "organic": true,
+   "price": "2.89",
+   "unit_price": "prijs per kg €2.89",
+   "unit_size": "1 kg"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Zuivel, eieren",
+   "id": 412578,
+   "name": "AH Yoghurt Griekse stijl",
+   "organic": false,
+   "price": "2.39",
+   "unit_price": "prijs per kg €3.98",
+   "unit_size": "600 g"
+  },
+  {
+   "available": true,
+   "brand": "Dodoni",
+   "category": "Zuivel, eieren",
+   "id": 575465,
+   "name": "Dodoni Griekse yoghurt 0% vet",
+   "organic": false,
+   "price": "4.95",
+   "unit_price": "prijs per kg €4.95",
+   "unit_size": "1 kg"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Zuivel, eieren",
+   "id": 451172,
+   "name": "AH Biologisch Yoghurt Griekse stijl",
+   "organic": true,
+   "price": "2.99",
+   "unit_price": "prijs per kg €2.99",
+   "unit_size": "1 kg"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Zuivel, eieren",
+   "id": 438678,
+   "name": "AH Yoghurt Griekse stijl",
+   "organic": false,
+   "price": "0.79",
+   "unit_price": "prijs per kg €5.27",
+   "unit_size": "150 g"
   }
  ],
  "yoghurt griekse stijl": [
@@ -21080,6 +27024,94 @@
    "price": "4.99",
    "unit_price": "prijs per kg €4.99",
    "unit_size": "1 kg"
+  },
+  {
+   "available": true,
+   "brand": "De Zaanse Hoeve",
+   "category": "Zuivel, eieren",
+   "id": 216237,
+   "name": "De Zaanse Hoeve Yoghurt Griekse stijl 10% vet",
+   "organic": false,
+   "price": "1.69",
+   "unit_price": "prijs per kg €1.69",
+   "unit_size": "1 kg"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Zuivel, eieren",
+   "id": 451172,
+   "name": "AH Biologisch Yoghurt Griekse stijl",
+   "organic": true,
+   "price": "2.99",
+   "unit_price": "prijs per kg €2.99",
+   "unit_size": "1 kg"
+  },
+  {
+   "available": true,
+   "brand": "Dodoni",
+   "category": "Zuivel, eieren",
+   "id": 575462,
+   "name": "Dodoni Griekse yoghurt 5% vet",
+   "organic": false,
+   "price": "2.79",
+   "unit_price": "prijs per kg €5.58",
+   "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Zuivel, eieren",
+   "id": 583323,
+   "name": "AH Lactosevrije yoghurt Griekse stijl 5%",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €3.98",
+   "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "Dodoni",
+   "category": "Zuivel, eieren",
+   "id": 575463,
+   "name": "Dodoni Griekse yoghurt 0% vet",
+   "organic": false,
+   "price": "2.69",
+   "unit_price": "prijs per kg €5.38",
+   "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Zuivel, eieren",
+   "id": 585999,
+   "name": "AH Biologisch Yoghurt Griekse stijl 2%",
+   "organic": true,
+   "price": "2.89",
+   "unit_price": "prijs per kg €2.89",
+   "unit_size": "1 kg"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Zuivel, eieren",
+   "id": 438678,
+   "name": "AH Yoghurt Griekse stijl",
+   "organic": false,
+   "price": "0.79",
+   "unit_price": "prijs per kg €5.27",
+   "unit_size": "150 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Zuivel, eieren",
+   "id": 419839,
+   "name": "AH Yoghurt Griekse stijl 10% vet",
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "prijs per kg €3.98",
+   "unit_size": "500 g"
   }
  ],
  "zalmfilet": [
@@ -21214,6 +27246,94 @@
    "price": "5.59",
    "unit_price": "normale prijs per kg €32.88",
    "unit_size": "ca. 170 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vis",
+   "id": 142193,
+   "name": "AH Zalmfilet",
+   "organic": false,
+   "price": "17.39",
+   "unit_price": "normale prijs per kg €29.99",
+   "unit_size": "ca. 580 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vis",
+   "id": 141565,
+   "name": "AH Wilde zalmfilets",
+   "organic": false,
+   "price": "6.99",
+   "unit_price": "prijs per kg €10.36",
+   "unit_size": "675 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Vis",
+   "id": 191133,
+   "name": "AH Biologisch Zalmfilet",
+   "organic": true,
+   "price": "10.49",
+   "unit_price": "normale prijs per kg €38.15",
+   "unit_size": "ca. 275 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Vis",
+   "id": 190708,
+   "name": "AH Biologisch Zalmfilet",
+   "organic": true,
+   "price": "6.99",
+   "unit_price": "normale prijs per kg €39.94",
+   "unit_size": "ca. 175 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Vis",
+   "id": 523368,
+   "name": "AH Biologisch Zalmfilet op huid",
+   "organic": true,
+   "price": "5.99",
+   "unit_price": "prijs per kg €34.23",
+   "unit_size": "ca. 175 g"
+  },
+  {
+   "available": true,
+   "brand": "Olav's",
+   "category": "Vis",
+   "id": 47285,
+   "name": "Olav's Gerookte zalmfilet",
+   "organic": false,
+   "price": "5.95",
+   "unit_price": "prijs per kg €29.75",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vis",
+   "id": 484538,
+   "name": "AH Zalmfilet op huid",
+   "organic": false,
+   "price": "4.75",
+   "unit_price": "prijs per kg €27.95",
+   "unit_size": "ca. 170 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vis",
+   "id": 567333,
+   "name": "AH Gerookte zalmfilet 3-pack",
+   "organic": false,
+   "price": "13.77",
+   "unit_price": null,
+   "unit_size": "3 stuks"
   }
  ],
  "zalmfileten": [
@@ -21348,6 +27468,94 @@
    "price": "13.77",
    "unit_price": null,
    "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Vis",
+   "id": 191133,
+   "name": "AH Biologisch Zalmfilet",
+   "organic": true,
+   "price": "10.49",
+   "unit_price": "normale prijs per kg €38.15",
+   "unit_size": "ca. 275 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vis",
+   "id": 142193,
+   "name": "AH Zalmfilet",
+   "organic": false,
+   "price": "17.39",
+   "unit_price": "normale prijs per kg €29.99",
+   "unit_size": "ca. 580 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Vis",
+   "id": 523368,
+   "name": "AH Biologisch Zalmfilet op huid",
+   "organic": true,
+   "price": "5.99",
+   "unit_price": "prijs per kg €34.23",
+   "unit_size": "ca. 175 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vis",
+   "id": 121453,
+   "name": "AH Zalmfilet",
+   "organic": false,
+   "price": "5.59",
+   "unit_price": "normale prijs per kg €32.88",
+   "unit_size": "ca. 170 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vis",
+   "id": 141565,
+   "name": "AH Wilde zalmfilets",
+   "organic": false,
+   "price": "6.99",
+   "unit_price": "prijs per kg €10.36",
+   "unit_size": "675 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vis",
+   "id": 173876,
+   "name": "AH Warmgerookte zalmfilet",
+   "organic": false,
+   "price": "8.69",
+   "unit_price": "prijs per kg €34.76",
+   "unit_size": "ca. 250 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vis",
+   "id": 571229,
+   "name": "AH Warmgerookte zalmfilet",
+   "organic": false,
+   "price": "4.68",
+   "unit_price": "prijs per kg €37.42",
+   "unit_size": "ca. 125 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Vis",
+   "id": 190708,
+   "name": "AH Biologisch Zalmfilet",
+   "organic": true,
+   "price": "6.99",
+   "unit_price": "normale prijs per kg €39.94",
+   "unit_size": "ca. 175 g"
   }
  ],
  "zalmzijde": [
