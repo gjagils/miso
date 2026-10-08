@@ -54,6 +54,7 @@ async def api_recipe(recipe_id: int, db: Session = Depends(get_db)):
     r = db.get(Recipe, recipe_id)
     if not r:
         raise HTTPException(404, "Recept niet gevonden")
+    await routes.ensure_matched(db, r)
     return {
         **_summary(r),
         "description": r.description,
@@ -65,6 +66,8 @@ async def api_recipe(recipe_id: int, db: Session = Depends(get_db)):
                 "text": i["text"], "skip": bool(i.get("skip")), "gluten": bool(i.get("gluten")),
                 "gf_search": i.get("gf_search", ""),
                 "product": (i.get("product") or {}).get("name"),
+                "quantity": i.get("quantity", 1), "pantry": bool(i.get("auto_skip")),
+                "unit_size": (i.get("product") or {}).get("unit_size"),
                 "gf_product": (i.get("gf_product") or {}).get("name"),
             }
             for i in r.ingredients

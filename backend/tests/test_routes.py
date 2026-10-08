@@ -7,6 +7,7 @@ from sqlalchemy.pool import StaticPool
 from app.api import routes
 from app.database import Base, get_db
 from app.main import app
+from app.matching import MATCH_VERSION
 from app.models import Recipe
 
 
@@ -31,7 +32,7 @@ def _recipe(db, name, ingredients):
 
 def _ing(text, pid=None, qty=1, skip=False):
     product = {"id": pid, "name": f"p{pid}", "price": "1.00", "unit_size": "1 st"} if pid else None
-    return {"text": text, "search": text, "skip": skip, "quantity": qty, "product": product}
+    return {"text": text, "search": text, "skip": skip, "quantity": qty, "product": product, "match_v": MATCH_VERSION}
 
 
 def test_aggregate_cart_sums_same_product_and_reports_unmatched(db):

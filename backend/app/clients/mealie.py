@@ -7,14 +7,14 @@ from app.logging_config import logger
 
 UNIT_RE = re.compile(
     r"^[\d.,/½¼¾⅓⅔\s-]*(g|gr|gram|kg|ml|l|cl|dl|el|tl|eetlepels?|theelepels?|stuks?|stuk|blikjes?|"
-    r"blik|zakjes?|zak|potjes?|pot|bosjes?|bos|teentjes?|tenen?|takjes?|plakjes?|snufje|snuf)?\b\s*",
+    r"blik|zakjes?|zak|potjes?|pot|bosjes?|bos|teentjes?|teen|tenen?|takjes?|plakjes?|snufje|snuf)?\b\s*",
     re.IGNORECASE,
 )
 
 
 _UNITS = (
     r"g|gr|gram|kg|ml|l|cl|dl|el|tl|eetlepels?|theelepels?|stuks?|stuk|blikjes?|blik|zakjes?|zak|"
-    r"potjes?|pot|bosjes?|bos|teentjes?|tenen?|takjes?|plakjes?|snufje|snuf|pakken|pak|plak|plakken"
+    r"potjes?|pot|bosjes?|bos|teentjes?|teen|tenen?|takjes?|plakjes?|snufje|snuf|pakken|pak|plak|plakken"
 )
 # Hoeveelheid (met eenheid) aan het einde van de regel: "Rode ui 1 stuks", "Halloumi 75 g"
 _TRAILING_QTY_RE = re.compile(rf"[\s,]+[\d.,/½¼¾⅓⅔-]+\s*(?:{_UNITS})?\.?\s*$", re.IGNORECASE)

@@ -1,4 +1,5 @@
 import asyncio
+import math
 import hmac
 import io
 import os
@@ -17,6 +18,7 @@ from sqlalchemy.orm import Session
 from app.clients.ah import ah_client, convert_ah_recipe
 from app.clients.extractor import extract_recipe, fetch_url, suggest_gluten_free
 from app.clients.mealie import MealieClient, clean_search, convert_recipe
+from app.matching import MATCH_VERSION, choose, is_pantry, needed, pack_size, packs_for
 from app.config import settings
 from app.database import get_db
 from app.logging_config import logger
@@ -130,6 +132,7 @@ async def login(request: Request, pin: str = Form("")):
 @router.get("/recipe/{recipe_id}", response_class=HTMLResponse)
 async def recipe_detail(request: Request, recipe_id: int, db: Session = Depends(get_db)):
     recipe = _get_recipe(db, recipe_id)
+    await ensure_matched(db, recipe)
     return templates.TemplateResponse(
         request, "recipe_detail.html", {"recipe": recipe,
             "ingredients": recipe.ingredients,
@@ -280,32 +283,61 @@ class IngredientsPayload(BaseModel):
 @router.post("/api/recipe/{recipe_id}/ingredients")
 async def save_ingredients(recipe_id: int, payload: IngredientsPayload, db: Session = Depends(get_db)):
     recipe = _get_recipe(db, recipe_id)
-    recipe.ingredients = payload.ingredients
+    old = {i.get("text"): (i.get("product") or {}).get("id") for i in recipe.ingredients}
+    new = payload.ingredients
+    for ing in new:
+        pid = (ing.get("product") or {}).get("id")
+        if pid and old.get(ing.get("text")) != pid:
+            ing["manual"] = True  # door de gebruiker gekozen: niet meer automatisch overschrijven
+            need, pack = needed(ing.get("text", "")), pack_size((ing["product"] or {}).get("unit_size", ""))
+            ing["quantity"] = packs_for(need, pack) or ing.get("quantity") or 1
+    recipe.ingredients = new
     db.commit()
     return {"ok": True}
 
 
-async def _automatch(ingredients: list[dict], gluten_free: bool = False) -> int:
-    """Fill in the top AH search hit for every ingredient without a product (and gf alternative)."""
+async def _automatch(ingredients: list[dict], gluten_free: bool = False, force: bool = False) -> int:
+    """Koppel ingrediënten aan AH-producten: biologisch > huismerk, basisspullen overslaan, aantal
+    verpakkingen berekenen. Handmatig gekozen producten blijven staan."""
     sem = asyncio.Semaphore(4)
 
     async def find(term: str) -> dict | None:
+        query = clean_search(term)
         async with sem:
             try:
-                products = await ah_client.search_products(clean_search(term), size=1)
+                products = await ah_client.search_products(query, size=12)
             except Exception as e:
                 logger.warning("AH search failed for %s: %s", term, e)
                 return None
-        return products[0] if products else None
+        return choose(products, query)
+
+    def apply_quantity(ing: dict, product: dict) -> None:
+        need = needed(ing.get("text", ""))
+        pack = pack_size(product.get("unit_size", ""))
+        packs = packs_for(need, pack)
+        ing["need"] = need if packs is not None else None
+        ing["pack"] = pack if packs is not None else None
+        ing["quantity"] = packs or 1
 
     async def match(ing: dict) -> int:
-        if ing.get("skip"):
+        if ing.get("skip") and not ing.get("auto_skip"):
             return 0
         n = 0
-        if not ing.get("product") and ing.get("search"):
-            product = await find(ing["search"])
+        stale = ing.get("match_v") != MATCH_VERSION and not ing.get("manual")
+        if ing.get("auto_skip") and not (force or stale):
+            return 0
+        search = ing.get("search") or ing.get("text", "")
+        if is_pantry(search, ing.get("text", "")):
+            ing.update(skip=True, auto_skip=True, product=None, match_v=MATCH_VERSION)
+            return 0
+        if ing.get("auto_skip"):
+            ing.update(skip=False, auto_skip=False)
+        if search and (not ing.get("product") or ((force or stale) and not ing.get("manual"))):
+            product = await find(search)
             if product:
                 ing["product"], n = product, n + 1
+                apply_quantity(ing, product)
+            ing["match_v"] = MATCH_VERSION
         if gluten_free and ing.get("gluten") and not ing.get("gf_product") and ing.get("gf_search"):
             product = await find(ing["gf_search"])
             if product:
@@ -315,11 +347,26 @@ async def _automatch(ingredients: list[dict], gluten_free: bool = False) -> int:
     return sum(await asyncio.gather(*(match(i) for i in ingredients)))
 
 
+async def ensure_matched(db: Session, recipe: Recipe) -> None:
+    """Koppel ontbrekende of verouderde matches automatisch zodra een recept geopend wordt."""
+    ingredients = recipe.ingredients
+    todo = [i for i in ingredients if not i.get("manual") and i.get("match_v") != MATCH_VERSION]
+    if not todo:
+        return
+    try:
+        await asyncio.wait_for(_automatch(ingredients, recipe.gf_mode != "none"), timeout=25)
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Auto-match for recipe %s failed: %s", recipe.id, e)
+        return
+    recipe.ingredients = ingredients
+    db.commit()
+
+
 @router.post("/api/recipe/{recipe_id}/automatch")
-async def automatch(recipe_id: int, db: Session = Depends(get_db)):
+async def automatch(recipe_id: int, force: bool = False, db: Session = Depends(get_db)):
     recipe = _get_recipe(db, recipe_id)
     ingredients = recipe.ingredients
-    matched = await _automatch(ingredients, recipe.gf_mode != "none")
+    matched = await _automatch(ingredients, recipe.gf_mode != "none", force=force)
     recipe.ingredients = ingredients
     db.commit()
     return {"ok": True, "matched": matched, "ingredients": ingredients}
@@ -492,11 +539,21 @@ def aggregate_cart(recipes: list[Recipe]) -> tuple[list[dict], list[str]]:
     cart: dict[int, dict] = {}
     unmatched: list[str] = []
 
-    def add(product: dict, qty: int) -> None:
-        if product["id"] in cart:
-            cart[product["id"]]["quantity"] += qty
+    totals: dict[int, dict] = {}  # product id -> {"amount", "unit", "pack", "ok"} voor slim optellen
+
+    def add(product: dict, qty: int, ing: dict | None = None) -> None:
+        pid = product["id"]
+        if pid in cart:
+            cart[pid]["quantity"] += qty
         else:
-            cart[product["id"]] = {"product_id": product["id"], "quantity": qty, "name": product.get("name", "")}
+            cart[pid] = {"product_id": pid, "quantity": qty, "name": product.get("name", "")}
+        need, pack = (ing or {}).get("need"), (ing or {}).get("pack")
+        t = totals.setdefault(pid, {"amount": 0.0, "unit": None, "pack": None, "ok": True})
+        if need and pack and t["unit"] in (None, need["unit"]) and need["unit"] == pack["unit"]:
+            t.update(unit=need["unit"], pack=pack)
+            t["amount"] += need["amount"]
+        else:
+            t["ok"] = False
 
     for recipe in recipes:
         for ing in recipe.ingredients:
@@ -517,7 +574,7 @@ def aggregate_cart(recipes: list[Recipe]) -> tuple[list[dict], list[str]]:
                 continue
 
             if has_product:
-                add(product, qty)
+                add(product, qty, ing)
             else:
                 unmatched.append(text)
             if ing.get("gluten") and recipe.gf_mode == "extra":
@@ -525,6 +582,9 @@ def aggregate_cart(recipes: list[Recipe]) -> tuple[list[dict], list[str]]:
                     add(gf, 1)
                 else:
                     unmatched.append(f"{text} (glutenvrij)")
+    for pid, t in totals.items():
+        if t["ok"] and t["pack"] and t["amount"]:
+            cart[pid]["quantity"] = max(1, math.ceil(t["amount"] / t["pack"]["amount"] - 1e-9))
     return list(cart.values()), unmatched
 
 

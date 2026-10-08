@@ -147,6 +147,10 @@ class AHClient:
                         else ""
                     ),
                     "brand": product.get("brand", ""),
+                    "category": product.get("mainCategory", ""),
+                    "available": bool(product.get("availableOnline", True)) and product.get("isOrderable", True) is not False,
+                    "organic": "biologisch" in " ".join(product.get("propertyIcons") or []).lower(),
+                    "unit_price": product.get("unitPriceDescription", ""),
                 }
             )
         logger.debug("Found %d AH products for '%s'", len(products), query)
