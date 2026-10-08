@@ -137,12 +137,14 @@ def _use_user_tokens(db: Session) -> bool:
 
 def _summarize_order(order: dict) -> dict:
     items = []
-    for it in order.get("items") or order.get("orderedProducts") or []:
+    for it in order.get("orderedProducts") or order.get("items") or []:
         prod = it.get("product") or {}
         items.append({"product_id": it.get("productId") or prod.get("webshopId"),
                       "name": prod.get("title") or it.get("description", ""), "quantity": it.get("quantity", 0)})
-    return {"items": items, "count": len(items),
-            "total": (order.get("orderSummary") or order).get("totalPrice") if isinstance(order, dict) else None}
+    total = order.get("totalPrice") or {}
+    return {"order_id": order.get("id"), "state": order.get("state"), "items": items, "count": len(items),
+            "total": total.get("priceTotalPayable") if isinstance(total, dict) else total,
+            "delivery": (order.get("deliveryInformation") or {}).get("deliveryDate")}
 
 
 @router.get("/api/basket")

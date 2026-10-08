@@ -216,3 +216,23 @@ def test_basket_and_link_builders_never_order():
         "https://www.ah.nl/mijnlijst/add-multiple?p=5%3A2&p=6%3A1"
     src = open(ah.__file__).read().lower()
     assert "checkout" not in src and "/submit" not in src and "placeorder" not in src
+
+
+def test_basket_put_sends_current_order_id(monkeypatch):
+    from app.clients import ah
+
+    seen = {}
+
+    async def fake_call(client_obj, method, url, body=None, extra_headers=None):
+        class R:
+            status_code, is_error, content, text = 200, False, b"{}", "{}"
+
+            def json(self):
+                return {"id": 1234, "orderedProducts": []} if method == "GET" else {}
+        if method == "PUT":
+            seen.update(url=url, headers=extra_headers, body=body)
+        return R()
+
+    monkeypatch.setattr(ah, "_user_call", fake_call)
+    asyncio.run(ah.set_order_items(object(), [{"product_id": 9, "quantity": 1}]))
+    assert seen["headers"] == {"appie-current-order-id": "1234"} and "order/v1/items" in seen["url"]

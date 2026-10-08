@@ -299,12 +299,13 @@ class AHClient:
             return resp.json()
 
 
-async def _user_call(client_obj, method: str, url: str, body: dict | None = None) -> httpx.Response:
+async def _user_call(client_obj, method: str, url: str, body: dict | None = None,
+                     extra_headers: dict | None = None) -> httpx.Response:
     if not client_obj._user_token:
         raise ValueError("AH niet gekoppeld. Ga naar Instellingen.")
     async with httpx.AsyncClient(timeout=30) as client:
         for attempt in (1, 2):
-            headers = {**DEFAULT_HEADERS, "Authorization": f"Bearer {client_obj._user_token}"}
+            headers = {**DEFAULT_HEADERS, "Authorization": f"Bearer {client_obj._user_token}", **(extra_headers or {})}
             resp = await client.request(method, url, headers=headers, json=body)
             if resp.status_code == 401 and attempt == 1 and await client_obj._refresh_user_token():
                 continue
@@ -322,9 +323,16 @@ async def get_active_order(client_obj) -> dict:
 
 
 async def set_order_items(client_obj, items: list[dict]) -> dict:
-    """Zet aantallen in het mandje (0 = weghalen). Plaatst nooit een bestelling."""
+    """Zet aantallen in het mandje (0 = weghalen). Plaatst nooit een bestelling.
+
+    De app stuurt het id van de actieve bestelling mee als header `appie-current-order-id` (zoals appie-go)."""
+    order = await get_active_order(client_obj)
+    order_id = order.get("id") or order.get("orderId")
+    if not order_id:
+        raise ValueError("Geen actief AH-mandje gevonden. Open de AH-app en kies eerst een bezorg- of ophaalmoment.")
     body = {"items": build_order_items(items)}
-    resp = await _user_call(client_obj, "PUT", AH_ORDER_ITEMS_URL, body)
+    resp = await _user_call(client_obj, "PUT", AH_ORDER_ITEMS_URL, body,
+                            extra_headers={"appie-current-order-id": str(order_id)})
     if resp.is_error:
         logger.error("AH basket %s: %s | body: %s", resp.status_code, resp.text[:500], body["items"][:5])
         raise ValueError(f"AH weigerde het mandje ({resp.status_code}): {resp.text[:300]}")
