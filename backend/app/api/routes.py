@@ -292,7 +292,7 @@ async def _automatch(ingredients: list[dict], gluten_free: bool = False) -> int:
     async def find(term: str) -> dict | None:
         async with sem:
             try:
-                products = await ah_client.search_products(term, size=1)
+                products = await ah_client.search_products(clean_search(term), size=1)
             except Exception as e:
                 logger.warning("AH search failed for %s: %s", term, e)
                 return None

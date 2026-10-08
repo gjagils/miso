@@ -12,13 +12,33 @@ UNIT_RE = re.compile(
 )
 
 
+_UNITS = (
+    r"g|gr|gram|kg|ml|l|cl|dl|el|tl|eetlepels?|theelepels?|stuks?|stuk|blikjes?|blik|zakjes?|zak|"
+    r"potjes?|pot|bosjes?|bos|teentjes?|tenen?|takjes?|plakjes?|snufje|snuf|pakken|pak|plak|plakken"
+)
+# Hoeveelheid (met eenheid) aan het einde van de regel: "Rode ui 1 stuks", "Halloumi 75 g"
+_TRAILING_QTY_RE = re.compile(rf"[\s,]+[\d.,/½¼¾⅓⅔-]+\s*(?:{_UNITS})?\.?\s*$", re.IGNORECASE)
+_NOISE_RE = re.compile(r"\b(naar smaak|optioneel|eventueel|voor het bakken|om te serveren)\b", re.IGNORECASE)
+
+
+def clean_search(term: str) -> str:
+    """Strip quantities, units and notes so only the product words remain."""
+    cleaned = re.split(r"[,(]", term.strip())[0]
+    cleaned = _NOISE_RE.sub("", cleaned).strip()
+    for _ in range(3):
+        stripped = _TRAILING_QTY_RE.sub("", cleaned).strip()
+        if stripped == cleaned:
+            break
+        cleaned = stripped
+    cleaned = UNIT_RE.sub("", cleaned, count=1).strip()
+    return cleaned or term.strip()
+
+
 def search_term(text: str, food_name: str = "") -> str:
     """Best-effort supermarket search term for an ingredient line."""
     if food_name.strip():
         return food_name.strip()
-    cleaned = UNIT_RE.sub("", text.strip(), count=1)
-    cleaned = re.split(r"[,(]", cleaned)[0].strip()
-    return cleaned
+    return clean_search(text)
 
 
 def convert_recipe(full: dict) -> dict:
