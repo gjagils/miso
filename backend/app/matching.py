@@ -11,7 +11,7 @@ from fractions import Fraction
 
 from app.clients.mealie import clean_search
 
-MATCH_VERSION = 13
+MATCH_VERSION = 14
 
 # Basisspullen die je meestal in huis hebt: niet automatisch op de lijst
 PANTRY = {
@@ -37,7 +37,7 @@ PRODUCE = {
     "aardbei", "framboos", "bosui", "chilipeper", "peper", "lente-ui", "taugé", "snijboon", "sperzieboon",
     "peultje", "doperwt", "mais", "granaatappel", "kiwi", "meloen", "lollo",
 }
-OPTIONAL_WORDS = {"panko", "vers", "biologisch", "bio", "half", "heel", "mild", "jong", "oud", "belegen", "grof",
+OPTIONAL_WORDS = {"panko", "vers", "biologisch", "bio", "half", "heel", "mild", "jong", "oud", "belegen",
                   "fijn", "naturel", "gerookt", "gezouten", "ongezouten", "puur"}
 SPICES = {"komijn", "kurkuma", "kaneel", "paprikapoeder", "nootmuskaat", "kardemom", "kruidnagel", "chilipoeder",
           "korianderzaad", "venkelzaad", "mosterdzaad", "oregano", "tijm", "laurier", "laurierblaadjes"}
@@ -327,7 +327,7 @@ MARKED = ("gemarineerd", "glutenvrij", "geiten", "geit", "lactosevrij", "suikerv
           "vloeibaar", "vloeibare")
 # Kenmerken die het recept vraagt en die het product dan ook moet hebben
 REQUIRED = ("gemalen", "gerookt", "gerookte", "zongedroogd", "zongedroogde", "vastkokend", "vastkokende", "gezeefd",
-            "ongezouten", "geroosterd", "geroosterde")
+            "ongezouten", "geroosterd", "geroosterde", "grof", "dijon")
 # Gewicht per stuk om "2 kipfilets" naar pakken van ~300 g om te rekenen
 PIECE_WEIGHT = {"kipfilet": 150, "kipdijfilet": 100, "heekfilet": 120, "zalmfilet": 125, "kabeljauwfilet": 125,
                 "biefstuk": 150, "varkenshaas": 400, "hamburger": 125, "burger": 125, "schnitzel": 150,
@@ -486,7 +486,7 @@ def score(product: dict, query: str, flags: set[str] | None = None, need: dict |
             s -= 35  # "Peer met appel", "Cashewnoten met ras el hanout": samengesteld product
     for r in REQUIRED:
         if r in qraw and not any(t.startswith(r[:7]) for t in title_tokens):
-            s -= 10  # recept vraagt "gemalen"/"gerookt", product heeft het niet
+            s -= 15  # recept vraagt "gemalen"/"gerookt"/"grof", product heeft het niet
     if q and _stem(q[_head_index(q)]).startswith("paprika") and not qraw & COLORS and title_tokens & {"groene", "groen"}:
         s -= 10  # paprika zonder kleur: rood/mix, niet groen
     nouns = [i for i, t in enumerate(content) if not (len(t) > 3 and t.endswith(("e", "se", "ge")) and t not in qset)]
@@ -591,6 +591,7 @@ def search_queries(query: str, flags: set[str] | None = None) -> list[str]:
             out.append(pl)
     if words and _stem(words[-1]) != words[-1] and len(_stem(words[-1])) >= 4:
         out.append(" ".join(words[:-1] + [_stem(words[-1])]))  # "heekfilets" -> "heekfilet"
+    out.append(f"ah {query}")  # zodat het AH-huismerk tussen de resultaten zit (passata, bulgur, jasmijnrijst)
     if flags and "canned" in flags:
         out.append(f"{query} blik")  # "tomaten in blik" -> ook blikken zoeken
     out.append(f"biologisch {query}")

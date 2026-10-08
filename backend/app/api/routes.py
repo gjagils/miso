@@ -324,7 +324,8 @@ async def _automatch(ingredients: list[dict], gluten_free: bool = False, force: 
     sem = asyncio.Semaphore(4)
 
     async def find(term: str, text: str = "") -> dict | None:
-        query, _, flags = query_terms(term)
+        # De volledige regel bevat meer informatie ("1/2 tl paprika" = poeder) dan Mealie's naam ("paprika")
+        query, _, flags = query_terms(text) if text and query_terms(text)[0] else query_terms(term)
         need = needed(text or term)
         if not query:
             return None
