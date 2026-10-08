@@ -39,11 +39,14 @@ _TO_BASE = {"kg": ("g", 1000), "g": ("g", 1), "l": ("ml", 1000), "dl": ("ml", 10
             "ml": ("ml", 1), "el": ("ml", 15), "tl": ("ml", 5)}
 _FRACTIONS = {"½": "1/2", "¼": "1/4", "¾": "3/4", "⅓": "1/3", "⅔": "2/3"}
 _AMOUNT_RE = re.compile(
-    r"(?P<n>\d+(?:[.,]\d+)?(?:\s*[/]\s*\d+)?|[½¼¾⅓⅔])\s*(?P<n2>[½¼¾⅓⅔])?\s*(?P<u>[a-zA-Z]+)?", re.IGNORECASE
+    r"(?P<n>\d+\s+\d+/\d+|\d+(?:[.,]\d+)?(?:\s*[/]\s*\d+)?|[½¼¾⅓⅔])\s*(?P<n2>[½¼¾⅓⅔])?\s*(?P<u>[a-zA-Z]+)?", re.IGNORECASE
 )
 
 
 def _to_number(raw: str) -> float:
+    mixed = re.fullmatch(r"(\d+)\s+(\d+/\d+)", raw.strip())
+    if mixed:  # "7 1/2" = 7,5
+        return int(mixed.group(1)) + float(Fraction(mixed.group(2)))
     raw = _FRACTIONS.get(raw, raw).replace(",", ".").replace(" ", "")
     return float(Fraction(raw)) if "/" in raw else float(raw)
 
@@ -95,6 +98,22 @@ def packs_for(need: dict | None, pack: dict | None) -> int | None:
     if not need or not pack or need["unit"] != pack["unit"] or not pack["amount"]:
         return None
     return max(1, math.ceil(need["amount"] / pack["amount"] - 1e-9))
+
+
+EQUIPMENT = {
+    "keukenrasp", "rasp", "koekenpan", "braadpan", "grillpan", "wokpan", "pan", "steelpan", "ovenschaal",
+    "schaal", "bakplaat", "bakplaten", "kom", "vergiet", "zeef", "snijplank", "mes", "deksel", "staafmixer",
+    "blender", "mixer", "bakvorm", "springvorm", "lepel", "garde", "spatel", "thermometer", "prikker",
+    "satéprikkers", "cocktailprikkers", "keukenpapier", "aluminiumfolie", "bakpapier",
+}
+
+
+def is_equipment(search: str, text: str = "") -> bool:
+    """Keukengerei staat soms tussen de ingrediënten ("grote koekenpan met deksel")."""
+    words = set(_tokens(clean_search(search or text)))
+    if not words:
+        return False
+    return bool(words & EQUIPMENT) and not words & {"pannenkoek", "pannenkoeken", "pandan", "panko", "pannenkoekenmix"}
 
 
 def is_pantry(search: str, text: str = "") -> bool:

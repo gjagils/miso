@@ -6,7 +6,7 @@ import httpx
 from app.logging_config import logger
 
 UNIT_RE = re.compile(
-    r"^[\d.,/½¼¾⅓⅔\s-]*(g|gr|gram|kg|ml|l|cl|dl|el|tl|eetlepels?|theelepels?|stuks?|stuk|blikjes?|"
+    r"^[\d.,/½¼¾⅓⅔\s-]*(g|gr|gram|kg|ml|l|cl|dl|el|tl|eetlepels?|theelepels?|stuks?|stuk|kuipjes?|blokjes?|stukjes?|schijfjes?|handjes?|"
     r"blik|zakjes?|zak|potjes?|pot|bosjes?|bos|teentjes?|teen|tenen?|takjes?|plakjes?|snufje|snuf)?\b\s*",
     re.IGNORECASE,
 )
@@ -14,7 +14,9 @@ UNIT_RE = re.compile(
 
 _UNITS = (
     r"g|gr|gram|kg|ml|l|cl|dl|el|tl|eetlepels?|theelepels?|stuks?|stuk|blikjes?|blik|zakjes?|zak|"
-    r"potjes?|pot|bosjes?|bos|teentjes?|teen|tenen?|takjes?|plakjes?|snufje|snuf|pakken|pak|plak|plakken"
+    r"potjes?|pot|bosjes?|bos|teentjes?|teen|tenen?|takjes?|plakjes?|snufje|snuf|pakken|pak|plak|plakken|"
+    r"kuipjes?|kuipje|blokjes?|stukjes?|schijfjes?|reepjes?|handjes?|handvol|bolletjes?|scheutjes?|scheut|"
+    r"klontjes?|kropjes?|krop|bakjes?|bakje|pakjes?|flesjes?|fles|rollen|rol"
 )
 # Hoeveelheid (met eenheid) aan het einde van de regel: "Rode ui 1 stuks", "Halloumi 75 g"
 _TRAILING_QTY_RE = re.compile(rf"[\s,]+[\d.,/½¼¾⅓⅔-]+\s*(?:{_UNITS})?\.?\s*$", re.IGNORECASE)
@@ -22,16 +24,22 @@ _NOISE_RE = re.compile(r"\b(naar smaak|optioneel|eventueel|voor het bakken|om te
 
 
 def clean_search(term: str) -> str:
-    """Strip quantities, units and notes so only the product words remain."""
-    cleaned = re.split(r"[,(]", term.strip())[0]
-    cleaned = _NOISE_RE.sub("", cleaned).strip()
+    """Strip quantities, units and notes so only the product words remain ("" als er geen product staat)."""
+    cleaned = re.sub(r"\((?:s|en|ken|n)\)", "", term.strip())  # "stuk(s)", "blik(ken)" -> "stuk", "blik"
+    cleaned = re.sub(r"\([^)]*\)", " ", cleaned)  # tussenhaakjes weg: "1½ stuks (210g) courgettes"
+    cleaned = re.split(r"[,(]", cleaned)[0]
+    cleaned = cleaned.replace("*", " ")
+    cleaned = _NOISE_RE.sub("", cleaned)
+    cleaned = re.sub(r"\s+", " ", cleaned).strip()
     for _ in range(3):
         stripped = _TRAILING_QTY_RE.sub("", cleaned).strip()
         if stripped == cleaned:
             break
         cleaned = stripped
     cleaned = UNIT_RE.sub("", cleaned, count=1).strip()
-    return cleaned or term.strip()
+    if not re.search(r"[a-zà-ÿ]{2,}", cleaned, re.IGNORECASE) or re.fullmatch(rf"[\d½¼¾⅓⅔.,/\s-]*(?:{_UNITS})?", cleaned, re.IGNORECASE):
+        return ""
+    return cleaned
 
 
 def search_term(text: str, food_name: str = "") -> str:

@@ -18,7 +18,7 @@ from sqlalchemy.orm import Session
 from app.clients.ah import ah_client, convert_ah_recipe
 from app.clients.extractor import extract_recipe, fetch_url, suggest_gluten_free
 from app.clients.mealie import MealieClient, clean_search, convert_recipe
-from app.matching import MATCH_VERSION, choose, is_pantry, needed, pack_size, packs_for
+from app.matching import MATCH_VERSION, choose, is_equipment, is_pantry, needed, pack_size, packs_for
 from app.config import settings
 from app.database import get_db
 from app.logging_config import logger
@@ -327,7 +327,8 @@ async def _automatch(ingredients: list[dict], gluten_free: bool = False, force: 
         if ing.get("auto_skip") and not (force or stale):
             return 0
         search = ing.get("search") or ing.get("text", "")
-        if is_pantry(search, ing.get("text", "")):
+        if (not clean_search(search) or ing.get("text", "").lstrip().startswith("*")
+                or is_pantry(search, ing.get("text", "")) or is_equipment(search, ing.get("text", ""))):
             ing.update(skip=True, auto_skip=True, product=None, match_v=MATCH_VERSION)
             return 0
         if ing.get("auto_skip"):
