@@ -1,0 +1,521 @@
+{% extends "base.html" %}
+{% block title %}Wat eten we? - Miso{% endblock %}
+{% block content %}
+<div class="kz">
+<div class="page-head"><img src="/static/miso/miso-foodie.webp" alt="" width="76" height="76"><h1>Wat eten we?</h1></div>
+
+<ol class="kz-steps" aria-label="Stappen">
+    <li data-step="1" aria-current="step"><span>1</span>Kiezen</li>
+    <li data-step="2"><span>2</span>Inplannen</li>
+    <li data-step="3"><span>3</span>Boodschappen</li>
+</ol>
+
+<!-- Stap 1: zoeken en kiezen -->
+<section id="step-1" class="kz-step" aria-labelledby="kz-h1">
+    <h2 id="kz-h1" class="visually-hidden">Recepten kiezen</h2>
+    <div class="kz-search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg>
+        <input type="search" id="q" class="form-input" placeholder="Zoek: pasta, curry, stamppot..." aria-label="Zoek in jouw recepten en Allerhande" autocomplete="off" enterkeyhint="search">
+    </div>
+
+    <div id="picked" class="kz-picked" hidden>
+        <span class="muted">Gekozen:</span>
+        <div id="picked-list" class="kz-picked-list"></div>
+    </div>
+
+    <div id="own-group">
+        <h2 class="kz-group">Jouw recepten <span class="kz-count" id="own-count"></span></h2>
+        <div class="kz-grid" id="own-grid"></div>
+        <p class="muted" id="own-empty" hidden></p>
+    </div>
+
+    <div id="ah-group">
+        <h2 class="kz-group">Uit Allerhande <span class="kz-count" id="ah-count"></span></h2>
+        <p class="muted" id="ah-status" role="status"></p>
+        <div class="empty-state kz-hungry" id="hungry">
+            <img src="/static/miso/miso-hungry.webp" alt="" width="120" height="120">
+            <h3>Waar heb je zin in?</h3>
+            <p>Zoek hierboven een gerecht. Tik op recepten om ze te kiezen, zoveel als je wilt voor de hele week.</p>
+        </div>
+        <div class="kz-grid" id="ah-grid"></div>
+    </div>
+
+    <p class="muted kz-more">Eigen recept met een link, tekst of foto? <a href="/recepten">Voeg het toe bij Recepten</a>.</p>
+</section>
+
+<!-- Stap 2: week en dagen -->
+<section id="step-2" class="kz-step" aria-labelledby="kz-h2" hidden>
+    <h2 id="kz-h2">Inplannen</h2>
+    <div class="week-nav">
+        <button class="btn btn-sm" id="prev-week" type="button">&larr; Vorige</button>
+        <strong id="week-label"></strong>
+        <button class="btn btn-sm" id="next-week" type="button">Volgende &rarr;</button>
+    </div>
+    <p class="muted" style="margin-bottom:0.75rem">Miso zet je keuze op de eerste vrije dagen. Kies zelf een andere dag als dat beter past.</p>
+    <p class="muted" id="plan-status" role="status"></p>
+    <div id="plan-days"></div>
+</section>
+
+<!-- Stap 3: boodschappen -->
+<section id="step-3" class="kz-step" aria-labelledby="kz-h3" hidden>
+    <div class="kz-shop-head">
+        <img src="/static/miso/miso-groceries.webp" alt="" width="84" height="84" id="shop-mascot">
+        <div>
+            <h2 id="kz-h3">Boodschappen</h2>
+            <p class="muted" id="shop-sub"></p>
+        </div>
+    </div>
+    <p class="muted" id="shop-status" role="status"></p>
+
+    <div id="shop-result" class="kz-result" hidden role="status"></div>
+
+    <ul class="kz-products" id="products"></ul>
+
+    <div id="unmatched-box" class="kz-unmatched" hidden>
+        <h3>Nog geen AH-product</h3>
+        <p class="muted">Kies in het recept een product, of vink het ingrediënt uit.</p>
+        <ul id="unmatched"></ul>
+    </div>
+
+    <details id="pantry-box" class="kz-pantry" hidden>
+        <summary>Heb je al <span class="kz-count" id="pantry-count"></span></summary>
+        <ul id="pantry"></ul>
+    </details>
+
+    <div class="kz-actions" id="shop-actions" hidden>
+        <button class="btn" type="button" id="basket-btn">Zet in AH-mandje</button>
+        <a class="btn btn-ah" id="link-btn" href="#" target="_blank" rel="noopener noreferrer">Open in AH-app/website</a>
+        <p class="muted kz-note" id="token-note"></p>
+        <button class="kz-linkbtn" type="button" id="clear-btn">Mandje leegmaken</button>
+        <button class="kz-linkbtn" type="button" id="restart-btn">Opnieuw kiezen</button>
+    </div>
+</section>
+</div>
+
+<div class="kz-bar" id="bar">
+    <div class="kz-bar-inner">
+        <button class="btn" type="button" id="bar-back" aria-label="Terug" hidden>&larr;</button>
+        <span class="kz-bar-count" id="bar-count" aria-live="polite"></span>
+        <button class="btn btn-primary" type="button" id="bar-next" disabled>Plan in</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(() => {
+const OWN = {{ recipes|tojson }};
+let WEEK = {{ week|tojson }};
+const TODAY = {{ today|tojson }};
+const HAS_TOKEN = {{ has_token|tojson }};
+const DAYS = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"];
+const MONTHS = ["jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
+const STORE = "miso.kiezen";
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+const ownByAh = new Map(OWN.filter(r => r.ah_recipe_id).map(r => [r.ah_recipe_id, r]));
+
+// Selection: key -> {key, kind: "own"|"ah", id, name, image_url, meta}
+let picked = new Map();
+try { (JSON.parse(sessionStorage.getItem(STORE) || "[]")).forEach(p => picked.set(p.key, p)); } catch (e) {}
+const persist = () => { try { sessionStorage.setItem(STORE, JSON.stringify([...picked.values()])); } catch (e) {} };
+
+let step = 1;
+let assign = [];      // [{key, id, name, image_url, day: "YYYY-MM-DD" | ""}]
+let weekPlan = {};    // date -> [{id, name}]
+let linkUrl = "";
+let productCount = 0;
+
+// ── Helpers ─────────────────────────────────────────────
+async function postJSON(url, body) {
+    const r = await fetch(url, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+    let data = {};
+    try { data = await r.json(); } catch (e) { data = {ok: false, error: `Fout ${r.status}`}; }
+    if (!r.ok && data.ok === undefined) data.ok = false;
+    return data;
+}
+const iso = d => d.toLocaleDateString("sv-SE");
+const parseIso = s => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+const addDays = (s, n) => { const d = parseIso(s); d.setDate(d.getDate() + n); return iso(d); };
+const dayLabel = s => { const d = parseIso(s); return `${DAYS[(d.getDay() + 6) % 7]} ${d.getDate()} ${MONTHS[d.getMonth()]}`; };
+const weekDates = () => [...Array(7)].map((_, i) => addDays(WEEK, i));
+const ownIds = () => [...picked.values()].filter(p => p.kind === "own").map(p => p.id);
+function thumb(url, cls) {
+    return url ? `<img class="${cls}" src="${esc(url)}" alt="" loading="lazy" referrerpolicy="no-referrer">`
+               : `<div class="${cls} kz-ph"><img src="/static/miso/miso-hungry.webp" alt=""></div>`;
+}
+
+// ── Step 1: zoeken en kiezen ────────────────────────────
+function card(item) {
+    const on = picked.has(item.key);
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "kz-card";
+    b.setAttribute("aria-pressed", on ? "true" : "false");
+    b.dataset.key = item.key;
+    b.innerHTML = `${thumb(item.image_url, "kz-img")}
+        <span class="kz-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+        <span class="kz-card-body"><span class="kz-title">${esc(item.name)}</span>
+        <span class="kz-meta">${esc(item.meta)}</span></span>`;
+    b.setAttribute("aria-label", `${item.name}${item.meta ? ", " + item.meta : ""}`);
+    b.onclick = () => toggle(item);
+    return b;
+}
+const ownItem = r => ({key: `own:${r.id}`, kind: "own", id: r.id, name: r.name, image_url: r.image_url,
+                       meta: [r.servings, r.total_time].filter(Boolean).join(" · ")});
+
+function toggle(item) {
+    if (picked.has(item.key)) picked.delete(item.key); else picked.set(item.key, item);
+    persist();
+    document.querySelectorAll(`.kz-card[data-key="${CSS.escape(item.key)}"]`)
+        .forEach(c => c.setAttribute("aria-pressed", picked.has(item.key) ? "true" : "false"));
+    renderPicked(); renderBar();
+}
+
+function renderPicked() {
+    const list = $("picked-list");
+    list.innerHTML = "";
+    [...picked.values()].forEach(p => {
+        const chip = document.createElement("button");
+        chip.type = "button"; chip.className = "kz-chip";
+        chip.innerHTML = `<span>${esc(p.name)}</span><span aria-hidden="true">✕</span>`;
+        chip.setAttribute("aria-label", `${p.name} weghalen`);
+        chip.onclick = () => toggle(p);
+        list.appendChild(chip);
+    });
+    $("picked").hidden = picked.size === 0;
+}
+
+function renderOwn(q) {
+    const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
+    const hits = OWN.filter(r => terms.every(t => r.name.toLowerCase().includes(t)));
+    const grid = $("own-grid");
+    grid.innerHTML = "";
+    hits.forEach(r => grid.appendChild(card(ownItem(r))));
+    $("own-count").textContent = hits.length ? hits.length : "";
+    $("own-empty").hidden = hits.length > 0;
+    $("own-empty").textContent = OWN.length ? `Geen eigen recepten met "${q}".` : "Je hebt nog geen eigen recepten.";
+    $("own-group").hidden = !OWN.length && !q;
+}
+
+let seq = 0, timer = null;
+async function searchAh(q) {
+    const my = ++seq;
+    const grid = $("ah-grid"), status = $("ah-status");
+    if (q.length < 2) {
+        grid.innerHTML = ""; $("ah-count").textContent = "";
+        status.textContent = q ? "Typ nog een letter om in Allerhande te zoeken." : "";
+        return;
+    }
+    status.textContent = "Miso snuffelt in Allerhande...";
+    let data;
+    try { data = await (await fetch(`/api/allerhande/search?q=${encodeURIComponent(q)}`)).json(); }
+    catch (e) { data = {ok: false, error: "Zoeken bij AH mislukt."}; }
+    if (my !== seq) return;  // er is al een nieuwere zoekopdracht
+    grid.innerHTML = "";
+    if (!data.ok) { status.textContent = data.error || "Zoeken bij AH mislukt."; $("ah-count").textContent = ""; return; }
+    const results = data.results || [];
+    $("ah-count").textContent = results.length || "";
+    status.textContent = results.length ? "" : `Niets gevonden in Allerhande voor "${q}".`;
+    results.forEach(r => {
+        const own = ownByAh.get(r.id);
+        const meta = [r.time, r.servings].filter(Boolean).join(" · ");
+        const item = own ? {...ownItem(own), image_url: own.image_url || r.image_url, meta: (meta ? meta + " · " : "") + "in je recepten"}
+                         : {key: `ah:${r.id}`, kind: "ah", id: r.id, name: r.title, image_url: r.image_url || "", meta};
+        grid.appendChild(card(item));
+    });
+}
+
+function onSearch() {
+    const q = $("q").value.trim();
+    renderOwn(q);
+    $("hungry").hidden = !!q;
+    clearTimeout(timer);
+    timer = setTimeout(() => searchAh(q), 300);
+}
+
+// ── Allerhande-keuzes importeren ────────────────────────
+async function importAh() {
+    const todo = [...picked.values()].filter(p => p.kind === "ah");
+    let done = 0, failed = [];
+    if (!todo.length) return true;
+    $("bar-count").textContent = `Recepten ophalen 0/${todo.length}`;
+    await Promise.all(todo.map(async p => {
+        const fd = new FormData(); fd.append("recipe_id", p.id);
+        let r;
+        try { r = await (await fetch("/api/allerhande/add", {method: "POST", body: fd})).json(); }
+        catch (e) { r = {ok: false, error: String(e)}; }
+        done++;
+        $("bar-count").textContent = `Recepten ophalen ${done}/${todo.length}`;
+        if (!r.ok) { failed.push(`${p.name}: ${r.error || "mislukt"}`); return; }
+        const own = {id: r.id, name: p.name, image_url: p.image_url, servings: "", total_time: "", ah_recipe_id: p.id};
+        if (!OWN.some(o => o.id === r.id)) OWN.push(own);
+        ownByAh.set(p.id, own);
+        picked.delete(p.key);
+        picked.set(`own:${r.id}`, {...p, key: `own:${r.id}`, kind: "own", id: r.id});
+    }));
+    persist();
+    if (failed.length) { alert("Niet gelukt om op te halen:\n" + failed.join("\n")); renderPicked(); renderBar(); return false; }
+    return true;
+}
+
+// ── Step 2: inplannen ───────────────────────────────────
+async function loadWeek() {
+    $("week-label").textContent = `Week van ${dayLabel(WEEK).replace(/^\S+ /, "")}`;
+    $("plan-status").textContent = "Weekmenu ophalen...";
+    $("plan-days").innerHTML = "";
+    let data;
+    try { data = await (await fetch(`/api/week?week=${WEEK}`)).json(); }
+    catch (e) { $("plan-status").textContent = "Weekmenu ophalen mislukt."; return; }
+    WEEK = data.week;
+    $("week-label").textContent = `Week van ${dayLabel(WEEK).replace(/^\S+ /, "")}`;
+    weekPlan = {};
+    data.days.forEach(d => { weekPlan[d.date] = d.recipes.map(r => ({id: r.id, name: r.name})); });
+    $("plan-status").textContent = "";
+    autoAssign();
+    renderPlan();
+}
+
+function autoAssign() {
+    const dates = weekDates();
+    const start = dates.includes(TODAY) ? dates.indexOf(TODAY) : 0;
+    const usable = dates.slice(start);
+    const load = Object.fromEntries(dates.map(d => [d, (weekPlan[d] || []).length]));
+    assign = [...picked.values()].filter(p => p.kind === "own").map(p => {
+        const already = dates.find(d => (weekPlan[d] || []).some(r => r.id === p.id));
+        if (already) return {...p, day: "", already};
+        // eerste lege dag; zijn die op, dan de rustigste dag
+        const day = usable.find(d => load[d] === 0) || usable.reduce((a, b) => (load[b] < load[a] ? b : a));
+        load[day]++;
+        return {...p, day};
+    });
+}
+
+function renderPlan() {
+    const wrap = $("plan-days");
+    wrap.innerHTML = "";
+    const dates = weekDates();
+    const options = dates.map(d => `<option value="${d}">${dayLabel(d)}</option>`).join("") + `<option value="">Niet inplannen</option>`;
+    dates.forEach(d => {
+        const existing = weekPlan[d] || [];
+        const mine = assign.filter(a => a.day === d);
+        if (d < TODAY && !existing.length && !mine.length) return;  // lege dagen die al voorbij zijn
+        const box = document.createElement("div");
+        box.className = "day-card kz-day" + (d === TODAY ? " today" : "") + (!existing.length && !mine.length ? " kz-day-empty" : "");
+        let html = `<h3>${dayLabel(d)}</h3>`;
+        existing.forEach(r => { html += `<div class="kz-existing"><span>${esc(r.name)}</span><span class="badge badge-skipped">al gepland</span></div>`; });
+        if (!existing.length && !mine.length) html += `<p class="muted">Nog niets</p>`;
+        box.innerHTML = html;
+        mine.forEach(a => box.appendChild(assignRow(a, options)));
+        wrap.appendChild(box);
+    });
+    const loose = assign.filter(a => !a.day);
+    if (loose.length) {
+        const box = document.createElement("div");
+        box.className = "day-card kz-day";
+        box.innerHTML = `<h3>Niet (opnieuw) inplannen</h3><p class="muted">Komen wel in je boodschappen bij de volgende stap.</p>`;
+        loose.forEach(a => box.appendChild(assignRow(a, options)));
+        wrap.appendChild(box);
+    }
+    renderBar();
+}
+
+function assignRow(a, options) {
+    const row = document.createElement("div");
+    row.className = "kz-assign";
+    row.innerHTML = `${thumb(a.image_url, "kz-thumb")}<div class="kz-assign-main"><span class="kz-title">${esc(a.name)}</span>
+        ${a.already && !a.day ? `<span class="muted">staat al op ${esc(dayLabel(a.already).toLowerCase())}</span>` : ""}</div>`;
+    const sel = document.createElement("select");
+    sel.innerHTML = options;
+    sel.value = a.day;
+    sel.setAttribute("aria-label", `Dag voor ${a.name}`);
+    sel.onchange = () => { a.day = sel.value; renderPlan(); };
+    row.querySelector(".kz-assign-main").appendChild(sel);
+    return row;
+}
+
+async function savePlan() {
+    const days = {};
+    weekDates().forEach(d => { days[d] = (weekPlan[d] || []).map(r => r.id); });
+    assign.filter(a => a.day).forEach(a => days[a.day].push(a.id));
+    $("bar-count").textContent = "Opslaan...";
+    const r = await postJSON("/api/plan", {week: WEEK, days});
+    if (!r.ok) { $("plan-status").textContent = r.error || "Opslaan mislukt."; renderBar(); return false; }
+    return true;
+}
+
+// ── Step 3: boodschappen ────────────────────────────────
+async function loadShop() {
+    const ids = ownIds();
+    const recipes = [];
+    let done = 0;
+    $("products").innerHTML = ""; $("shop-result").hidden = true; $("shop-actions").hidden = true;
+    $("unmatched-box").hidden = true; $("pantry-box").hidden = true;
+    $("shop-mascot").src = "/static/miso/miso-groceries.webp";
+    $("shop-sub").textContent = `${ids.length} ${ids.length === 1 ? "recept" : "recepten"}`;
+    $("shop-status").textContent = `Miso zoekt de beste AH-producten... (0/${ids.length})`;
+    productCount = 0; renderBar();
+    // max 3 tegelijk: elk recept kan bij AH zoeken
+    const queue = [...ids];
+    await Promise.all([...Array(Math.min(3, ids.length))].map(async () => {
+        while (queue.length) {
+            const id = queue.shift();
+            try {
+                const r = await fetch(`/api/recipes/${id}`);
+                if (r.ok) recipes.push(await r.json());
+            } catch (e) {}
+            done++;
+            $("shop-status").textContent = `Miso zoekt de beste AH-producten... (${done}/${ids.length})`;
+        }
+    }));
+    recipes.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+
+    // De lijst-link bevat de exacte, samengevoegde aantallen van de server.
+    const link = await postJSON("/api/list-link", {recipe_ids: ids});
+    linkUrl = link.url || "";
+    const qty = new Map();
+    try { new URL(linkUrl).searchParams.getAll("p").forEach(p => { const [pid, q] = p.split(":"); qty.set(Number(pid), Number(q)); }); } catch (e) {}
+
+    const products = new Map(), unmatched = [], pantry = [];
+    recipes.forEach(rec => rec.ingredients.forEach(ing => {
+        const add = (pid, name, size, img) => {
+            const p = products.get(pid) || {pid, name, size, img, qty: 0, recipes: new Set()};
+            p.qty += ing.quantity || 1; p.recipes.add(rec.name); products.set(pid, p);
+        };
+        if (ing.skip) { pantry.push({text: ing.text, recipe: rec.name}); return; }
+        if (ing.product_id) add(ing.product_id, ing.product, ing.unit_size, ing.product_image);
+        else unmatched.push({text: ing.text, recipe: rec});
+        if (ing.gf_product_id) add(ing.gf_product_id, ing.gf_product + " (glutenvrij)", "", "");
+    }));
+    const list = [...products.values()].filter(p => !qty.size || qty.has(p.pid));
+    list.forEach(p => { if (qty.has(p.pid)) p.qty = qty.get(p.pid); });
+    productCount = link.count || list.length;
+
+    $("products").innerHTML = list.map(p => `<li class="kz-product">
+        ${p.img ? `<img src="${esc(p.img)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<span class="kz-pimg"></span>`}
+        <div class="kz-pmain"><span class="kz-pname">${esc(p.name)}</span>
+        <span class="muted">${esc(p.size || "")}${p.size ? " · " : ""}voor ${esc([...p.recipes].join(", "))}</span></div>
+        <span class="kz-qty" aria-label="${p.qty} stuks">${p.qty}×</span></li>`).join("");
+
+    $("unmatched").innerHTML = unmatched.map(u => `<li><span>${esc(u.text)}</span>
+        <a href="/recipe/${u.recipe.id}">${esc(u.recipe.name)} &rarr;</a></li>`).join("");
+    $("unmatched-box").hidden = !unmatched.length;
+    $("pantry").innerHTML = pantry.map(p => `<li>${esc(p.text)} <span class="muted">· ${esc(p.recipe)}</span></li>`).join("");
+    $("pantry-count").textContent = pantry.length;
+    $("pantry-box").hidden = !pantry.length;
+
+    $("shop-sub").textContent = `${productCount} ${productCount === 1 ? "product" : "producten"} voor ${recipes.length} ${recipes.length === 1 ? "recept" : "recepten"}`;
+    $("shop-status").textContent = recipes.length < ids.length ? "Niet alle recepten konden worden geladen." : "";
+    $("link-btn").href = linkUrl || "#";
+    $("link-btn").toggleAttribute("aria-disabled", !linkUrl);
+    $("basket-btn").disabled = !HAS_TOKEN || !productCount;
+    $("token-note").innerHTML = HAS_TOKEN
+        ? "Het lijstje krijgt alles van deze week dat er nog niet op stond. Mandje vullen bestelt niets: afrekenen doe je zelf bij AH."
+        : `AH is nog niet gekoppeld. <a href="/settings">Koppel AH</a> om direct op je lijstje te zetten, of open de producten in de AH-app/website (daar ben je zelf ingelogd).`;
+    $("shop-actions").hidden = false;
+    renderBar();
+}
+
+function showResult(ok, text) {
+    const box = $("shop-result");
+    box.hidden = false;
+    box.className = "kz-result " + (ok ? "msg-ok" : "msg-err");
+    box.innerHTML = `<img src="/static/miso/${ok ? "miso-celebrate" : "miso-surprised"}.webp" alt="" width="56" height="56"><span></span>`;
+    box.querySelector("span").textContent = text;
+    if (!ok && /Instellingen/.test(text)) box.querySelector("span").insertAdjacentHTML("beforeend", ' <a href="/settings">Naar Instellingen</a>');
+    if (ok) $("shop-mascot").src = "/static/miso/miso-celebrate.webp";
+    box.scrollIntoView({behavior: "smooth", block: "nearest"});
+}
+
+async function syncList() {
+    const btn = $("bar-next");
+    btn.disabled = true; btn.textContent = "Bezig...";
+    const r = await postJSON("/api/plan/sync", {week: WEEK, locked: true});
+    if (r.ok) {
+        const left = (r.status && r.status.unmatched || []).length;
+        showResult(true, (r.added ? `${r.added} producten op je AH-lijstje gezet.` : "Alles stond al op je AH-lijstje.")
+            + " Je weekmenu staat vast." + (left ? ` Nog ${left} ingrediënten zonder AH-product.` : ""));
+    } else showResult(false, r.error || "Het lijstje vullen is mislukt.");
+    renderBar();
+}
+
+// ── Navigatie en balk ───────────────────────────────────
+function go(n) {
+    step = n;
+    [1, 2, 3].forEach(i => { $(`step-${i}`).hidden = i !== n; });
+    document.querySelectorAll(".kz-steps li").forEach(li => {
+        const s = Number(li.dataset.step);
+        if (s === n) li.setAttribute("aria-current", "step"); else li.removeAttribute("aria-current");
+        li.classList.toggle("done", s < n);
+    });
+    window.scrollTo({top: 0});
+    renderBar();
+    if (n === 2) loadWeek();
+    if (n === 3) loadShop();
+}
+
+function renderBar() {
+    const back = $("bar-back"), next = $("bar-next"), count = $("bar-count");
+    back.hidden = step === 1;
+    count.hidden = step !== 1;
+    next.disabled = false;
+    if (step === 1) {
+        count.textContent = picked.size ? `${picked.size} gekozen` : "Nog niets gekozen";
+        next.textContent = "Plan in";
+        next.disabled = picked.size === 0;
+    } else if (step === 2) {
+        next.textContent = "Opslaan en verder";
+        next.disabled = !assign.length && !picked.size;
+    } else {
+        const n = productCount ? `${productCount} ` : "";
+        next.textContent = HAS_TOKEN ? `Zet ${n}op mijn AH-lijstje` : `Open ${n}producten bij AH`;
+        next.disabled = !productCount;
+    }
+}
+
+$("bar-next").onclick = async () => {
+    const next = $("bar-next");
+    if (step === 1) {
+        next.disabled = true;
+        if (await importAh()) go(2); else renderBar();
+    } else if (step === 2) {
+        next.disabled = true;
+        if (await savePlan()) go(3); else renderBar();
+    } else if (HAS_TOKEN) {
+        await syncList();
+    } else if (linkUrl) {
+        window.open(linkUrl, "_blank", "noopener,noreferrer");
+    }
+};
+$("bar-back").onclick = () => go(step - 1);
+$("prev-week").onclick = () => { WEEK = addDays(WEEK, -7); loadWeek(); };
+$("next-week").onclick = () => { WEEK = addDays(WEEK, 7); loadWeek(); };
+$("q").addEventListener("input", onSearch);
+$("q").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); clearTimeout(timer); searchAh($("q").value.trim()); $("q").blur(); } });
+
+$("link-btn").onclick = e => { if (!linkUrl) e.preventDefault(); };
+$("basket-btn").onclick = async () => {
+    const b = $("basket-btn");
+    b.disabled = true; b.textContent = "Bezig...";
+    const r = await postJSON("/api/basket/fill", {recipe_ids: ownIds()});
+    b.disabled = false; b.textContent = "Zet in AH-mandje";
+    if (r.ok) showResult(true, `${r.added} producten in je AH-mandje gezet. Afrekenen doe je zelf in de AH-app.`);
+    else showResult(false, r.error || "Mandje vullen is mislukt.");
+};
+$("clear-btn").onclick = async () => {
+    if (!confirm("Haal alles weg wat Miso in je AH-mandje zette? De rest van je mandje blijft staan.")) return;
+    const r = await postJSON("/api/basket/clear", {});
+    if (r.ok) showResult(true, r.removed ? `${r.removed} producten uit je mandje gehaald.` : "Miso had niets in je mandje gezet.");
+    else showResult(false, r.error || "Mandje leegmaken is mislukt.");
+};
+$("restart-btn").onclick = () => {
+    picked.clear(); persist(); $("q").value = ""; onSearch(); renderPicked(); go(1);
+};
+
+renderPicked();
+onSearch();
+renderBar();
+})();
+</script>
+{% endblock %}

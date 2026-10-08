@@ -66,9 +66,12 @@ async def api_recipe(recipe_id: int, db: Session = Depends(get_db)):
                 "text": i["text"], "skip": bool(i.get("skip")), "gluten": bool(i.get("gluten")),
                 "gf_search": i.get("gf_search", ""),
                 "product": (i.get("product") or {}).get("name"),
+                "product_id": (i.get("product") or {}).get("id"),
+                "product_image": (i.get("product") or {}).get("image_url", ""),
                 "quantity": i.get("quantity", 1), "pantry": bool(i.get("auto_skip")),
                 "unit_size": (i.get("product") or {}).get("unit_size"),
                 "gf_product": (i.get("gf_product") or {}).get("name"),
+                "gf_product_id": (i.get("gf_product") or {}).get("id"),
             }
             for i in r.ingredients
         ],

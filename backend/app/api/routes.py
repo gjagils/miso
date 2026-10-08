@@ -359,7 +359,8 @@ async def _automatch(ingredients: list[dict], gluten_free: bool = False, force: 
         if ing.get("auto_skip") and not (force or stale):
             return 0
         search = ing.get("search") or ing.get("text", "")
-        if (not clean_search(search) or ing.get("text", "").lstrip().startswith("*")
+        text = ing.get("text", "").strip()
+        if (not clean_search(search) or text.startswith("*") or text.endswith(":") or len(text.split()) > 12
                 or is_pantry(search, ing.get("text", "")) or is_equipment(search, ing.get("text", ""))):
             ing.update(skip=True, auto_skip=True, product=None, match_v=MATCH_VERSION)
             return 0
@@ -467,6 +468,22 @@ async def weekmenu_page(request: Request, week: str | None = None, db: Session =
             "days": days,
             "plan": plan,
             "status": week_status(db, monday),
+            "has_token": bool(_get_setting(db, "ah_refresh_token") or _get_setting(db, "ah_user_token")),
+        },
+    )
+
+
+@router.get("/kiezen", response_class=HTMLResponse)
+async def choose_page(request: Request, week: str | None = None, db: Session = Depends(get_db)):
+    """Wat eten we? Recepten zoeken en kiezen -> inplannen -> boodschappen naar AH."""
+    recipes = db.execute(select(Recipe).order_by(Recipe.name)).scalars().all()
+    return templates.TemplateResponse(
+        request, "kiezen.html",
+        {
+            "recipes": [{"id": r.id, "name": r.name, "image_url": r.image_url or "", "servings": r.servings or "",
+                         "total_time": r.total_time or "", "ah_recipe_id": r.ah_recipe_id} for r in recipes],
+            "week": str(parse_week(week)),
+            "today": str(date.today()),
             "has_token": bool(_get_setting(db, "ah_refresh_token") or _get_setting(db, "ah_user_token")),
         },
     )
@@ -692,7 +709,7 @@ async def allerhande_add(recipe_id: int = Form(...), db: Session = Depends(get_d
     recipe = Recipe(
         name=data["name"], description=data["description"], servings=data["servings"],
         total_time=data["total_time"], ah_recipe_id=recipe_id,
-        source_url=f"https://www.ah.nl/allerhande/recept/R-R{recipe_id}",
+        source_url=f"https://www.ah.nl/allerhande/recept/R-R{recipe_id}", image_url=data.get("image_url", ""),
     )
     recipe.ingredients = data["ingredients"]
     recipe.instructions = data["instructions"]

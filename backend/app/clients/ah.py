@@ -230,7 +230,7 @@ class AHClient:
     async def search_recipes(self, text: str, size: int = 12) -> list[dict]:
         query = """query RecipeSearch($query: RecipeSearchParams!) {
   recipeSearch(query: $query) {
-    result { id title slug time { cook oven wait } serving { number type } }
+    result { id title slug time { cook oven wait } serving { number type } images { url width } }
   }
 }"""
         data = await self.graphql(query, {"query": {"searchText": text, "size": size}})
@@ -241,6 +241,8 @@ class AHClient:
                 "slug": r.get("slug", ""),
                 "url": AH_RECIPE_URL.format(id=r["id"], slug=r.get("slug", "")),
                 "servings": _servings(r.get("serving")),
+                "time": f"{(r.get('time') or {}).get('cook')} min" if (r.get("time") or {}).get("cook") else "",
+                "image_url": _pick_image(r.get("images")),
             }
             for r in data["recipeSearch"]["result"]
         ]
@@ -250,6 +252,7 @@ class AHClient:
   recipe(id: $id) {
     id title description cookTime
     servings { number type }
+    images { url width }
     ingredients { text name { singular } }
     preparation { steps }
   }
@@ -328,6 +331,15 @@ async def set_order_items(client_obj, items: list[dict]) -> dict:
     return resp.json() if resp.content else {}
 
 
+def _pick_image(images: list[dict] | None, target: int = 440) -> str:
+    """Kleinste Allerhande-afbeelding die minstens `target` px breed is (anders de grootste)."""
+    imgs = [i for i in images or [] if i.get("url")]
+    if not imgs:
+        return ""
+    wide = sorted((i for i in imgs if (i.get("width") or 0) >= target), key=lambda i: i.get("width") or 0)
+    return (wide[0] if wide else max(imgs, key=lambda i: i.get("width") or 0))["url"]
+
+
 def _servings(serving: dict | None) -> str:
     if not serving or not serving.get("number"):
         return ""
@@ -356,6 +368,7 @@ def convert_ah_recipe(r: dict) -> dict:
         "total_time": f"{cook} minuten" if cook else "",
         "ingredients": ingredients,
         "instructions": [x for x in steps if x],
+        "image_url": _pick_image(r.get("images"), 612),
     }
 
 
