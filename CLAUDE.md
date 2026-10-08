@@ -27,6 +27,16 @@ LIVE_AH=1 python -m pytest -q -m live                                        # e
 `tests/data/ingredient_lines.txt` zijn echte ingrediëntregels uit de recepten; elke fout die je vindt
 wordt een test. GitHub Actions draait de tests bij elke push en wekelijks de live-tests.
 
+## Verbeterlus koppelen (gauntlet)
+
+1. Meten tegen AH's eigen keuzes: `python -m tools.eval_bar` (offline, cache) of `--live` (vernieuwt
+   `tests/data/ah_bar_search_cache.json`). Maatstaf = `tests/data/ah_bar.txt` (AH "Productsuggesties" van
+   Allerhande-recepten). `tests/test_bar_benchmark.py` bewaakt de drempels; verhoog ze als de score stijgt.
+2. Blinde criticus: zet onze lijst en AH's lijst per recept zonder labels naast elkaar en laat een aparte
+   agent kiezen + grootste gat noemen. Los het gat op, meet opnieuw, herhaal tot onze lijst wint.
+3. Eigen recepten: `/dekking` (en `/api/coverage`, `POST /api/coverage/refresh`) toont per recept wat er
+   gekoppeld/open/overgeslagen is. Handmatige keuzes worden geleerde voorkeuren (`product_preferences`).
+
 ## Deploy
 
 Portainer-stack `miso` (NAS 192.168.68.120) haalt `main` elke 5 minuten op (GitOps polling).
