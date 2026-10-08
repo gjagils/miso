@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api.json_api import router as json_router
 from app.api.routes import router
+from app.api.shopping import router as shopping_router
 from app.config import settings
 from app.database import Base, engine
 from app.logging_config import setup_logging
@@ -41,4 +42,5 @@ async def require_pin(request: Request, call_next):
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 app.include_router(json_router)
+app.include_router(shopping_router)
 app.include_router(router)

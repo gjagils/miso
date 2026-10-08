@@ -196,3 +196,23 @@ def test_shopping_list_items_have_description_and_no_duplicate_products():
     assert [b["productId"] for b in body] == [7, 9]
     assert body[0]["quantity"] == 3 and body[0]["description"] == "AH Halloumi"
     assert all(b["type"] == "SHOPPABLE" and b["originCode"] == "PRD" and b["strikeThrough"] is False for b in body)
+
+
+def test_learned_preference_is_used_instead_of_search(monkeypatch):
+    calls = _fake_search(monkeypatch)
+    ings = _ings("200 g halloumi")
+    prefs = {"halloumi": {"id": 42, "name": "Mijn favoriete halloumi", "unit_size": "200 g"}}
+    asyncio.run(routes._automatch(ings, prefs=prefs))
+    assert ings[0]["product"]["name"] == "Mijn favoriete halloumi" and ings[0]["source"] == "geleerd"
+    assert calls == []  # geen AH-zoekopdracht nodig
+
+
+def test_basket_and_link_builders_never_order():
+    from app.clients import ah
+
+    assert ah.build_order_items([{"product_id": 1, "quantity": 2}, {"product_id": 1, "quantity": 0}]) == [
+        {"productId": 1, "quantity": 2, "originCode": "PRD", "description": "", "strikethrough": False}]
+    assert ah.build_add_multiple_url([{"product_id": 5, "quantity": 2.4}, {"product_id": 6}]) == \
+        "https://www.ah.nl/mijnlijst/add-multiple?p=5%3A2&p=6%3A1"
+    src = open(ah.__file__).read().lower()
+    assert "checkout" not in src and "/submit" not in src and "placeorder" not in src

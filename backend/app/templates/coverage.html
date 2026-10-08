@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Dekking - Miso{% endblock %}
+{% block content %}
+<div class="page-head"><img src="/static/miso/miso-checklist.webp" alt="" width="76" height="76" loading="lazy"><h1>Koppeling met AH</h1></div>
+
+<div class="status-box">
+  <p><strong>{{ totaal.pct }}%</strong> van de ingrediënten die je moet kopen is gekoppeld aan een AH-product
+  ({{ totaal.gekoppeld }} van {{ totaal.totaal - totaal.basis - totaal.uitgevinkt }}).
+  {{ totaal.volledig }} van {{ totaal.recepten }} recepten zijn helemaal gekoppeld.</p>
+  <p class="muted">{{ totaal.basis }} basisspullen/keukengerei overgeslagen · {{ totaal.handmatig }} handmatig gekozen ·
+  {{ totaal.geleerd }} uit geleerde voorkeuren ({{ totaal.geleerde_voorkeuren }} voorkeuren) ·
+  {{ totaal.verouderd }} nog met oude regels gekoppeld</p>
+</div>
+
+<div class="week-actions">
+  <button class="btn btn-primary" id="refresh-btn">Alles opnieuw koppelen</button>
+  <span id="msg" class="muted" role="status">{% if refresh.running %}Bezig: {{ refresh.done }}/{{ refresh.total }}{% elif refresh.finished %}Laatst bijgewerkt {{ refresh.finished }}{% endif %}</span>
+</div>
+
+<table class="settings-table">
+  <thead><tr><th>Recept</th><th>Gekoppeld</th><th>Open</th><th>Nog te koppelen</th></tr></thead>
+  <tbody>
+  {% for r in recepten %}
+  <tr>
+    <td><a href="/recipe/{{ r.id }}">{{ r.name }}</a></td>
+    <td>{% if r.open == 0 %}<span class="badge badge-mapped">{{ r.pct }}%</span>{% else %}<span class="badge badge-unmapped">{{ r.pct }}%</span>{% endif %}</td>
+    <td>{{ r.open }}</td>
+    <td class="muted">{{ r.open_items[:4]|join(", ") }}{% if r.open_items|length > 4 %} …{% endif %}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const btn = document.getElementById("refresh-btn"), msg = document.getElementById("msg");
+async function poll() {
+  const r = await (await fetch("/api/coverage")).json();
+  const f = r.refresh;
+  if (f.running) { msg.textContent = `Bezig: ${f.done}/${f.total} recepten`; setTimeout(poll, 2000); }
+  else { location.reload(); }
+}
+btn.addEventListener("click", async () => {
+  btn.disabled = true; msg.textContent = "Gestart…";
+  await fetch("/api/coverage/refresh", {method: "POST"});
+  setTimeout(poll, 1500);
+});
+{% if refresh.running %}setTimeout(poll, 2000);{% endif %}
+</script>
+{% endblock %}

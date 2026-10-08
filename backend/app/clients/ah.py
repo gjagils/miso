@@ -12,6 +12,10 @@ AH_REDIRECT_URI = "appie://login-exit"
 AH_REFRESH_URL = "https://api.ah.nl/mobile-auth/v1/auth/token/refresh"
 AH_SEARCH_URL = "https://api.ah.nl/mobile-services/product/search/v2"
 AH_CART_URL = "https://api.ah.nl/mobile-services/shoppinglist/v2/items"
+# Mandje = de actieve (nog niet afgerekende) bestelling. Miso vult/leegt alleen; afrekenen bestaat hier niet.
+AH_ORDER_ITEMS_URL = "https://api.ah.nl/mobile-services/order/v1/items?sortBy=DEFAULT"
+AH_ORDER_ACTIVE_URL = "https://api.ah.nl/mobile-services/order/v1/summaries/active?sortBy=DEFAULT"
+AH_ADD_MULTIPLE_URL = "https://www.ah.nl/mijnlijst/add-multiple"
 AH_GRAPHQL_URL = "https://api.ah.nl/graphql"
 AH_RECIPE_URL = "https://www.ah.nl/allerhande/recept/R-R{id}/{slug}"
 
@@ -20,6 +24,28 @@ DEFAULT_HEADERS = {
     "Content-Type": "application/json",
     "x-application": "AHWEBSHOP",
 }
+
+
+def build_add_multiple_url(items: list[dict]) -> str:
+    """Link die producten via de eigen AH-sessie van de gebruiker op 'Mijn lijst' zet (geen token nodig)."""
+    from urllib.parse import urlencode
+
+    params = [("p", f"{i['product_id']}:{max(1, int(round(i.get('quantity', 1))))}") for i in items if i.get("product_id")]
+    return f"{AH_ADD_MULTIPLE_URL}?{urlencode(params)}"
+
+
+def build_order_items(items: list[dict]) -> list[dict]:
+    """Body-items voor PUT order/v1/items (mandje). Dubbele productId's samenvoegen; quantity 0 = verwijderen."""
+    merged: dict[int, dict] = {}
+    for item in items:
+        pid = item["product_id"]
+        qty = max(0, int(item.get("quantity", 1)))
+        if pid in merged:
+            merged[pid]["quantity"] += qty
+        else:
+            merged[pid] = {"productId": pid, "quantity": qty, "originCode": "PRD", "description": "",
+                           "strikethrough": False}
+    return list(merged.values())
 
 
 def build_list_items(items: list[dict]) -> list[dict]:
@@ -268,6 +294,38 @@ class AHClient:
                 raise ValueError(f"AH weigerde de boodschappenlijst ({resp.status_code}): {resp.text[:300]}")
             logger.info("Successfully added items to AH cart")
             return resp.json()
+
+
+async def _user_call(client_obj, method: str, url: str, body: dict | None = None) -> httpx.Response:
+    if not client_obj._user_token:
+        raise ValueError("AH niet gekoppeld. Ga naar Instellingen.")
+    async with httpx.AsyncClient(timeout=30) as client:
+        for attempt in (1, 2):
+            headers = {**DEFAULT_HEADERS, "Authorization": f"Bearer {client_obj._user_token}"}
+            resp = await client.request(method, url, headers=headers, json=body)
+            if resp.status_code == 401 and attempt == 1 and await client_obj._refresh_user_token():
+                continue
+            return resp
+    return resp
+
+
+async def get_active_order(client_obj) -> dict:
+    resp = await _user_call(client_obj, "GET", AH_ORDER_ACTIVE_URL)
+    if resp.status_code == 404:
+        return {"items": []}
+    if resp.is_error:
+        raise ValueError(f"AH-mandje ophalen mislukt ({resp.status_code}): {resp.text[:200]}")
+    return resp.json()
+
+
+async def set_order_items(client_obj, items: list[dict]) -> dict:
+    """Zet aantallen in het mandje (0 = weghalen). Plaatst nooit een bestelling."""
+    body = {"items": build_order_items(items)}
+    resp = await _user_call(client_obj, "PUT", AH_ORDER_ITEMS_URL, body)
+    if resp.is_error:
+        logger.error("AH basket %s: %s | body: %s", resp.status_code, resp.text[:500], body["items"][:5])
+        raise ValueError(f"AH weigerde het mandje ({resp.status_code}): {resp.text[:300]}")
+    return resp.json() if resp.content else {}
 
 
 def _servings(serving: dict | None) -> str:

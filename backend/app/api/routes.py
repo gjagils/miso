@@ -1,4 +1,5 @@
 import asyncio
+import json
 import math
 import hmac
 import io
@@ -22,7 +23,7 @@ from app.matching import MATCH_VERSION, choose, is_equipment, is_pantry, needed,
 from app.config import settings
 from app.database import get_db
 from app.logging_config import logger
-from app.models import AppSetting, CartPush, PlanEntry, Recipe
+from app.models import AppSetting, CartPush, PlanEntry, ProductPreference, Recipe
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -289,6 +290,8 @@ async def save_ingredients(recipe_id: int, payload: IngredientsPayload, db: Sess
         pid = (ing.get("product") or {}).get("id")
         if pid and old.get(ing.get("text")) != pid:
             ing["manual"] = True  # door de gebruiker gekozen: niet meer automatisch overschrijven
+            ing["source"] = "handmatig"
+            learn_pref(db, ing)  # en onthouden voor andere recepten
             need, pack = needed(ing.get("text", "")), pack_size((ing["product"] or {}).get("unit_size", ""))
             ing["quantity"] = packs_for(need, pack) or ing.get("quantity") or 1
     recipe.ingredients = new
@@ -296,7 +299,25 @@ async def save_ingredients(recipe_id: int, payload: IngredientsPayload, db: Sess
     return {"ok": True}
 
 
-async def _automatch(ingredients: list[dict], gluten_free: bool = False, force: bool = False) -> int:
+def load_prefs(db: Session) -> dict[str, dict]:
+    """Geleerde productkeuzes per zoekterm (uit handmatige correcties van het gezin)."""
+    return {p.term: json.loads(p.product_json) for p in db.execute(select(ProductPreference)).scalars()}
+
+
+def learn_pref(db: Session, ing: dict) -> None:
+    term = query_terms(ing.get("search") or ing.get("text", ""))[0]
+    if not term or not ing.get("product"):
+        return
+    row = db.execute(select(ProductPreference).where(ProductPreference.term == term)).scalar_one_or_none()
+    product = {k: v for k, v in ing["product"].items() if k != "image_url"} | {"image_url": ing["product"].get("image_url", "")}
+    if row:
+        row.product_json, row.uses = json.dumps(product, ensure_ascii=False), row.uses + 1
+    else:
+        db.add(ProductPreference(term=term, product_json=json.dumps(product, ensure_ascii=False)))
+
+
+async def _automatch(ingredients: list[dict], gluten_free: bool = False, force: bool = False,
+                     prefs: dict[str, dict] | None = None) -> int:
     """Koppel ingrediënten aan AH-producten: biologisch > huismerk, basisspullen overslaan, aantal
     verpakkingen berekenen. Handmatig gekozen producten blijven staan."""
     sem = asyncio.Semaphore(4)
@@ -345,9 +366,11 @@ async def _automatch(ingredients: list[dict], gluten_free: bool = False, force: 
         if ing.get("auto_skip"):
             ing.update(skip=False, auto_skip=False)
         if search and (not ing.get("product") or ((force or stale) and not ing.get("manual"))):
-            product = await find(search, ing.get("text", ""))
+            learned = (prefs or {}).get(query_terms(search)[0])
+            product = dict(learned) if learned else await find(search, ing.get("text", ""))
             if product:
                 ing["product"], n = product, n + 1
+                ing["source"] = "geleerd" if learned else "auto"
                 apply_quantity(ing, product)
             ing["match_v"] = MATCH_VERSION
         if gluten_free and ing.get("gluten") and not ing.get("gf_product") and ing.get("gf_search"):
@@ -366,7 +389,7 @@ async def ensure_matched(db: Session, recipe: Recipe) -> None:
     if not todo:
         return
     try:
-        await asyncio.wait_for(_automatch(ingredients, recipe.gf_mode != "none"), timeout=25)
+        await asyncio.wait_for(_automatch(ingredients, recipe.gf_mode != "none", prefs=load_prefs(db)), timeout=25)
     except Exception as e:  # noqa: BLE001
         logger.warning("Auto-match for recipe %s failed: %s", recipe.id, e)
         return
@@ -378,7 +401,7 @@ async def ensure_matched(db: Session, recipe: Recipe) -> None:
 async def automatch(recipe_id: int, force: bool = False, db: Session = Depends(get_db)):
     recipe = _get_recipe(db, recipe_id)
     ingredients = recipe.ingredients
-    matched = await _automatch(ingredients, recipe.gf_mode != "none", force=force)
+    matched = await _automatch(ingredients, recipe.gf_mode != "none", force=force, prefs=load_prefs(db))
     recipe.ingredients = ingredients
     db.commit()
     return {"ok": True, "matched": matched, "ingredients": ingredients}
@@ -490,7 +513,7 @@ async def sync_week(payload: WeekPayload, db: Session = Depends(get_db)):
         return {"ok": False, "error": "Er staan nog geen recepten in deze week."}
     for recipe in {r.id: r for r in recipes}.values():
         ingredients = recipe.ingredients
-        if await _automatch(ingredients, recipe.gf_mode != "none"):
+        if await _automatch(ingredients, recipe.gf_mode != "none", prefs=load_prefs(db)):
             recipe.ingredients = ingredients
     db.commit()
 
@@ -609,7 +632,7 @@ async def fill_cart(payload: CartPayload, db: Session = Depends(get_db)):
     # Match whatever is still unmatched so a one-click flow works
     for recipe in recipes:
         ingredients = recipe.ingredients
-        if await _automatch(ingredients, recipe.gf_mode != "none"):
+        if await _automatch(ingredients, recipe.gf_mode != "none", prefs=load_prefs(db)):
             recipe.ingredients = ingredients
     db.commit()
 

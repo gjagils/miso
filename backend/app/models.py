@@ -77,3 +77,26 @@ class AppSetting(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     key: Mapped[str] = mapped_column(String(100), unique=True, index=True)
     value: Mapped[str] = mapped_column(Text, default="")
+
+
+class ProductPreference(Base):
+    """Geleerde keuze: voor deze zoekterm kiest het gezin dit AH-product (uit handmatige correcties)."""
+
+    __tablename__ = "product_preferences"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    term: Mapped[str] = mapped_column(String(300), unique=True, index=True)
+    product_json: Mapped[str] = mapped_column(Text, default="{}")
+    uses: Mapped[int] = mapped_column(Integer, default=1)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
+
+
+class BasketPush(Base):
+    """Wat Miso in het AH-mandje heeft gezet, zodat 'mandje leegmaken' alleen dat weghaalt."""
+
+    __tablename__ = "basket_pushes"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    product_id: Mapped[int] = mapped_column(Integer, index=True)
+    quantity: Mapped[int] = mapped_column(Integer, default=0)
+    name: Mapped[str] = mapped_column(String(500), default="")
