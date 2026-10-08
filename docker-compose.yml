@@ -1,0 +1,15 @@
+services:
+  miso:
+    build: ./backend
+    container_name: Miso
+    # Docker-netwerkpool op de NAS is vol: gebruik het standaard bridge-netwerk
+    network_mode: bridge
+    ports:
+      - 9927:8000
+    environment:
+      TZ: Europe/Amsterdam
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      APP_PIN: ${APP_PIN:-}
+    volumes:
+      - ${DATA_DIR:-./data}:/app/data
+    restart: on-failure:5
