@@ -14,22 +14,37 @@ struct ImportView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Link naar een recept") {
+                Section {
+                    HStack(spacing: 12) {
+                        MascotView(pose: "snap-it", size: 80)
+                        Text("Deel een link, tekst of foto, dan zet Miso het om in een recept.")
+                            .font(.misoBody).foregroundStyle(Color.misoBlue)
+                    }
+                    .listRowBackground(Color.clear)
+                }
+                Section {
                     TextField("https://...", text: $url)
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
-                }
-                Section("of plak de tekst") {
-                    TextEditor(text: $text).frame(minHeight: 100)
-                }
-                Section("of kies foto's (bijv. voor- en achterkant)") {
+                        .frame(minHeight: 44)
+                } header: { Text("Link naar een recept").misoSectionHeader() }
+                .misoRow()
+                Section {
+                    TextEditor(text: $text).frame(minHeight: 100).scrollContentBackground(.hidden)
+                } header: { Text("of plak de tekst").misoSectionHeader() }
+                .misoRow()
+                Section {
                     PhotosPicker(selection: $photos, maxSelectionCount: 6, matching: .images) {
                         Label(photos.isEmpty ? "Foto's kiezen" : "\(photos.count) foto's gekozen", systemImage: "photo.on.rectangle")
+                            .foregroundStyle(Color.misoBlue).font(.misoButton)
+                            .frame(minHeight: 44)
                     }
-                }
+                } header: { Text("of kies foto's (bijv. voor- en achterkant)").misoSectionHeader() }
+                .misoRow()
                 if let errorText {
-                    Section { Text(errorText).foregroundStyle(.red) }
+                    Section { Label(errorText, systemImage: "exclamationmark.triangle.fill").foregroundStyle(Color.red) }
+                        .misoRow()
                 }
                 Section {
                     Button {
@@ -41,9 +56,13 @@ struct ImportView: View {
                             Text("Recept omzetten")
                         }
                     }
+                    .buttonStyle(.misoPrimary)
                     .disabled(busy || (url.isEmpty && text.isEmpty && photos.isEmpty))
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
                 }
             }
+            .misoScreen()
             .navigationTitle("Nieuw recept")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Annuleer") { dismiss() } }

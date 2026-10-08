@@ -11,8 +11,11 @@ targets:
     info:
       path: AHRecepten/Info.plist
       properties:
-        CFBundleDisplayName: Recepten
-        UILaunchScreen: {}
+        CFBundleDisplayName: Miso
+        UILaunchScreen:
+          UIColorName: MisoCream
+          UIImageName: LaunchMascot
+          UIImageRespectsSafeAreaInsets: true
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         # Toestaan dat de server op het thuisnetwerk via http bereikbaar is (bijv. http://synology.local:9927)
         NSAppTransportSecurity:
@@ -24,3 +27,4 @@ targets:
         MARKETING_VERSION: "0.1"
         CURRENT_PROJECT_VERSION: "1"
         TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon

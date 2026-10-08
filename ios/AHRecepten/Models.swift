@@ -19,6 +19,33 @@ struct Ingredient: Decodable, Identifiable {
     let gfSearch: String
     let product: String?
     let gfProduct: String?
+    /// Optioneel: oudere servers sturen deze velden niet mee.
+    let quantity: String?
+    let pantry: Bool?
+    let unitSize: String?
+
+    enum CodingKeys: String, CodingKey {
+        case text, skip, gluten, gfSearch, product, gfProduct, quantity, pantry, unitSize
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        text = try c.decode(String.self, forKey: .text)
+        skip = try c.decode(Bool.self, forKey: .skip)
+        gluten = try c.decode(Bool.self, forKey: .gluten)
+        gfSearch = try c.decode(String.self, forKey: .gfSearch)
+        product = try? c.decodeIfPresent(String.self, forKey: .product)
+        gfProduct = try? c.decodeIfPresent(String.self, forKey: .gfProduct)
+        pantry = try? c.decodeIfPresent(Bool.self, forKey: .pantry)
+        unitSize = try? c.decodeIfPresent(String.self, forKey: .unitSize)
+        if let s = try? c.decodeIfPresent(String.self, forKey: .quantity) {
+            quantity = s
+        } else if let d = try? c.decodeIfPresent(Double.self, forKey: .quantity) {
+            quantity = d == d.rounded() ? String(Int(d)) : String(d)
+        } else {
+            quantity = nil
+        }
+    }
 }
 
 struct RecipeDetail: Decodable {

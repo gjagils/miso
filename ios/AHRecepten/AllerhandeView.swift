@@ -12,32 +12,39 @@ struct AllerhandeView: View {
     var body: some View {
         NavigationStack {
             List {
-                if let errorText { Text(errorText).foregroundStyle(.red) }
-                if searching { ProgressView() }
+                if let errorText { ErrorStateView(message: errorText).listRowBackground(Color.clear) }
+                if searching { ProgressView().frame(maxWidth: .infinity).listRowBackground(Color.clear) }
                 ForEach(results) { hit in
                     HStack {
-                        VStack(alignment: .leading) {
-                            Text(hit.title)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(hit.title).font(.system(.body, design: .rounded).weight(.semibold))
+                                .foregroundStyle(Color.misoBlue)
                             if !hit.servings.isEmpty {
                                 Text(hit.servings).font(.caption).foregroundStyle(.secondary)
                             }
                         }
                         Spacer()
                         if hit.saved {
-                            Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+                            Image(systemName: "checkmark.circle.fill").foregroundStyle(Color.misoBlue)
+                                .padding(6).background(Color.misoMint, in: Circle())
+                                .accessibilityLabel("Opgeslagen")
                         } else if adding == hit.id {
                             ProgressView()
                         } else {
                             Button("Toevoegen") { Task { await add(hit) } }
-                                .buttonStyle(.bordered)
+                                .buttonStyle(.misoPrimary)
+                                .fixedSize()
                         }
                     }
+                    .misoRow()
                 }
                 if results.isEmpty && !searching && errorText == nil {
-                    Text("Zoek bijvoorbeeld op \"glutenvrije pasta\" of \"stamppot\".")
-                        .foregroundStyle(.secondary)
+                    EmptyStateView(pose: "shopping-cart", title: "Zin in iets van Albert Heijn?",
+                                   message: "Zoek bijvoorbeeld op \"glutenvrije pasta\" of \"stamppot\".")
+                        .listRowBackground(Color.clear)
                 }
             }
+            .misoScreen()
             .navigationTitle("AH-recepten")
             .searchable(text: $query, prompt: "Zoek in Allerhande")
             .onSubmit(of: .search) { Task { await search() } }

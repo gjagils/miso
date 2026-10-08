@@ -13,20 +13,19 @@ struct RecipeDetailView: View {
         List {
             if let recipe {
                 Section {
-                    HStack {
-                        Spacer()
-                        RecipeImage(path: recipe.imageUrl, size: 180)
-                        Spacer()
+                    VStack(spacing: 12) {
+                        RecipeImage(path: recipe.imageUrl, size: 200)
+                        let meta = [recipe.servings, recipe.totalTime].filter { !$0.isEmpty }.joined(separator: " · ")
+                        if !meta.isEmpty { Text(meta).font(.misoCaption).foregroundStyle(.secondary) }
+                        if !recipe.description.isEmpty { Text(recipe.description).font(.misoBody) }
+                        Button { showCook = true } label: { Label("Kookmodus", systemImage: "flame") }
+                            .buttonStyle(.misoPrimary)
                     }
-                    .listRowBackground(Color.clear)
-                    let meta = [recipe.servings, recipe.totalTime].filter { !$0.isEmpty }.joined(separator: " · ")
-                    if !meta.isEmpty { Text(meta).foregroundStyle(.secondary) }
-                    if !recipe.description.isEmpty { Text(recipe.description) }
-                    Button { showCook = true } label: { Label("Kookmodus", systemImage: "flame") }
-                        .buttonStyle(.borderedProminent)
+                    .frame(maxWidth: .infinity)
+                    .misoRow()
                 }
 
-                Section("Glutenvrij voor minstens 1 persoon") {
+                Section {
                     switch recipe.gfMode {
                     case "extra": Text("Extra glutenvrij product erbij (voor 1 persoon)")
                     case "replace": Text("Ingrediënt voor iedereen vervangen")
@@ -38,40 +37,50 @@ struct RecipeDetailView: View {
                     } label: {
                         if busy { ProgressView() } else { Label("Voorstel van Claude", systemImage: "wand.and.stars") }
                     }
+                    .buttonStyle(.misoSecondary)
                     .disabled(busy)
                     if let message { Text(message).font(.caption).foregroundStyle(.secondary) }
-                }
+                } header: { Text("Glutenvrij voor minstens 1 persoon").misoSectionHeader() }
+                .misoRow()
 
-                Section("Ingrediënten") {
+                Section {
                     ForEach(Array(recipe.ingredients.enumerated()), id: \.offset) { _, ingredient in
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(ingredient.text).opacity(ingredient.skip ? 0.5 : 1)
-                            if ingredient.gluten {
-                                Text("Bevat gluten → \(ingredient.gfSearch)\(ingredient.gfProduct.map { " (\($0))" } ?? "")")
-                                    .font(.caption).foregroundStyle(.orange)
-                            }
-                        }
+                        IngredientRow(ingredient: ingredient)
                     }
-                }
+                } header: { Text("Ingrediënten").misoSectionHeader() }
+                .misoRow()
 
-                Section("Bereiding") {
+                Section {
                     ForEach(Array(recipe.instructions.enumerated()), id: \.offset) { index, step in
-                        HStack(alignment: .top, spacing: 8) {
-                            Text("\(index + 1).").bold()
+                        HStack(alignment: .top, spacing: 12) {
+                            Text("\(index + 1)")
+                                .font(.system(.subheadline, design: .rounded).weight(.heavy))
+                                .foregroundStyle(Color.misoInk)
+                                .frame(width: 28, height: 28)
+                                .background(Color.misoOrange, in: Circle())
+                                .accessibilityHidden(true)
                             Text(step)
                         }
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("Stap \(index + 1): \(step)")
                     }
-                }
+                } header: { Text("Bereiding").misoSectionHeader() }
+                .misoRow()
 
                 if let url = URL(string: recipe.sourceUrl), !recipe.sourceUrl.isEmpty {
-                    Section { Link("Bron openen", destination: url) }
+                    Section {
+                        Link("Bron openen", destination: url).foregroundStyle(Color.misoBlue).font(.misoButton)
+                            .frame(minHeight: 44)
+                    }
+                    .misoRow()
                 }
             } else if let errorText {
-                Text(errorText).foregroundStyle(.red)
+                ErrorStateView(message: errorText).listRowBackground(Color.clear)
             } else {
-                ProgressView()
+                ProgressView().frame(maxWidth: .infinity).listRowBackground(Color.clear)
             }
         }
+        .misoScreen()
         .navigationTitle(recipe?.name ?? "Recept")
         .navigationBarTitleDisplayMode(.inline)
         .fullScreenCover(isPresented: $showCook) {
@@ -105,5 +114,49 @@ struct RecipeDetailView: View {
         } catch {
             message = error.localizedDescription
         }
+    }
+}
+
+/// Ingrediënt als checklist-rij met AH-koppelstatus.
+struct IngredientRow: View {
+    let ingredient: Ingredient
+
+    private var isPantry: Bool { ingredient.pantry == true }
+    private var matched: Bool { !(ingredient.product ?? "").isEmpty }
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: matched ? "checkmark.circle.fill" : "circle")
+                .foregroundStyle(matched ? Color.misoBlue : Color.secondary)
+                .padding(2)
+                .background(matched ? Color.misoMint : Color.clear, in: Circle())
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(ingredient.text).opacity(ingredient.skip || isPantry ? 0.55 : 1)
+                if ingredient.gluten {
+                    Text("Bevat gluten → \(ingredient.gfSearch)\(ingredient.gfProduct.map { " (\($0))" } ?? "")")
+                        .font(.caption).foregroundStyle(Color.misoBlue)
+                        .padding(.horizontal, 8).padding(.vertical, 2)
+                        .background(Color.misoOrange.opacity(0.3), in: Capsule())
+                }
+                if isPantry {
+                    Text("Heb je al (basis)").font(.caption).foregroundStyle(.secondary)
+                } else if matched, let product = ingredient.product {
+                    HStack(spacing: 4) {
+                        Text(product)
+                        if let size = ingredient.unitSize, !size.isEmpty { Text("· \(size)") }
+                    }
+                    .font(.caption).foregroundStyle(.secondary)
+                } else if !ingredient.skip {
+                    Text("Nog niet gekoppeld").misoChip(.misoLilac)
+                }
+            }
+            Spacer(minLength: 0)
+            if let q = ingredient.quantity, !q.isEmpty, !isPantry {
+                Text("\(q)×").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+            }
+        }
+        .frame(minHeight: 44)
+        .accessibilityElement(children: .combine)
     }
 }

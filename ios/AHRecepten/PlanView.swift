@@ -16,17 +16,24 @@ struct PlanView: View {
                 if let week {
                     Section {
                         HStack {
-                            Button { Task { await load(week: week.prevWeek) } } label: { Image(systemName: "chevron.left") }
+                            Button { Task { await load(week: week.prevWeek) } } label: {
+                                Image(systemName: "chevron.left").frame(minWidth: 44, minHeight: 44)
+                            }
+                            .accessibilityLabel("Vorige week")
                             Spacer()
-                            Text("Week van \(week.week)").bold()
+                            Text("Week van \(week.week)").font(.misoHeadline).foregroundStyle(Color.misoBlue)
                             Spacer()
-                            Button { Task { await load(week: week.nextWeek) } } label: { Image(systemName: "chevron.right") }
+                            Button { Task { await load(week: week.nextWeek) } } label: {
+                                Image(systemName: "chevron.right").frame(minWidth: 44, minHeight: 44)
+                            }
+                            .accessibilityLabel("Volgende week")
                         }
                         .buttonStyle(.borderless)
+                        .misoRow()
                     }
 
                     ForEach(week.days) { day in
-                        Section(day.label) {
+                        Section {
                             ForEach(Array(day.recipes.enumerated()), id: \.offset) { _, recipe in
                                 RecipeRow(recipe: recipe)
                             }
@@ -34,16 +41,25 @@ struct PlanView: View {
                                 Task { await remove(from: day, at: offsets) }
                             }
                             Button { pickerDay = day.date } label: { Label("Recept toevoegen", systemImage: "plus") }
+                                .font(.misoButton).foregroundStyle(Color.misoBlue)
+                                .frame(minHeight: 44)
+                        } header: {
+                            HStack {
+                                Text(day.label).misoSectionHeader()
+                                if day.today { Text("vandaag").misoChip(.misoOrange) }
+                            }
                         }
+                        .misoRow()
                     }
 
                     statusSection(week.status)
                 } else if let errorText {
-                    Text(errorText).foregroundStyle(.red)
+                    ErrorStateView(message: errorText).listRowBackground(Color.clear)
                 } else {
-                    ProgressView()
+                    ProgressView().frame(maxWidth: .infinity).listRowBackground(Color.clear)
                 }
             }
+            .misoScreen()
             .navigationTitle("Weekmenu")
             .refreshable { await load(week: week?.week) }
             .task { await load(week: nil) }
@@ -60,20 +76,24 @@ struct PlanView: View {
 
     @ViewBuilder
     private func statusSection(_ status: WeekStatus) -> some View {
-        Section("Boodschappen") {
+        Section {
             if status.needed == 0 && status.unmatched.isEmpty {
-                Text("Nog niets gepland.").foregroundStyle(.secondary)
+                EmptyStateView(pose: "idea", title: "Nog niets gepland", message: "Voeg hierboven recepten toe, dan maakt Miso je boodschappenlijst.", size: 100)
             } else if status.complete {
-                Label("Alle \(status.needed) producten staan op je AH-lijstje", systemImage: "checkmark.circle.fill")
-                    .foregroundStyle(.green)
+                HStack(spacing: 12) {
+                    MascotView(pose: "delighted", size: 64)
+                    Label("Alle \(status.needed) producten staan op je AH-lijstje", systemImage: "checkmark.circle.fill")
+                        .foregroundStyle(Color.misoBlue)
+                }
+                .padding(8).background(Color.misoMint, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             } else {
                 if !status.missing.isEmpty {
                     Label("Nog \(status.missing.count) producten niet op je lijstje", systemImage: "exclamationmark.triangle")
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(Color.misoBlue)
                     ForEach(status.missing) { item in Text("\(item.quantity)× \(item.name)").font(.callout) }
                 }
                 if !status.unmatched.isEmpty {
-                    Label("Geen AH-product gekoppeld", systemImage: "questionmark.circle").foregroundStyle(.orange)
+                    Label("Geen AH-product gekoppeld", systemImage: "questionmark.circle").foregroundStyle(Color.misoBlue)
                     ForEach(status.unmatched, id: \.self) { Text($0).font(.callout) }
                 }
             }
@@ -83,12 +103,15 @@ struct PlanView: View {
             } label: {
                 Text(status.locked ? "Weekmenu ontgrendelen" : "Weekmenu vastzetten")
             }
+            .buttonStyle(.misoPrimary)
             .disabled(busy)
             Button { Task { await sync(locked: nil) } } label: { Text("Controleer en vul aan") }
+                .buttonStyle(.misoSecondary)
                 .disabled(busy)
             if busy { ProgressView() }
             if let message { Text(message).font(.caption).foregroundStyle(.secondary) }
-        }
+        } header: { Text("Boodschappen").misoSectionHeader() }
+        .misoRow()
     }
 
     private struct DayID: Identifiable { let date: String; var id: String { date } }
@@ -177,7 +200,9 @@ struct RecipePicker: View {
                     dismiss()
                 } label: { RecipeRow(recipe: recipe) }
                 .buttonStyle(.plain)
+                .misoRow()
             }
+            .misoScreen()
             .searchable(text: $search, prompt: "Zoek recept")
             .navigationTitle("Kies een recept")
             .toolbar {

@@ -8,32 +8,54 @@ struct ConnectView: View {
     @State private var errorText: String?
 
     var body: some View {
-        NavigationStack {
-            Form {
-                Section("Server") {
+        ScrollView {
+            VStack(spacing: 20) {
+                MascotView(pose: "chef", size: 180).padding(.top, 24)
+                VStack(spacing: 6) {
+                    MisoWordmark(size: 52)
+                    Text("Altijd iets lekkers op de planning.")
+                        .font(.misoHeadline)
+                        .foregroundStyle(Color.misoBlue)
+                        .multilineTextAlignment(.center)
+                    Text("Weekmenu. Boodschappen. Samen lekker eten.")
+                        .font(.misoBody)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Waar woont jullie Miso?").font(.misoHeadline).foregroundStyle(Color.misoBlue)
+                    Text("Server").font(.misoCaption).foregroundStyle(.secondary)
                     TextField("https://recepten.voorbeeld.nl", text: $server)
+                        .textFieldStyle(MisoFieldStyle())
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
-                }
-                Section("Pincode van het gezin") {
+                    Text("Pincode van het gezin").font(.misoCaption).foregroundStyle(.secondary)
                     SecureField("Pincode", text: $pin)
+                        .textFieldStyle(MisoFieldStyle())
                         .keyboardType(.numberPad)
-                }
-                if let errorText {
-                    Section { Text(errorText).foregroundStyle(.red) }
-                }
-                Section {
+                    if let errorText {
+                        Label(errorText, systemImage: "exclamationmark.triangle.fill")
+                            .font(.callout)
+                            .foregroundStyle(Color.red)
+                    }
                     Button {
                         Task { await connect() }
                     } label: {
-                        if busy { ProgressView() } else { Text("Verbinden") }
+                        if busy { ProgressView().tint(Color.misoInk) } else { Text("Aan de slag") }
                     }
+                    .buttonStyle(.misoPrimary)
                     .disabled(server.isEmpty || busy)
+                    .padding(.top, 4)
                 }
+                .misoCard()
             }
-            .navigationTitle("AH Recepten")
+            .padding(.horizontal, 16)
+            .padding(.bottom, 24)
         }
+        .background(Color.misoCream.ignoresSafeArea())
+        .scrollDismissesKeyboard(.interactively)
         .onAppear { server = session.serverURL }
     }
 
