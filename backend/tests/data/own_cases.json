@@ -1,57 +1,647 @@
 [
- {"text": "4 stengels bleekselderij", "include": ["bleekselderij"], "qty": 1},
- {"text": "30g korianderblad, grofgesneden", "include": ["koriander"], "exclude": ["verstegen", "zaad"]},
- {"text": "6el boter", "include": ["boter"], "exclude": ["knoflook", "becel", "halvarine"]},
- {"text": "klont boter", "include": ["boter"], "exclude": ["knoflook", "becel"]},
- {"text": "20g boter, gesmolten", "include": ["boter"], "exclude": ["becel", "knoflook"]},
- {"text": "1 zakje kippenbouillonpoeder", "include": ["bouillon"], "exclude": ["o.r.s", "ors"]},
- {"text": "2 zakjes groentebouillonpoeder", "include": ["bouillon"], "exclude": ["o.r.s", "ors"]},
- {"text": "1 zakje runderbouillonpoeder", "include": ["bouillon"], "exclude": ["o.r.s", "ors"]},
- {"text": "150 gr zongedroogde tomaatjes", "include": ["tomat"], "exclude": ["tapenade"]},
- {"text": "40 gr Parmezaanse kaas", "include": ["parme", "parmigiano", "grana"], "exclude": ["biscuit"]},
- {"text": "Knoflookteen 3 stuk(s)", "include": ["knoflook"], "exclude": ["carbonell", "teentjes"]},
- {"text": "1 knoflookteen", "include": ["knoflook"], "exclude": ["carbonell"]},
- {"text": "20 g verse Italiaanse kruidenmix", "exclude": ["parmigiano", "kaas"]},
- {"text": "2 zakjes Italiaanse kruidenmix", "include": ["kruiden"], "exclude": ["parmigiano", "kaas"]},
- {"text": "150 g geraspte belegen kaas", "include": ["belegen"], "exclude": ["geit", "smeer"]},
- {"text": "75 g geraspte belegen kaas", "include": ["belegen"], "exclude": ["geit", "smeer"]},
- {"text": "scheutje melk", "include": ["melk"], "exclude": ["kokos"]},
- {"text": "oven", "none": true},
- {"text": "maatbeker", "none": true},
- {"text": "wok", "none": true},
- {"text": "2 grote koekenpannen", "none": true},
- {"text": "dunschiller", "none": true},
- {"text": "citruspers", "none": true},
- {"text": "azijn", "none": true},
- {"text": "2 extra virgin olive oils el", "none": true},
- {"text": "1 [ Plantaardige ]", "none": true},
- {"text": "2 stukken", "none": true},
- {"text": "6-8 sjalotjes", "include": ["sjalot"], "exclude": ["boursin"]},
- {"text": "150 ml rode wijn (liefst een Bourgognewijn)", "exclude": ["azijn"]},
- {"text": "Pruimtomaat 1 stuks", "include": ["tomat"], "exclude": ["kip"]},
- {"text": "4 zoete aardappels", "include": ["aardappel"], "exclude": ["wrap", "tortilla"]},
- {"text": "2 zoete aardappels", "include": ["aardappel"], "exclude": ["wrap", "tortilla"]},
- {"text": "2 zakjes Mexicaanse kruidenmix", "exclude": ["burrito", "knorr"]},
- {"text": "2 zakjes Griekse kruidenmix", "exclude": ["feta"]},
- {"text": "800 gram tomaten in blik", "exclude": ["tros"]},
- {"text": "1 coriander", "exclude": ["naan"]},
- {"text": "3 sneetjes wit tarwebrood", "exclude": ["glutenvrij"]},
- {"text": "1/2 zakjes sesam", "include": ["sesam"], "exclude": ["wasa", "knäckebröd", "knackebrod"]},
- {"text": "1000 gram aardappels vastkokend", "include": ["aardappel"], "exclude": ["kruimig"]},
- {"text": "¾ blikjes cherrytomaatjes", "exclude": ["vers"]},
- {"text": "2 heekfilets met huid", "include": ["heek"], "exclude": ["gemarineerd"]},
- {"text": "Leccino olijven* 65 g", "include": ["olijf"], "exclude": ["saus"]},
- {"text": "1/2 tl paprika", "include": ["paprikapoeder", "paprika poeder", "paprika edelzoet", "paprika gerookt"]},
- {"text": "75g gedroogde cranberry's", "include": ["cranberr"], "exclude": ["sap"]},
- {"text": "50 ml brandy", "exclude": ["pilsener", "bier"]},
- {"text": "2x gerookte kipreepjes", "include": ["kip"], "qty": 2},
- {"text": "2 blikken tomatenblokjes", "include": ["tomatenblokjes"], "qty": 2},
- {"text": "2 blikken kikkererwten", "include": ["kikkererwt"], "qty": 2},
- {"text": "2 bakjes guacamole", "include": ["guacamole"], "qty": 2},
- {"text": "2 kuipjes crème fraîche", "include": ["fraiche", "fraîche"], "qty": 2},
- {"text": "groene saus", "exclude": ["knorr"]},
- {"text": "geroosterde pinda's voor garnering", "include": ["pinda"], "exclude": ["terra plantaardig"]},
- {"text": "1 plantaardige yoghurt", "exclude": ["mango"]},
- {"text": "1 el scherpe mosterd", "include": ["mosterd"], "exclude": ["mild"]},
- {"text": "1 el boter", "include": ["boter"], "exclude": ["knoflook", "becel"]}
+ {
+  "text": "4 stengels bleekselderij",
+  "include": [
+   "bleekselderij"
+  ],
+  "qty": 1
+ },
+ {
+  "text": "30g korianderblad, grofgesneden",
+  "include": [
+   "koriander"
+  ],
+  "exclude": [
+   "verstegen",
+   "zaad"
+  ]
+ },
+ {
+  "text": "6el boter",
+  "include": [
+   "boter"
+  ],
+  "exclude": [
+   "knoflook",
+   "becel",
+   "halvarine"
+  ]
+ },
+ {
+  "text": "klont boter",
+  "include": [
+   "boter"
+  ],
+  "exclude": [
+   "knoflook",
+   "becel"
+  ]
+ },
+ {
+  "text": "20g boter, gesmolten",
+  "include": [
+   "boter"
+  ],
+  "exclude": [
+   "becel",
+   "knoflook"
+  ]
+ },
+ {
+  "text": "1 zakje kippenbouillonpoeder",
+  "include": [
+   "bouillon"
+  ],
+  "exclude": [
+   "o.r.s",
+   "ors"
+  ]
+ },
+ {
+  "text": "2 zakjes groentebouillonpoeder",
+  "include": [
+   "bouillon"
+  ],
+  "exclude": [
+   "o.r.s",
+   "ors"
+  ],
+  "qty": 1
+ },
+ {
+  "text": "1 zakje runderbouillonpoeder",
+  "include": [
+   "bouillon"
+  ],
+  "exclude": [
+   "o.r.s",
+   "ors"
+  ]
+ },
+ {
+  "text": "150 gr zongedroogde tomaatjes",
+  "include": [
+   "tomat"
+  ],
+  "exclude": [
+   "tapenade"
+  ]
+ },
+ {
+  "text": "40 gr Parmezaanse kaas",
+  "include": [
+   "parme",
+   "parmigiano",
+   "grana"
+  ],
+  "exclude": [
+   "biscuit"
+  ]
+ },
+ {
+  "text": "Knoflookteen 3 stuk(s)",
+  "include": [
+   "knoflook"
+  ],
+  "exclude": [
+   "carbonell",
+   "teentjes"
+  ]
+ },
+ {
+  "text": "1 knoflookteen",
+  "include": [
+   "knoflook"
+  ],
+  "exclude": [
+   "carbonell"
+  ]
+ },
+ {
+  "text": "20 g verse Italiaanse kruidenmix",
+  "exclude": [
+   "parmigiano",
+   "kaas"
+  ]
+ },
+ {
+  "text": "2 zakjes Italiaanse kruidenmix",
+  "include": [
+   "kruiden"
+  ],
+  "exclude": [
+   "parmigiano",
+   "kaas"
+  ]
+ },
+ {
+  "text": "150 g geraspte belegen kaas",
+  "include": [
+   "belegen"
+  ],
+  "exclude": [
+   "geit",
+   "smeer"
+  ]
+ },
+ {
+  "text": "75 g geraspte belegen kaas",
+  "include": [
+   "belegen"
+  ],
+  "exclude": [
+   "geit",
+   "smeer"
+  ]
+ },
+ {
+  "text": "scheutje melk",
+  "include": [
+   "melk"
+  ],
+  "exclude": [
+   "kokos"
+  ]
+ },
+ {
+  "text": "oven",
+  "none": true
+ },
+ {
+  "text": "maatbeker",
+  "none": true
+ },
+ {
+  "text": "wok",
+  "none": true
+ },
+ {
+  "text": "2 grote koekenpannen",
+  "none": true
+ },
+ {
+  "text": "dunschiller",
+  "none": true
+ },
+ {
+  "text": "citruspers",
+  "none": true
+ },
+ {
+  "text": "azijn",
+  "none": true
+ },
+ {
+  "text": "2 extra virgin olive oils el",
+  "none": true
+ },
+ {
+  "text": "1 [ Plantaardige ]",
+  "none": true
+ },
+ {
+  "text": "2 stukken",
+  "none": true
+ },
+ {
+  "text": "6-8 sjalotjes",
+  "include": [
+   "sjalot"
+  ],
+  "exclude": [
+   "boursin"
+  ]
+ },
+ {
+  "text": "150 ml rode wijn (liefst een Bourgognewijn)",
+  "exclude": [
+   "azijn"
+  ]
+ },
+ {
+  "text": "Pruimtomaat 1 stuks",
+  "include": [
+   "tomat"
+  ],
+  "exclude": [
+   "kip"
+  ]
+ },
+ {
+  "text": "4 zoete aardappels",
+  "include": [
+   "aardappel"
+  ],
+  "exclude": [
+   "wrap",
+   "tortilla"
+  ]
+ },
+ {
+  "text": "2 zoete aardappels",
+  "include": [
+   "aardappel"
+  ],
+  "exclude": [
+   "wrap",
+   "tortilla"
+  ]
+ },
+ {
+  "text": "2 zakjes Mexicaanse kruidenmix",
+  "exclude": [
+   "burrito",
+   "knorr"
+  ]
+ },
+ {
+  "text": "2 zakjes Griekse kruidenmix",
+  "exclude": [
+   "feta"
+  ]
+ },
+ {
+  "text": "800 gram tomaten in blik",
+  "exclude": [
+   "tros"
+  ]
+ },
+ {
+  "text": "1 coriander",
+  "exclude": [
+   "naan"
+  ]
+ },
+ {
+  "text": "3 sneetjes wit tarwebrood",
+  "exclude": [
+   "glutenvrij"
+  ]
+ },
+ {
+  "text": "1/2 zakjes sesam",
+  "include": [
+   "sesam"
+  ],
+  "exclude": [
+   "wasa",
+   "knäckebröd",
+   "knackebrod"
+  ]
+ },
+ {
+  "text": "1000 gram aardappels vastkokend",
+  "include": [
+   "aardappel"
+  ],
+  "exclude": [
+   "kruimig"
+  ]
+ },
+ {
+  "text": "¾ blikjes cherrytomaatjes",
+  "exclude": [
+   "vers"
+  ]
+ },
+ {
+  "text": "2 heekfilets met huid",
+  "include": [
+   "heek"
+  ],
+  "exclude": [
+   "gemarineerd"
+  ]
+ },
+ {
+  "text": "Leccino olijven* 65 g",
+  "include": [
+   "olijf"
+  ],
+  "exclude": [
+   "saus"
+  ]
+ },
+ {
+  "text": "1/2 tl paprika",
+  "include": [
+   "paprikapoeder",
+   "paprika poeder",
+   "paprika edelzoet",
+   "paprika gerookt"
+  ]
+ },
+ {
+  "text": "75g gedroogde cranberry's",
+  "include": [
+   "cranberr"
+  ],
+  "exclude": [
+   "sap"
+  ]
+ },
+ {
+  "text": "50 ml brandy",
+  "exclude": [
+   "pilsener",
+   "bier"
+  ]
+ },
+ {
+  "text": "2x gerookte kipreepjes",
+  "include": [
+   "kip"
+  ],
+  "qty": 2
+ },
+ {
+  "text": "2 blikken tomatenblokjes",
+  "include": [
+   "tomatenblokjes"
+  ],
+  "qty": 2
+ },
+ {
+  "text": "2 blikken kikkererwten",
+  "include": [
+   "kikkererwt"
+  ],
+  "qty": 2
+ },
+ {
+  "text": "2 bakjes guacamole",
+  "include": [
+   "guacamole"
+  ],
+  "qty": 2
+ },
+ {
+  "text": "2 kuipjes crème fraîche",
+  "include": [
+   "fraiche",
+   "fraîche"
+  ],
+  "qty": 2
+ },
+ {
+  "text": "groene saus",
+  "exclude": [
+   "knorr"
+  ]
+ },
+ {
+  "text": "geroosterde pinda's voor garnering",
+  "include": [
+   "pinda"
+  ],
+  "exclude": [
+   "terra plantaardig"
+  ]
+ },
+ {
+  "text": "1 plantaardige yoghurt",
+  "exclude": [
+   "mango"
+  ]
+ },
+ {
+  "text": "1 el scherpe mosterd",
+  "include": [
+   "mosterd"
+  ],
+  "exclude": [
+   "mild"
+  ]
+ },
+ {
+  "text": "1 el boter",
+  "include": [
+   "boter"
+  ],
+  "exclude": [
+   "knoflook",
+   "becel"
+  ]
+ },
+ {
+  "text": "1 dl witte wijn (droog)",
+  "exclude": [
+   "azijn"
+  ]
+ },
+ {
+  "text": "1½ rode wijn",
+  "exclude": [
+   "azijn"
+  ]
+ },
+ {
+  "text": "2 onbehandelde sinaasappels",
+  "include": [
+   "sinaasappel"
+  ],
+  "exclude": [
+   "drank",
+   "sap"
+  ]
+ },
+ {
+  "text": "100 gram kazen belegen",
+  "include": [
+   "belegen"
+  ],
+  "exclude": [
+   "smeer"
+  ]
+ },
+ {
+  "text": "20 g geraspte oude kaas",
+  "include": [
+   "oude",
+   "oud"
+  ],
+  "exclude": [
+   "geit"
+  ]
+ },
+ {
+  "text": "2 blokjes Italiaanse kaas",
+  "exclude": [
+   "la tur"
+  ]
+ },
+ {
+  "text": "225 g Boursin",
+  "include": [
+   "boursin"
+  ],
+  "exclude": [
+   "iglo",
+   "spinazie"
+  ]
+ },
+ {
+  "text": "20 gram basils",
+  "exclude": [
+   "sticks"
+  ]
+ },
+ {
+  "text": "1 el harissa",
+  "include": [
+   "harissa"
+  ],
+  "exclude": [
+   "olijf",
+   "olijven"
+  ]
+ },
+ {
+  "text": "1 kuipje rode pesto met olijven",
+  "include": [
+   "pesto"
+  ],
+  "exclude": [
+   "genovese",
+   "groen"
+  ]
+ },
+ {
+  "text": "2x tortilla's",
+  "include": [
+   "wrap",
+   "tortilla"
+  ],
+  "exclude": [
+   "spaanse",
+   "omelet"
+  ]
+ },
+ {
+  "text": "Cherrytomaten 250 g",
+  "include": [
+   "cherry"
+  ],
+  "exclude": [
+   "blik"
+  ]
+ },
+ {
+  "text": "Boter* 5 g/ 7 g",
+  "include": [
+   "boter"
+  ],
+  "exclude": [
+   "becel"
+  ]
+ },
+ {
+  "text": "3 theelepels gemalen korianderzaad",
+  "include": [
+   "koriander"
+  ]
+ },
+ {
+  "text": "50-50 burger 3 stuks",
+  "exclude": [
+   "kip"
+  ]
+ },
+ {
+  "text": "400g tagliatelle",
+  "include": [
+   "tagliatelle"
+  ],
+  "exclude": [
+   "volkoren"
+  ]
+ },
+ {
+  "text": "2 kuipjes yoghurt",
+  "include": [
+   "yoghurt"
+  ]
+ },
+ {
+  "text": "Courgette (per persoon: 1 stuk)",
+  "include": [
+   "courgette"
+  ],
+  "qty": 4
+ },
+ {
+  "text": "Tomatenblokjes (per persoon: 0.5 blik)",
+  "include": [
+   "tomatenblokjes"
+  ],
+  "qty": 2
+ },
+ {
+  "text": "Duitse biefstuk* (1, 2, 3, 3, 4, 4)",
+  "include": [
+   "biefstuk"
+  ]
+ },
+ {
+  "text": "2 el ketchup",
+  "include": [
+   "ketchup"
+  ],
+  "exclude": [
+   "hellmann"
+  ]
+ },
+ {
+  "text": "Passata - 300 g",
+  "include": [
+   "passata"
+  ],
+  "exclude": [
+   "rodolfi"
+  ]
+ },
+ {
+  "text": "300g bulgur",
+  "include": [
+   "bulgur"
+  ],
+  "exclude": [
+   "duru"
+  ]
+ },
+ {
+  "text": "0.25 tl gemalen nootmuskaat",
+  "include": [
+   "nootmuskaat"
+  ],
+  "exclude": [
+   "verstegen"
+  ]
+ },
+ {
+  "text": "1 el Italiaanse kruiden",
+  "include": [
+   "italiaanse"
+  ],
+  "exclude": [
+   "verstegen"
+  ]
+ },
+ {
+  "text": "250 g jasmijnrijst",
+  "include": [
+   "jasmijn",
+   "jasmin"
+  ]
+ },
+ {
+  "text": "600 gram boerenkool fijngesneden",
+  "include": [
+   "boerenkool"
+  ],
+  "exclude": [
+   "deelblokjes",
+   "diepvries"
+  ]
+ }
 ]

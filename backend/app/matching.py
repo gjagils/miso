@@ -11,7 +11,7 @@ from fractions import Fraction
 
 from app.clients.mealie import clean_search
 
-MATCH_VERSION = 9
+MATCH_VERSION = 10
 
 # Basisspullen die je meestal in huis hebt: niet automatisch op de lijst
 PANTRY = {
@@ -51,7 +51,7 @@ _UNIT_ALIASES = {
     "partje": "deel", "partjes": "deel", "schijf": "deel", "schijfje": "deel", "schijfjes": "deel", "reepje": "deel",
     "reepjes": "deel", "scheut": "deel", "scheutje": "deel", "klont": "deel", "klontje": "deel", "handvol": "deel",
     "handje": "deel", "snufje": "deel", "stukje": "deel", "stukjes": "deel", "blik": "stuk", "blikje": "stuk", "blikjes": "stuk", "pot": "stuk", "potje": "stuk",
-    "zakje": "stuk", "zak": "stuk", "pak": "stuk", "bosje": "bos", "bos": "bos", "bosjes": "bos",
+    "zakje": "zakje", "zakjes": "zakje", "zak": "stuk", "pak": "stuk", "bosje": "bos", "bos": "bos", "bosjes": "bos",
     "takje": "deel", "takjes": "deel", "plak": "deel", "plakje": "deel", "plakjes": "deel",
 }
 _TO_BASE = {"kg": ("g", 1000), "g": ("g", 1), "l": ("ml", 1000), "dl": ("ml", 100), "cl": ("ml", 10),
@@ -85,12 +85,24 @@ def parse_amount(text: str) -> tuple[float, str] | None:
     return None
 
 
+PERSONS = 4  # het gezin kookt voor 4
+
+
 def needed(text: str) -> dict | None:
     """Hoeveelheid in basis-eenheid: {"amount": 250, "unit": "g"|"ml"|"stuk"|"bos"}."""
-    parsed = parse_amount(text)
+    low = (text or "").lower()
+    series = re.search(r"\((\d+(?:[.,]\d+)?)(?:\s*,\s*\d+(?:[.,]\d+)?){3,}\)", low)
+    if series:  # HelloFresh "(1, 2, 3, 3, 4, 4)" = per aantal personen 1..6 -> neem 4 personen
+        values = re.findall(r"\d+(?:[.,]\d+)?", series.group(0))
+        amount = _to_number(values[min(PERSONS - 1, len(values) - 1)])
+        return {"amount": amount, "unit": "stuk", "spoon": False}
+    m = re.search(r"per persoon:?\s*([\d.,/½¼¾]+)\s*([a-z]+)?", low)
+    parsed = parse_amount(f"{m.group(1)} {m.group(2) or ''}") if m else parse_amount(text)
     if not parsed:
         return None
     amount, unit = parsed
+    if m:
+        amount *= PERSONS  # "per persoon: 1 stuk" -> 4
     if unit in _TO_BASE:
         base, factor = _TO_BASE[unit]
         return {"amount": amount * factor, "unit": base, "spoon": unit in ("el", "tl")}
@@ -139,14 +151,19 @@ EQUIPMENT = {
 
 
 _CONTAINER_RE = re.compile(
-    r"^\s*(\d+)\s*(x\b|blik|blikken|blikjes?|kuipjes?|zakjes?|zakken|bakjes?|pakjes?|pakken|pak|potjes?|potten|pot|"
+    r"^\s*(\d+)\s*(x\b|blik|blikken|blikjes?|kuipjes?|zakken|bakjes?|pakjes?|pakken|pak|potjes?|potten|pot|"
     r"flesjes?|flessen|fles|bekers?|kuipen|doosjes?|dozen|netjes?|bollen|bol)\b", re.IGNORECASE)
 
 
 def container_count(text: str) -> int | None:
     """'2 blikken tomaten', '2x garnalen', '3 kuipjes' -> 2/2/3 verpakkingen."""
     m = _CONTAINER_RE.match(text or "")
-    return int(m.group(1)) if m and 0 < int(m.group(1)) <= 12 else None
+    if m and 0 < int(m.group(1)) <= 12:
+        return int(m.group(1))
+    n = needed(text or "")
+    if n and n["unit"] == "stuk" and re.search(r"\bblik", (text or "").lower()):
+        return max(1, math.ceil(n["amount"] - 1e-9))  # "per persoon: 0.5 blik" -> 2 blikken
+    return None
 
 
 def is_equipment(search: str, text: str = "") -> bool:
@@ -246,6 +263,8 @@ SYNONYMS = [
     (r"\bcranberry'?s\b", "cranberries"),
     (r"\b(?!uitjes)(\w*[aeiou]t)jes\b", r"\1"),  # verkleinwoord: sjalotjes -> sjalot, tomaatjes -> tomaat
     (r"\bgrove\b", "grof"),
+    (r"\btortilla'?s?\b", "tortilla wraps"),
+    (r"\b50\s*-\s*50\s*burgers?\b|\bhalf-om-half burgers?\b", "half om half burgers"),
     (r"\bscharrel(\w{4,})\b", r"\1"),  # "scharrelkipfilet" -> kipfilet (variant, geen product)
     (r"^boter$", "roomboter"),
     (r"\bparmezaanse kaas\b|\bparmezaan\b", "parmigiano"),
@@ -270,20 +289,23 @@ OTHER_PRODUCT = {"siroop", "sap", "saus", "chips", "toast", "salami", "smaak", "
                  "wrap", "burger", "kroket", "nuggets", "olijfmix", "woksmaakmaker", "kruidenmix", "marinade"}
 COMPOUND_OK = {"baby", "mini", "bio", "buffel", "kastanje", "cherry", "tros", "pruim", "roma", "jonge", "jong",
                "oude", "wilde", "half", "volle", "halfvolle", "magere", "rode", "witte", "gele", "groene", "zwarte",
-               "platte", "krul", "room", "scharrel", "vrije", "uitloop", "verse", "vers", "kip", "rund", "runder",
-               "varkens", "kalfs", "lams", "biefstuk", "zalm", "griekse", "turkse", "italiaanse", "hollandse",
+               "platte", "krul", "room", "scharrel", "vrije", "uitloop", "verse", "vers", "griekse", "turkse", "italiaanse", "hollandse",
                "zeeuwse", "parel", "basmati", "zilvervlies", "volkoren", "spelt", "tarwe", "panklare", "gesneden",
                "grof", "fijn", "mais", "kikker", "bruine", "kidney", "ijsberg", "veld", "eikenblad", "boeren",
                "winter", "bos", "lente", "zoete", "zure", "slag", "kook", "kruimige", "vastkokende", "mozzarella",
-               "kers", "trostomaat", "snoep", "romaine", "boterhammen", "pasta", "volle-", "tuin", "kaas"}
+               "kers", "trostomaat", "snoep", "romaine", "boterhammen", "pasta", "volle-", "tuin", "kaas", "hand",
+               "pers", "tomaten", "jus"}
 # Woordeinden die van een product iets anders maken ("tortilla wraps", "kaas biscuits", "tomaat tapenade")
 OTHER_SUFFIX = ("wraps", "wrap", "biscuits", "biscuit", "tapenade", "sticks", "tussendoortje", "burritos", "burrito",
                 "saus", "pilsener", "partymix", "noodles", "hummus", "dip", "dipsaus", "chips", "crackers", "koekjes",
                 "drank", "sap", "siroop", "toast", "repen", "reep", "salade", "soep", "spread", "pasta-saus",
-                "maaltijd", "verspakket", "pakket", "mix", "smaak", "sensatie", "kroketten", "snack")
+                "maaltijd", "verspakket", "pakket", "mix", "smaak", "sensatie", "kroketten", "snack", "azijn",
+                "drink", "olijven", "olijf", "omelet", "spread", "smeerkaas", "dressing", "marinade")
 # Kenmerken die in het product staan maar niet in het recept: verkeerd product
 MARKED = ("gemarineerd", "glutenvrij", "geiten", "geit", "lactosevrij", "suikervrij", "light", "zero", "gevuld",
-          "gepaneerd", "vegan", "vegetarisch", "knoflook", "kruiden", "pikant", "pittig", "truffel")
+          "gepaneerd", "vegan", "vegetarisch", "knoflook", "kruiden", "pikant", "pittig", "truffel", "volkoren",
+          "minder", "spaanse", "deelblokjes")
+COLORS = {"rode", "rood", "groene", "groen", "gele", "geel", "witte", "wit", "zwarte", "zwart", "oranje", "paarse"}
 CONFLICTS = [({"vastkokend", "vastkokende"}, {"kruimig", "kruimige"}), ({"kruimig", "kruimige"}, {"vastkokend", "vastkokende"}),
              ({"scherp", "scherpe"}, {"mild", "milde"}), ({"zoet", "zoete"}, {"pittig", "pittige", "scherp"})]
 ALCOHOL = {"wijn", "bier", "brandy", "cognac", "port", "rum", "wodka", "whisky", "sherry", "likeur", "cider", "marsala",
@@ -334,6 +356,17 @@ def query_terms(text: str) -> tuple[str, list[str], set[str]]:
     if keep and keep[-1] in HERBS and "dried" not in flags and not re.search(r"\b(tl|el|theelepel|eetlepel)\b", low):
         flags.add("fresh")  # "5 g koriander" = verse koriander; "1 tl koriander" = gedroogd
     return " ".join(keep), keep, flags
+
+
+PARTICIPLES = {"fijngesneden", "gesneden", "geraspt", "geraspte", "gehakt", "gehakte", "gekookt", "gekookte",
+               "geschild", "geschilde", "gepeld", "gepelde", "grofgesneden", "fijngehakt", "gemalen", "heel"}
+
+
+def _head_index(q: list[str]) -> int:
+    for i in range(len(q) - 1, -1, -1):
+        if q[i] not in PARTICIPLES:
+            return i
+    return len(q) - 1
 
 
 def _same(q: str, t: str) -> int:
@@ -389,7 +422,8 @@ def score(product: dict, query: str, flags: set[str] | None = None, need: dict |
                 matched_t.update(parts)
                 continue
         if best[0] == 0:
-            if qt != q[-1] and len(q) > 1 and (relaxed or qt.endswith("e") or qt in OPTIONAL_WORDS):
+            if qt != q[_head_index(q)] and len(q) > 1 and (relaxed or qt.endswith("e") or qt in OPTIONAL_WORDS
+                                                             or qt in PARTICIPLES):
                 s -= 12  # bijwoord ontbreekt (in de ruime zoekronde mag dat bij elk bijwoord) ("panko paneermeel" -> "Panko"): mag, maar kost punten
                 continue
             return -50  # het kernwoord zit niet in het product
@@ -406,6 +440,10 @@ def score(product: dict, query: str, flags: set[str] | None = None, need: dict |
         if any(t.startswith(m) or t.endswith(m) for t in title_tokens) and not any(m in x for x in qraw):
             s -= 35  # "gemarineerd", "glutenvrij", "geitenkaas", "knoflookboter"
             break
+    qcol = {c[:4] for c in qraw & COLORS}
+    tcol = {c[:4] for c in title_tokens & COLORS}
+    if qcol and tcol and not qcol & tcol:
+        s -= 40  # rode pesto is geen groene pesto
     for a, b in CONFLICTS:
         if qraw & a and title_tokens & b:
             s -= 40
@@ -420,7 +458,7 @@ def score(product: dict, query: str, flags: set[str] | None = None, need: dict |
     nouns = [i for i, t in enumerate(content) if not (len(t) > 3 and t.endswith(("e", "se", "ge")) and t not in qset)]
     first_noun = nouns[0] if nouns else 0
     if content and first_noun not in matched_t and content[first_noun] in extra and len(content) > 1:
-        s -= 45  # het product gaat over iets anders ("roomkaas met gember", "sap appel peer")
+        s -= 60  # het product gaat over iets anders ("roomkaas met gember", "spinazie met boursin")
     if q and content and (q[-1] in content[-1] or _same(q[-1], content[-1])):
         s += 4
     organic = "biologisch" in title or product.get("organic")
@@ -430,8 +468,8 @@ def score(product: dict, query: str, flags: set[str] | None = None, need: dict |
     if huismerk:
         s += 10
     else:
-        s -= 4  # A-merk alleen als er geen AH-variant is
-    head = _stem(q[-1]) if q else ""
+        s -= 12  # A-merk alleen als er geen AH-variant is
+    head = _stem(q[_head_index(q)]) if q else ""
     if head in {_stem(w) for w in PRODUCE | HERBS} and not category.startswith(("groente", "fruit")):
         s -= 35  # verse groente/fruit/kruiden horen uit de groente-afdeling
     if head in {_stem(w) for w in SPICES} and not category.startswith(("soepen, sauzen, kruiden", "groente",

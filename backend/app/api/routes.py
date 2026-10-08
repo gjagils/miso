@@ -1,6 +1,7 @@
 import asyncio
 import json
 import math
+import re
 import hmac
 import io
 import os
@@ -349,7 +350,9 @@ async def _automatch(ingredients: list[dict], gluten_free: bool = False, force: 
         packs = packs_for(need, pack)
         ing["need"] = need if packs is not None else None
         ing["pack"] = pack if packs is not None else None
-        ing["quantity"] = packs or container_count(ing.get("text", "")) or 1
+        n_stuk = need and need["unit"] == "stuk" and pack is None and not re.search(r"\b(zakje|zakjes)\b", ing.get("text", "").lower())
+        ing["quantity"] = packs or container_count(ing.get("text", "")) or (
+            max(1, math.ceil(need["amount"] - 1e-9)) if n_stuk and need["amount"] <= 12 and not str(product.get("unit_size", "")).strip().endswith(("g", "kg", "ml", "l")) else 1)
 
     async def match(ing: dict) -> int:
         if ing.get("skip") and not ing.get("auto_skip"):
