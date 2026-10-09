@@ -299,7 +299,7 @@ def test_favorite_recipes_fallback_query_and_soft_fail(linked, ah):
     ah.fail = {"RecipeCollection"}
     resp = TestClient(app).get("/api/ah-favorite-recipes").json()
     assert resp["ok"] is False and "favorieten" in resp["error"]
-    assert "gql:RecipeCollectionCategories" in ah.calls and "gql:RecipeCollectionCategory" in ah.calls
+    assert ah.calls.count("gql:RecipeCollectionCategories") == 2  # eerst met titels, dan alleen ids
 
 
 # ── 4. Standaardboodschappen ───────────────────────────────────────────

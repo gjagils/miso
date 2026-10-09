@@ -224,3 +224,23 @@ def test_import_fetch_errors_are_understandable():
     assert "niet meelezen" in msg and "403" not in msg
     assert "bestaat niet" in routes.fetch_error_text(
         httpx.HTTPStatusError("404", request=req, response=httpx.Response(404, request=req)))
+
+
+def test_import_text_keeps_source_link_and_uses_shared_photo(db, monkeypatch):
+    import io as _io
+    from PIL import Image as _Image
+
+    async def fake_extract(text=None, images=None):
+        return {"name": "Burrito bowl", "description": "", "servings": "4", "total_time": "",
+                "ingredients": [{"text": "200 g rijst", "search": "rijst", "skip": False, "quantity": 1, "product": None}],
+                "instructions": ["Kook."]}
+
+    monkeypatch.setattr(routes, "extract_recipe", fake_extract)
+    monkeypatch.setattr(routes, "IMAGE_DIR", "/tmp/miso-test-images")
+    buf = _io.BytesIO(); _Image.new("RGB", (40, 30), "orange").save(buf, format="JPEG")
+    client = TestClient(app)
+    r = client.post("/api/import", data={"text": "Burrito bowl\\n200 g rijst", "source_url": "https://miljuschka.nl/x/"},
+                    files={"photo": ("p.jpg", buf.getvalue(), "image/jpeg")}).json()
+    assert r["ok"] and r["name"] == "Burrito bowl"
+    recipe = db.get(Recipe, r["id"])
+    assert recipe.source_url == "https://miljuschka.nl/x/" and recipe.image_url == f"/image/{recipe.id}"

@@ -199,6 +199,22 @@ async def recipe_image(recipe_id: int):
 # ── Import (URL / tekst / foto's) ──────────────────────────────────────
 
 
+async def fetch_image(url: str) -> bytes | None:
+    """Haal alleen een receptfoto op (geen pagina). Faalt stil."""
+    from app.clients.extractor import _check_public_url
+
+    try:
+        _check_public_url(url)
+        async with httpx.AsyncClient(follow_redirects=True, timeout=15) as client:
+            resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0 (compatible; Miso/1.0)"})
+        if resp.status_code == 200 and resp.headers.get("content-type", "").startswith("image/"):
+            return resp.content
+        logger.warning("Recipe photo %s: HTTP %s", url[:120], resp.status_code)
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Recipe photo %s failed: %s", url[:120], e)
+    return None
+
+
 def fetch_error_text(e: Exception) -> str:
     """Begrijpelijke melding als een receptsite niet op te halen is."""
     status = getattr(getattr(e, "response", None), "status_code", None)
@@ -216,9 +232,13 @@ async def import_recipe(
     url: str = Form(""),
     text: str = Form(""),
     images: list[UploadFile] = File(default=[]),
+    source_url: str = Form(""),  # bronlink die alleen wordt bewaard, niet opgehaald (deelknop)
+    image_url: str = Form(""),  # foto van het recept op de site (deelknop); server haalt alleen de foto op
+    photo: UploadFile | None = File(default=None),  # foto die het toestel al heeft gedownload
     db: Session = Depends(get_db),
 ):
     url, text = url.strip(), text.strip()
+    source_url, shared_image_url = source_url.strip(), image_url.strip()
     image_list: list[tuple[bytes, str]] = []
     for img in images:
         if not img.filename:
@@ -248,7 +268,7 @@ async def import_recipe(
 
     recipe = Recipe(
         name=raw["name"], description=raw["description"], servings=raw["servings"],
-        total_time=raw["total_time"], source_url=url, image_url=image_url,
+        total_time=raw["total_time"], source_url=url or source_url, image_url=image_url,
     )
     recipe.ingredients = raw["ingredients"]
     recipe.instructions = raw["instructions"]
@@ -261,8 +281,16 @@ async def import_recipe(
             recipe.image_url = f"/image/{recipe.id}"
             db.commit()
 
+    if not recipe.image_url:  # foto van de deelknop: eerst wat het toestel stuurde, anders zelf de foto ophalen
+        data = await photo.read() if photo and photo.filename else None
+        if not data and shared_image_url:
+            data = await fetch_image(shared_image_url)
+        if data and len(data) <= 15 * 1024 * 1024 and _save_food_photo(recipe.id, data):
+            recipe.image_url = f"/image/{recipe.id}"
+            db.commit()
+
     logger.info("Imported recipe %s (id=%s)", recipe.name, recipe.id)
-    return {"ok": True, "id": recipe.id}
+    return {"ok": True, "id": recipe.id, "name": recipe.name}
 
 
 @router.post("/recipe/{recipe_id}/delete")
