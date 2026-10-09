@@ -83,10 +83,10 @@
     </details>
 
     <div class="kz-actions" id="shop-actions" hidden>
-        <button class="btn" type="button" id="basket-btn">Zet in AH-mandje</button>
+        <button class="btn" type="button" id="basket-btn" hidden>Zet in AH-mandje</button>
         <a class="btn btn-ah" id="link-btn" href="#" target="_blank" rel="noopener noreferrer">Open in AH-app/website</a>
         <p class="muted kz-note" id="token-note"></p>
-        <button class="kz-linkbtn" type="button" id="clear-btn">Mandje leegmaken</button>
+        <button class="kz-linkbtn" type="button" id="clear-btn" hidden>Mandje leegmaken</button>
         <button class="kz-linkbtn" type="button" id="restart-btn">Opnieuw kiezen</button>
     </div>
 </section>
@@ -410,11 +410,29 @@ async function loadShop() {
     $("link-btn").href = linkUrl || "#";
     $("link-btn").toggleAttribute("aria-disabled", !linkUrl);
     $("basket-btn").disabled = !HAS_TOKEN || !productCount;
+    refreshBasket();
     $("token-note").innerHTML = HAS_TOKEN
-        ? "Het lijstje krijgt alles van deze week dat er nog niet op stond. Mandje vullen bestelt niets: afrekenen doe je zelf bij AH."
+        ? "Het lijstje krijgt alles van deze week dat er nog niet op stond."
         : `AH is nog niet gekoppeld. <a href="/settings">Koppel AH</a> om direct op je lijstje te zetten, of open de producten in de AH-app/website (daar ben je zelf ingelogd).`;
     $("shop-actions").hidden = false;
     renderBar();
+}
+
+// Mandje alleen tonen als er bij AH een actieve bestelling (gekozen bezorg-/ophaalmoment) is
+async function refreshBasket() {
+    const b = $("basket-btn"), c = $("clear-btn");
+    b.hidden = c.hidden = true;
+    if (!HAS_TOKEN) return;
+    try {
+        const r = await (await fetch("/api/basket")).json();
+        if (r.ok && r.order_id) {
+            const when = r.delivery ? new Date(r.delivery).toLocaleDateString("nl-NL", {weekday: "short", day: "numeric", month: "short"}) : "";
+            b.textContent = when ? `Zet in mandje voor ${when}` : "Zet in AH-mandje";
+            b.dataset.label = b.textContent;
+            b.hidden = false;
+            c.hidden = false;
+        }
+    } catch (e) { /* geen mandje: alleen lijstje */ }
 }
 
 function showResult(ok, text) {
@@ -499,7 +517,7 @@ $("basket-btn").onclick = async () => {
     const b = $("basket-btn");
     b.disabled = true; b.textContent = "Bezig...";
     const r = await postJSON("/api/basket/fill", {recipe_ids: ownIds()});
-    b.disabled = false; b.textContent = "Zet in AH-mandje";
+    b.disabled = false; b.textContent = b.dataset.label || "Zet in AH-mandje";
     if (r.ok) showResult(true, `${r.added} producten in je AH-mandje gezet. Afrekenen doe je zelf in de AH-app.`);
     else showResult(false, r.error || "Mandje vullen is mislukt.");
 };

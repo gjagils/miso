@@ -175,6 +175,13 @@ struct BasketFillResult: Decodable {
     let error: String?
 }
 
+struct BasketStatus: Decodable {
+    let ok: Bool
+    let orderId: Int?
+    let delivery: String?
+    enum CodingKeys: String, CodingKey { case ok, orderId = "order_id", delivery }
+}
+
 struct BasketClearResult: Decodable {
     let ok: Bool
     let removed: Int?

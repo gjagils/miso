@@ -143,6 +143,11 @@ extension API {
         try await post("api/basket/fill", json: RecipeIDsBody(recipeIds: recipeIDs))
     }
 
+    /// Actieve AH-bestelling (mandje); zonder gekozen bezorgmoment is er geen order_id.
+    func basketStatus() async throws -> BasketStatus {
+        try await get("api/basket")
+    }
+
     /// Haalt weg wat Miso in het mandje zette. Bestelt niets.
     func clearBasket() async throws -> BasketClearResult {
         try await post("api/basket/clear", json: EmptyBody())

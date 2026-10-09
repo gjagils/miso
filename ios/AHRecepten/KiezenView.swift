@@ -704,6 +704,7 @@ struct KiezenShopView: View {
     @State private var result: (ok: Bool, text: String)?
     @State private var busy: String?
     @State private var confirmClear = false
+    @State private var basketLabel: String?  // alleen gezet als er een actieve AH-bestelling is
     @State private var showPantry = false
 
     var body: some View {
@@ -856,16 +857,32 @@ struct KiezenShopView: View {
         .accessibilityLabel("\(p.name), \(p.qty) stuks\(p.size.isEmpty ? "" : ", \(p.size)"), voor \(p.recipes.joined(separator: ", "))")
     }
 
+    private func loadBasketStatus() async {
+        guard let api = session.api, let status = try? await api.basketStatus(), status.ok, status.orderId != nil else {
+            basketLabel = nil
+            return
+        }
+        if let d = status.delivery, let date = ISO8601DateFormatter.dateOnly.date(from: String(d.prefix(10))) {
+            let f = DateFormatter(); f.locale = Locale(identifier: "nl_NL"); f.dateFormat = "EEE d MMM"
+            basketLabel = "Zet in mandje voor \(f.string(from: date))"
+        } else {
+            basketLabel = "Zet in AH-mandje"
+        }
+    }
+
     @ViewBuilder
     private var actions: some View {
         Section {
-            Button { Task { await fillBasket() } } label: {
-                if busy == "basket" { ProgressView() } else { Label("Zet in AH-mandje", systemImage: "basket") }
+            Color.clear.frame(height: 0).listRowBackground(Color.clear).task { await loadBasketStatus() }
+            if let basketLabel {
+                Button { Task { await fillBasket() } } label: {
+                    if busy == "basket" { ProgressView() } else { Label(basketLabel, systemImage: "basket") }
+                }
+                .buttonStyle(.misoSecondary)
+                .disabled(productCount == 0 || busy != nil)
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
             }
-            .buttonStyle(.misoSecondary)
-            .disabled(productCount == 0 || busy != nil)
-            .listRowBackground(Color.clear)
-            .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
 
             Button {
                 if let linkURL { openURL(linkURL) }
@@ -878,13 +895,15 @@ struct KiezenShopView: View {
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
 
-            Text("Het lijstje krijgt alles van deze week dat er nog niet op stond. Mandje vullen bestelt niets: afrekenen doe je zelf bij AH.")
+            Text("Het lijstje krijgt alles van deze week dat er nog niet op stond.")
                 .font(.misoCaption).foregroundStyle(.secondary)
                 .listRowBackground(Color.clear)
 
             HStack {
-                Button("Mandje leegmaken", role: .destructive) { confirmClear = true }
-                    .disabled(busy != nil)
+                if basketLabel != nil {
+                    Button("Mandje leegmaken", role: .destructive) { confirmClear = true }
+                        .disabled(busy != nil)
+                }
                 Spacer()
                 Button("Opnieuw kiezen") { onRestart() }
                     .foregroundStyle(Color.misoBlue)
@@ -1039,4 +1058,13 @@ struct KiezenShopView: View {
         withAnimation { result = (ok, text) }
         UIAccessibility.post(notification: .announcement, argument: text)
     }
+}
+
+
+extension ISO8601DateFormatter {
+    static let dateOnly: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withFullDate]
+        return f
+    }()
 }
