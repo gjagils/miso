@@ -13,7 +13,8 @@
 </div>
 
 <div class="week-actions">
-  <button class="btn btn-primary" id="refresh-btn">Alles opnieuw koppelen</button>
+  {% if totaal.open %}<a class="btn btn-primary" href="/dekking/ontbrekend">Ontbrekend ({{ totaal.open }})</a>{% endif %}
+  <button class="btn" id="refresh-btn">Alles opnieuw koppelen</button>
   <span id="msg" class="muted" role="status">{% if refresh.running %}Bezig: {{ refresh.done }}/{{ refresh.total }}{% elif refresh.finished %}Laatst bijgewerkt {{ refresh.finished }}{% endif %}</span>
 </div>
 

@@ -291,3 +291,28 @@ def test_rematch_keeps_valid_product_when_search_is_empty(monkeypatch):
     asyncio.run(routes._automatch(ings))
     assert ings[0]["product"]["id"] == 1
     assert ings[1]["product"] is None
+
+
+def test_missing_page_groups_and_assigns(db):
+    from app.models import ProductPreference
+
+    a = _recipe(db, "A", [_ing("2 gele paprika's"), _ing("rijst", 2)])
+    b = _recipe(db, "B", [_ing("1 gele paprika"), _ing("dragon")])
+    client = TestClient(app)
+    page = client.get("/dekking/ontbrekend").text
+    assert "gele paprika" in page and "2×" in page
+    lines = [{"recipe_id": a.id, "index": 0, "text": "2 gele paprika's"},
+             {"recipe_id": b.id, "index": 0, "text": "1 gele paprika"}]
+    product = {"id": 9, "name": "AH Paprika geel", "unit_size": "per stuk"}
+    assert client.post("/api/missing/assign", json={"lines": lines, "product": product}).json()["updated"] == 2
+    db.expire_all()
+    assert db.get(Recipe, a.id).ingredients[0]["product"]["id"] == 9
+    assert db.get(Recipe, a.id).ingredients[0]["manual"] is True
+    assert db.query(ProductPreference).count() == 1
+    skip = [{"recipe_id": b.id, "index": 1, "text": "dragon"}]
+    client.post("/api/missing/assign", json={"lines": skip, "product": None})
+    db.expire_all()
+    assert db.get(Recipe, b.id).ingredients[1]["skip"] is True
+    assert "gele paprika" not in client.get("/dekking/ontbrekend").text
+    stale = [{"recipe_id": a.id, "index": 1, "text": "iets anders"}]
+    assert client.post("/api/missing/assign", json={"lines": stale, "product": product}).json()["updated"] == 0

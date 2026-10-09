@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Ontbrekend - Miso{% endblock %}
+{% block content %}
+<p class="breadcrumb"><a href="/dekking">Koppeling met AH</a> / Ontbrekend</p>
+<h1>Ontbrekende producten</h1>
+<p class="muted">{{ lines }} ingrediënten in {{ groups|length }} groepen hebben nog geen AH-product. Zoek en kies een product:
+het geldt voor alle recepten in de groep en Miso onthoudt het voor de volgende keer. Niet nodig? Dan vink je het uit.</p>
+
+{% if groups %}
+<div class="missing-list">
+{% for g in groups %}
+<section class="settings-section missing-group" data-lines='{{ g.lines|tojson }}'>
+    <h2>{{ g.term }} {% if g.lines|length > 1 %}<span class="badge badge-unmapped">{{ g.lines|length }}×</span>{% endif %}</h2>
+    <ul class="missing-lines">
+        {% for l in g.lines[:6] %}<li><a href="/recipe/{{ l.recipe_id }}">{{ l.recipe }}</a>: <span class="muted">{{ l.text }}</span></li>{% endfor %}
+        {% if g.lines|length > 6 %}<li class="muted">en nog {{ g.lines|length - 6 }} …</li>{% endif %}
+    </ul>
+    <form class="form-group missing-search">
+        <input class="form-input" name="q" value="{{ g.term }}" aria-label="Zoeken bij AH">
+        <button class="btn" type="submit">Zoek bij AH</button>
+        <button class="btn" type="button" data-skip>Niet nodig</button>
+    </form>
+    <div class="missing-results" aria-live="polite"></div>
+</section>
+{% endfor %}
+</div>
+{% else %}
+<div class="empty-state"><img src="/static/miso/miso-hungry.webp" alt="" width="140" height="140" loading="lazy"><h2>Alles gekoppeld</h2><p>Elk ingrediënt heeft een AH-product.</p></div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+async function assign(box, product) {
+    box.style.opacity = 0.5;
+    const r = await fetch("/api/missing/assign", {method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({lines: JSON.parse(box.dataset.lines), product})}).then(x => x.json()).catch(() => ({}));
+    if (r.ok) { box.remove(); return; }
+    box.style.opacity = 1; alert("Opslaan mislukt");
+}
+document.querySelectorAll(".missing-group").forEach(box => {
+    const out = box.querySelector(".missing-results");
+    box.querySelector("[data-skip]").onclick = () => assign(box, null);
+    box.querySelector("form").onsubmit = async e => {
+        e.preventDefault();
+        const q = e.target.q.value.trim();
+        if (!q) return;
+        out.innerHTML = '<p class="muted">Zoeken…</p>';
+        const r = await fetch("/api/ah/search?q=" + encodeURIComponent(q)).then(x => x.json()).catch(() => ({}));
+        const ps = r.products || [];
+        if (!ps.length) { out.innerHTML = '<p class="muted">Niets gevonden. Probeer een ander woord.</p>'; return; }
+        out.innerHTML = `<ul class="missing-products">${ps.map((p, i) => `<li>
+            ${p.image_url ? `<img src="${esc(p.image_url)}" alt="" width="44" height="44" loading="lazy" referrerpolicy="no-referrer">` : ""}
+            <span><strong>${esc(p.name)}</strong><br><span class="muted">${esc(p.unit_size)} · € ${esc(p.price)}</span></span>
+            <button class="btn btn-primary btn-sm" type="button" data-i="${i}">Kies</button></li>`).join("")}</ul>`;
+        out.querySelectorAll("[data-i]").forEach(b => b.onclick = () => assign(box, ps[+b.dataset.i]));
+    };
+});
+</script>
+{% endblock %}

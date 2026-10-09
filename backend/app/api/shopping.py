@@ -13,7 +13,7 @@ from app.api import routes
 from app.clients.ah import ah_client, build_add_multiple_url, get_active_order, set_order_items
 from app.database import SessionLocal, get_db
 from app.logging_config import logger
-from app.matching import MATCH_VERSION
+from app.matching import MATCH_VERSION, needed, pack_size, packs_for, query_terms
 from app.models import BasketPush, ProductPreference, Recipe
 
 router = APIRouter()
@@ -59,6 +59,61 @@ def coverage(db: Session) -> dict:
     tot["geleerde_voorkeuren"] = db.query(ProductPreference).count()
     rows.sort(key=lambda r: (r["pct"], -r["open"], r["name"]))
     return {"totaal": tot, "recepten": rows, "refresh": REFRESH}
+
+
+def missing_groups(db: Session) -> list[dict]:
+    """Open ingrediënten over alle recepten, gegroepeerd op zoekterm ("2 gele paprika's" en "1 gele paprika" samen)."""
+    groups: dict[str, dict] = {}
+    for recipe in db.execute(select(Recipe).order_by(Recipe.name)).scalars():
+        for idx, ing in enumerate(recipe.ingredients):
+            if ing.get("skip") or ing.get("auto_skip") or (ing.get("product") or {}).get("id"):
+                continue
+            text = (ing.get("text") or "").strip()
+            term = query_terms(ing.get("search") or text)[0] or text.lower()
+            g = groups.setdefault(term, {"term": term, "lines": []})
+            g["lines"].append({"recipe_id": recipe.id, "recipe": recipe.name, "index": idx, "text": text})
+    return sorted(groups.values(), key=lambda g: (-len(g["lines"]), g["term"]))
+
+
+class AssignPayload(BaseModel):
+    lines: list[dict]  # [{recipe_id, index, text}]
+    product: dict | None = None  # None = niet nodig (uitvinken)
+
+
+@router.post("/api/missing/assign")
+async def assign_missing(payload: AssignPayload, db: Session = Depends(get_db)):
+    """Kies één product voor dezelfde ontbrekende regel in alle recepten (handmatig + onthouden), of vink uit."""
+    done, learned = 0, False
+    for line in payload.lines:
+        recipe = db.get(Recipe, int(line.get("recipe_id", 0)))
+        if not recipe:
+            continue
+        ings = recipe.ingredients
+        idx = int(line.get("index", -1))
+        if not (0 <= idx < len(ings)) or ings[idx].get("text", "").strip() != str(line.get("text", "")).strip():
+            continue  # recept is intussen gewijzigd: niet de verkeerde regel aanpassen
+        ing = ings[idx]
+        if payload.product:
+            ing.update(product=payload.product, manual=True, source="handmatig", skip=False, auto_skip=False,
+                       match_v=MATCH_VERSION)
+            need, pack = needed(ing.get("text", "")), pack_size(payload.product.get("unit_size", ""))
+            ing["quantity"] = packs_for(need, pack) or 1
+            if not learned:
+                routes.learn_pref(db, ing)
+                learned = True
+        else:
+            ing.update(skip=True, auto_skip=False, product=None)
+        recipe.ingredients = ings
+        done += 1
+    db.commit()
+    return {"ok": True, "updated": done}
+
+
+@router.get("/dekking/ontbrekend", response_class=HTMLResponse)
+async def missing_page(request: Request, db: Session = Depends(get_db)):
+    groups = missing_groups(db)
+    return routes.templates.TemplateResponse(request, "missing.html", {"groups": groups,
+                                                                       "lines": sum(len(g["lines"]) for g in groups)})
 
 
 REFRESH: dict = {"running": False, "done": 0, "total": 0, "started": None, "finished": None, "error": None}
