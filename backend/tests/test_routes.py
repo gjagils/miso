@@ -316,3 +316,8 @@ def test_missing_page_groups_and_assigns(db):
     assert "gele paprika" not in client.get("/dekking/ontbrekend").text
     stale = [{"recipe_id": a.id, "index": 1, "text": "iets anders"}]
     assert client.post("/api/missing/assign", json={"lines": stale, "product": product}).json()["updated"] == 0
+
+
+def test_favicon_is_public():
+    resp = TestClient(app).get("/favicon.ico")
+    assert resp.status_code == 200 and len(resp.content) > 100

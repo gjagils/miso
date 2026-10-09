@@ -2,7 +2,7 @@ import hashlib
 import hmac
 
 from fastapi import FastAPI, Request
-from fastapi.responses import RedirectResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api.ah_data import router as ah_data_router
@@ -22,7 +22,7 @@ migrate(engine)
 
 app = FastAPI(title="AH Recepten", version="0.2.0")
 
-PUBLIC_PREFIXES = ("/login", "/api/login", "/static", "/image")
+PUBLIC_PREFIXES = ("/login", "/api/login", "/static", "/image", "/favicon.ico")
 
 
 def session_token() -> str:
@@ -46,6 +46,11 @@ async def require_pin(request: Request, call_next):
 
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return FileResponse("app/static/favicon.ico", headers={"Cache-Control": "public, max-age=604800"})
 app.include_router(ah_data_router)
 app.include_router(json_router)
 app.include_router(shopping_router)
