@@ -80,3 +80,21 @@ def test_diminutive_matches_product_title():
 def test_lean_adjective_first_is_not_other_product():
     p = {"name": "AH Mager spekblokjes", "unit_size": "250 g", "category": "Vlees, kip, vis, vega"}
     assert score(p, "spekblokjes") >= 30
+
+
+def test_color_word_after_noun_in_title():
+    p = {"name": "AH Paprika geel", "unit_size": "per stuk", "category": "Groente, aardappelen"}
+    q, _, flags = query_terms("2 gele paprika's")
+    assert score(p, q, flags) >= 30
+
+
+@pytest.mark.parametrize("text,query", [
+    ("1 kaneelstokje", "kaneel"),
+    ("1 beker zure room", "sour cream"),
+    ("1 pak quichedeeg", "quiche taartdeeg"),
+    ("85 g geraspte oude kaas", "goudse oud"),
+    ("2x gerookte kipreepjes", "gerookte kipfilet"),
+    ("15 g verse krulpeterselie", "peterselie"),
+])
+def test_query_normalisation_round6b(text, query):
+    assert query_terms(text)[0] == query

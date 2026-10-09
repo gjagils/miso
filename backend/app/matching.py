@@ -11,7 +11,7 @@ from fractions import Fraction
 
 from app.clients.mealie import clean_search
 
-MATCH_VERSION = 16
+MATCH_VERSION = 17
 
 # Basisspullen die je meestal in huis hebt: niet automatisch op de lijst
 PANTRY = {
@@ -280,7 +280,12 @@ SYNONYMS = [
     (r"\btruffelolie\b", "olijfolie truffel"),
     (r"\bshii-?takes?\b", "shiitake"),
     (r"\bsteranijs(je|jes)?\b", "steranijs"),
-    (r"\bkaneelstok(je|jes|ken)?\b", "kaneelstokjes"),
+    (r"\bkaneelstok(je|jes|ken)?\b", "kaneel heel"),
+    (r"\bzure room\b", "sour cream"),
+    (r"\bquiche ?deeg\b", "quiche taartdeeg"),
+    (r"\b(geraspte )?oude kaas\b", "goudse oud geraspt"),
+    (r"\bgerookte kipreepjes\b", "gerookte kipfilet"),
+    (r"\bkru(l|pl)peterselie\b", "peterselie"),
     (r"\bchorizoworst(je|jes)?\b", "chorizo"), (r"\bmerguezworst(je|jes)?\b", "merguez"),
     (r"\btomaatblokjes\b", "tomatenblokjes"),
     (r"\bbosuitjes\b", "bosui"),
@@ -386,7 +391,8 @@ ALCOHOL = {"wijn", "bier", "brandy", "cognac", "port", "rum", "wodka", "whisky",
            "prosecco", "cava", "jenever", "gin", "calvados", "amaretto", "grappa"}
 # Rassen/soorten die AH als productnaam gebruikt zonder het woord zelf ("AH Conference schaal" = peren)
 VARIETY = {"jasmin": "jasmijn", "jasmine": "jasmijn", "rice": "rijst", "conference": "peer", "doyenne": "peer", "elstar": "appel", "jonagold": "appel", "granny": "appel",
-           "trostomaten": "tomaten", "cherrytomaten": "tomaten", "uitloopeieren": "eieren"}
+           "trostomaten": "tomaten", "cherrytomaten": "tomaten", "uitloopeieren": "eieren",
+           "geel": "gele", "rood": "rode", "groen": "groene"}
 # Losse woorden die je in de zoekterm kunt splitsen ("risottorijst" -> "risotto rijst")
 HEADS = ("rijst", "cheese", "kaas", "saus", "brood", "olie", "azijn", "vlokken", "poeder", "bonen", "pasta",
          "noedels", "melk", "room", "boter")
