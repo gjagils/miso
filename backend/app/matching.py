@@ -11,7 +11,7 @@ from fractions import Fraction
 
 from app.clients.mealie import clean_search
 
-MATCH_VERSION = 19
+MATCH_VERSION = 20
 
 # Basisspullen die je meestal in huis hebt: niet automatisch op de lijst
 PANTRY = {
@@ -264,6 +264,7 @@ DESCRIPTORS = {
 }
 # Vaste vertalingen van receptwoorden naar hoe AH het noemt
 SYNONYMS = [
+    (r"\btruffelolie\b|\bolijfolie(?: extra vierge)? met truffel\w*", "olijfolie truffel"),  # vóór "met ..." wegknippen
     (r"\b(\w+e) en (\w+e) (\w+)\b", r"\3"),  # "rode en gele paprika" -> paprika (niet "rode")
     (r"\b(\w+)-\s+of\s+(\w+)", r"\2"),  # "runder- of groentebouillon" -> "groentebouillon"
     (r"\s+of\s+.*$", ""),  # alternatieven: neem de eerste ("bouillon of water")
@@ -277,7 +278,8 @@ SYNONYMS = [
     (r"\b(hete|warme) (\w*bouillon)", r"\2"),
     (r"\bvleesbouillon", "runderbouillon"), (r"\btuinkruidenbouillon", "groentebouillon"),
     (r"\bparmaham\b", "prosciutto di parma"),
-    (r"\btruffelolie\b|\bolijfolie met truffel\w*", "olijfolie truffel"),
+    (r"\bsalade-?uien\b", "bosui"),
+    (r"\bkleine trostomaat(jes|en)?( aan (de )?tak)?\b", "cherry trostomaten"),
     (r"\b(geraspte )?italiaanse (harde )?kaas\b", "grana padano"),  # HelloFresh/Marley Spoon: harde Italiaanse kaas
     (r"\brunderchipolata(worstjes?)?\b", "runderchipolata"), (r"\bvarkensboerengehakt\b", "varkensgehakt"),
     (r"\bbalsamicoglazuur\b|\bbalsamico-?creme\b", "crema balsamico"),
@@ -447,8 +449,12 @@ def query_terms(text: str) -> tuple[str, list[str], set[str]]:
     if not keep:
         keep = words
     if keep and keep[-1] in HERBS and "dried" not in flags:
-        if re.search(r"\b(tl|el|theelepels?|eetlepels?)\b", low) and "fresh" not in flags:
-            flags.add("dried")  # "1 tl dragon" = gedroogd uit een potje
+        leafy = keep[-1] in {"peterselie", "koriander", "dille", "basilicum", "bieslook", "munt", "kervel"}
+        if re.search(r"\b(tl|theelepels?)\b", low) or (re.search(r"\b(el|eetlepels?)\b", low) and not leafy):
+            if "fresh" not in flags:
+                flags.add("dried")  # "1 tl dragon" = gedroogd uit een potje
+        elif leafy and re.search(r"\b(el|eetlepels?)\b", low):
+            flags.add("fresh")  # "2 el dille" = vers gehakt
         elif not re.search(r"\b(tl|el|theelepels?|eetlepels?)\b", low):
             flags.add("fresh")  # "5 g koriander" = verse koriander
     return " ".join(keep), keep, flags

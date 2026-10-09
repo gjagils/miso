@@ -121,3 +121,17 @@ def test_round7_prefers_plain_product(text, good, bad):
 def test_fresh_herbs_never_from_a_jar():
     q, _, flags = query_terms("20 g verse Italiaanse kruidenmix")
     assert score(_p("Verstegen Italiaanse kruiden", "12 g", "Soepen, sauzen, kruiden, olie"), q, flags) < 30
+
+
+@pytest.mark.parametrize("text,query,flag", [
+    ("2 eetlepels dille", "dille", "fresh"),
+    ("1 tl dille", "dille", "dried"),
+    ("6 salade-uien", "bosui", None),
+    ("250 g kleine trostomaatjes aan de tak", "cherry trostomaten", None),
+    ("2 el olijfolie extra vierge met truffelaroma", "olijfolie truffel", None),
+])
+def test_round8_normalisation(text, query, flag):
+    q, _, flags = query_terms(text)
+    assert q == query
+    if flag:
+        assert flag in flags
