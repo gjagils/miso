@@ -26,7 +26,8 @@
 <p class="week-actions">
     {% if no_photo_filter %}<a class="btn" href="/recepten">Alle recepten</a>
     <span class="muted">{{ no_photo_count }} recepten zonder foto. Kies een foto van het gerecht, dan verdwijnt het recept uit deze lijst.</span>
-    {% elif no_photo_count %}<a class="btn" href="/recepten?foto=nee">Zonder foto ({{ no_photo_count }})</a>{% endif %}
+    {% else %}{% if no_photo_count %}<a class="btn" href="/recepten?foto=nee">Zonder foto ({{ no_photo_count }})</a>{% endif %}
+    {% if missing_count %}<a class="btn" href="/dekking/ontbrekend">Zonder AH-product ({{ missing_count }})</a>{% endif %}{% endif %}
 </p>
 
 {% if recipes %}

@@ -112,10 +112,12 @@ async def today_page(request: Request, db: Session = Depends(get_db)):
 async def recipes_page(request: Request, foto: str = "", db: Session = Depends(get_db)):
     recipes = db.execute(select(Recipe).order_by(Recipe.name)).scalars().all()
     without_photo = [r for r in recipes if not r.image_url]
+    missing = sum(1 for r in recipes for i in r.ingredients
+                  if not (i.get("skip") or i.get("auto_skip") or (i.get("product") or {}).get("id")))
     return templates.TemplateResponse(
         request, "recipes.html",
         {"recipes": without_photo if foto == "nee" else recipes, "no_photo_filter": foto == "nee",
-         "no_photo_count": len(without_photo), "has_api_key": bool(settings.anthropic_api_key)},
+         "no_photo_count": len(without_photo), "missing_count": missing, "has_api_key": bool(settings.anthropic_api_key)},
     )
 
 
