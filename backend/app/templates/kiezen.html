@@ -485,7 +485,7 @@ async function loadShop() {
     $("basket-btn").disabled = !HAS_TOKEN || !productCount;
     refreshBasket();
     $("token-note").innerHTML = HAS_TOKEN
-        ? "Het lijstje krijgt alles van deze week dat er nog niet op stond."
+        ? "Miso kijkt wat er al op je AH-lijstje staat en zet erbij wat deze week nog nodig is: alle geplande dagen, plus de recepten hierboven die je niet inplant."
         : `AH is nog niet gekoppeld. <a href="/settings">Koppel AH</a> om direct op je lijstje te zetten, of open de producten in de AH-app/website (daar ben je zelf ingelogd).`;
     $("shop-actions").hidden = false;
     renderBar();
@@ -570,7 +570,12 @@ function showResult(ok, text) {
 async function syncList() {
     const btn = $("bar-next");
     btn.disabled = true; btn.textContent = "Bezig...";
-    const r = productCount ? await postJSON("/api/plan/sync", {week: WEEK, locked: true}) : null;
+    const r = productCount ? await postJSON("/api/plan/sync", {week: WEEK}) : null;
+    // Recepten die je niet inplant zitten niet in de week: die apart op het lijstje
+    const loose = assign.filter(a => !a.day && !a.already).map(a => a.id);
+    const l = productCount && loose.length && r && r.ok
+        ? await postJSON("/api/cart/fill", {recipe_ids: loose, persons: personsMap()}) : null;
+    if (l && l.ok && r) r.added = (r.added || 0) + (l.items_added || 0);
     const x = await sendExtras();
     const extra = x && x.ok ? ` Plus ${x.added} ${x.added === 1 ? "product" : "producten"} van je lijsten en standaardboodschappen.` : "";
     if (r && r.ok) {
