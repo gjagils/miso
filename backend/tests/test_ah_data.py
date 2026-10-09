@@ -380,3 +380,29 @@ def test_pages_render_with_new_sections(linked, ah):
     assert "Deze week in de bonus" in page and "Ook van je AH-lijsten" in page and "Vergeet je deze niet?" in page
     settings = client.get("/settings").text
     assert "Importeer mijn AH-favorieten" in settings and "Je AH-lijsten" in settings
+
+
+def test_search_products_maps_app_search(monkeypatch):
+    import asyncio
+
+    from app.clients.ah import AHClient
+
+    client = AHClient()
+
+    async def fake_graphql(query, variables):
+        assert "searchProducts" in query and variables == {"q": "parmaham"}
+        return {"searchProducts": {"products": [{
+            "id": 454461, "title": "AH Prosciutto di parma", "brand": "AH", "salesUnitSize": "90 g",
+            "category": "Vleeswaren/Ham", "taxonomies": [{"name": "Vleeswaren"}], "icons": ["ORGANIC"],
+            "price": {"now": {"amount": 3.19}, "was": {"amount": 3.79}, "unitInfo": None},
+            "availability": {"isOrderable": True}, "imagePack": [{"small": {"url": "s"}, "medium": {"url": "m"}}],
+        }] * 10}}
+
+    async def no_legacy(query, size=10):
+        raise AssertionError("niet nodig: app-zoeken gaf genoeg")
+
+    monkeypatch.setattr(client, "graphql", fake_graphql)
+    monkeypatch.setattr(client, "_search_legacy", no_legacy)
+    p = asyncio.run(client.search_products("parmaham", size=10))[0]
+    assert p["id"] == 454461 and p["unit_size"] == "90 g" and p["price"] == "3.79"
+    assert p["category"] == "Vleeswaren" and p["organic"] and p["image_url"] == "m" and not p["nix18"]

@@ -11,7 +11,7 @@ from fractions import Fraction
 
 from app.clients.mealie import clean_search
 
-MATCH_VERSION = 20
+MATCH_VERSION = 21
 
 # Basisspullen die je meestal in huis hebt: niet automatisch op de lijst
 PANTRY = {
@@ -25,7 +25,7 @@ PANTRY = {
 BAD_CATEGORIES = {
     "koek, snoep, chocolade", "snoep", "drogisterij", "huishouden", "baby en kind", "huisdier",
     "diepvries snacks", "bier en aperitieven", "wijn en bubbels", "frisdrank en sappen", "frisdrank, sappen, water",
-    "koffie, thee", "gezondheid en sport", "koken, tafelen, vrije tijd",  # let op: noten staan bij "borrel"
+    "gezondheid en sport", "koken, tafelen, vrije tijd",  # let op: noten staan bij "borrel"
 }
 # Verse groente en fruit: moeten uit de groente/fruit-afdeling komen (niet "Peer siroop", "Bieslook roomkaas")
 PRODUCE = {

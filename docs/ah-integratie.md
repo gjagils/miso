@@ -76,6 +76,31 @@ Response (relevante velden):
 
 ### Producten zoeken
 
+**Eerst: GraphQL `searchProducts` (zoals de Appie-app, sinds 2026-10).** Dit is de "slimme" zoekfunctie met
+synoniemen en spellingtolerantie, vergelijkbaar met ah.nl: "parmaham" → Prosciutto di parma, "scampi" →
+garnalen, "kippendijfilet" → kipdijfilet. Het oude REST-zoeken hieronder zoekt alleen letterlijk in titels en
+geeft daar niets of rommel (bijv. hoofdhuidborstels voor "scampi"). Geeft altijd max. 10 producten; er is geen
+size/page-argument. De website-zoek-API (`www.ah.nl/zoeken/api/...`) is voor scripts geblokkeerd (Akamai 403).
+
+```graphql
+query SearchProducts($q: String!) {
+  searchProducts(input: {query: $q}) {
+    products { id title brand salesUnitSize category taxonomies { name } icons
+      price { now { amount } was { amount } unitInfo { description } }
+      availability { isOrderable } imagePack { small { url } medium { url } } }
+  }
+}
+```
+
+- `id` = webshopId (werkt met `add-multiple`, lijstje en mandje). `price.was` = prijs zonder bonus.
+- `category` is `"Hoofdafdeling/Subafdeling"`; gebruik het deel vóór `/` (net als `mainCategory` uit REST).
+  Let op: `taxonomies` bevat ook diepere namen ("…wijnazijn"), dus niet daarop alcohol detecteren.
+- Biologisch = `"ORGANIC"` in `icons`. Alcohol = hoofdafdeling begint met "Bier, wijn".
+- Miso vult aan met het REST-zoeken als de app minder resultaten geeft dan gevraagd (breedte voor de
+  koppelregels) en valt erop terug als GraphQL faalt.
+
+**Reserve/aanvulling: REST (letterlijk zoeken).**
+
 ```http
 GET https://api.ah.nl/mobile-services/product/search/v2?query=<zoekterm>&sortOn=RELEVANCE
 Accept: application/json

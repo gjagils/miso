@@ -26,6 +26,15 @@ DEFAULT_HEADERS = {
 }
 
 
+SEARCH_GQL = """query SearchProducts($q: String!) {
+  searchProducts(input: {query: $q}) {
+    products { id title brand salesUnitSize category taxonomies { name } icons
+      price { now { amount } was { amount } unitInfo { description } }
+      availability { isOrderable } imagePack { small { url } medium { url } } }
+  }
+}"""
+
+
 def build_add_multiple_url(items: list[dict]) -> str:
     """Link die producten via de eigen AH-sessie van de gebruiker op 'Mijn lijst' zet (geen token nodig)."""
     from urllib.parse import urlencode
@@ -158,6 +167,44 @@ class AHClient:
             return False
 
     async def search_products(self, query: str, size: int = 10) -> list[dict]:
+        """Zoek producten zoals de Appie-app: GraphQL `searchProducts` begrijpt synoniemen en spelling
+        ("parmaham" -> Prosciutto di parma, "scampi" -> garnalen). Het oude REST-zoeken (`search/v2`) zoekt
+        alleen letterlijk in titels en blijft als aanvulling/reserve."""
+        try:
+            products = await self._search_graphql(query)
+        except Exception as e:  # noqa: BLE001 - dan het oude zoeken
+            logger.warning("AH searchProducts failed for %r: %s", query, e)
+            products = []
+        if size <= len(products):
+            return products[:size]
+        seen = {p["id"] for p in products}  # app-zoeken geeft er max. 10: aanvullen met letterlijk zoeken
+        return products + [p for p in await self._search_legacy(query, size) if p["id"] not in seen]
+
+    async def _search_graphql(self, query: str) -> list[dict]:
+        data = await self.graphql(SEARCH_GQL, {"q": query})
+        out = []
+        for p in (data.get("searchProducts") or {}).get("products") or []:
+            price = p.get("price") or {}
+            amount = (price.get("was") or {}).get("amount") or (price.get("now") or {}).get("amount")
+            taxonomies = [t.get("name", "") for t in p.get("taxonomies") or []]
+            images = (p.get("imagePack") or [{}])[0] or {}
+            out.append({
+                "id": p.get("id"),
+                "name": p.get("title", ""),
+                "unit_size": p.get("salesUnitSize") or "",
+                "price": f"{amount:.2f}" if isinstance(amount, (int, float)) else "",
+                "image_url": ((images.get("medium") or images.get("small")) or {}).get("url", ""),
+                "brand": p.get("brand") or "",
+                "category": (p.get("category") or "").split("/")[0] or (taxonomies[0] if taxonomies else ""),
+                "available": (p.get("availability") or {}).get("isOrderable") is not False,
+                "organic": "ORGANIC" in (p.get("icons") or []),
+                "unit_price": ((price.get("unitInfo") or {}).get("description") or ""),
+                # alcohol: hoofdafdeling wijn/bier (niet "wijnazijn" ergens diep in de indeling)
+                "nix18": (p.get("category") or "").lower().startswith(("wijn", "bier", "sterke drank")),
+            })
+        return out
+
+    async def _search_legacy(self, query: str, size: int = 10) -> list[dict]:
         token = await self._get_anonymous_token()
         headers = {**DEFAULT_HEADERS, "Authorization": f"Bearer {token}"}
         async with httpx.AsyncClient() as client:
