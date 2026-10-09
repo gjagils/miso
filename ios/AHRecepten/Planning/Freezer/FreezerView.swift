@@ -3,6 +3,7 @@ import SwiftUI
 /// Vriezerlijst: porties bijhouden, iets erin zetten, eruit halen of inplannen.
 struct FreezerView: View {
     @Environment(Session.self) private var session
+    @Environment(AppRouter.self) private var router
     /// Week waarvoor "Plan in" dagen voorstelt (nil = vanaf vandaag).
     var week: String?
     var firstFreeDay: String?
@@ -63,7 +64,7 @@ struct FreezerView: View {
         .refreshable { await load() }
         .task { await load() }
         .sheet(item: $planRequest) { request in
-            PlanSheet(request: request) { _ in reload() }
+            PlanSheet(request: request, onDone: planned)
         }
         .confirmationDialog("\(lastPortion?.name ?? "Dit") is dan op. Weghalen uit de vriezer?",
                             isPresented: $confirmingLast, titleVisibility: .visible, presenting: lastPortion) { item in
@@ -85,6 +86,14 @@ struct FreezerView: View {
 
     private func reload() {
         Task { await load() }
+    }
+
+    /// Na inplannen: lijst verversen en, net als in het weekmenu, de besteldag-herinnering bijwerken.
+    private func planned(_ result: PlanSheetResult) {
+        reload()
+        router.planChanged()
+        guard let api = session.api else { return }
+        Task { await OrderReminderScheduler.refresh(api: api) }
     }
 
     private func add() {

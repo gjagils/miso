@@ -26,6 +26,8 @@ final class Session {
     var serverURL: String { didSet { Self.defaults.set(serverURL, forKey: "serverURL") } }
     var token: String { didSet { Self.storeToken(token) } }
     var connected: Bool { didSet { Self.defaults.set(connected, forKey: "connected") } }
+    /// Waarom de app uitlogde (bijv. verlopen sessie); het inlogscherm toont dit.
+    var logoutReason: String?
 
     init() {
         let defaults = Self.defaults
@@ -65,5 +67,12 @@ final class Session {
     func logout() {
         connected = false
         token = ""
+    }
+
+    /// De server weigert het token (401): uitloggen met een vriendelijke uitleg op het inlogscherm.
+    func expire() {
+        guard connected else { return }
+        logoutReason = "Je bent uitgelogd, want je sessie is verlopen of de pincode is gewijzigd. Log opnieuw in."
+        logout()
     }
 }

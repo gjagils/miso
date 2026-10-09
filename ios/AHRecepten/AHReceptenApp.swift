@@ -41,6 +41,17 @@ struct AHReceptenApp: App {
             .tint(Color.misoOrange)
             .background(Color.misoCream)
             .preferredColorScheme(appearance.colorScheme)
+            .task { await watchSessionExpiry() }
+        }
+    }
+}
+
+extension AHReceptenApp {
+    /// Een 401 op een ingelogde aanvraag (zie `API.sessionExpired`) logt uit, zodat het inlogscherm verschijnt.
+    @MainActor
+    private func watchSessionExpiry() async {
+        for await _ in NotificationCenter.default.notifications(named: API.sessionExpired) {
+            session.expire()
         }
     }
 }

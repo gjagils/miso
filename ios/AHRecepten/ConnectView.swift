@@ -23,6 +23,15 @@ struct ConnectView: View {
                         .multilineTextAlignment(.center)
                 }
 
+                if let reason = session.logoutReason {
+                    Label(reason, systemImage: "lock.rotation")
+                        .font(.callout)
+                        .foregroundStyle(Color.misoInk)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(12)
+                        .background(Color.misoOrange.opacity(0.35), in: .rect(cornerRadius: 14))
+                }
+
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Waar woont jullie Miso?").font(.misoHeadline).foregroundStyle(Color.misoBlue)
                     Text("Server").font(.misoCaption).foregroundStyle(.secondary)
@@ -79,6 +88,7 @@ struct ConnectView: View {
             let token = try await API.login(baseURL: url, pin: pin)
             session.serverURL = text
             session.token = token
+            session.logoutReason = nil
             session.connected = true
         } catch {
             errorText = error.localizedDescription

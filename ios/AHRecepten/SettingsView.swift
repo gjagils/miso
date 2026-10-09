@@ -37,6 +37,15 @@ struct SettingsView: View {
                             .foregroundStyle(Color.misoBlue)
                             .frame(minHeight: 44)
                     }
+                    NavigationLink {
+                        MissingView()
+                    } label: {
+                        Label("Ontbrekend", systemImage: "cart.badge.questionmark")
+                            .font(.misoButton)
+                            .foregroundStyle(Color.misoBlue)
+                            .frame(minHeight: 44)
+                    }
+                    .accessibilityHint("Ingrediënten zonder AH-product koppelen of op niet nodig zetten")
                 }
                 .misoRow()
                 Section {

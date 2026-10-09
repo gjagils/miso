@@ -44,6 +44,13 @@ struct Ingredient: Decodable, Identifiable {
     let productId: Int?
     let productImage: String?
     let gfProductId: Int?
+    /// Plek in de ingrediëntenlijst (nieuwere servers); nodig om één regel aan te passen.
+    let index: Int?
+    /// Door het gezin gekozen product (wordt nooit automatisch overschreven).
+    let manual: Bool?
+
+    /// Er hangt een AH-product aan deze regel.
+    var isMatched: Bool { !(product ?? "").isEmpty }
 
     /// Aantal verpakkingen (de server rekent dit uit; minimaal 1, net als de web-versie).
     var packs: Int {
@@ -53,7 +60,7 @@ struct Ingredient: Decodable, Identifiable {
 
     enum CodingKeys: String, CodingKey {
         case text, skip, gluten, gfSearch, product, gfProduct, quantity, pantry, unitSize
-        case productId, productImage, gfProductId
+        case productId, productImage, gfProductId, index, manual
     }
 
     private static func lenientInt(_ c: KeyedDecodingContainer<CodingKeys>, _ key: CodingKeys) -> Int? {
@@ -75,6 +82,8 @@ struct Ingredient: Decodable, Identifiable {
         productId = Self.lenientInt(c, .productId)
         productImage = try? c.decodeIfPresent(String.self, forKey: .productImage)
         gfProductId = Self.lenientInt(c, .gfProductId)
+        index = Self.lenientInt(c, .index)
+        manual = try? c.decodeIfPresent(Bool.self, forKey: .manual)
         if let s = try? c.decodeIfPresent(String.self, forKey: .quantity) {
             quantity = s
         } else if let d = try? c.decodeIfPresent(Double.self, forKey: .quantity) {
@@ -96,7 +105,8 @@ struct RecipeDetail: Decodable, Identifiable {
     let description: String
     let sourceUrl: String
     let instructions: [String]
-    let ingredients: [Ingredient]
+    /// `var`: één regel wordt na koppelen of uitvinken vervangen zonder het hele recept te herladen.
+    var ingredients: [Ingredient]
 }
 
 struct MissingItem: Decodable, Identifiable {
@@ -168,18 +178,6 @@ struct WeekResponse: Decodable {
     let status: WeekStatus
     /// Nieuwere servers: standaard aantal personen.
     let householdSize: Int?
-}
-
-struct SavePlanBody: Encodable {
-    let week: String
-    let days: [String: [Int]]
-}
-
-struct SavePlanResult: Decodable { let ok: Bool }
-
-struct SyncBody: Encodable {
-    let week: String
-    let locked: Bool?
 }
 
 struct SyncResult: Decodable {

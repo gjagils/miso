@@ -4,6 +4,7 @@ import SwiftUI
 /// personen aanpassen, en één knop om de nieuwe producten op het AH-lijstje te zetten.
 struct PlanView: View {
     @Environment(Session.self) private var session
+    @Environment(AppRouter.self) private var router
     @State private var model = WeekPlanModel()
     @State private var path: [PlanRoute] = []
     @State private var planRequest: PlanSheetRequest?
@@ -88,10 +89,14 @@ struct PlanView: View {
                 switch route {
                 case .recipe(let id): RecipeDetailView(recipeID: id)
                 case .freezer: FreezerView(week: model.week?.week, firstFreeDay: model.firstFreeDay)
+                case .missing: MissingView()
                 }
             }
             .refreshable { await reload() }
             .task { await load() }
+            // Elders ingepland of een recept gekoppeld/bewerkt/verwijderd: weekmenu en boodschappen verversen.
+            .onChange(of: router.planVersion) { Task { await reload() } }
+            .onChange(of: router.recipesVersion) { Task { await load() } }
             .sheet(item: $planRequest) { request in
                 PlanSheet(request: request, onDone: planned)
             }
@@ -99,8 +104,10 @@ struct PlanView: View {
                                 presenting: pendingDelete) { item in
                 Button("Verwijder", role: .destructive) { delete(item) }
                 Button("Annuleer", role: .cancel) {}
-            } message: { _ in
-                Text("De rest-dag gaat ook weg.")
+            } message: { item in
+                if !item.leftoverEntryIds.isEmpty {
+                    Text("De rest-dag gaat ook weg.")
+                }
             }
         }
     }
@@ -151,14 +158,10 @@ struct PlanView: View {
         Task { await reload() }
     }
 
-    /// Een kookdag met rest-dag eerst bevestigen (de rest gaat mee); anders direct weghalen.
+    /// Weghalen altijd eerst bevestigen; bij een kookdag met rest-dag zegt de melding dat die meegaat.
     private func askDelete(_ item: PlanItem) {
-        if item.leftoverEntryIds.isEmpty {
-            delete(item)
-        } else {
-            pendingDelete = item
-            confirmingDelete = true
-        }
+        pendingDelete = item
+        confirmingDelete = true
     }
 
     private func delete(_ item: PlanItem) {

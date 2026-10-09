@@ -30,27 +30,10 @@ struct KiezenPlanView: View {
     var body: some View {
         List {
             Section {
-                HStack {
-                    Button(action: previousWeek) {
-                        Label("Vorige week", systemImage: "chevron.left")
-                            .labelStyle(.iconOnly)
-                            .frame(minWidth: 44, minHeight: 44)
-                            .contentShape(.rect)
-                    }
-                    Spacer()
-                    Text(model.week.isEmpty ? "Week" : "Week van \(KiezenDates.short(model.week))")
-                        .font(.misoHeadline).foregroundStyle(Color.misoBlue)
-                    Spacer()
-                    Button(action: nextWeek) {
-                        Label("Volgende week", systemImage: "chevron.right")
-                            .labelStyle(.iconOnly)
-                            .frame(minWidth: 44, minHeight: 44)
-                            .contentShape(.rect)
-                    }
-                }
-                .buttonStyle(.borderless)
-                .disabled(model.week.isEmpty || loading || saving)
-                .misoRow()
+                WeekNavigator(title: model.week.isEmpty ? "Week" : "Week van \(KiezenDates.short(model.week))",
+                              onPrevious: previousWeek, onNext: nextWeek)
+                    .disabled(model.week.isEmpty || loading || saving)
+                    .misoRow()
             } footer: {
                 Text("Miso zet je keuze op de eerste vrije dagen. Kies zelf een andere dag als dat beter past.")
             }
