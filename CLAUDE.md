@@ -9,6 +9,7 @@ Gezins-app voor weekmenu, recepten en Albert Heijn-boodschappen. Mascotte: Miso 
   hoeveelheidsregels, basisvoorraad, voorkeursproducten)
 - `docs/plan-api.md` contract van de plannings-API (planregels recept/restje/voorraad, personen, vriezer,
   besteldag); schemawijzigingen aan bestaande tabellen via `backend/app/migrations.py`
+- `docs/functionele-analyse.md` wat af is, wat beter kan en in welke volgorde (stand 9 okt 2026)
 
 ## AH-koppeling: spelregels
 
