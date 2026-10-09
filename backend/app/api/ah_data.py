@@ -261,7 +261,7 @@ async def api_staples(week: str | None = None, refresh: bool = False, db: Sessio
     except Exception as e:  # noqa: BLE001
         return _fail(e)
     basis = await _basislijst()
-    cart, _ = routes.aggregate_cart(routes._week_recipes(db, monday))
+    cart, _ = routes.week_cart(db, monday)
     exclude = {int(c["product_id"]) for c in cart if c.get("product_id")}
     staples = ahd.compute_staples(history["trips"], exclude, basis, max_trips=STAPLES_MAX_TRIPS)
     counts = history.get("counts") or {}

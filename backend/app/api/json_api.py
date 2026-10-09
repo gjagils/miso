@@ -12,7 +12,7 @@ from app.clients.ah import ah_client
 from app.config import settings
 from app.database import get_db
 from app.logging_config import logger
-from app.models import PlanEntry, Recipe
+from app.models import Recipe
 
 router = APIRouter(prefix="/api")
 
@@ -80,21 +80,29 @@ async def api_recipe(recipe_id: int, db: Session = Depends(get_db)):
 
 @router.get("/week")
 async def api_week(week: str | None = None, db: Session = Depends(get_db)):
+    """Week voor de apps. `recipes` (per dag) is het oude veld: alleen gekookte recepten, zodat de oude
+    iOS-app (die met POST /api/plan de recepten terugstuurt) geen restjes/voorraad omzet. `entries` is
+    de volledige lijst planregels (zie docs/plan-api.md)."""
+    from app import planning
+    from app.api.plan import entries_json
+
     monday = routes.parse_week(week)
-    entries = db.execute(
-        select(PlanEntry).where(PlanEntry.date >= str(monday), PlanEntry.date <= str(monday + timedelta(days=6)))
-    ).scalars().all()
-    recipes = {r.id: r for r in db.execute(select(Recipe).where(Recipe.id.in_({e.recipe_id for e in entries}))).scalars()}
+    entries = planning.week_entries(db, monday)
+    recipes = planning.recipes_for(db, entries)
+    full = entries_json(db, entries)
     days = []
     for i in range(7):
         d = monday + timedelta(days=i)
         days.append({
             "date": str(d), "label": routes.day_label(d), "today": d == date.today(),
-            "recipes": [_summary(recipes[e.recipe_id]) for e in entries if e.date == str(d) and e.recipe_id in recipes],
+            "recipes": [{**_summary(recipes[e.recipe_id]), "entry_id": e.id}
+                        for e in entries if e.date == str(d) and e.kind == "recipe" and e.recipe_id in recipes],
+            "entries": [x for x in full if x["date"] == str(d)],
         })
     return {
         "week": str(monday), "prev_week": str(monday - timedelta(days=7)),
         "next_week": str(monday + timedelta(days=7)),
+        "household_size": planning.household_size(db),
         "days": days, "status": routes.week_status(db, monday),
     }
 

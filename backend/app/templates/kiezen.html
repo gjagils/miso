@@ -126,9 +126,11 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="/static/plan.js?v=1"></script>
 <script>
 (() => {
 const OWN = {{ recipes|tojson }};
+const HOUSEHOLD = {{ household|tojson }};
 let WEEK = {{ week|tojson }};
 const TODAY = {{ today|tojson }};
 const HAS_TOKEN = {{ has_token|tojson }};
@@ -146,8 +148,8 @@ try { (JSON.parse(sessionStorage.getItem(STORE) || "[]")).forEach(p => picked.se
 const persist = () => { try { sessionStorage.setItem(STORE, JSON.stringify([...picked.values()])); } catch (e) {} };
 
 let step = 1;
-let assign = [];      // [{key, id, name, image_url, day: "YYYY-MM-DD" | ""}]
-let weekPlan = {};    // date -> [{id, name}]
+let assign = [];      // [{key, id, name, image_url, day: "YYYY-MM-DD" | "", persons, cook_double}]
+let weekPlan = {};    // date -> [{id (recipe), name, kind, persons}]
 let linkUrl = "";
 let productCount = 0;
 
@@ -317,7 +319,7 @@ async function loadWeek() {
     WEEK = data.week;
     $("week-label").textContent = `Week van ${dayLabel(WEEK).replace(/^\S+ /, "")}`;
     weekPlan = {};
-    data.days.forEach(d => { weekPlan[d.date] = d.recipes.map(r => ({id: r.id, name: r.name})); });
+    data.days.forEach(d => { weekPlan[d.date] = (d.entries || []).map(e => ({id: e.recipe_id, name: e.title, kind: e.kind, persons: e.persons})); });
     $("plan-status").textContent = "";
     autoAssign();
     renderPlan();
@@ -329,12 +331,15 @@ function autoAssign() {
     const usable = dates.slice(start);
     const load = Object.fromEntries(dates.map(d => [d, (weekPlan[d] || []).length]));
     assign = [...picked.values()].filter(p => p.kind === "own").map(p => {
-        const already = dates.find(d => (weekPlan[d] || []).some(r => r.id === p.id));
-        if (already) return {...p, day: "", already};
+        const already = dates.find(d => (weekPlan[d] || []).some(r => r.kind === "recipe" && r.id === p.id));
+        if (already) {
+            const e = weekPlan[already].find(r => r.kind === "recipe" && r.id === p.id);
+            return {...p, day: "", already, persons: e.persons || HOUSEHOLD, cook_double: null};
+        }
         // eerste lege dag; zijn die op, dan de rustigste dag
         const day = usable.find(d => load[d] === 0) || usable.reduce((a, b) => (load[b] < load[a] ? b : a));
         load[day]++;
-        return {...p, day};
+        return {...p, day, persons: HOUSEHOLD, cook_double: null};
     });
 }
 
@@ -350,7 +355,7 @@ function renderPlan() {
         const box = document.createElement("div");
         box.className = "day-card kz-day" + (d === TODAY ? " today" : "") + (!existing.length && !mine.length ? " kz-day-empty" : "");
         let html = `<h3>${dayLabel(d)}</h3>`;
-        existing.forEach(r => { html += `<div class="kz-existing"><span>${esc(r.name)}</span><span class="badge badge-skipped">al gepland</span></div>`; });
+        existing.forEach(r => { html += `<div class="kz-existing"><span>${esc(r.name)}</span><span class="badge badge-skipped">${r.kind === "recipe" ? "al gepland" : r.kind === "leftover" ? "restjes" : "hebben we al"}</span></div>`; });
         if (!existing.length && !mine.length) html += `<p class="muted">Nog niets</p>`;
         box.innerHTML = html;
         mine.forEach(a => box.appendChild(assignRow(a, options)));
@@ -377,19 +382,41 @@ function assignRow(a, options) {
     sel.value = a.day;
     sel.setAttribute("aria-label", `Dag voor ${a.name}`);
     sel.onchange = () => { a.day = sel.value; renderPlan(); };
-    row.querySelector(".kz-assign-main").appendChild(sel);
+    const main = row.querySelector(".kz-assign-main");
+    main.appendChild(sel);
+    const ppl = document.createElement("div");
+    ppl.className = "kz-persons";
+    const dbl = a.cook_double === "tomorrow" ? " · dubbel, morgen de rest" : a.cook_double === "freezer" ? " · dubbel, helft naar de vriezer" : "";
+    ppl.innerHTML = `<span class="muted">Voor</span>
+        <span class="mp-stepper" role="group" aria-label="Personen voor ${esc(a.name)}">
+            <button type="button" data-d="-1" aria-label="Eén persoon minder">−</button><output>${a.persons}</output>
+            <button type="button" data-d="1" aria-label="Eén persoon meer">+</button></span>
+        <button type="button" class="kz-linkbtn" data-more>Kook dubbel…</button>
+        ${dbl ? `<span class="muted" style="flex-basis:100%">${esc(dbl.slice(3))}</span>` : ""}`;
+    ppl.querySelectorAll("[data-d]").forEach(b => b.onclick = () => {
+        a.persons = Math.max(1, Math.min(20, a.persons + Number(b.dataset.d)));
+        ppl.querySelector("output").textContent = a.persons;
+    });
+    ppl.querySelector("[data-more]").onclick = () => MisoPlan.open({
+        mode: "pick", recipe: {id: a.id, name: a.name, image_url: a.image_url}, date: a.day || a.already || WEEK,
+        start: WEEK, persons: a.persons, cookDouble: a.cook_double,
+        onDone: r => { a.day = r.date; a.persons = r.persons; a.cook_double = r.cook_double; renderPlan(); },
+    });
+    if (a.day) main.appendChild(ppl);
     return row;
 }
 
 async function savePlan() {
-    const days = {};
-    weekDates().forEach(d => { days[d] = (weekPlan[d] || []).map(r => r.id); });
-    assign.filter(a => a.day).forEach(a => days[a.day].push(a.id));
     $("bar-count").textContent = "Opslaan...";
-    const r = await postJSON("/api/plan", {week: WEEK, days});
-    if (!r.ok) { $("plan-status").textContent = r.error || "Opslaan mislukt."; renderBar(); return false; }
+    for (const a of assign.filter(x => x.day)) {
+        const r = await postJSON("/api/plan/entries", {date: a.day, kind: "recipe", recipe_id: a.id,
+            persons: a.persons === HOUSEHOLD ? null : a.persons, cook_double: a.cook_double});
+        if (!r.ok) { $("plan-status").textContent = r.error || "Opslaan mislukt."; renderBar(); return false; }
+    }
     return true;
 }
+// Personen per recept voor de boodschappen (dubbel koken = 2x zoveel)
+const personsMap = () => Object.fromEntries(assign.map(a => [a.id, a.persons * (a.cook_double ? 2 : 1)]));
 
 // ── Step 3: boodschappen ────────────────────────────────
 async function loadShop() {
@@ -418,7 +445,7 @@ async function loadShop() {
     recipes.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
 
     // De lijst-link bevat de exacte, samengevoegde aantallen van de server.
-    const link = await postJSON("/api/list-link", {recipe_ids: ids});
+    const link = await postJSON("/api/list-link", {recipe_ids: ids, persons: personsMap()});
     linkUrl = link.url || "";
     const qty = new Map();
     try { new URL(linkUrl).searchParams.getAll("p").forEach(p => { const [pid, q] = p.split(":"); qty.set(Number(pid), Number(q)); }); } catch (e) {}
@@ -549,7 +576,7 @@ async function syncList() {
     if (r && r.ok) {
         const left = (r.status && r.status.unmatched || []).length;
         showResult(!x || x.ok, (r.added ? `${r.added} producten op je AH-lijstje gezet.` : "Alles stond al op je AH-lijstje.")
-            + " Je weekmenu staat vast." + extra + (left ? ` Nog ${left} ingrediënten zonder AH-product.` : "")
+            + extra + (left ? ` Nog ${left} ingrediënten zonder AH-product.` : "")
             + (x && !x.ok ? ` ${x.error || "De extra's zetten is mislukt."}` : ""));
     } else if (r) showResult(false, (r.error || "Het lijstje vullen is mislukt.") + extra);
     else if (x) showResult(x.ok, x.ok ? extra.trim() : (x.error || "Op het AH-lijstje zetten is mislukt."));
@@ -615,7 +642,7 @@ $("link-btn").onclick = e => { if (!linkUrl) e.preventDefault(); };
 $("basket-btn").onclick = async () => {
     const b = $("basket-btn");
     b.disabled = true; b.textContent = "Bezig...";
-    const r = await postJSON("/api/basket/fill", {recipe_ids: ownIds()});
+    const r = await postJSON("/api/basket/fill", {recipe_ids: ownIds(), persons: personsMap()});
     b.disabled = false; b.textContent = b.dataset.label || "Zet in AH-mandje";
     if (r.ok) showResult(true, `${r.added} producten in je AH-mandje gezet. Afrekenen doe je zelf in de AH-app.`);
     else showResult(false, r.error || "Mandje vullen is mislukt.");

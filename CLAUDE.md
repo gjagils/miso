@@ -7,6 +7,8 @@ Gezins-app voor weekmenu, recepten en Albert Heijn-boodschappen. Mascotte: Miso 
 - `assets/` merk: mascotte-PNG's, app-icoon; kleuren/fonts in `assets/README.md`
 - `docs/ah-integratie.md` **lees dit vóór elk werk aan de AH-koppeling** (API, add-multiple-link,
   hoeveelheidsregels, basisvoorraad, voorkeursproducten)
+- `docs/plan-api.md` contract van de plannings-API (planregels recept/restje/voorraad, personen, vriezer,
+  besteldag); schemawijzigingen aan bestaande tabellen via `backend/app/migrations.py`
 
 ## AH-koppeling: spelregels
 

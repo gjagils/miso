@@ -8,7 +8,11 @@
     {% if recipe.source_url %} · <a href="{{ recipe.source_url }}" target="_blank" rel="noopener">bron</a>{% endif %}</p>
 {% if recipe.description %}<p style="margin: 0.5rem 0 1rem;">{{ recipe.description }}</p>{% endif %}
 
-<p style="margin: 0.75rem 0;"><a class="btn btn-primary" href="/recipe/{{ recipe.id }}/koken">Kookmodus</a></p>
+<p class="recipe-actions">
+    <button class="btn btn-primary" type="button" id="plan-btn">Inplannen</button>
+    <a class="btn" href="/recipe/{{ recipe.id }}/koken">Kookmodus</a>
+</p>
+<p id="plan-msg" class="msg-ok" role="status" hidden></p>
 
 <section class="settings-section">
     <h2>Glutenvrij voor minstens 1 persoon</h2>
@@ -179,5 +183,17 @@ document.getElementById("gf-suggest").onclick = async () => {
 };
 
 render();
+</script>
+<script src="/static/plan.js?v=1"></script>
+<script>
+document.getElementById("plan-btn").onclick = () => MisoPlan.open({
+    recipe: {{ {"id": recipe.id, "name": recipe.name, "image_url": recipe.image_url or "", "servings": recipe.servings or ""}|tojson }},
+    onDone: r => {
+        const m = document.getElementById("plan-msg");
+        m.innerHTML = `<img src="/static/miso/miso-celebrate.webp" alt="" width="56" height="56"><span></span>`;
+        m.querySelector("span").innerHTML = `${MisoPlan.esc(MisoPlan.summary(r))} <a href="/weekmenu?week=${r.entries[0].date}">Naar het weekmenu</a>`;
+        m.hidden = false;
+    },
+});
 </script>
 {% endblock %}

@@ -25,6 +25,7 @@ from app.config import settings
 from app.database import get_db
 from app.logging_config import logger
 from app.models import AppSetting, CartPush, PlanEntry, ProductPreference, Recipe
+from app import planning
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -40,6 +41,9 @@ def monday_of(d: date) -> date:
 
 
 def parse_week(week: str | None) -> date:
+    """ISO-datum -> maandag van die week. "next" = volgende week; leeg/ongeldig = deze week."""
+    if week in ("next", "volgende"):
+        return monday_of(date.today()) + timedelta(days=7)
     try:
         return monday_of(date.fromisoformat(week)) if week else monday_of(date.today())
     except ValueError:
@@ -91,17 +95,16 @@ def _save_food_photo(recipe_id: int, data: bytes) -> bool:
 @router.get("/", response_class=HTMLResponse)
 async def today_page(request: Request, db: Session = Depends(get_db)):
     """Gezinsweergave: wat staat er vandaag en deze week op het menu."""
+    from app.api.plan import entries_json, next_week_status
+
     monday = monday_of(date.today())
-    entries = db.execute(
-        select(PlanEntry).where(PlanEntry.date >= str(monday), PlanEntry.date <= str(monday + timedelta(days=6)))
-    ).scalars().all()
-    recipes = {r.id: r for r in db.execute(select(Recipe).where(Recipe.id.in_({e.recipe_id for e in entries}))).scalars()}
+    entries = entries_json(db, planning.week_entries(db, monday))
     days = []
     for i in range(7):
         d = monday + timedelta(days=i)
-        planned = [recipes[e.recipe_id] for e in entries if e.date == str(d) and e.recipe_id in recipes]
-        days.append({"label": day_label(d), "recipes": planned, "today": d == date.today()})
-    return templates.TemplateResponse(request, "today.html", {"days": days})
+        days.append({"label": day_label(d), "entries": [e for e in entries if e["date"] == str(d)],
+                     "today": d == date.today()})
+    return templates.TemplateResponse(request, "today.html", {"days": days, "nws": next_week_status(db)})
 
 
 @router.get("/recepten", response_class=HTMLResponse)
@@ -357,6 +360,52 @@ def learn_pref(db: Session, ing: dict) -> None:
         db.add(ProductPreference(term=term, product_json=json.dumps(product, ensure_ascii=False)))
 
 
+async def find_product(term: str, text: str = "", sem: asyncio.Semaphore | None = None) -> dict | None:
+    """Zoek het beste AH-product voor een ingrediënt (zelfde regels als het automatisch koppelen)."""
+    sem = sem or asyncio.Semaphore(4)
+    # De volledige regel bevat meer informatie ("1/2 tl paprika" = poeder) dan Mealie's naam ("paprika")
+    query, _, flags = query_terms(text) if text and query_terms(text)[0] else query_terms(term)
+    need = needed(text or term)
+    if not query:
+        return None
+    products: list[dict] = []
+    seen: set = set()
+    for q in search_queries(query, flags):
+        async with sem:
+            try:
+                found = await ah_client.search_products(q, size=20)
+            except Exception as e:
+                logger.warning("AH search failed for %s: %s", q, e)
+                continue
+        for p in found:
+            key = (p.get("id"), p.get("name"), p.get("unit_size"))  # multipacks delen soms het id
+            if key not in seen:
+                seen.add(key)
+                products.append(p)
+    return choose(products, query, flags, need)
+
+
+async def match_extras(db: Session, extras: list[dict]) -> list[dict]:
+    """Koppel vrije-tekst-boodschappen ("pasta", "parmezaan") aan AH-producten. Altijd aantal 1;
+    basisvoorraad wordt hier niet overgeslagen: wie het opschrijft, wil het kopen."""
+    prefs = load_prefs(db)
+    sem = asyncio.Semaphore(4)
+
+    async def one(extra: dict) -> dict:
+        text = (extra.get("text") or "").strip()
+        if not text or (extra.get("product") or {}).get("id"):
+            return {"text": text, "product": extra.get("product")}
+        learned = prefs.get(query_terms(text)[0])
+        try:
+            product = dict(learned) if learned else await asyncio.wait_for(find_product(text, text, sem), timeout=20)
+        except Exception as e:  # noqa: BLE001 - zonder AH blijft de regel gewoon open staan
+            logger.warning("Matching extra %r failed: %s", text, e)
+            product = None
+        return {"text": text, "product": product}
+
+    return list(await asyncio.gather(*(one(x) for x in extras)))
+
+
 async def _automatch(ingredients: list[dict], gluten_free: bool = False, force: bool = False,
                      prefs: dict[str, dict] | None = None) -> int:
     """Koppel ingrediënten aan AH-producten: biologisch > huismerk, basisspullen overslaan, aantal
@@ -364,26 +413,7 @@ async def _automatch(ingredients: list[dict], gluten_free: bool = False, force: 
     sem = asyncio.Semaphore(4)
 
     async def find(term: str, text: str = "") -> dict | None:
-        # De volledige regel bevat meer informatie ("1/2 tl paprika" = poeder) dan Mealie's naam ("paprika")
-        query, _, flags = query_terms(text) if text and query_terms(text)[0] else query_terms(term)
-        need = needed(text or term)
-        if not query:
-            return None
-        products: list[dict] = []
-        seen: set = set()
-        for q in search_queries(query, flags):
-            async with sem:
-                try:
-                    found = await ah_client.search_products(q, size=20)
-                except Exception as e:
-                    logger.warning("AH search failed for %s: %s", q, e)
-                    continue
-            for p in found:
-                key = (p.get("id"), p.get("name"), p.get("unit_size"))  # multipacks delen soms het id
-                if key not in seen:
-                    seen.add(key)
-                    products.append(p)
-        return choose(products, query, flags, need)
+        return await find_product(term, text, sem)
 
     def apply_quantity(ing: dict, product: dict) -> None:
         need = needed(ing.get("text", ""))
@@ -464,12 +494,9 @@ def _locked_key(week_start: date) -> str:
 
 
 def _week_recipes(db: Session, week_start: date) -> list[Recipe]:
-    """Recipes planned in a week; a recipe planned twice appears twice (double quantities)."""
-    entries = db.execute(
-        select(PlanEntry).where(PlanEntry.date >= str(week_start), PlanEntry.date <= str(week_start + timedelta(days=6)))
-    ).scalars().all()
-    by_id = {r.id: r for r in db.execute(select(Recipe).where(Recipe.id.in_({e.recipe_id for e in entries}))).scalars()}
-    return [by_id[e.recipe_id] for e in entries if e.recipe_id in by_id]
+    """Recipes cooked in a week (kind "recipe"); a recipe planned twice appears twice. Unscaled:
+    for groceries use `week_cart`."""
+    return planning.week_grocery_input(db, week_start)[0]
 
 
 def _pushed(db: Session, week_start: date) -> dict[int, int]:
@@ -479,7 +506,7 @@ def _pushed(db: Session, week_start: date) -> dict[int, int]:
 
 def week_status(db: Session, week_start: date) -> dict:
     """Compare what the week needs with what we already put on the AH list."""
-    cart, unmatched = aggregate_cart(_week_recipes(db, week_start))
+    cart, unmatched = week_cart(db, week_start)
     pushed = _pushed(db, week_start)
     missing = [
         {"name": item["name"], "quantity": item["quantity"] - pushed.get(item["product_id"], 0)}
@@ -489,22 +516,20 @@ def week_status(db: Session, week_start: date) -> dict:
     return {
         "needed": len(cart),
         "missing": missing,
+        "missing_count": len(missing),
         "unmatched": unmatched,
         "complete": bool(cart) and not missing and not unmatched,
+        "on_list": sum(1 for item in cart if pushed.get(item["product_id"], 0) >= item["quantity"]),
         "locked": _get_setting(db, _locked_key(week_start)) == "1",
     }
 
 
 @router.get("/weekmenu", response_class=HTMLResponse)
 async def weekmenu_page(request: Request, week: str | None = None, db: Session = Depends(get_db)):
+    from app.api.plan import entries_json, next_week_status
+
     monday = parse_week(week)
-    recipes = db.execute(select(Recipe).order_by(Recipe.name)).scalars().all()
-    entries = db.execute(
-        select(PlanEntry).where(PlanEntry.date >= str(monday), PlanEntry.date <= str(monday + timedelta(days=6)))
-    ).scalars().all()
-    plan: dict[str, list[int]] = {}
-    for e in entries:
-        plan.setdefault(e.date, []).append(e.recipe_id)
+    has_recipes = db.query(Recipe).count() > 0
     days = [{"date": str(monday + timedelta(days=i)), "label": day_label(monday + timedelta(days=i))} for i in range(7)]
     return templates.TemplateResponse(
         request, "weekmenu.html",
@@ -512,10 +537,13 @@ async def weekmenu_page(request: Request, week: str | None = None, db: Session =
             "week": str(monday),
             "prev_week": str(monday - timedelta(days=7)),
             "next_week": str(monday + timedelta(days=7)),
-            "recipes": [{"id": r.id, "name": r.name} for r in recipes],
+            "has_recipes": has_recipes,
             "days": days,
-            "plan": plan,
+            "entries": entries_json(db, planning.week_entries(db, monday)),
+            "household": planning.household_size(db),
             "status": week_status(db, monday),
+            "nws": next_week_status(db),
+            "today": str(date.today()),
             "has_token": bool(_get_setting(db, "ah_refresh_token") or _get_setting(db, "ah_user_token")),
         },
     )
@@ -532,6 +560,7 @@ async def choose_page(request: Request, week: str | None = None, db: Session = D
                          "total_time": r.total_time or "", "ah_recipe_id": r.ah_recipe_id} for r in recipes],
             "week": str(parse_week(week)),
             "today": str(date.today()),
+            "household": planning.household_size(db),
             "has_token": bool(_get_setting(db, "ah_refresh_token") or _get_setting(db, "ah_user_token")),
         },
     )
@@ -544,15 +573,27 @@ class PlanPayload(BaseModel):
 
 @router.post("/api/plan")
 async def save_plan(payload: PlanPayload, db: Session = Depends(get_db)):
+    """Oude (iOS) API: de recepten per dag van een week. Werkt als verschil op de recept-regels, zodat
+    personen, restjes en voorraad-dagen (die de oude app niet kent) blijven staan."""
     monday = parse_week(payload.week)
     valid = {str(monday + timedelta(days=i)) for i in range(7)}
-    for entry in db.execute(select(PlanEntry).where(PlanEntry.date.in_(valid))).scalars():
-        db.delete(entry)
-    for day, ids in payload.days.items():
-        if day in valid:
-            for rid in ids:
-                if db.get(Recipe, rid):
-                    db.add(PlanEntry(date=day, recipe_id=rid))
+    existing: dict[str, list[PlanEntry]] = {}
+    for entry in db.execute(select(PlanEntry).where(PlanEntry.date.in_(valid), PlanEntry.kind == "recipe")
+                            .order_by(PlanEntry.id)).scalars():
+        existing.setdefault(entry.date, []).append(entry)
+    for day in valid:
+        wanted = [rid for rid in payload.days.get(day, []) if db.get(Recipe, rid)]
+        keep: list[PlanEntry] = []
+        for entry in existing.get(day, []):
+            if entry.recipe_id in wanted:
+                wanted.remove(entry.recipe_id)
+                keep.append(entry)
+            else:
+                for leftover in planning.leftovers_of(db, entry.id):
+                    db.delete(leftover)
+                db.delete(entry)
+        for rid in wanted:
+            db.add(PlanEntry(date=day, recipe_id=rid, kind="recipe"))
     db.commit()
     return {"ok": True, "status": week_status(db, monday)}
 
@@ -573,16 +614,19 @@ async def sync_week(payload: WeekPayload, db: Session = Depends(get_db)):
         _set_setting(db, _locked_key(monday), "0")
         return {"ok": True, "status": week_status(db, monday)}
 
-    recipes = _week_recipes(db, monday)
-    if not recipes:
+    recipes, factors, extras = planning.week_grocery_input(db, monday)
+    if not recipes and not extras:
         return {"ok": False, "error": "Er staan nog geen recepten in deze week."}
     for recipe in {r.id: r for r in recipes}.values():
         ingredients = recipe.ingredients
         if await _automatch(ingredients, recipe.gf_mode != "none", prefs=load_prefs(db)):
             recipe.ingredients = ingredients
+    for entry in planning.week_entries(db, monday):  # extra's die nog geen AH-product hebben
+        if entry.kind == "stock" and any(not (x.get("product") or {}).get("id") for x in entry.extras):
+            entry.extras = await match_extras(db, entry.extras)
     db.commit()
 
-    cart, _ = aggregate_cart(recipes)
+    cart, _ = week_cart(db, monday)
     pushed = _pushed(db, monday)
     delta = [
         {**item, "quantity": item["quantity"] - pushed.get(item["product_id"], 0)}
@@ -627,10 +671,16 @@ async def sync_week(payload: WeekPayload, db: Session = Depends(get_db)):
 
 class CartPayload(BaseModel):
     recipe_ids: list[int]
+    persons: dict[str, int] = {}  # recipe id -> personen (leeg = huishoudgrootte)
 
 
-def aggregate_cart(recipes: list[Recipe]) -> tuple[list[dict], list[str]]:
+def aggregate_cart(recipes: list[Recipe], factors: list[float] | None = None,
+                   extras: list[dict] | None = None) -> tuple[list[dict], list[str]]:
     """Merge ingredients over recipes. Returns (cart items, unmatched ingredient texts).
+
+    `factors[i]` scales recipe i (planned persons / recipe servings): comparable needs ("500 g") are
+    multiplied before packs are counted (at least 1 pack); other quantities only go up from 1.5x.
+    `extras` are free-text extra groceries ({"text", "product"}) bought once each.
 
     Gluten-free handling per recipe (`gf_mode`) for ingredients marked `gluten`:
     "extra" buys the gluten-free product on top of the normal one (for 1 person),
@@ -641,7 +691,7 @@ def aggregate_cart(recipes: list[Recipe]) -> tuple[list[dict], list[str]]:
 
     totals: dict[int, dict] = {}  # product id -> {"amount", "unit", "pack", "ok"} voor slim optellen
 
-    def add(product: dict, qty: int, ing: dict | None = None) -> None:
+    def add(product: dict, qty: int, ing: dict | None = None, factor: float = 1.0) -> None:
         pid = product["id"]
         if pid in cart:
             cart[pid]["quantity"] += qty
@@ -651,16 +701,18 @@ def aggregate_cart(recipes: list[Recipe]) -> tuple[list[dict], list[str]]:
         t = totals.setdefault(pid, {"amount": 0.0, "unit": None, "pack": None, "ok": True})
         if need and pack and t["unit"] in (None, need["unit"]) and need["unit"] == pack["unit"]:
             t.update(unit=need["unit"], pack=pack)
-            t["amount"] += need["amount"]
+            t["amount"] += need["amount"] * factor
         else:
             t["ok"] = False
 
-    for recipe in recipes:
+    factors = list(factors or [])
+    for idx, recipe in enumerate(recipes):
+        factor = factors[idx] if idx < len(factors) and factors[idx] else 1.0
         for ing in recipe.ingredients:
             if ing.get("skip"):
                 continue
             text = ing.get("text", "")
-            qty = max(1, int(ing.get("quantity") or 1))
+            qty = planning.scale_quantity(int(ing.get("quantity") or 1), factor)
             product = ing.get("product")
             has_product = bool(product and product.get("id"))
             gf = ing.get("gf_product")
@@ -668,13 +720,13 @@ def aggregate_cart(recipes: list[Recipe]) -> tuple[list[dict], list[str]]:
 
             if ing.get("gluten") and recipe.gf_mode == "replace":
                 if has_gf:
-                    add(gf, qty)
+                    add(gf, qty)  # geen vergelijkbare hoeveelheid: qty is al geschaald
                 else:
                     unmatched.append(f"{text} (glutenvrij)")
                 continue
 
             if has_product:
-                add(product, qty, ing)
+                add(product, qty, ing, factor)
             else:
                 unmatched.append(text)
             if ing.get("gluten") and recipe.gf_mode == "extra":
@@ -685,7 +737,36 @@ def aggregate_cart(recipes: list[Recipe]) -> tuple[list[dict], list[str]]:
     for pid, t in totals.items():
         if t["ok"] and t["pack"] and t["amount"]:
             cart[pid]["quantity"] = max(1, math.ceil(t["amount"] / t["pack"]["amount"] - 1e-9))
+    for extra in extras or []:  # "hebben we al" + extra: altijd 1 stuk erbij
+        product = extra.get("product") or {}
+        if product.get("id"):
+            pid = product["id"]
+            if pid in cart:
+                cart[pid]["quantity"] += 1
+            else:
+                cart[pid] = {"product_id": pid, "quantity": 1, "name": product.get("name", "")}
+        elif (extra.get("text") or "").strip():
+            unmatched.append(extra["text"].strip())
     return list(cart.values()), unmatched
+
+
+def recipe_factors(db: Session, recipes: list[Recipe], persons: dict | None = None) -> list[float]:
+    """Schaalfactor per recept voor losse recepten (kiezen/mandje): opgegeven personen of huishoudgrootte."""
+    household = planning.household_size(db)
+    persons = {str(k): v for k, v in (persons or {}).items()}
+    out = []
+    for r in recipes:
+        try:
+            p = int(persons.get(str(r.id)) or household)
+        except (TypeError, ValueError):
+            p = household
+        out.append(planning.scale_factor(max(1, min(planning.MAX_PERSONS, p)), r))
+    return out
+
+
+def week_cart(db: Session, week_start: date) -> tuple[list[dict], list[str]]:
+    """Boodschappen voor een week: recepten geschaald op personen (+ dubbel koken), plus extra's."""
+    return aggregate_cart(*planning.week_grocery_input(db, week_start))
 
 
 @router.post("/api/cart/fill")
@@ -701,7 +782,7 @@ async def fill_cart(payload: CartPayload, db: Session = Depends(get_db)):
             recipe.ingredients = ingredients
     db.commit()
 
-    cart, unmatched = aggregate_cart(recipes)
+    cart, unmatched = aggregate_cart(recipes, recipe_factors(db, recipes, payload.persons))
     if not cart:
         return {"ok": False, "error": "Geen AH-producten gevonden voor deze ingrediënten."}
 
@@ -847,6 +928,16 @@ async def settings_page(request: Request, db: Session = Depends(get_db)):
     return _render_settings(request, db)
 
 
+@router.post("/settings/plan")
+async def save_plan_settings(request: Request, household_size: int = Form(...), order_weekday: int = Form(...),
+                             db: Session = Depends(get_db)):
+    if not (1 <= household_size <= planning.MAX_PERSONS and 0 <= order_weekday <= 6):
+        return _render_settings(request, db, plan_result="Kies 1 tot 20 personen en een dag van de week.")
+    planning.set_setting(db, "household_size", str(household_size))
+    planning.set_setting(db, "order_weekday", str(order_weekday))
+    return _render_settings(request, db, plan_result="Opgeslagen.")
+
+
 @router.post("/settings/ah-code")
 async def ah_code_exchange(request: Request, callback_url: str = Form(""), db: Session = Depends(get_db)):
     raw = callback_url.strip()
@@ -876,9 +967,14 @@ def _render_settings(
     ah_login_success: bool = False,
     mealie_error: str = "",
     mealie_result: str = "",
+    plan_result: str = "",
 ):
     return templates.TemplateResponse(
         request, "settings.html", {"ah_token_set": bool(_get_setting(db, "ah_user_token")),
+            "household_size": planning.household_size(db),
+            "order_weekday": planning.order_weekday(db),
+            "weekdays": planning.WEEKDAYS,
+            "plan_result": plan_result,
             "ah_refresh_set": bool(_get_setting(db, "ah_refresh_token")),
             "has_api_key": bool(settings.anthropic_api_key),
             "ah_login_url": ah_client.get_login_url(),

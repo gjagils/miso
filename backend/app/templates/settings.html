@@ -3,6 +3,21 @@
 {% block content %}
 <div class="page-head"><img src="/static/miso/miso-tech.webp" alt="" width="76" height="76" loading="lazy"><h1>Instellingen</h1></div>
 
+<section class="settings-section" id="gezin">
+    <h2>Gezin en besteldag</h2>
+    <form method="post" action="/settings/plan" class="plan-settings">
+        <label for="household_size">Met hoeveel personen eten jullie meestal?</label>
+        <input type="number" id="household_size" name="household_size" min="1" max="20" value="{{ household_size }}" inputmode="numeric">
+        <label for="order_weekday">Op welke dag doe je de AH-bestelling voor de week erna?</label>
+        <select id="order_weekday" name="order_weekday">
+            {% for d in weekdays %}<option value="{{ loop.index0 }}" {% if loop.index0 == order_weekday %}selected{% endif %}>{{ d|capitalize }}</option>{% endfor %}
+        </select>
+        <p class="muted">Boodschappen worden per recept omgerekend naar het aantal personen. Vanaf twee dagen voor de besteldag herinnert Miso je aan volgende week.</p>
+        <p><button type="submit" class="btn btn-primary">Opslaan</button></p>
+    </form>
+    {% if plan_result %}<p class="msg-ok" role="status"><img src="/static/miso/miso-celebrate.webp" alt="" width="56" height="56" loading="lazy"><span>{{ plan_result }}</span></p>{% endif %}
+</section>
+
 <section class="settings-section">
     <h2>Koppeling met AH</h2>
     <p><a class="btn" href="/dekking">Bekijk per recept hoeveel er gekoppeld is</a></p>

@@ -1,15 +1,28 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="page-head"><img src="/static/miso/miso-idea.webp" alt="" width="76" height="76" loading="lazy"><h1>Deze week</h1></div>
+{% include "_next_week.html" %}
 {% for d in days %}
 <div class="day-card {% if d.today %}today{% endif %}">
     <h3>{{ d.label }}{% if d.today %} <span class="today-pill">vandaag</span>{% endif %}</h3>
-    {% for r in d.recipes %}
-    <a class="day-recipe" href="/recipe/{{ r.id }}/koken">
-        {% if r.image_url %}<img src="{{ r.image_url }}" alt="" loading="lazy" referrerpolicy="no-referrer">{% else %}<div class="thumb"></div>{% endif %}
-        <span>{{ r.name }}</span>
-        {% if r.gf_mode != "none" %}<span class="chip" style="flex:none">glutenvrij</span>{% endif %}
+    {% for e in d.entries %}
+    {% if e.kind == "recipe" and e.recipe %}
+    <a class="day-recipe" href="/recipe/{{ e.recipe.id }}/koken">
+        {% if e.recipe.image_url %}<img src="{{ e.recipe.image_url }}" alt="" loading="lazy" referrerpolicy="no-referrer">{% else %}<div class="thumb"></div>{% endif %}
+        <span>{{ e.title }}<small class="pe-meta">voor {{ e.persons }}{% if e.cook_double == "tomorrow" %} · kook dubbel, morgen de rest{% elif e.cook_double == "freezer" %} · kook dubbel, de helft naar de vriezer{% endif %}</small></span>
+        {% if e.recipe.gf_mode != "none" %}<span class="chip" style="flex:none">glutenvrij</span>{% endif %}
     </a>
+    {% elif e.kind == "leftover" %}
+    <div class="day-recipe">
+        <div class="thumb pe-icon" aria-hidden="true"><img src="/static/miso/miso-pasta-again.webp" alt=""></div>
+        <span>{{ e.title }}<small class="pe-meta">restjes · voor {{ e.persons }}</small></span>
+    </div>
+    {% elif e.kind == "stock" %}
+    <div class="day-recipe">
+        <div class="thumb pe-icon" aria-hidden="true"><img src="/static/miso/miso-box.webp" alt=""></div>
+        <span>{{ e.title }}<small class="pe-meta">hebben we al{% if e.extras %} · plus {{ e.extras|map(attribute="text")|join(", ") }}{% endif %}</small></span>
+    </div>
+    {% endif %}
     {% else %}
     <p class="muted">Niets gepland</p>
     {% endfor %}

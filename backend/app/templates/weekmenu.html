@@ -2,153 +2,244 @@
 {% block title %}Weekmenu - Miso{% endblock %}
 {% block content %}
 <div class="page-head"><img src="/static/miso/miso-idea.webp" alt="" width="76" height="76" loading="lazy"><h1>Weekmenu</h1></div>
-<a class="btn btn-primary kz-plan-cta" href="/kiezen?week={{ week }}">Recepten kiezen voor deze week</a>
+{% include "_next_week.html" %}
 <div class="week-nav">
     <a class="btn btn-sm" href="/weekmenu?week={{ prev_week }}">&larr; Vorige</a>
     <strong>Week van {{ week }}</strong>
     <a class="btn btn-sm" href="/weekmenu?week={{ next_week }}">Volgende &rarr;</a>
 </div>
+<a class="btn btn-primary kz-plan-cta" href="/kiezen?week={{ week }}">Recepten kiezen voor deze week</a>
 
-{% if not recipes %}
+{% if not has_recipes %}
 <div class="empty-state"><img src="/static/miso/miso-confused.webp" alt="" width="140" height="140" loading="lazy"><p>Nog geen recepten om te plannen. <a href="/recepten">Voeg er eerst een toe.</a></p></div>
-{% else %}
+{% endif %}
+
+<div id="days" class="wm-days">
+    {# Zonder JavaScript: alleen-lezen weergave #}
+    {% for d in days %}
+    <div class="day-card"><h3>{{ d.label }}</h3>
+        {% for e in entries if e.date == d.date %}<p>{{ e.title }}</p>{% else %}<p class="muted">Nog niets</p>{% endfor %}
+    </div>
+    {% endfor %}
+</div>
+
+<section class="status-box wm-groceries" id="groceries" aria-labelledby="gr-title">
+    <h2 id="gr-title">Boodschappen</h2>
+    <p id="gr-line" class="gr-line" role="status"></p>
+    <button class="btn btn-primary gr-btn" id="push-btn" type="button" hidden></button>
+    <p id="gr-msg" class="muted" role="status"></p>
+    <details id="gr-missing" hidden><summary>Wat moet er nog op?</summary><ul></ul></details>
+    <details id="gr-unmatched" class="kz-unmatched" hidden><summary></summary><ul></ul><p class="muted">Koppel die in het recept, of vink ze uit.</p></details>
+</section>
+
+<section class="settings-section wm-freezer" id="freezer" aria-labelledby="fz-title">
+    <div class="fz-head"><img src="/static/miso/miso-chill.webp" alt="" width="56" height="56" loading="lazy"><h2 id="fz-title">Vriezer</h2></div>
+    <ul class="fz-list" id="fz-list"></ul>
+    <p class="muted" id="fz-empty" hidden>Niets in de vriezer. Kook je dubbel? Kies dan "naar de vriezer" bij het inplannen.</p>
+    <form class="fz-add" id="fz-add" autocomplete="off">
+        <input class="form-input" name="name" placeholder="Bijv. pastasaus" aria-label="Wat gaat de vriezer in?" maxlength="300" required>
+        <input type="number" name="portions" min="1" max="50" value="{{ household }}" aria-label="Aantal porties" inputmode="numeric">
+        <button class="btn" type="submit">Erin</button>
+    </form>
+</section>
+
+{% if has_recipes %}
 <section class="status-box health-box" id="health-box" aria-live="polite">
   <h2>Gezond en gevarieerd</h2>
   <p class="muted" id="health-sum">Weekmenu wordt beoordeeld…</p>
   <ul class="health-signals" id="health-signals"></ul>
   <button class="btn" type="button" id="suggest-btn">Stel een gevarieerde week voor</button>
   <div id="suggestions"></div>
-  <p class="muted health-note">Schatting per persoon door Claude (±20%), als richting, niet als harde getallen.</p>
+  <p class="muted health-note">Schatting per persoon door Claude (±20%), als richting, niet als harde getallen. Restjes tellen als avond, niet voor variatie.</p>
 </section>
-
-<div id="days"></div>
-
-<div class="status-box" id="status-box"></div>
-<div class="week-actions">
-<button class="btn btn-primary" id="lock-btn" {% if not has_token %}disabled title="Koppel eerst AH in Instellingen"{% endif %}></button>
-<button class="btn" id="sync-btn" {% if not has_token %}disabled{% endif %}>Controleer en vul aan</button>
-<span id="msg" class="muted" role="status"></span>
-</div>
 {% endif %}
 {% endblock %}
 
 {% block scripts %}
+<script src="/static/plan.js?v=1"></script>
 <script>
+(() => {
 const WEEK = {{ week|tojson }};
-const RECIPES = {{ recipes|tojson }};
+const TODAY = {{ today|tojson }};
 const DAYS = {{ days|tojson }};
-const plan = {{ plan|tojson }};
+const HAS_TOKEN = {{ has_token|tojson }};
+let entries = {{ entries|tojson }};
 let status = {{ status|tojson }};
-const nameOf = id => (RECIPES.find(r => r.id === id) || {name: "?"}).name;
-const msg = document.getElementById("msg");
+let health = {};  // entry_id -> profiel
+const $ = id => document.getElementById(id);
+const esc = MisoPlan.esc, api = MisoPlan.api;
+const plural = (n, one, more) => `${n} ${n === 1 ? one : more}`;
 
+async function reload() {
+    const w = await api("GET", `/api/week?week=${WEEK}`);
+    if (!w.ok) return;
+    entries = w.days.flatMap(d => d.entries);
+    status = w.status;
+    renderDays(); renderGroceries(); loadHealth(); loadFreezer();
+}
+
+// ── Dagen ───────────────────────────────────────────────
+function entryRow(e) {
+    const row = document.createElement("div");
+    row.className = `pe pe-${e.kind}`;
+    let thumb, title, meta = [];
+    if (e.kind === "recipe") {
+        thumb = e.recipe && e.recipe.image_url ? `<img class="pe-thumb" src="${esc(e.recipe.image_url)}" alt="" loading="lazy" referrerpolicy="no-referrer">`
+                                               : `<span class="pe-thumb pe-icon"><img src="/static/miso/miso-hungry.webp" alt=""></span>`;
+        title = e.recipe ? `<a href="/recipe/${e.recipe.id}">${esc(e.title)}</a>` : esc(e.title);
+        meta.push(`voor ${e.persons}`);
+        if (e.cook_double === "tomorrow") meta.push("dubbel: morgen de rest");
+        if (e.cook_double === "freezer") meta.push("dubbel: helft naar de vriezer");
+    } else if (e.kind === "leftover") {
+        thumb = `<span class="pe-thumb pe-icon"><img src="/static/miso/miso-pasta-again.webp" alt=""></span>`;
+        title = esc(e.title);
+        meta.push(`voor ${e.persons}`, "geen boodschappen");
+    } else {
+        thumb = `<span class="pe-thumb pe-icon"><img src="/static/miso/miso-box.webp" alt=""></span>`;
+        title = esc(e.title);
+        meta.push("hebben we al");
+        if (e.extras.length) meta.push("+ " + e.extras.map(x => x.text).join(", "));
+    }
+    const prof = health[e.entry_id];
+    const chips = prof ? `<span class="pe-chips"><span class="chip">${esc(prof.eiwit)}</span><span class="chip">${esc(prof.basis)}</span><span class="chip chip-warn">~${prof.kcal} kcal</span></span>` : "";
+    row.innerHTML = `${thumb}<div class="pe-main"><span class="pe-title">${title}</span>
+        <span class="pe-meta">${esc(meta.join(" · "))}</span>${chips}
+        <span class="pe-actions"><button type="button" class="pe-act" data-move>Verplaats</button><button type="button" class="pe-act pe-del" data-del>Verwijder</button></span></div>`;
+    row.querySelector("[data-move]").onclick = () => MisoPlan.open({mode: "move", entry: e, start: WEEK, onDone: reload});
+    row.querySelector("[data-del]").onclick = async () => {
+        const extra = e.leftover_entry_ids.length ? " De rest-dag gaat ook weg." : "";
+        if (!confirm(`${e.title} van het weekmenu halen?${extra}`)) return;
+        const r = await api("DELETE", `/api/plan/entries/${e.entry_id}`);
+        if (r.ok) reload(); else alert(r.error || "Verwijderen mislukt.");
+    };
+    return row;
+}
+
+function renderDays() {
+    const wrap = $("days");
+    wrap.innerHTML = "";
+    DAYS.forEach(d => {
+        const card = document.createElement("section");
+        card.className = "day-card wm-day" + (d.date === TODAY ? " today" : "") + (d.date < TODAY ? " past" : "");
+        card.setAttribute("aria-label", d.label);
+        const mine = entries.filter(e => e.date === d.date);
+        card.innerHTML = `<div class="wm-head"><h3>${esc(d.label)}${d.date === TODAY ? ' <span class="today-pill">vandaag</span>' : ""}</h3>
+            <button type="button" class="wm-add" aria-label="Iets plannen op ${esc(d.label)}">+</button></div>`;
+        mine.forEach(e => card.appendChild(entryRow(e)));
+        if (!mine.length) {
+            const p = document.createElement("p"); p.className = "muted wm-empty"; p.textContent = "Nog niets gepland";
+            card.appendChild(p);
+        }
+        card.querySelector(".wm-add").onclick = () => MisoPlan.open({tabs: true, date: d.date, start: WEEK, onDone: reload});
+        wrap.appendChild(card);
+    });
+}
+
+// ── Boodschappen ────────────────────────────────────────
+function renderGroceries() {
+    const line = $("gr-line"), btn = $("push-btn");
+    const n = status.missing_count ?? status.missing.length;
+    const nothing = !status.needed && !status.unmatched.length;
+    btn.hidden = nothing;
+    if (nothing) line.textContent = "Nog niets dat gekocht moet worden deze week.";
+    else if (!n) line.innerHTML = `<span class="chip">Alle ${plural(status.needed, "product staat", "producten staan")} op je AH-lijstje</span>`;
+    else if (status.on_list) line.innerHTML = `<span class="chip chip-warn">${plural(n, "wijziging", "wijzigingen")} nog niet op je lijstje</span>`;
+    else line.innerHTML = `<span class="chip chip-warn">${plural(n, "product", "producten")} nog niet op je lijstje</span>`;
+    btn.disabled = !n || !HAS_TOKEN;
+    btn.textContent = n ? `Zet ${n} ${n === 1 ? "nieuw product" : "nieuwe producten"} op je AH-lijstje` : "Je lijstje is bij";
+    $("gr-msg").innerHTML = HAS_TOKEN || nothing ? "" : `AH is nog niet gekoppeld. <a href="/settings">Koppel AH in Instellingen</a>.`;
+    const miss = $("gr-missing");
+    miss.hidden = !n;
+    miss.querySelector("ul").innerHTML = status.missing.map(m => `<li>${m.quantity}× ${esc(m.name)}</li>`).join("");
+    const un = $("gr-unmatched");
+    un.hidden = !status.unmatched.length;
+    un.querySelector("summary").textContent = `${plural(status.unmatched.length, "ingrediënt", "ingrediënten")} zonder AH-product`;
+    un.querySelector("ul").innerHTML = status.unmatched.map(t => `<li>${esc(t)}</li>`).join("");
+}
+$("push-btn").onclick = async () => {
+    const btn = $("push-btn"), msg = $("gr-msg");
+    btn.disabled = true; btn.textContent = "Bezig…";
+    const r = await api("POST", "/api/plan/sync", {week: WEEK});
+    if (r.status) status = r.status;
+    renderGroceries();
+    msg.textContent = r.ok ? (r.added ? `${plural(r.added, "product", "producten")} op je AH-lijstje gezet.` : "Alles stond al op je lijstje.")
+                           : (r.error || "Het lijstje bijwerken is mislukt.");
+    msg.style.color = r.ok ? "" : "var(--red)";
+};
+
+// ── Vriezer ─────────────────────────────────────────────
+async function loadFreezer() {
+    const r = await api("GET", "/api/freezer");
+    const items = r.items || [];
+    const ul = $("fz-list");
+    ul.innerHTML = "";
+    $("fz-empty").hidden = items.length > 0;
+    items.forEach(it => {
+        const li = document.createElement("li");
+        li.innerHTML = `<div class="fz-main"><span class="fz-name">${esc(it.name)}</span>
+            <span class="muted">${plural(it.portions, "portie", "porties")}${it.added_on ? " · sinds " + esc(MisoPlan.dayLabel(it.added_on).replace(/^\S+ /, "")) : ""}</span></div>
+            <button type="button" class="btn btn-sm" data-plan>Plan in</button>
+            <button type="button" class="btn btn-sm btn-muted" data-min aria-label="Eén portie minder van ${esc(it.name)}">−1</button>`;
+        li.querySelector("[data-plan]").onclick = () => MisoPlan.open({tabs: true, tab: "stock", freezerItem: it, start: WEEK,
+            date: DAYS.map(d => d.date).find(d => d >= TODAY && !entries.some(e => e.date === d)) || "", onDone: reload});
+        li.querySelector("[data-min]").onclick = async () => {
+            if (it.portions === 1 && !confirm(`${it.name} is dan op. Weghalen uit de vriezer?`)) return;
+            await api("PATCH", `/api/freezer/${it.id}`, {portions: it.portions - 1});
+            loadFreezer();
+        };
+        ul.appendChild(li);
+    });
+}
+$("fz-add").onsubmit = async ev => {
+    ev.preventDefault();
+    const f = ev.target;
+    const name = f.name.value.trim();
+    if (!name) return;
+    const r = await api("POST", "/api/freezer", {name, portions: Number(f.portions.value) || 1});
+    if (r.ok) { f.name.value = ""; loadFreezer(); } else alert(r.error || "Toevoegen mislukt.");
+};
+
+// ── Gezond en gevarieerd ────────────────────────────────
 const ICON = {goed: "✅", let_op: "⚠️", tip: "💡"};
-function esc(t) { const d = document.createElement("div"); d.textContent = t; return d.innerHTML; }
 async function loadHealth() {
-    const box = document.getElementById("health-sum");
+    const box = $("health-sum");
+    if (!box) return;
     try {
         const h = await (await fetch(`/api/week/health?week=${WEEK}`)).json();
-        if (!h.dagen) { box.textContent = "Nog niets gepland deze week."; document.getElementById("health-signals").innerHTML = ""; return; }
+        health = {};
+        (h.recepten || []).forEach(x => { if (x.profiel && x.entry_id) health[x.entry_id] = x.profiel; });
+        if (Object.keys(health).length) renderDays();
+        if (!h.dagen) { box.textContent = "Nog niets gepland deze week."; $("health-signals").innerHTML = ""; return; }
         const parts = [];
         if (h.gemiddeld_kcal) parts.push(`gem. ${h.gemiddeld_kcal} kcal p.p.`);
         if (h.groente_g_per_dag != null) parts.push(`${h.groente_g_per_dag} g groente p.p.`);
         if (h.schijf_pct != null) parts.push(`Schijf van Vijf ${h.schijf_pct}%`);
         const eiwit = Object.entries(h.eiwit || {}).map(([k, v]) => `${v}x ${k}`).join(", ");
-        box.textContent = `${h.dagen} avonden · ${parts.join(" · ")}${eiwit ? " · " + eiwit : ""}`;
-        document.getElementById("health-signals").innerHTML =
-            h.signalen.map(s => `<li class="sig-${s.type}">${ICON[s.type] || ""} ${esc(s.tekst)}</li>`).join("");
+        box.textContent = `${h.dagen} avonden${h.restjes ? ` (${h.restjes} restjes)` : ""}${parts.length ? " · " + parts.join(" · ") : ""}${eiwit ? " · " + eiwit : ""}`;
+        $("health-signals").innerHTML = h.signalen.map(s => `<li class="sig-${s.type}">${ICON[s.type] || ""} ${esc(s.tekst)}</li>`).join("");
     } catch (e) { box.textContent = "Beoordeling niet beschikbaar."; }
 }
-document.getElementById("suggest-btn").onclick = async () => {
-    const btn = document.getElementById("suggest-btn"), out = document.getElementById("suggestions");
-    btn.disabled = true; btn.textContent = "Miso denkt na…";
-    const r = await post("/api/week/suggest", {week: WEEK});
-    btn.disabled = false; btn.textContent = "Stel een gevarieerde week voor";
+const sb = $("suggest-btn");
+if (sb) sb.onclick = async () => {
+    const out = $("suggestions");
+    sb.disabled = true; sb.textContent = "Miso denkt na…";
+    const r = await api("POST", "/api/week/suggest", {week: WEEK});
+    sb.disabled = false; sb.textContent = "Stel een gevarieerde week voor";
     if (!r.voorstel || !r.voorstel.length) {
         out.innerHTML = `<p class="muted">${r.zonder_profiel ? "Recepten worden nog beoordeeld; probeer het zo nog eens." : "Geen lege dagen meer deze week."}</p>`;
         return;
     }
-    const day = d => new Date(d).toLocaleDateString("nl-NL", {weekday: "long", day: "numeric", month: "short"});
-    out.innerHTML = `<ul class="suggest-list">${r.voorstel.map(v => `<li><strong>${day(v.date)}</strong>: ${esc(v.name)}
-        <span class="muted">(${v.profiel.eiwit}, ${v.profiel.basis}, ~${v.profiel.kcal} kcal)</span></li>`).join("")}</ul>
+    out.innerHTML = `<ul class="suggest-list">${r.voorstel.map(v => `<li><strong>${esc(MisoPlan.dayLabel(v.date))}</strong>: ${esc(v.name)}
+        <span class="muted">(${esc(v.profiel.eiwit)}, ${esc(v.profiel.basis)}, ~${v.profiel.kcal} kcal)</span></li>`).join("")}</ul>
         <button class="btn btn-primary" type="button" id="apply-suggest">Zet deze in het weekmenu</button>`;
-    document.getElementById("apply-suggest").onclick = async () => {
-        r.voorstel.forEach(v => (plan[v.date] = plan[v.date] || []).push(v.recipe_id));
-        await savePlan(); renderDays(); out.innerHTML = `<p class="msg-ok">Toegevoegd aan je weekmenu.</p>`;
+    $("apply-suggest").onclick = async () => {
+        for (const v of r.voorstel) await api("POST", "/api/plan/entries", {date: v.date, kind: "recipe", recipe_id: v.recipe_id});
+        out.innerHTML = `<p class="msg-ok">Toegevoegd aan je weekmenu.</p>`;
+        reload();
     };
 };
 
-async function post(url, body) {
-    const r = await fetch(url, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
-    return r.json();
-}
-
-async function savePlan() {
-    const r = await post("/api/plan", {week: WEEK, days: plan});
-    status = r.status; renderStatus(); loadHealth();
-}
-
-function renderDays() {
-    const el = document.getElementById("days");
-    el.innerHTML = "";
-    DAYS.forEach(d => {
-        const card = document.createElement("div");
-        card.className = "day-card";
-        card.innerHTML = `<h3>${d.label}</h3>`;
-        if (d.date === new Date().toLocaleDateString("sv-SE")) card.classList.add("today");
-        (plan[d.date] || []).forEach((id, idx) => {
-            const row = document.createElement("div");
-            row.className = "day-recipe";
-            row.innerHTML = `<span></span>`;
-            row.firstChild.textContent = nameOf(id);
-            const rm = document.createElement("button");
-            rm.className = "btn btn-sm btn-danger"; rm.textContent = "✕"; rm.setAttribute("aria-label", "Verwijderen");
-            rm.onclick = () => { plan[d.date].splice(idx, 1); savePlan(); renderDays(); };
-            row.appendChild(rm);
-            card.appendChild(row);
-        });
-        const sel = document.createElement("select");
-        sel.innerHTML = `<option value="">+ recept toevoegen</option>` +
-            RECIPES.map(r => `<option value="${r.id}">${r.name.replace(/</g, "&lt;")}</option>`).join("");
-                sel.onchange = () => {
-            if (!sel.value) return;
-            (plan[d.date] = plan[d.date] || []).push(parseInt(sel.value));
-            savePlan(); renderDays();
-        };
-        card.appendChild(sel);
-        el.appendChild(card);
-    });
-}
-
-function renderStatus() {
-    const box = document.getElementById("status-box");
-    const lock = document.getElementById("lock-btn");
-    let html = "";
-    if (status.locked) html += `<span class="chip">vastgezet</span> `;
-    if (status.complete) html += `<div class="status-hero"><img src="/static/miso/miso-celebrate.webp" alt="" width="64" height="64"><span class="chip">alle ${status.needed} producten staan op je AH-lijstje</span></div>`;
-    else if (!status.needed && !status.unmatched.length) html += `<span class="muted">Nog niets gepland.</span>`;
-    else {
-        if (status.missing.length) html += `<p><span class="chip chip-warn">nog ${status.missing.length} producten niet op je lijstje</span></p><ul>` +
-            status.missing.map(m => `<li>${m.quantity}× ${m.name.replace(/</g, "&lt;")}</li>`).join("") + `</ul>`;
-        if (status.unmatched.length) html += `<p><span class="chip chip-warn">geen AH-product gekoppeld</span></p><ul>` +
-            status.unmatched.map(t => `<li>${t.replace(/</g, "&lt;")}</li>`).join("") + `</ul><p class="muted">Koppel die in het recept, of vink ze uit.</p>`;
-    }
-    box.innerHTML = html;
-    lock.textContent = status.locked ? "Weekmenu ontgrendelen" : "Weekmenu vastzetten";
-}
-
-async function run(body) {
-    msg.textContent = "Bezig...";
-    const r = await post("/api/plan/sync", body);
-    if (!r.ok) { msg.textContent = r.error; msg.style.color = "var(--red)"; return; }
-    msg.style.color = ""; msg.textContent = r.added ? `${r.added} producten toegevoegd` : "";
-    status = r.status; renderStatus();
-}
-const lockBtn = document.getElementById("lock-btn");
-if (lockBtn) {
-    lockBtn.onclick = () => run({week: WEEK, locked: !status.locked});
-    document.getElementById("sync-btn").onclick = () => run({week: WEEK});
-    renderDays(); renderStatus(); loadHealth();
-}
+renderDays(); renderGroceries(); loadFreezer(); loadHealth();
+})();
 </script>
 {% endblock %}

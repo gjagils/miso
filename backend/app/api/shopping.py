@@ -111,14 +111,15 @@ async def coverage_page(request: Request, db: Session = Depends(get_db)):
 class BasketPayload(BaseModel):
     week: str | None = None
     recipe_ids: list[int] = []
+    persons: dict[str, int] = {}  # recipe id -> personen voor losse recepten (leeg = huishoudgrootte)
 
 
 def _cart_for(db: Session, payload: BasketPayload) -> list[dict]:
     if payload.recipe_ids:
         recipes = [r for r in (db.get(Recipe, i) for i in dict.fromkeys(payload.recipe_ids)) if r]
+        cart, _ = routes.aggregate_cart(recipes, routes.recipe_factors(db, recipes, payload.persons))
     else:
-        recipes = routes._week_recipes(db, routes.parse_week(payload.week))
-    cart, _ = routes.aggregate_cart(recipes)
+        cart, _ = routes.week_cart(db, routes.parse_week(payload.week))
     return cart
 
 

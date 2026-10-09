@@ -49,14 +49,55 @@ class Recipe(Base):
         self.instructions_json = json.dumps(value, ensure_ascii=False)
 
 
+PLAN_KINDS = ("recipe", "leftover", "stock")
+
+
 class PlanEntry(Base):
-    """A recipe planned on a specific date."""
+    """Eén avondeten op een datum.
+
+    kind "recipe": recept koken (boodschappen voor `persons`, x2 als `cook_double` gezet is);
+    kind "leftover": rest van het recept van `source_entry_id` (geen boodschappen);
+    kind "stock": "hebben we al" / uit de vriezer (`text`), met optionele extra boodschappen (`extras`).
+    `recipe_id` is 0 als er geen recept bij hoort (bestaande tabel heeft NOT NULL op die kolom).
+    Nieuwe kolommen worden in bestaande databases toegevoegd door `app.migrations`.
+    """
 
     __tablename__ = "plan_entries"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     date: Mapped[str] = mapped_column(String(10), index=True)  # YYYY-MM-DD
-    recipe_id: Mapped[int] = mapped_column(Integer, index=True)
+    recipe_id: Mapped[int] = mapped_column(Integer, index=True, default=0)
+    kind: Mapped[str] = mapped_column(String(10), default="recipe", server_default="recipe")
+    persons: Mapped[int | None] = mapped_column(Integer, nullable=True)  # None = huishoudgrootte
+    text: Mapped[str] = mapped_column(Text, default="", server_default="")
+    # JSON list of {"text", "product": {...}|None}
+    extras_json: Mapped[str] = mapped_column(Text, default="[]", server_default="[]")
+    source_entry_id: Mapped[int | None] = mapped_column(Integer, nullable=True, index=True)
+    cook_double: Mapped[str | None] = mapped_column(String(10), nullable=True)  # "tomorrow" | "freezer"
+
+    @property
+    def extras(self) -> list[dict]:
+        try:
+            value = json.loads(self.extras_json or "[]")
+        except ValueError:
+            return []
+        return value if isinstance(value, list) else []
+
+    @extras.setter
+    def extras(self, value: list[dict]) -> None:
+        self.extras_json = json.dumps(value, ensure_ascii=False)
+
+
+class FreezerItem(Base):
+    """Wat er in de vriezer ligt (simpel: naam + porties)."""
+
+    __tablename__ = "freezer_items"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(300))
+    portions: Mapped[int] = mapped_column(Integer, default=1)
+    added_on: Mapped[str] = mapped_column(String(10), default="")  # YYYY-MM-DD
+    from_recipe_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
 
 class CartPush(Base):

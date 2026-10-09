@@ -110,14 +110,17 @@ async def ensure_profile(db: Session, recipe: Recipe) -> dict | None:
 # ── Weekanalyse ────────────────────────────────────────────────────────
 
 
-def analyze_week(planned: list[tuple[str, dict | None]]) -> dict:
-    """planned: [(datum, profiel)] voor geplande avondmaaltijden. Geeft totalen + signalen."""
+def analyze_week(planned: list[tuple[str, dict | None]], leftover_days: int = 0) -> dict:
+    """planned: [(datum, profiel)] voor gekookte avondmaaltijden. Geeft totalen + signalen.
+
+    Restjes (`leftover_days`) tellen als geplande avond, maar niet mee voor variatie (eiwit/basis/keuken):
+    het is hetzelfde gerecht nog een keer. Voorraad-dagen ("hebben we al") tellen nergens mee."""
     profs = [p for _, p in planned if p]
     n = len(profs)
     signals: list[dict] = []
     if not planned:
-        return {"dagen": 0, "signalen": [], "gemiddeld_kcal": None, "groente_g_per_dag": None,
-                "eiwit": {}, "basis": {}, "keuken": {}, "schijf_pct": None}
+        return {"dagen": leftover_days, "restjes": leftover_days, "signalen": [], "gemiddeld_kcal": None,
+                "groente_g_per_dag": None, "eiwit": {}, "basis": {}, "keuken": {}, "schijf_pct": None}
     count = lambda key: {v: sum(1 for p in profs if p[key] == v) for v in sorted({p[key] for p in profs})}
     eiwit, basis, keuken = count("eiwit"), count("basis"), count("keuken")
     avg_kcal = round(sum(p["kcal"] for p in profs) / n) if n else None
@@ -143,7 +146,7 @@ def analyze_week(planned: list[tuple[str, dict | None]]) -> dict:
             if c >= 3 and k != "overig":
                 signals.append({"type": "tip", "tekst": f"{c}x {k} deze week: misschien iets anders?"})
     schijf_pct = round(100 * sum(sum(p["schijf"].values()) for p in profs) / (5 * n)) if n else None
-    return {"dagen": len(planned), "geprofileerd": n, "gemiddeld_kcal": avg_kcal, "groente_g_per_dag": veg,
+    return {"dagen": len(planned) + leftover_days, "restjes": leftover_days, "geprofileerd": n, "gemiddeld_kcal": avg_kcal, "groente_g_per_dag": veg,
             "eiwit": eiwit, "basis": basis, "keuken": keuken, "schijf_pct": schijf_pct, "signalen": signals}
 
 

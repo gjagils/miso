@@ -19,10 +19,18 @@ router = APIRouter()
 PROFILE_JOB: dict = {"running": False, "done": 0, "total": 0, "error": None}
 
 
+def _week(db: Session, monday: date) -> list[PlanEntry]:
+    return db.execute(select(PlanEntry).where(PlanEntry.date >= str(monday),
+                                              PlanEntry.date <= str(monday + timedelta(days=6)))).scalars().all()
+
+
 def _planned(db: Session, monday: date) -> list[tuple[PlanEntry, Recipe]]:
-    entries = db.execute(select(PlanEntry).where(PlanEntry.date >= str(monday),
-                                                 PlanEntry.date <= str(monday + timedelta(days=6)))).scalars().all()
-    return [(e, r) for e in entries if (r := db.get(Recipe, e.recipe_id))]
+    """Gekookte recepten (restjes en voorraad tellen niet mee voor variatie)."""
+    return [(e, r) for e in _week(db, monday) if e.kind == "recipe" and (r := db.get(Recipe, e.recipe_id))]
+
+
+def _leftover_count(db: Session, monday: date) -> int:
+    return sum(1 for e in _week(db, monday) if e.kind == "leftover")
 
 
 @router.get("/api/week/health")
@@ -32,9 +40,9 @@ async def week_health(week: str | None = None, db: Session = Depends(get_db)):
     for _, r in planned:  # ontbrekende profielen nu schatten (alleen voor deze week: weinig aanroepen)
         await ensure_profile(db, r)
     rows = [(e.date, get_profile(db, r.id)) for e, r in planned]
-    return {"week": str(monday), **analyze_week(rows),
-            "recepten": [{"date": e.date, "recipe_id": r.id, "name": r.name, "profiel": get_profile(db, r.id)}
-                         for e, r in planned]}
+    return {"week": str(monday), **analyze_week(rows, leftover_days=_leftover_count(db, monday)),
+            "recepten": [{"date": e.date, "entry_id": e.id, "recipe_id": r.id, "name": r.name,
+                          "profiel": get_profile(db, r.id)} for e, r in planned]}
 
 
 class SuggestPayload(BaseModel):
@@ -46,18 +54,20 @@ async def week_suggest(payload: SuggestPayload, db: Session = Depends(get_db)):
     """Voorstel voor de lege dagen (vanaf vandaag). Slaat niets op; de app plant pas na bevestiging."""
     monday = routes.parse_week(payload.week)
     planned = _planned(db, monday)
-    taken = {e.date for e, _ in planned}
+    taken = {e.date for e in _week(db, monday)}  # ook restjes- en voorraaddagen zijn bezet
     start = max(monday, date.today())
     empty = [str(d) for i in range(7) if (d := monday + timedelta(days=i)) >= start and str(d) not in taken]
     last_weeks = db.execute(select(PlanEntry.recipe_id).where(PlanEntry.date >= str(monday - timedelta(days=14)),
-                                                              PlanEntry.date < str(monday))).scalars().all()
+                                                              PlanEntry.date < str(monday),
+                                                              PlanEntry.kind == "recipe")).scalars().all()
     candidates = [(r, p) for r in db.execute(select(Recipe)).scalars() if (p := get_profile(db, r.id))]
     plan = [{"recipe_id": r.id, "profiel": get_profile(db, r.id)} for _, r in planned]
     chosen = suggest_week(plan, candidates, empty, set(last_weeks))
     missing = db.query(Recipe).count() - len(candidates)
     return {"ok": True, "voorstel": chosen, "zonder_profiel": missing,
             "analyse": analyze_week([(e.date, get_profile(db, r.id)) for e, r in planned] +
-                                    [(c["date"], c["profiel"]) for c in chosen])}
+                                    [(c["date"], c["profiel"]) for c in chosen],
+                                    leftover_days=_leftover_count(db, monday))}
 
 
 async def _profile_all(force: bool) -> None:
