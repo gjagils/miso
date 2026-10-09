@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(Session.self) private var session
+    @State private var planSettings = PlanSettingsModel()
 
     private var settingsURL: URL? {
         guard let base = URL(string: session.serverURL.trimmingCharacters(in: .whitespaces)), base.scheme != nil else { return nil }
@@ -15,6 +16,20 @@ struct SettingsView: View {
                     EmptyStateView(pose: "tech", title: "Miso", message: "Altijd iets lekkers op de planning.", size: 110)
                         .listRowBackground(Color.clear)
                 }
+                HouseholdSettingsSection(settings: planSettings.settings, errorText: planSettings.errorText,
+                                         onHouseholdSize: setHouseholdSize, onOrderWeekday: setOrderWeekday)
+                ReminderSettingsSection()
+                Section {
+                    NavigationLink {
+                        FreezerView()
+                    } label: {
+                        Label("Vriezer", systemImage: "snowflake")
+                            .font(.misoButton)
+                            .foregroundStyle(Color.misoBlue)
+                            .frame(minHeight: 44)
+                    }
+                }
+                .misoRow()
                 Section {
                     Text(session.serverURL).font(.misoBody)
                     Button("Uitloggen", role: .destructive, action: logout)
@@ -34,7 +49,24 @@ struct SettingsView: View {
             }
             .misoScreen()
             .navigationTitle("Meer")
+            .task { await loadSettings() }
+            .refreshable { await loadSettings() }
         }
+    }
+
+    private func loadSettings() async {
+        guard let api = session.api else { return }
+        await planSettings.load(api: api)
+    }
+
+    private func setHouseholdSize(_ value: Int) {
+        guard let api = session.api else { return }
+        planSettings.setHouseholdSize(value, api: api)
+    }
+
+    private func setOrderWeekday(_ weekday: Int) {
+        guard let api = session.api else { return }
+        Task { await planSettings.setOrderWeekday(weekday, api: api) }
     }
 
     private func logout() {

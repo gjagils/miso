@@ -8,6 +8,8 @@ struct RecipeDetailView: View {
     @State private var busy = false
     @State private var message: String?
     @State private var errorText: String?
+    @State private var planRequest: PlanSheetRequest?
+    @State private var plannedMessage: String?
 
     var body: some View {
         List {
@@ -18,8 +20,21 @@ struct RecipeDetailView: View {
                         let meta = [recipe.servings, recipe.totalTime].filter { !$0.isEmpty }.joined(separator: " · ")
                         if !meta.isEmpty { Text(meta).font(.misoCaption).foregroundStyle(.secondary) }
                         if !recipe.description.isEmpty { Text(recipe.description).font(.misoBody) }
-                        Button("Kookmodus", systemImage: "flame", action: startCooking)
+                        Button("Inplannen", systemImage: "calendar.badge.plus", action: startPlanning)
                             .buttonStyle(.misoPrimary)
+                        Button("Kookmodus", systemImage: "flame", action: startCooking)
+                            .buttonStyle(.misoSecondary)
+                        if let plannedMessage {
+                            HStack(spacing: 10) {
+                                MascotView(pose: "celebrate", size: 48)
+                                Text(plannedMessage).font(.callout).foregroundStyle(Color.misoInk)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                Spacer(minLength: 0)
+                            }
+                            .padding(10)
+                            .background(Color.misoMint, in: .rect(cornerRadius: 14))
+                            .accessibilityElement(children: .combine)
+                        }
                     }
                     .frame(maxWidth: .infinity)
                     .misoRow()
@@ -84,11 +99,25 @@ struct RecipeDetailView: View {
         .fullScreenCover(item: $cookRecipe) { recipe in
             CookView(recipe: recipe)
         }
+        .sheet(item: $planRequest) { request in
+            PlanSheet(request: request, onDone: planned)
+        }
         .task { await load() }
     }
 
     private func startCooking() {
         cookRecipe = recipe
+    }
+
+    private func startPlanning() {
+        guard let recipe else { return }
+        planRequest = PlanSheetRequest(recipe: .own(recipe))
+    }
+
+    private func planned(_ result: PlanSheetResult) {
+        guard case .saved(let response) = result else { return }
+        withAnimation { plannedMessage = response.summary }
+        AccessibilityNotification.Announcement(response.summary).post()
     }
 
     private func startGlutenFreeSuggestion() {

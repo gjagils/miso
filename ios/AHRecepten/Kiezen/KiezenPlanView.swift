@@ -8,8 +8,14 @@ struct KiezenPlanView: View {
     let onNext: () -> Void
 
     @State private var dates: [String] = []
-    @State private var weekPlan: [String: [RecipeSummary]] = [:]
+    @State private var weekPlan: [String: [PlanItem]] = [:]
+    @State private var household = 4
     @State private var assign: [Assignment] = []
+    /// Al opgeslagen recepten (bij opnieuw proberen na een fout niet dubbel opslaan).
+    @State private var savedIDs: Set<Int> = []
+    @State private var planRequest: PlanSheetRequest?
+    /// Recept waarvoor het Inplannen-scherm (kook dubbel) open staat.
+    @State private var editingRecipeID: Int?
     @State private var loading = false
     @State private var loaded = false
     @State private var saving = false
@@ -61,18 +67,12 @@ struct KiezenPlanView: View {
                 ProgressView().frame(maxWidth: .infinity).listRowBackground(Color.clear)
             } else {
                 ForEach(dates, id: \.self) { day in
-                    let existing = PlanEntry.entries(date: day, recipes: weekPlan[day] ?? [])
+                    let existing = weekPlan[day] ?? []
                     let mine = assign.filter { $0.day == day }
                     if !(day < today && existing.isEmpty && mine.isEmpty) {
                         Section {
-                            ForEach(existing) { entry in
-                                HStack {
-                                    Text(entry.recipe.name).foregroundStyle(.secondary)
-                                    Spacer()
-                                    Text("al gepland").misoChip(.misoLilac)
-                                }
-                                .frame(minHeight: 32)
-                                .accessibilityElement(children: .combine)
+                            ForEach(existing) { item in
+                                KiezenExistingRow(item: item)
                             }
                             ForEach(mine) { a in assignRow(a) }
                             if existing.isEmpty && mine.isEmpty {
@@ -112,32 +112,15 @@ struct KiezenPlanView: View {
         .task {
             if !loaded { await load(model.week.isEmpty ? nil : model.week) }
         }
+        .sheet(item: $planRequest) { request in
+            PlanSheet(request: request, onDone: picked)
+        }
     }
 
     private func assignRow(_ a: Assignment) -> some View {
-        HStack(spacing: 12) {
-            RecipeImage(path: a.imageUrl, size: 52)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(a.name)
-                    .font(.system(.body, design: .rounded).weight(.semibold))
-                    .foregroundStyle(Color.misoBlue)
-                    .lineLimit(2)
-                if let already = a.already, a.day.isEmpty {
-                    Text("staat al op \(KiezenDates.label(already).lowercased())").font(.caption).foregroundStyle(.secondary)
-                }
-                Picker("Dag voor \(a.name)", selection: dayBinding(a.recipeId)) {
-                    ForEach(dates, id: \.self) { d in Text(KiezenDates.label(d)).tag(d) }
-                    Text("Niet inplannen").tag("")
-                }
-                .pickerStyle(.menu)
-                .labelsHidden()
-                .tint(Color.misoOrange)
-                .fixedSize()
-                .accessibilityLabel("Dag voor \(a.name)")
-            }
-            Spacer(minLength: 0)
-        }
-        .padding(.vertical, 2)
+        KiezenAssignRow(assignment: a, dates: dates, day: dayBinding(a.recipeId),
+                        onPersons: { setPersons($0, for: a.recipeId) },
+                        onMore: { openOptions(a) })
     }
 
     /// Binding per rij: `assign` is een array van structs zonder vaste index, dus zoeken op recept-id.
@@ -153,6 +136,31 @@ struct KiezenPlanView: View {
     }
 
     // MARK: Acties
+
+    private func setPersons(_ value: Int, for recipeId: Int) {
+        if let i = assign.firstIndex(where: { $0.recipeId == recipeId }) { assign[i].persons = value }
+    }
+
+    /// "Kook dubbel…": het Inplannen-scherm in kies-modus (opslaan gebeurt bij "Opslaan en verder").
+    private func openOptions(_ a: Assignment) {
+        editingRecipeID = a.recipeId
+        planRequest = PlanSheetRequest(
+            mode: .pick,
+            recipe: PlanRecipeChoice(source: .own, recipeID: a.recipeId, name: a.name, imageUrl: a.imageUrl, meta: ""),
+            date: a.day.isEmpty ? (a.already ?? model.week) : a.day,
+            start: model.week, persons: a.persons, cookDouble: a.cookDouble)
+    }
+
+    private func picked(_ result: PlanSheetResult) {
+        guard case let .picked(date, persons, cookDouble) = result, let id = editingRecipeID,
+              let i = assign.firstIndex(where: { $0.recipeId == id }) else { return }
+        withAnimation {
+            assign[i].day = dates.contains(date) ? date : assign[i].day
+            assign[i].persons = persons
+            assign[i].cookDouble = cookDouble
+        }
+        editingRecipeID = nil
+    }
 
     private func dismissErrors() {
         withAnimation {
@@ -181,7 +189,9 @@ struct KiezenPlanView: View {
             let result = try await api.week(start)
             model.week = result.week
             dates = result.days.map(\.date)
-            weekPlan = Dictionary(uniqueKeysWithValues: result.days.map { ($0.date, $0.recipes) })
+            household = result.householdSize ?? 4
+            weekPlan = Dictionary(uniqueKeysWithValues: result.days.map { ($0.date, $0.planItems(householdSize: household)) })
+            savedIDs = []
             loadError = nil
             saveError = nil
             autoAssign()
@@ -198,31 +208,41 @@ struct KiezenPlanView: View {
         let usable = Array(dates[start...])
         var load = Dictionary(uniqueKeysWithValues: dates.map { ($0, weekPlan[$0]?.count ?? 0) })
         assign = model.picked.filter { $0.kind == .own }.map { p in
-            if let already = dates.first(where: { d in (weekPlan[d] ?? []).contains { $0.id == p.recipeID } }) {
-                return Assignment(recipeId: p.recipeID, name: p.name, imageUrl: p.imageUrl, day: "", already: already)
+            let isSame: (PlanItem) -> Bool = { $0.kind == .recipe && $0.recipeId == p.recipeID }
+            if let already = dates.first(where: { d in (weekPlan[d] ?? []).contains(where: isSame) }) {
+                let persons = weekPlan[already]?.first(where: isSame)?.persons ?? household
+                return Assignment(recipeId: p.recipeID, name: p.name, imageUrl: p.imageUrl, day: "", already: already,
+                                  persons: persons > 0 ? persons : household)
             }
             let day = usable.first { load[$0] == 0 }
                 ?? usable.min { (load[$0] ?? 0) < (load[$1] ?? 0) } ?? ""
             if !day.isEmpty { load[day, default: 0] += 1 }
-            return Assignment(recipeId: p.recipeID, name: p.name, imageUrl: p.imageUrl, day: day)
+            return Assignment(recipeId: p.recipeID, name: p.name, imageUrl: p.imageUrl, day: day, persons: household)
         }
     }
 
+    /// Elk ingepland recept als planregel opslaan (`POST /api/plan/entries`, met personen en kook dubbel).
     private func saveAndContinue() async {
         guard let api = session.api else { return }
+        model.groceryPersons = Dictionary(assign.map { ($0.recipeId, $0.groceryPersons) }, uniquingKeysWith: { a, _ in a })
         // Niets op een dag gezet: het weekmenu blijft gelijk, dus opslaan is niet nodig.
         guard hasDays else { onNext(); return }
-        var days: [String: [Int]] = [:]
-        for d in dates { days[d] = (weekPlan[d] ?? []).map(\.id) }
-        for a in assign where !a.day.isEmpty { days[a.day, default: []].append(a.recipeId) }
         saving = true
         saveError = nil
         defer { saving = false }
-        do {
-            let result = try await api.savePlan(week: model.week, days: days)
-            if result.ok { onNext() } else { saveError = "Opslaan mislukt. Je keuzes staan er nog; probeer het opnieuw." }
-        } catch {
-            saveError = "Opslaan mislukt: \(error.localizedDescription) Je keuzes staan er nog; probeer het opnieuw."
+        for a in assign where !a.day.isEmpty && !savedIDs.contains(a.recipeId) {
+            do {
+                let body = PlanEntryCreateBody.recipe(a.recipeId, date: a.day,
+                                                      persons: a.persons == household ? nil : a.persons,
+                                                      cookDouble: a.cookDouble)
+                _ = try await api.createPlanEntry(body)
+                savedIDs.insert(a.recipeId)
+            } catch {
+                saveError = "\(a.name) opslaan mislukt: \(error.localizedDescription) Je keuzes staan er nog; probeer het opnieuw."
+                return
+            }
         }
+        await OrderReminderScheduler.refresh(api: api)
+        onNext()
     }
 }

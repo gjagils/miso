@@ -4,6 +4,7 @@ import SwiftUI
 
 struct KiezenView: View {
     @Environment(Session.self) private var session
+    @Environment(AppRouter.self) private var router
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var model = KiezenModel()
     @State private var path: [KiezenRoute] = []
@@ -31,6 +32,11 @@ struct KiezenView: View {
         NavigationStack(path: $path) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
+                    if !model.week.isEmpty {
+                        Label("Je plant voor de week van \(KiezenDates.short(model.week))", systemImage: "calendar")
+                            .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                            .foregroundStyle(Color.misoBlue)
+                    }
                     if !model.picked.isEmpty { pickedChips }
                     ownSection
                     ahSection
@@ -60,6 +66,17 @@ struct KiezenView: View {
             }
         }
         .environment(model)
+        .onChange(of: router.kiezenWeek, initial: true) { _, week in
+            planRequestedWeek(week)
+        }
+    }
+
+    /// "Plan volgende week" vanaf Vandaag: begin bij stap 1 voor die week.
+    private func planRequestedWeek(_ week: String?) {
+        guard let week else { return }
+        model.week = week
+        path = []
+        router.kiezenWeek = nil
     }
 
     // MARK: Onderdelen

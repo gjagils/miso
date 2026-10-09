@@ -258,7 +258,8 @@ struct KiezenShopView: View {
         recipes.sort { (ids.firstIndex(of: $0.id) ?? 0) < (ids.firstIndex(of: $1.id) ?? 0) }
 
         // De lijst-link bevat de exacte, samengevoegde aantallen van de server.
-        let link = try? await api.listLink(recipeIDs: ids)
+        let persons = model.groceryPersons
+        let link = try? await (persons.isEmpty ? api.listLink(recipeIDs: ids) : api.listLink(recipeIDs: ids, persons: persons))
         let url = link.flatMap { $0.url.isEmpty ? nil : URL(string: $0.url) }
         let list = ShoppingListBuilder.build(recipes: recipes,
                                              quantities: ShoppingListBuilder.quantities(fromListLink: url),
@@ -315,7 +316,9 @@ struct KiezenShopView: View {
         busy = .basket
         defer { busy = nil }
         do {
-            let r = try await api.fillBasket(recipeIDs: model.ownIDs)
+            let persons = model.groceryPersons
+            let r = try await (persons.isEmpty ? api.fillBasket(recipeIDs: model.ownIDs)
+                                               : api.fillBasket(recipeIDs: model.ownIDs, persons: persons))
             if r.ok {
                 show(true, "\(plural(r.added ?? 0, "product", "producten")) in je AH-mandje gezet. Afrekenen doe je zelf in de AH-app.")
             } else {

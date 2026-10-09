@@ -3,6 +3,7 @@ import SwiftUI
 @main
 struct AHReceptenApp: App {
     @State private var session = Session()
+    @State private var router = AppRouter()
 
     init() {
         let blue = UIColor(named: "MisoBlue") ?? .label
@@ -35,6 +36,7 @@ struct AHReceptenApp: App {
                 }
             }
             .environment(session)
+            .environment(router)
             .tint(Color.misoOrange)
             .background(Color.misoCream)
         }
@@ -42,14 +44,28 @@ struct AHReceptenApp: App {
 }
 
 struct RootView: View {
+    @Environment(AppRouter.self) private var router
+
     var body: some View {
-        TabView {
-            WeekOverviewView().tabItem { Label("Vandaag", systemImage: "calendar") }
+        @Bindable var router = router
+        // iOS 17 is het minimum, dus nog `tabItem` in plaats van de `Tab`-API (iOS 18+).
+        TabView(selection: $router.tab) {
+            WeekOverviewView()
+                .tabItem { Label("Vandaag", systemImage: "calendar") }
+                .tag(AppRouter.Tab.today)
             // "Wat eten we?" vervangt het oude AH-tabblad: Allerhande zoeken en toevoegen zit nu in deze flow.
-            KiezenView().tabItem { Label("Wat eten we?", systemImage: "fork.knife") }
-            RecipesView().tabItem { Label("Recepten", systemImage: "book") }
-            PlanView().tabItem { Label("Weekmenu", systemImage: "list.bullet.rectangle") }
-            SettingsView().tabItem { Label("Meer", systemImage: "gearshape") }
+            KiezenView()
+                .tabItem { Label("Wat eten we?", systemImage: "fork.knife") }
+                .tag(AppRouter.Tab.kiezen)
+            RecipesView()
+                .tabItem { Label("Recepten", systemImage: "book") }
+                .tag(AppRouter.Tab.recipes)
+            PlanView()
+                .tabItem { Label("Weekmenu", systemImage: "list.bullet.rectangle") }
+                .tag(AppRouter.Tab.plan)
+            SettingsView()
+                .tabItem { Label("Meer", systemImage: "gearshape") }
+                .tag(AppRouter.Tab.more)
         }
     }
 }

@@ -23,6 +23,8 @@ struct RecipeSummary: Decodable, Identifiable, Hashable {
     let totalTime: String
     let imageUrl: String
     let gfMode: GlutenFreeMode
+    /// Planregel waar dit recept bij hoort (alleen in `GET /api/week`, nieuwere servers).
+    var entryId: Int? = nil
 }
 
 struct RecipesResponse: Decodable { let recipes: [RecipeSummary] }
@@ -109,6 +111,12 @@ struct WeekStatus: Decodable {
     let unmatched: [String]
     let complete: Bool
     let locked: Bool
+    /// Nieuwere servers: aantal producten dat nog niet op het AH-lijstje staat, en wat er al op staat.
+    let missingCount: Int?
+    let onList: Int?
+
+    /// Hoeveel producten de knop "Zet N nieuwe producten op je AH-lijstje" zet.
+    var newCount: Int { missingCount ?? missing.count }
 }
 
 struct PlanDay: Decodable, Identifiable {
@@ -117,6 +125,18 @@ struct PlanDay: Decodable, Identifiable {
     let label: String
     let today: Bool
     let recipes: [RecipeSummary]
+    /// Alle planregels (recept, restje, voorraad); nil bij oudere servers.
+    let items: [PlanItem]?
+
+    enum CodingKeys: String, CodingKey {
+        case date, label, today, recipes
+        case items = "entries"
+    }
+
+    /// Planregels van deze dag; bij een oudere server opgebouwd uit `recipes`.
+    func planItems(householdSize: Int) -> [PlanItem] {
+        items ?? entries.map { PlanItem(legacy: $0.recipe, date: date, id: $0.id, persons: householdSize) }
+    }
 }
 
 /// Eén recept op een dag in het weekmenu. De server stuurt geen eigen id per regel, dus het id is
@@ -146,6 +166,8 @@ struct WeekResponse: Decodable {
     let nextWeek: String
     let days: [PlanDay]
     let status: WeekStatus
+    /// Nieuwere servers: standaard aantal personen.
+    let householdSize: Int?
 }
 
 struct SavePlanBody: Encodable {

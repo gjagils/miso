@@ -11,7 +11,8 @@ struct API {
     let baseURL: URL
     let token: String
 
-    private static let decoder: JSONDecoder = {
+    /// Gedeelde decoder (snake_case -> camelCase); ook gebruikt door de tests.
+    static let decoder: JSONDecoder = {
         let d = JSONDecoder()
         d.keyDecodingStrategy = .convertFromSnakeCase
         return d
@@ -41,6 +42,7 @@ struct API {
         guard (200..<300).contains(status) else {
             if status == 401 { throw APIError(message: "Niet ingelogd of verkeerde pincode.") }
             let msg = (try? Self.decoder.decode(ServerError.self, from: data))?.error
+            if msg == nil && status == 422 { throw APIError(message: "Controleer de invoer.") }
             throw APIError(message: msg ?? "Serverfout (HTTP \(status))")
         }
         return try Self.decoder.decode(T.self, from: data)
@@ -51,10 +53,21 @@ struct API {
     }
 
     func post<T: Decodable>(_ path: String, json body: some Encodable) async throws -> T {
-        var req = try request(path, method: "POST")
+        try await send(path, method: "POST", json: body)
+    }
+
+    func patch<T: Decodable>(_ path: String, json body: some Encodable) async throws -> T {
+        try await send(path, method: "PATCH", json: body)
+    }
+
+    func delete<T: Decodable>(_ path: String) async throws -> T {
+        try await send(try request(path, method: "DELETE"))
+    }
+
+    private func send<T: Decodable>(_ path: String, method: String, json body: some Encodable) async throws -> T {
+        var req = try request(path, method: method)
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        let enc = JSONEncoder()
-        req.httpBody = try enc.encode(body)
+        req.httpBody = try JSONEncoder().encode(body)
         return try await send(req)
     }
 

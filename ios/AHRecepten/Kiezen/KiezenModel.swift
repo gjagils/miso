@@ -7,6 +7,8 @@ final class KiezenModel {
     var picked: [PickItem] = []
     /// Maandag van de gekozen week (leeg = huidige week, de server bepaalt).
     var week = ""
+    /// Personen per recept voor de boodschappen (stap 2 -> stap 3); leeg = huishoudgrootte.
+    var groceryPersons: [Int: Int] = [:]
 
     func isPicked(_ key: String) -> Bool { picked.contains { $0.key == key } }
 
@@ -61,5 +63,6 @@ final class KiezenModel {
     func reset() {
         picked = []
         week = ""
+        groceryPersons = [:]
     }
 }

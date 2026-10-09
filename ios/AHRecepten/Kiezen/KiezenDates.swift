@@ -32,6 +32,22 @@ enum KiezenDates {
         return "\(days[weekday]) \(c.day ?? 0) \(months[(c.month ?? 1) - 1])"
     }
 
+    /// 0 = maandag … 6 = zondag (nil bij een ongeldige datum).
+    static func weekdayIndex(_ s: String) -> Int? {
+        guard let d = parse(s) else { return nil }
+        return (calendar.component(.weekday, from: d) + 5) % 7
+    }
+
+    /// Dag van de maand (6 voor "2025-10-06").
+    static func dayOfMonth(_ s: String) -> Int? {
+        parse(s).map { calendar.component(.day, from: $0) }
+    }
+
+    /// "Maandag" (eerste woord van het label).
+    static func weekdayName(_ s: String) -> String {
+        weekdayIndex(s).map { days[$0] } ?? s
+    }
+
     /// "6 okt"
     static func short(_ s: String) -> String {
         label(s).split(separator: " ").dropFirst().joined(separator: " ")

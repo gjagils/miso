@@ -1,73 +1,75 @@
 import SwiftUI
 
-/// Weekmenu plannen, vastzetten en controleren of alles op het AH-lijstje staat.
+/// Weekmenu: per dag wat er gepland is (recept, restje, "hebben we al"), plannen via "+", verplaatsen,
+/// personen aanpassen, en één knop om de nieuwe producten op het AH-lijstje te zetten.
 struct PlanView: View {
     @Environment(Session.self) private var session
-    @State private var week: WeekResponse?
-    @State private var allRecipes: [RecipeSummary] = []
-    @State private var pickerDay: DayID?
-    @State private var busy = false
-    @State private var message: String?
-    @State private var errorText: String?
+    @State private var model = WeekPlanModel()
+    @State private var path: [PlanRoute] = []
+    @State private var planRequest: PlanSheetRequest?
+    @State private var pendingDelete: PlanItem?
+    @State private var confirmingDelete = false
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             List {
-                if let week {
-                    if let errorText {
+                if let week = model.week {
+                    if let errorText = model.errorText {
                         ErrorBanner(message: errorText, onDismiss: dismissError)
                             .listRowBackground(Color.clear)
                             .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
                     }
 
                     Section {
-                        HStack {
-                            Button(action: previousWeek) {
-                                Label("Vorige week", systemImage: "chevron.left")
-                                    .labelStyle(.iconOnly)
-                                    .frame(minWidth: 44, minHeight: 44)
-                                    .contentShape(.rect)
-                            }
-                            Spacer()
-                            Text("Week van \(week.week)").font(.misoHeadline).foregroundStyle(Color.misoBlue)
-                            Spacer()
-                            Button(action: nextWeek) {
-                                Label("Volgende week", systemImage: "chevron.right")
-                                    .labelStyle(.iconOnly)
-                                    .frame(minWidth: 44, minHeight: 44)
-                                    .contentShape(.rect)
-                            }
-                        }
-                        .buttonStyle(.borderless)
-                        .misoRow()
+                        WeekNavigator(title: "Week van \(KiezenDates.short(week.week))",
+                                      onPrevious: previousWeek, onNext: nextWeek)
                     }
+                    .misoRow()
 
                     ForEach(week.days) { day in
                         Section {
-                            ForEach(day.entries) { entry in
-                                RecipeRow(recipe: entry.recipe)
+                            let items = model.items(for: day)
+                            ForEach(items) { item in
+                                PlanItemRow(item: item,
+                                            persons: model.persons(for: item),
+                                            profile: model.profile(for: item),
+                                            onOpenRecipe: item.recipeId.map { id in { openRecipe(id) } },
+                                            onPersons: item.isEditable ? { setPersons($0, for: item) } : nil)
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                        if item.isEditable {
+                                            Button("Verwijder", systemImage: "trash") { askDelete(item) }
+                                                .tint(.red)
+                                            Button("Verplaats naar…", systemImage: "calendar") { move(item) }
+                                                .tint(Color.misoBlue)
+                                        }
+                                    }
                             }
-                            .onDelete { offsets in
-                                Task { await remove(from: day, at: offsets) }
+                            if items.isEmpty {
+                                Text("Nog niets gepland").font(.misoBody).foregroundStyle(.secondary)
                             }
-                            Button {
-                                pickerDay = DayID(date: day.date)
-                            } label: {
-                                Label("Recept toevoegen", systemImage: "plus")
-                            }
-                            .font(.misoButton).foregroundStyle(Color.misoBlue)
-                            .frame(minHeight: 44)
                         } header: {
-                            HStack {
-                                Text(day.label).misoSectionHeader()
-                                if day.today { Text("vandaag").misoChip(.misoOrange) }
-                            }
+                            PlanDayHeader(day: day) { add(on: day) }
                         }
                         .misoRow()
                     }
 
-                    statusSection(week.status)
-                } else if let errorText {
+                    GroceriesSection(status: week.status, pushing: model.pushing, result: model.pushResult,
+                                     onPush: pushToList)
+
+                    if let health = model.health, health.dagen > 0 {
+                        HealthSection(health: health)
+                    }
+
+                    Section {
+                        NavigationLink(value: PlanRoute.freezer) {
+                            Label("Vriezer", systemImage: "snowflake")
+                                .font(.misoButton)
+                                .foregroundStyle(Color.misoBlue)
+                                .frame(minHeight: 44)
+                        }
+                    }
+                    .misoRow()
+                } else if let errorText = model.errorText {
                     ErrorStateView(message: errorText).listRowBackground(Color.clear)
                 } else {
                     ProgressView().frame(maxWidth: .infinity).listRowBackground(Color.clear)
@@ -75,141 +77,102 @@ struct PlanView: View {
             }
             .misoScreen()
             .navigationTitle("Weekmenu")
-            .refreshable { await load(week: week?.week) }
-            .task { await load(week: nil) }
-            .sheet(item: $pickerDay) { day in
-                RecipePicker(recipes: allRecipes) { recipe in
-                    Task { await add(recipe, on: day.date) }
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    NavigationLink(value: PlanRoute.freezer) {
+                        Label("Vriezer", systemImage: "snowflake")
+                    }
                 }
+            }
+            .navigationDestination(for: PlanRoute.self) { route in
+                switch route {
+                case .recipe(let id): RecipeDetailView(recipeID: id)
+                case .freezer: FreezerView(week: model.week?.week, firstFreeDay: model.firstFreeDay)
+                }
+            }
+            .refreshable { await reload() }
+            .task { await load() }
+            .sheet(item: $planRequest) { request in
+                PlanSheet(request: request, onDone: planned)
+            }
+            .confirmationDialog(deleteTitle, isPresented: $confirmingDelete, titleVisibility: .visible,
+                                presenting: pendingDelete) { item in
+                Button("Verwijder", role: .destructive) { delete(item) }
+                Button("Annuleer", role: .cancel) {}
+            } message: { _ in
+                Text("De rest-dag gaat ook weg.")
             }
         }
     }
 
-    @ViewBuilder
-    private func statusSection(_ status: WeekStatus) -> some View {
-        Section {
-            if status.needed == 0 && status.unmatched.isEmpty {
-                EmptyStateView(pose: "idea", title: "Nog niets gepland", message: "Voeg hierboven recepten toe, dan maakt Miso je boodschappenlijst.", size: 100)
-            } else if status.complete {
-                HStack(spacing: 12) {
-                    MascotView(pose: "delighted", size: 64)
-                    Label(status.needed == 1 ? "Het product staat op je AH-lijstje" : "Alle \(status.needed) producten staan op je AH-lijstje",
-                          systemImage: "checkmark.circle.fill")
-                        .foregroundStyle(Color.misoBlue)
-                }
-                .padding(8).background(Color.misoMint, in: .rect(cornerRadius: 14))
-            } else {
-                if !status.missing.isEmpty {
-                    Label("Nog \(plural(status.missing.count, "product", "producten")) niet op je lijstje", systemImage: "exclamationmark.triangle")
-                        .foregroundStyle(Color.misoBlue)
-                    ForEach(status.missing) { item in Text("\(item.quantity)× \(item.name)").font(.callout) }
-                }
-                if !status.unmatched.isEmpty {
-                    Label("Geen AH-product gekoppeld", systemImage: "questionmark.circle").foregroundStyle(Color.misoBlue)
-                    ForEach(status.unmatched, id: \.self) { Text($0).font(.callout) }
-                }
-            }
-            if status.locked { Label("Weekmenu is vastgezet", systemImage: "lock.fill") }
-            Button(status.locked ? "Weekmenu ontgrendelen" : "Weekmenu vastzetten", action: toggleLock)
-                .buttonStyle(.misoPrimary)
-                .disabled(busy)
-            Button("Controleer en vul aan", action: checkList)
-                .buttonStyle(.misoSecondary)
-                .disabled(busy)
-            if busy { ProgressView() }
-            if let message { Text(message).font(.caption).foregroundStyle(.secondary) }
-        } header: { Text("Boodschappen").misoSectionHeader() }
-        .misoRow()
+    private var deleteTitle: String {
+        pendingDelete.map { "\($0.title) van het weekmenu halen?" } ?? ""
     }
-
-    private struct DayID: Identifiable { let date: String; var id: String { date } }
 
     // MARK: Acties
 
     private func dismissError() {
-        withAnimation { errorText = nil }
+        withAnimation { model.errorText = nil }
+    }
+
+    private func load() async {
+        guard let api = session.api else { return }
+        await model.load(api: api, week: model.week?.week)
+    }
+
+    private func reload() async {
+        guard let api = session.api else { return }
+        await model.afterChange(api: api)
     }
 
     private func previousWeek() {
-        guard let week else { return }
-        Task { await load(week: week.prevWeek) }
+        guard let api = session.api, let week = model.week else { return }
+        Task { await model.showWeek(week.prevWeek, api: api) }
     }
 
     private func nextWeek() {
-        guard let week else { return }
-        Task { await load(week: week.nextWeek) }
+        guard let api = session.api, let week = model.week else { return }
+        Task { await model.showWeek(week.nextWeek, api: api) }
     }
 
-    private func toggleLock() {
-        guard let week else { return }
-        Task { await sync(locked: !week.status.locked) }
+    private func openRecipe(_ id: Int) {
+        path.append(.recipe(id))
     }
 
-    private func checkList() {
-        Task { await sync(locked: nil) }
+    private func add(on day: PlanDay) {
+        planRequest = PlanSheetRequest(showTabs: true, date: day.date, start: model.week?.week)
     }
 
-    private func load(week weekStart: String?) async {
+    private func move(_ item: PlanItem) {
+        planRequest = PlanSheetRequest(mode: .move(item), date: item.date, start: model.week?.week)
+    }
+
+    private func planned(_ result: PlanSheetResult) {
+        Task { await reload() }
+    }
+
+    /// Een kookdag met rest-dag eerst bevestigen (de rest gaat mee); anders direct weghalen.
+    private func askDelete(_ item: PlanItem) {
+        if item.leftoverEntryIds.isEmpty {
+            delete(item)
+        } else {
+            pendingDelete = item
+            confirmingDelete = true
+        }
+    }
+
+    private func delete(_ item: PlanItem) {
         guard let api = session.api else { return }
-        do {
-            let query = weekStart.map { [URLQueryItem(name: "week", value: $0)] } ?? []
-            let result: WeekResponse = try await api.get("api/week", query: query)
-            week = result
-            let list: RecipesResponse = try await api.get("api/recipes")
-            allRecipes = list.recipes
-            errorText = nil
-        } catch {
-            if (error as? URLError)?.code == .cancelled { return }
-            // Staat er al een weekmenu, dan blijft dat staan en komt de fout in een melding erboven.
-            errorText = error.localizedDescription
-        }
+        Task { await model.delete(item, api: api) }
     }
 
-    private func planDict(_ week: WeekResponse) -> [String: [Int]] {
-        Dictionary(uniqueKeysWithValues: week.days.map { ($0.date, $0.recipes.map(\.id)) })
-    }
-
-    private func save(_ days: [String: [Int]], week current: WeekResponse) async {
+    private func setPersons(_ value: Int, for item: PlanItem) {
         guard let api = session.api else { return }
-        do {
-            let result: SavePlanResult = try await api.post("api/plan", json: SavePlanBody(week: current.week, days: days))
-            if !result.ok { errorText = "Opslaan van het weekmenu is mislukt." }
-            await load(week: current.week)
-        } catch {
-            errorText = "Opslaan mislukt. \(error.localizedDescription)"
-        }
+        model.setPersons(value, for: item, api: api)
     }
 
-    private func add(_ recipe: RecipeSummary, on date: String) async {
-        guard let week else { return }
-        var days = planDict(week)
-        days[date, default: []].append(recipe.id)
-        await save(days, week: week)
-    }
-
-    private func remove(from day: PlanDay, at offsets: IndexSet) async {
-        guard let week else { return }
-        var days = planDict(week)
-        days[day.date]?.remove(atOffsets: offsets)
-        await save(days, week: week)
-    }
-
-    private func sync(locked: Bool?) async {
-        guard let api = session.api, let current = week else { return }
-        busy = true
-        message = nil
-        defer { busy = false }
-        do {
-            let result: SyncResult = try await api.post("api/plan/sync", json: SyncBody(week: current.week, locked: locked))
-            if result.ok {
-                let added = result.added ?? 0
-                message = added > 0 ? "\(plural(added, "product", "producten")) toegevoegd aan je AH-lijstje." : nil
-                await load(week: current.week)
-            } else {
-                message = result.error ?? "Mislukt"
-            }
-        } catch {
-            message = error.localizedDescription
-        }
+    private func pushToList() {
+        guard let api = session.api else { return }
+        Task { await model.pushToList(api: api) }
     }
 }

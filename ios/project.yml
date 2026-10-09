@@ -57,6 +57,8 @@ targets:
       - AHRecepten/Keychain.swift
       - AHRecepten/API.swift
       - AHRecepten/Models.swift
+      # Plannings-modellen (alleen Foundation), omdat Models.swift ze gebruikt.
+      - AHRecepten/Planning/Models
       - AHRecepten/Theme.swift
       - AHRecepten/Components.swift
     entitlements:
