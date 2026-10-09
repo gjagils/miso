@@ -18,7 +18,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.clients.ah import ah_client, convert_ah_recipe
+from app.clients.ah import ah_client, convert_ah_recipe, get_shopping_list
 from app.clients.extractor import extract_recipe, fetch_url, suggest_gluten_free
 from app.clients.mealie import MealieClient, clean_search, convert_recipe
 from app.matching import MATCH_VERSION, choose, container_count, has_no_product, is_equipment, is_pantry, needed, pack_size, packs_for, query_terms, score, search_queries
@@ -702,39 +702,55 @@ async def sync_week(payload: WeekPayload, db: Session = Depends(get_db)):
     db.commit()
 
     cart, _ = week_cart(db, monday)
-    pushed = _pushed(db, monday)
-    delta = [
-        {**item, "quantity": item["quantity"] - pushed.get(item["product_id"], 0)}
-        for item in cart
-        if item["quantity"] > pushed.get(item["product_id"], 0)
-    ]
-    added = 0
-    if delta:
-        access_token = _get_setting(db, "ah_user_token")
-        refresh_token = _get_setting(db, "ah_refresh_token")
-        if not access_token and not refresh_token:
-            return {"ok": False, "error": "AH niet gekoppeld. Ga naar Instellingen."}
-
+    access_token = _get_setting(db, "ah_user_token")
+    refresh_token = _get_setting(db, "ah_refresh_token")
+    on_list: dict[int, int] | None = None
+    if access_token or refresh_token:
         def _save_tokens(new_access: str, new_refresh: str) -> None:
             _set_setting(db, "ah_user_token", new_access)
             _set_setting(db, "ah_refresh_token", new_refresh)
 
         ah_client.set_user_tokens(access_token, refresh_token, on_tokens_updated=_save_tokens)
+        try:  # wat staat er écht op het lijstje? (ook als je in de AH-app iets weghaalde of zelf toevoegde)
+            on_list = await get_shopping_list(ah_client)
+        except Exception as e:  # noqa: BLE001 - dan onze eigen boekhouding
+            logger.warning("AH-lijstje lezen mislukt, val terug op eigen boekhouding: %s", e)
+    have = on_list if on_list is not None else _pushed(db, monday)
+    delta = [
+        {**item, "quantity": item["quantity"] - have.get(item["product_id"], 0)}
+        for item in cart
+        if item["quantity"] > have.get(item["product_id"], 0)
+    ]
+    added = 0
+    if delta:
+        if not access_token and not refresh_token:
+            return {"ok": False, "error": "AH niet gekoppeld. Ga naar Instellingen."}
         try:
             await ah_client.add_to_cart(delta)
+            if on_list is not None:
+                # AH telt aantallen op; mocht het ooit vervangen, dan zetten we alsnog het juiste totaal
+                after = await get_shopping_list(ah_client)
+                short = [{**i, "quantity": on_list.get(i["product_id"], 0) + i["quantity"]} for i in delta
+                         if after.get(i["product_id"], 0) < on_list.get(i["product_id"], 0) + i["quantity"]]
+                if short:
+                    logger.info("AH-lijstje: %d aantallen bijgezet naar het totaal", len(short))
+                    await ah_client.add_to_cart(short)
         except Exception as e:
             logger.error("Failed to fill AH list for week %s: %s", monday, e)
             return {"ok": False, "error": str(e)}
-        rows = {r.product_id: r for r in db.execute(select(CartPush).where(CartPush.week_start == str(monday))).scalars()}
-        for item in delta:
-            row = rows.get(item["product_id"])
-            if row:
-                row.quantity += item["quantity"]
-            else:
-                db.add(CartPush(week_start=str(monday), product_id=item["product_id"],
-                                quantity=item["quantity"], name=item["name"]))
-        db.commit()
         added = len(delta)
+    # Boekhouding = wat de week nodig heeft en nu op het lijstje staat (voor de status zonder AH-call)
+    rows = {r.product_id: r for r in db.execute(select(CartPush).where(CartPush.week_start == str(monday))).scalars()}
+    for item in cart:
+        if on_list is None and item["product_id"] not in {d["product_id"] for d in delta}:
+            continue
+        row = rows.get(item["product_id"])
+        if row:
+            row.quantity = item["quantity"]
+        else:
+            db.add(CartPush(week_start=str(monday), product_id=item["product_id"],
+                            quantity=item["quantity"], name=item["name"]))
+    db.commit()
 
     if payload.locked:
         _set_setting(db, _locked_key(monday), "1")

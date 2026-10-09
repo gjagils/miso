@@ -370,3 +370,45 @@ def test_daily_backup(tmp_path, monkeypatch):
     for d in range(10, 30):
         maintenance.backup_now(date(2026, 10, d))
     assert len([f for f in (tmp_path / "backups").iterdir() if f.name.startswith("miso-")]) == maintenance.KEEP_DB
+
+
+def test_week_sync_reads_real_ah_list(db, monkeypatch):
+    from datetime import date
+
+    from app.clients.ah import parse_shopping_list
+    from app.models import AppSetting
+
+    assert parse_shopping_list({"items": [
+        {"quantity": 2, "strikedthrough": False, "productDetails": {"product": {"webshopId": 5}}},
+        {"quantity": 1, "strikedthrough": True, "productDetails": {"product": {"webshopId": 6}}},
+        {"quantity": 1, "type": "TEXT", "description": "wc-papier"},
+    ]}) == {5: 2}
+
+    db.add(AppSetting(key="ah_user_token", value="t"))
+    a = _recipe(db, "A", [_ing("ui", 1, qty=3), _ing("rijst", 2, qty=1)])
+    day = str(routes.monday_of(date.today()))
+    client = TestClient(app)
+    client.post("/api/plan/entries", json={"date": day, "kind": "recipe", "recipe_id": a.id})
+    the_list = {1: 1}  # 1 ui staat er al (bijv. zelf toegevoegd); rijst is in de AH-app weggehaald
+    sent = []
+
+    async def fake_list(client_obj):
+        return dict(the_list)
+
+    async def fake_add(items):  # AH telt op
+        sent.append(items)
+        for i in items:
+            the_list[i["product_id"]] = the_list.get(i["product_id"], 0) + i["quantity"]
+
+    async def no_match(*args, **kwargs):
+        return 0
+
+    monkeypatch.setattr(routes, "get_shopping_list", fake_list)
+    monkeypatch.setattr(routes.ah_client, "add_to_cart", fake_add)
+    monkeypatch.setattr(routes, "_automatch", no_match)
+    res = client.post("/api/plan/sync", json={"week": day}).json()
+    assert res["ok"] and {i["product_id"]: i["quantity"] for i in sent[0]} == {1: 2, 2: 1}
+    assert len(sent) == 1 and the_list == {1: 3, 2: 1}
+    the_list.pop(2)  # weer weggehaald in de AH-app -> volgende sync zet hem terug
+    client.post("/api/plan/sync", json={"week": day})
+    assert sent[-1] == [{"product_id": 2, "quantity": 1, "name": "p2"}] or sent[-1][0]["product_id"] == 2

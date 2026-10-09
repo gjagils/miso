@@ -413,6 +413,27 @@ async def _user_call(client_obj, method: str, url: str, body: dict | None = None
     return resp
 
 
+def parse_shopping_list(data: dict) -> dict[int, int]:
+    """Productnummer -> aantal op 'Mijn lijst' (afgestreepte en losse tekstregels tellen niet)."""
+    out: dict[int, int] = {}
+    for item in data.get("items") or []:
+        if item.get("strikedthrough") or item.get("strikeThrough"):
+            continue
+        product = ((item.get("productDetails") or {}).get("product") or {})
+        pid = product.get("webshopId") or item.get("productId")
+        if pid:
+            out[int(pid)] = out.get(int(pid), 0) + int(item.get("quantity") or 1)
+    return out
+
+
+async def get_shopping_list(client_obj) -> dict[int, int]:
+    """Lees het echte AH-lijstje (GET shoppinglist/v2/items). Alleen lezen."""
+    resp = await _user_call(client_obj, "GET", AH_CART_URL)
+    if resp.is_error:
+        raise ValueError(f"AH-lijstje lezen mislukt ({resp.status_code})")
+    return parse_shopping_list(resp.json())
+
+
 async def get_active_order(client_obj) -> dict:
     resp = await _user_call(client_obj, "GET", AH_ORDER_ACTIVE_URL)
     if resp.status_code == 404:

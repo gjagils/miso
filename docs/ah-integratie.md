@@ -74,6 +74,17 @@ Response (relevante velden):
   (`expiresAt = now + max(60, expires_in - 60) * 1000`). In serverless kan elke cold start een nieuw token
   ophalen; dat is prima.
 
+### Boodschappenlijstje lezen (gebruikerstoken)
+
+`GET https://api.ah.nl/mobile-services/shoppinglist/v2/items` (Bearer-gebruikerstoken) geeft `{"id", "items": [...]}`.
+Per item: `quantity`, `strikedthrough` (afgestreept), `type` (`SHOPPABLE` of tekst), en
+`productDetails.product.webshopId` / `title` / `salesUnitSize`. Alleen lezen.
+
+Miso leest het lijstje vóór elke week-sync en voegt alleen toe wat er écht nog ontbreekt (`nodig - op lijstje`),
+dus ook goed als je in de AH-app iets weghaalde of zelf toevoegde. Na het toevoegen leest Miso opnieuw; telt
+`PATCH shoppinglist/v2/items` onverhoopt niet op maar vervangt het, dan wordt alsnog het totaal gezet.
+Lukt lezen niet, dan valt Miso terug op de eigen boekhouding (`cart_pushes`).
+
 ### Producten zoeken
 
 **Eerst: GraphQL `searchProducts` (zoals de Appie-app, sinds 2026-10).** Dit is de "slimme" zoekfunctie met
