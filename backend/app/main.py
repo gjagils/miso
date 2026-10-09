@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
+from app.api.ah_data import router as ah_data_router
 from app.api.json_api import router as json_router
 from app.api.routes import router
 from app.api.shopping import router as shopping_router
@@ -42,6 +43,7 @@ async def require_pin(request: Request, call_next):
 
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
+app.include_router(ah_data_router)
 app.include_router(json_router)
 app.include_router(shopping_router)
 app.include_router(health_router)

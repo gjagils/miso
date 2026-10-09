@@ -23,6 +23,22 @@
     </table>
 </section>
 
+{% if ah_refresh_set or ah_token_set %}
+<section class="settings-section" id="ah-data">
+    <h2>Je AH-lijsten</h2>
+    <p class="muted" id="ah-lists-status">Lijsten ophalen bij AH...</p>
+    <table class="settings-table ah-lists-table" id="ah-lists-table" hidden></table>
+    <p class="muted" style="margin-top: 0.5rem;">Bij Boodschappen in "Wat eten we?" kun je deze lijsten in één keer meenemen.</p>
+</section>
+
+<section class="settings-section">
+    <h2>Allerhande-favorieten</h2>
+    <p class="muted">Haalt je bewaarde recepten uit Allerhande ("Mijn favorieten") naar Miso. Recepten die er al staan worden overgeslagen.</p>
+    <p style="margin-top: 0.75rem;"><button class="btn btn-ah" type="button" id="fav-import">Importeer mijn AH-favorieten</button></p>
+    <div id="fav-result" role="status"></div>
+</section>
+{% endif %}
+
 <section class="settings-section">
     <h2>Recepten importeren uit Mealie</h2>
     <p class="muted">Haalt al je recepten (met foto) uit Mealie. Recepten die er al staan worden overgeslagen, dus je kunt dit gerust opnieuw doen.
@@ -61,4 +77,43 @@
         {% if ah_login_success %}<p class="msg-ok" role="status"><img src="/static/miso/miso-celebrate.webp" alt="" width="56" height="56" loading="lazy"><span>Succesvol gekoppeld!</span></p>{% endif %}
     </div>
 </section>
+{% endblock %}
+
+{% block scripts %}
+{% if ah_refresh_set or ah_token_set %}
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+
+(async () => {
+    let r;
+    try { r = await (await fetch("/api/ah-lists")).json(); } catch (e) { r = {ok: false}; }
+    const lists = (r.ok && r.lists) || [];
+    if (!r.ok) { $("ah-lists-status").textContent = r.error || "AH-lijsten ophalen is niet gelukt."; return; }
+    if (!lists.length) { $("ah-lists-status").textContent = "Je hebt nog geen lijsten in de AH-app."; return; }
+    $("ah-lists-status").hidden = true;
+    const t = $("ah-lists-table");
+    t.innerHTML = lists.map(l => `<tr><td class="${l.is_basis ? "kz-basis" : ""}">${esc(l.name)}${l.is_basis ? ' <span class="badge badge-mapped">basis</span>' : ""}</td>
+        <td class="muted">${l.count} ${l.count === 1 ? "product" : "producten"}</td></tr>`).join("");
+    t.hidden = false;
+})();
+
+$("fav-import").onclick = async () => {
+    const b = $("fav-import"), out = $("fav-result");
+    b.disabled = true; b.textContent = "Bezig met importeren...";
+    let r;
+    try { r = await (await fetch("/api/ah-favorite-recipes/import", {method: "POST"})).json(); } catch (e) { r = {ok: false}; }
+    b.disabled = false; b.textContent = "Importeer mijn AH-favorieten";
+    const ok = !!r.ok;
+    const text = ok
+        ? (r.imported ? `${r.imported} ${r.imported === 1 ? "recept" : "recepten"} geïmporteerd` : "Geen nieuwe favorieten")
+          + ` (${r.total} favorieten bij AH${r.skipped ? `, ${r.skipped} stonden er al` : ""}${r.failed ? `, ${r.failed} mislukt` : ""}).`
+        : (r.error || "Importeren is mislukt.");
+    out.innerHTML = `<p class="${ok ? "msg-ok" : "msg-err"}"><img src="/static/miso/${ok ? "miso-celebrate" : "miso-surprised"}.webp" alt="" width="56" height="56"><span></span></p>`;
+    out.querySelector("span").textContent = text;
+};
+})();
+</script>
+{% endif %}
 {% endblock %}

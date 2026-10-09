@@ -715,16 +715,24 @@ async def allerhande_page(request: Request, q: str = "", db: Session = Depends(g
 
 @router.post("/api/allerhande/add")
 async def allerhande_add(recipe_id: int = Form(...), db: Session = Depends(get_db)):
+    result = await import_allerhande_recipe(db, recipe_id)
+    if not result["ok"]:
+        return JSONResponse({"ok": False, "error": result["error"]}, status_code=result["status"])
+    return {"ok": True, "id": result["id"]}
+
+
+async def import_allerhande_recipe(db: Session, recipe_id: int) -> dict:
+    """Allerhande-recept opslaan (dedupe op ah_recipe_id). {"ok", "id", "new"} of {"ok": False, "error", "status"}."""
     existing = db.execute(select(Recipe).where(Recipe.ah_recipe_id == recipe_id)).scalar_one_or_none()
     if existing:
-        return {"ok": True, "id": existing.id}
+        return {"ok": True, "id": existing.id, "new": False}
     try:
         data = convert_ah_recipe(await ah_client.get_recipe(recipe_id))
     except Exception as e:
         logger.error("Fetching Allerhande recipe %s failed: %s", recipe_id, e)
-        return JSONResponse({"ok": False, "error": f"Recept ophalen mislukt: {e}"}, status_code=502)
+        return {"ok": False, "error": f"Recept ophalen mislukt: {e}", "status": 502}
     if not data["name"] or not data["ingredients"]:
-        return JSONResponse({"ok": False, "error": "Dit recept bevat geen ingrediënten."}, status_code=422)
+        return {"ok": False, "error": "Dit recept bevat geen ingrediënten.", "status": 422}
 
     recipe = Recipe(
         name=data["name"], description=data["description"], servings=data["servings"],
@@ -736,7 +744,7 @@ async def allerhande_add(recipe_id: int = Form(...), db: Session = Depends(get_d
     db.add(recipe)
     db.commit()
     logger.info("Added Allerhande recipe %s (id=%s)", recipe.name, recipe.id)
-    return {"ok": True, "id": recipe.id}
+    return {"ok": True, "id": recipe.id, "new": True}
 
 
 # ── Import uit Mealie ──────────────────────────────────────────────────

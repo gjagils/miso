@@ -23,6 +23,17 @@
         <div id="picked-list" class="kz-picked-list"></div>
     </div>
 
+    <div id="bonus-group" hidden>
+        <div class="kz-bonus-head">
+            <img src="/static/miso/miso-shopping-cart.webp" alt="" width="56" height="56" loading="lazy">
+            <div>
+                <h2>Deze week in de bonus</h2>
+                <p class="muted" id="bonus-sub"></p>
+            </div>
+        </div>
+        <div class="kz-grid" id="bonus-grid"></div>
+    </div>
+
     <div id="own-group">
         <h2 class="kz-group">Jouw recepten <span class="kz-count" id="own-count"></span></h2>
         <div class="kz-grid" id="own-grid"></div>
@@ -81,6 +92,19 @@
         <summary>Heb je al <span class="kz-count" id="pantry-count"></span></summary>
         <ul id="pantry"></ul>
     </details>
+
+    <div id="extras" class="kz-extras" hidden>
+        <div id="lists-box" hidden>
+            <h3>Ook van je AH-lijsten</h3>
+            <p class="muted">Aangevinkte lijsten gaan mee op je lijstje.</p>
+            <ul id="ah-lists" class="kz-checks"></ul>
+        </div>
+        <details id="staples-box" hidden>
+            <summary>Vergeet je deze niet? <span class="kz-count" id="staples-count"></span></summary>
+            <p class="muted">Koop je vaak, maar zit niet in je recepten. Vink aan wat mee moet.</p>
+            <ul id="staples" class="kz-checks"></ul>
+        </details>
+    </div>
 
     <div class="kz-actions" id="shop-actions" hidden>
         <button class="btn" type="button" id="basket-btn" hidden>Zet in AH-mandje</button>
@@ -157,7 +181,8 @@ function card(item) {
     b.innerHTML = `${thumb(item.image_url, "kz-img")}
         <span class="kz-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
         <span class="kz-card-body"><span class="kz-title">${esc(item.name)}</span>
-        <span class="kz-meta">${esc(item.meta)}</span></span>`;
+        <span class="kz-meta">${esc(item.meta)}</span>
+        ${item.chip ? `<span class="kz-bonus-chip">${esc(item.chip)}</span>` : ""}</span>`;
     b.setAttribute("aria-label", `${item.name}${item.meta ? ", " + item.meta : ""}`);
     b.onclick = () => toggle(item);
     return b;
@@ -227,9 +252,30 @@ async function searchAh(q) {
     });
 }
 
+// Bonus: recepten met de meeste ingrediënten in de bonus (verborgen als AH niet antwoordt)
+let bonusLoaded = false;
+async function loadBonus() {
+    let data;
+    try { data = await (await fetch("/api/bonus/recipes?limit=6")).json(); } catch (e) { return; }
+    const recipes = (data && data.ok && data.recipes) || [];
+    if (!recipes.length) return;
+    const grid = $("bonus-grid");
+    grid.innerHTML = "";
+    recipes.forEach(r => {
+        const base = ownItem(r);
+        const meta = r.saving ? `± € ${r.saving.toFixed(2).replace(".", ",")} voordeel` : base.meta;
+        grid.appendChild(card({...base, meta, chip: `${r.bonus_count} in de bonus`}));
+    });
+    const end = data.period && data.period.end;
+    $("bonus-sub").textContent = end ? `Aanbiedingen t/m ${dayLabel(end).toLowerCase()}` : "Recepten met aanbiedingen van deze week";
+    bonusLoaded = true;
+    $("bonus-group").hidden = !!$("q").value.trim();
+}
+
 function onSearch() {
     const q = $("q").value.trim();
     renderOwn(q);
+    $("bonus-group").hidden = !!q || !bonusLoaded;
     $("hungry").hidden = !!q;
     clearTimeout(timer);
     timer = setTimeout(() => searchAh(q), 300);
@@ -416,6 +462,54 @@ async function loadShop() {
         : `AH is nog niet gekoppeld. <a href="/settings">Koppel AH</a> om direct op je lijstje te zetten, of open de producten in de AH-app/website (daar ben je zelf ingelogd).`;
     $("shop-actions").hidden = false;
     renderBar();
+    loadExtras();
+}
+
+// ── Extra's: AH-lijsten en standaardboodschappen (alleen met AH-koppeling) ──
+const extraIds = () => ({
+    list_ids: [...document.querySelectorAll("#ah-lists input:checked")].map(i => i.value),
+    products: [...document.querySelectorAll("#staples input:checked")].map(i => ({product_id: Number(i.value), name: i.dataset.name, quantity: 1})),
+});
+const extraCount = () => { const e = extraIds(); return e.list_ids.length + e.products.length; };
+
+function checkRow(value, title, sub, opts = {}) {
+    const li = document.createElement("li");
+    li.innerHTML = `<label class="${opts.basis ? "kz-basis" : ""}"><input type="checkbox" value="${esc(value)}">
+        <span class="kz-cmain"><span>${esc(title)}${opts.basis ? ' <span class="badge badge-mapped">basis</span>' : ""}</span>
+        ${sub ? `<span class="muted">${esc(sub)}</span>` : ""}</span></label>`;
+    const input = li.querySelector("input");
+    if (opts.name) input.dataset.name = opts.name;
+    input.addEventListener("change", renderBar);
+    return li;
+}
+
+async function loadExtras() {
+    $("extras").hidden = true; $("lists-box").hidden = true; $("staples-box").hidden = true;
+    $("ah-lists").innerHTML = ""; $("staples").innerHTML = "";
+    if (!HAS_TOKEN) return;
+    const get = async url => { try { return await (await fetch(url)).json(); } catch (e) { return {ok: false}; } };
+    const [lists, staples] = await Promise.all([get("/api/ah-lists"), get(`/api/staples?week=${WEEK}`)]);
+    if (step !== 3) return;
+    const ls = (lists.ok && lists.lists || []).filter(l => l.count > 0);
+    ls.sort((a, b) => (b.is_basis - a.is_basis));
+    ls.forEach(l => $("ah-lists").appendChild(checkRow(l.id, l.name, `${l.count} ${l.count === 1 ? "product" : "producten"}`, {basis: l.is_basis})));
+    $("lists-box").hidden = !ls.length;
+    const st = staples.ok && staples.staples || [];
+    st.forEach(s => {
+        const sub = s.in_basislijst && !s.times ? "op je Basislijst"
+            : `${s.times}× gekocht${s.in_basislijst ? " · op je Basislijst" : ""}`;
+        $("staples").appendChild(checkRow(s.product_id, s.name || `Product ${s.product_id}`, sub, {name: s.name || ""}));
+    });
+    $("staples-count").textContent = st.length || "";
+    $("staples-box").hidden = !st.length;
+    $("extras").hidden = !ls.length && !st.length;
+    renderBar();
+}
+
+async function sendExtras() {
+    const e = extraIds();
+    if (!e.list_ids.length && !e.products.length) return null;
+    return await postJSON("/api/ah-extras/to-list", e);
 }
 
 // Mandje alleen tonen als er bij AH een actieve bestelling (gekozen bezorg-/ophaalmoment) is
@@ -449,12 +543,16 @@ function showResult(ok, text) {
 async function syncList() {
     const btn = $("bar-next");
     btn.disabled = true; btn.textContent = "Bezig...";
-    const r = await postJSON("/api/plan/sync", {week: WEEK, locked: true});
-    if (r.ok) {
+    const r = productCount ? await postJSON("/api/plan/sync", {week: WEEK, locked: true}) : null;
+    const x = await sendExtras();
+    const extra = x && x.ok ? ` Plus ${x.added} ${x.added === 1 ? "product" : "producten"} van je lijsten en standaardboodschappen.` : "";
+    if (r && r.ok) {
         const left = (r.status && r.status.unmatched || []).length;
-        showResult(true, (r.added ? `${r.added} producten op je AH-lijstje gezet.` : "Alles stond al op je AH-lijstje.")
-            + " Je weekmenu staat vast." + (left ? ` Nog ${left} ingrediënten zonder AH-product.` : ""));
-    } else showResult(false, r.error || "Het lijstje vullen is mislukt.");
+        showResult(!x || x.ok, (r.added ? `${r.added} producten op je AH-lijstje gezet.` : "Alles stond al op je AH-lijstje.")
+            + " Je weekmenu staat vast." + extra + (left ? ` Nog ${left} ingrediënten zonder AH-product.` : "")
+            + (x && !x.ok ? ` ${x.error || "De extra's zetten is mislukt."}` : ""));
+    } else if (r) showResult(false, (r.error || "Het lijstje vullen is mislukt.") + extra);
+    else if (x) showResult(x.ok, x.ok ? extra.trim() : (x.error || "Op het AH-lijstje zetten is mislukt."));
     renderBar();
 }
 
@@ -486,9 +584,10 @@ function renderBar() {
         next.textContent = "Opslaan en verder";
         next.disabled = !assign.length && !picked.size;
     } else {
+        const extras = HAS_TOKEN ? extraCount() : 0;
         const n = productCount ? `${productCount} ` : "";
-        next.textContent = HAS_TOKEN ? `Zet ${n}op mijn AH-lijstje` : `Open ${n}producten bij AH`;
-        next.disabled = !productCount;
+        next.textContent = HAS_TOKEN ? `Zet ${n}${extras ? `+ ${extras} extra ` : ""}op mijn AH-lijstje` : `Open ${n}producten bij AH`;
+        next.disabled = !productCount && !extras;
     }
 }
 
@@ -534,6 +633,7 @@ $("restart-btn").onclick = () => {
 renderPicked();
 onSearch();
 renderBar();
+loadBonus();
 })();
 </script>
 {% endblock %}
