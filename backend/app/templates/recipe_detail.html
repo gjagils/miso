@@ -14,6 +14,18 @@
 </p>
 <p id="plan-msg" class="msg-ok" role="status" hidden></p>
 
+<details class="settings-section photo-edit">
+    <summary>{% if recipe.image_url %}Andere foto{% else %}Foto toevoegen{% endif %}</summary>
+    <p class="muted">Kies een foto van het gerecht, of plak een link naar een foto.</p>
+    <input type="file" id="photo-file" accept="image/*">
+    <div style="margin-top:0.5rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <input type="url" id="photo-url" class="form-input" style="flex:1;min-width:200px;" placeholder="https://.../foto.jpg">
+        <button class="btn btn-primary" id="photo-save">Opslaan</button>
+        {% if recipe.image_url %}<button class="btn" id="photo-remove">Foto weghalen</button>{% endif %}
+    </div>
+    <span id="photo-status" class="muted"></span>
+</details>
+
 <section class="settings-section">
     <h2>Glutenvrij voor minstens 1 persoon</h2>
     <select id="gf-mode" style="width:100%;max-width:420px;">
@@ -54,6 +66,23 @@
 {% block scripts %}
 <script>
 const RECIPE_ID = {{ recipe.id }};
+document.getElementById("photo-save").addEventListener("click", async () => {
+    const status = document.getElementById("photo-status");
+    const file = document.getElementById("photo-file").files[0];
+    const url = document.getElementById("photo-url").value.trim();
+    if (!file && !url) { status.textContent = "Kies eerst een foto of plak een link."; return; }
+    const body = new FormData();
+    if (file) body.append("photo", file); else body.append("image_url", url);
+    status.textContent = "Opslaan...";
+    const data = await fetch(`/api/recipe/${RECIPE_ID}/photo`, {method: "POST", body}).then(r => r.json()).catch(() => ({}));
+    if (data.ok) { location.reload(); return; }
+    status.textContent = data.error || "Opslaan mislukt";
+});
+document.getElementById("photo-remove")?.addEventListener("click", async () => {
+    if (!confirm("Foto weghalen? Het recept komt dan bij 'Zonder foto'.")) return;
+    await fetch(`/api/recipe/${RECIPE_ID}/photo/remove`, {method: "POST"});
+    location.reload();
+});
 let ingredients = {{ ingredients|tojson }};
 const table = document.getElementById("ingredients");
 const statusEl = document.getElementById("status");

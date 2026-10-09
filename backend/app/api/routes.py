@@ -109,11 +109,13 @@ async def today_page(request: Request, db: Session = Depends(get_db)):
 
 
 @router.get("/recepten", response_class=HTMLResponse)
-async def recipes_page(request: Request, db: Session = Depends(get_db)):
+async def recipes_page(request: Request, foto: str = "", db: Session = Depends(get_db)):
     recipes = db.execute(select(Recipe).order_by(Recipe.name)).scalars().all()
+    without_photo = [r for r in recipes if not r.image_url]
     return templates.TemplateResponse(
         request, "recipes.html",
-        {"recipes": recipes, "has_api_key": bool(settings.anthropic_api_key)},
+        {"recipes": without_photo if foto == "nee" else recipes, "no_photo_filter": foto == "nee",
+         "no_photo_count": len(without_photo), "has_api_key": bool(settings.anthropic_api_key)},
     )
 
 
@@ -217,6 +219,18 @@ async def replace_photo(recipe_id: int, photo: UploadFile | None = File(default=
     recipe.image_url = f"/image/{recipe.id}?v={int(time.time())}"  # nieuwe URL: oude foto staat nog in caches
     db.commit()
     return {"ok": True, "image_url": recipe.image_url}
+
+
+@router.post("/api/recipe/{recipe_id}/photo/remove")
+async def remove_photo(recipe_id: int, db: Session = Depends(get_db)):
+    """Haal een foto weg die geen gerecht laat zien; het recept komt dan bij 'Zonder foto'."""
+    recipe = _get_recipe(db, recipe_id)
+    path = os.path.join(IMAGE_DIR, f"{recipe.id}.jpg")
+    if os.path.exists(path):
+        os.remove(path)
+    recipe.image_url = ""
+    db.commit()
+    return {"ok": True}
 
 
 # ── Import (URL / tekst / foto's) ──────────────────────────────────────

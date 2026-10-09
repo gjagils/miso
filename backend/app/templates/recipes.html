@@ -23,6 +23,12 @@
     </form>
 </section>
 
+<p class="week-actions">
+    {% if no_photo_filter %}<a class="btn" href="/recepten">Alle recepten</a>
+    <span class="muted">{{ no_photo_count }} recepten zonder foto. Kies een foto van het gerecht, dan verdwijnt het recept uit deze lijst.</span>
+    {% elif no_photo_count %}<a class="btn" href="/recepten?foto=nee">Zonder foto ({{ no_photo_count }})</a>{% endif %}
+</p>
+
 {% if recipes %}
 <div class="recipe-grid">
     {% for r in recipes %}
@@ -32,10 +38,14 @@
         <div class="recipe-card-body">
             <h3>{{ r.name }}</h3>
             <p>{{ r.servings }}{% if r.servings and r.total_time %} · {% endif %}{{ r.total_time }}</p>
+            {% if no_photo_filter %}<label class="btn btn-primary photo-pick" onclick="event.stopPropagation()">Kies foto
+                <input type="file" accept="image/*" hidden data-recipe="{{ r.id }}"></label>{% endif %}
         </div>
     </a>
     {% endfor %}
 </div>
+{% elif no_photo_filter %}
+<div class="empty-state"><img src="/static/miso/miso-hungry.webp" alt="" width="140" height="140" loading="lazy"><h2>Alles heeft een foto</h2><p>Elk recept heeft een foto van het gerecht.</p></div>
 {% else %}
 <div class="empty-state"><img src="/static/miso/miso-hungry.webp" alt="" width="140" height="140" loading="lazy"><h2>Miso heeft honger</h2><p>Nog geen recepten. Zet hierboven je eerste recept om en Miso doet de rest.</p></div>
 {% endif %}
@@ -43,6 +53,20 @@
 
 {% block scripts %}
 <script>
+document.querySelectorAll(".photo-pick").forEach(label => label.addEventListener("click", e => {
+    if (e.target === label) { e.preventDefault(); label.querySelector("input").click(); }
+}));
+document.querySelectorAll(".photo-pick input").forEach(input => input.addEventListener("change", async () => {
+    if (!input.files.length) return;
+    const card = input.closest(".recipe-card");
+    const body = new FormData();
+    body.append("photo", input.files[0]);
+    card.style.opacity = 0.5;
+    const data = await fetch(`/api/recipe/${input.dataset.recipe}/photo`, {method: "POST", body}).then(r => r.json()).catch(() => ({}));
+    if (data.ok) { card.remove(); return; }
+    card.style.opacity = 1;
+    alert(data.error || "Foto opslaan mislukt");
+}));
 document.getElementById("import-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const btn = document.getElementById("import-btn");

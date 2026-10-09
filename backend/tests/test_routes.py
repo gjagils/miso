@@ -260,3 +260,18 @@ def test_replace_photo_saves_upload(db, tmp_path, monkeypatch):
     assert resp.json()["image_url"].startswith(f"/image/{r.id}?v=")
     assert (tmp_path / f"{r.id}.jpg").exists()
     assert client.post(f"/api/recipe/{r.id}/photo", data={}).status_code == 400
+
+
+def test_no_photo_filter_and_remove(db, tmp_path, monkeypatch):
+    monkeypatch.setattr(routes, "IMAGE_DIR", str(tmp_path))
+    with_photo = _recipe(db, "Met foto", [])
+    with_photo.image_url = f"/image/{with_photo.id}"
+    _recipe(db, "Zonder foto", [])
+    db.commit()
+    client = TestClient(app)
+    page = client.get("/recepten?foto=nee").text
+    assert "Zonder foto" in page and "Met foto" not in page and "Kies foto" in page
+    assert "Zonder foto (1)" in client.get("/recepten").text
+    assert client.post(f"/api/recipe/{with_photo.id}/photo/remove").json() == {"ok": True}
+    assert "Met foto" in client.get("/recepten?foto=nee").text
+    assert "Foto toevoegen" in client.get(f"/recipe/{with_photo.id}").text

@@ -698,3 +698,5 @@ dialog.mp::backdrop { background: rgba(14, 42, 71, 0.5); }
     .mp-chip[aria-pressed="true"] .mp-wd { color: var(--miso-blue); }
     dialog.mp::backdrop { background: rgba(0, 0, 0, 0.6); }
 }
+.photo-pick { margin-top: 0.5rem; display: inline-block; }
+.photo-edit summary { cursor: pointer; font-weight: 600; }
