@@ -31,6 +31,11 @@ extension API {
         try await post("api/plan/sync", json: WeekBody(week: week))
     }
 
+    /// Producten van losse recepten (niet ingepland) op het AH-lijstje. Bestelt niets.
+    func fillList(recipeIDs: [Int], persons: [Int: Int]) async throws -> CartFillResult {
+        try await post("api/cart/fill", json: RecipePersonsBody(recipeIds: recipeIDs, persons: Self.personsKeys(persons)))
+    }
+
     /// Lijst-link met personen per recept (dubbel koken = 2× personen).
     func listLink(recipeIDs: [Int], persons: [Int: Int]) async throws -> ListLinkResult {
         try await post("api/list-link", json: RecipePersonsBody(recipeIds: recipeIDs, persons: Self.personsKeys(persons)))

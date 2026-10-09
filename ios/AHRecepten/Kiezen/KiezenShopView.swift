@@ -194,7 +194,7 @@ struct KiezenShopView: View {
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
 
-            Text("Het lijstje krijgt alles van deze week dat er nog niet op stond.")
+            Text("Miso kijkt wat er al op je AH-lijstje staat en zet erbij wat deze week nog nodig is: alle geplande dagen, plus de recepten hierboven die je niet inplant.")
                 .font(.misoCaption).foregroundStyle(.secondary)
                 .listRowBackground(Color.clear)
 
@@ -309,10 +309,23 @@ struct KiezenShopView: View {
         do {
             let r = try await api.pushWeekToList(model.week)
             if r.ok {
+                // Recepten die je niet inplant zitten niet in de week: die apart op het lijstje.
+                var looseNote = ""
+                var looseAdded = 0
+                let loose = model.unplannedIDs
+                if !loose.isEmpty {
+                    do {
+                        let l = try await api.fillList(recipeIDs: loose, persons: model.groceryPersons)
+                        if l.ok { looseAdded = l.itemsAdded ?? 0 } else { looseNote = " Niet-ingeplande recepten: \(l.error ?? "mislukt")." }
+                    } catch {
+                        looseNote = " Niet-ingeplande recepten: \(error.localizedDescription)"
+                    }
+                }
                 let left = r.status?.unmatched.count ?? 0
-                let added = r.added ?? 0
+                let added = (r.added ?? 0) + looseAdded
                 show(true, (added > 0 ? "\(plural(added, "product", "producten")) op je AH-lijstje gezet." : "Alles stond al op je AH-lijstje.")
-                     + (left > 0 ? " Nog \(plural(left, "ingrediënt", "ingrediënten")) zonder AH-product." : ""))
+                     + (left > 0 ? " Nog \(plural(left, "ingrediënt", "ingrediënten")) zonder AH-product." : "")
+                     + looseNote)
             } else {
                 show(false, r.error ?? "Het lijstje vullen is mislukt.")
             }

@@ -9,6 +9,8 @@ final class KiezenModel {
     var week = ""
     /// Personen per recept voor de boodschappen (stap 2 -> stap 3); leeg = huishoudgrootte.
     var groceryPersons: [Int: Int] = [:]
+    /// Recepten die je niet inplant (stap 2 -> stap 3); die gaan los via `POST /api/cart/fill` op het lijstje.
+    var unplannedIDs: [Int] = []
 
     func isPicked(_ key: String) -> Bool { picked.contains { $0.key == key } }
 
@@ -64,5 +66,6 @@ final class KiezenModel {
         picked = []
         week = ""
         groceryPersons = [:]
+        unplannedIDs = []
     }
 }

@@ -77,7 +77,7 @@ struct KiezenPlanView: View {
                     } header: {
                         Text("Niet (opnieuw) inplannen").misoSectionHeader()
                     } footer: {
-                        Text("Komen wel in je boodschappen bij de volgende stap.")
+                        Text("Komen wel op je AH-lijstje bij de volgende stap.")
                     }
                     .misoRow()
                 }
@@ -208,6 +208,7 @@ struct KiezenPlanView: View {
     private func saveAndContinue() async {
         guard let api = session.api else { return }
         model.groceryPersons = Dictionary(assign.map { ($0.recipeId, $0.groceryPersons) }, uniquingKeysWith: { a, _ in a })
+        model.unplannedIDs = Assignment.unplannedIDs(assign)
         // Niets op een dag gezet: het weekmenu blijft gelijk, dus opslaan is niet nodig.
         guard hasDays else { onNext(); return }
         saving = true
