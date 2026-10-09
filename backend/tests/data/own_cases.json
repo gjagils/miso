@@ -644,5 +644,143 @@
    "deelblokjes",
    "diepvries"
   ]
+ },
+ {
+  "text": "1 el ras el hanout",
+  "include": [
+   "ras el hanout"
+  ],
+  "exclude": [
+   "cashew"
+  ]
+ },
+ {
+  "text": "1 rode en gele paprika",
+  "include": [
+   "paprika"
+  ],
+  "exclude": [
+   "linzen"
+  ]
+ },
+ {
+  "text": "1 hele kip",
+  "include": [
+   "kip"
+  ],
+  "exclude": [
+   "cordon",
+   "bleu"
+  ]
+ },
+ {
+  "text": "250 g gerookte kipreepjes",
+  "include": [
+   "gerookt"
+  ]
+ },
+ {
+  "text": "4 eetlepels zoete sojasaus",
+  "include": [
+   "ketjap",
+   "zoet"
+  ]
+ },
+ {
+  "text": "3 el balsamico",
+  "include": [
+   "balsamico"
+  ],
+  "exclude": [
+   "spray"
+  ]
+ },
+ {
+  "text": "1 el gedroogde salie",
+  "exclude": [
+   "vers"
+  ],
+  "include": [
+   "salie"
+  ]
+ },
+ {
+  "text": "3 el Groninger mosterd",
+  "include": [
+   "groninger"
+  ]
+ },
+ {
+  "text": "150 g Goudse belegen komijnekaas 48+",
+  "include": [
+   "komijn"
+  ]
+ },
+ {
+  "text": "600 g doorregen runderlappen",
+  "include": [
+   "runderlap",
+   "sukade"
+  ],
+  "exclude": [
+   "mager"
+  ]
+ },
+ {
+  "text": "2 goudrenet-appels",
+  "include": [
+   "goudrenet",
+   "goudreinet"
+  ]
+ },
+ {
+  "text": "Panko paneermeel* 7½ g",
+  "include": [
+   "panko"
+  ]
+ },
+ {
+  "text": "2 x 2 stuks biefstukken",
+  "include": [
+   "biefstuk"
+  ]
+ },
+ {
+  "text": "1 kg aubergine",
+  "include": [
+   "aubergine"
+  ],
+  "qty": 3
+ },
+ {
+  "text": "12 sjalotten",
+  "include": [
+   "sjalot"
+  ],
+  "qty": 2
+ },
+ {
+  "text": "25 g roomboter",
+  "include": [
+   "boter"
+  ],
+  "exclude": [
+   "pack"
+  ]
+ },
+ {
+  "text": "450 g diepvries spinazie",
+  "include": [
+   "spinazie"
+  ],
+  "exclude": [
+   "grootverpakking"
+  ]
+ },
+ {
+  "text": "250 ml kookroom light",
+  "include": [
+   "kookroom"
+  ]
  }
 ]

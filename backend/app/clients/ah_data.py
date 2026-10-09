@@ -360,7 +360,7 @@ async def get_lists() -> list[dict]:
         except AHDataError as e:
             last = e
             continue
-        rows = _first(data, "favoriteListsV2", "favoriteLists", "lists", "memberLists", default=None)
+        rows = _first(data, "favoriteListV2", "favoriteListsV2", "favoriteLists", "lists", default=None)
         if rows is not None:
             logger.info("AH favorietenlijsten via %s: %s", name, str(rows)[:200])
             return parse_lists(rows if isinstance(rows, list) else _first(rows, "lists", "items", default=[]))
@@ -368,9 +368,10 @@ async def get_lists() -> list[dict]:
 
 
 LISTS_GQL = [
-    ("favoriteListsV2", "query FavoriteListsV2 { favoriteListsV2 { id description totalSize } }"),
-    ("favoriteLists", "query FavoriteLists { favoriteLists { id description totalSize } }"),
-    ("memberLists", "query MemberLists { memberLists { id description } }"),
+    # Schema (appie-go dump 2026-01): alleen favoriteListV2(ids, productIds); zonder/lege ids = alle lijsten?
+    ("favoriteListV2-noargs", "query FetchFavoriteLists { favoriteListV2 { id description totalSize } }"),
+    ("favoriteListV2-empty", 'query FetchFavoriteLists { favoriteListV2(ids: []) { id description totalSize } }'),
+    ("favoriteListV2-product", "query FetchFavoriteLists { favoriteListV2(ids: [], productIds: [1]) { id description totalSize } }"),
 ]
 
 
