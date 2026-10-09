@@ -20,6 +20,9 @@ COLUMNS: dict[str, dict[str, str]] = {
         "cook_double": "VARCHAR(10)",
         "freezer_name": "VARCHAR(300)",
     },
+    "freezer_items": {
+        "source_entry_id": "INTEGER",
+    },
 }
 
 

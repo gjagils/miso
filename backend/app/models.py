@@ -100,6 +100,7 @@ class FreezerItem(Base):
     portions: Mapped[int] = mapped_column(Integer, default=1)
     added_on: Mapped[str] = mapped_column(String(10), default="")  # YYYY-MM-DD
     from_recipe_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    source_entry_id: Mapped[int | None] = mapped_column(Integer, nullable=True)  # kookdag bij "kook dubbel"
 
 
 class CartPush(Base):

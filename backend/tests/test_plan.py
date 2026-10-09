@@ -441,3 +441,18 @@ def test_deleting_freezer_stock_day_puts_portion_back(db, monkeypatch):
     assert client.delete(f"/api/plan/entries/{entry_id}").json()["ok"]
     items = client.get("/api/freezer").json()["items"]
     assert [(i["name"], i["portions"]) for i in items] == [("Pastasaus", 1)]
+
+
+def test_cook_double_freezer_follows_entry(db):
+    client = TestClient(app)
+    r = _recipe(db, "Pastasaus", [])
+    res = client.post("/api/plan/entries", json={"date": str(_future_monday()), "kind": "recipe", "recipe_id": r.id,
+                                                 "persons": 4, "cook_double": "freezer"}).json()
+    entry_id = res["entries"][0]["entry_id"]
+    assert db.query(FreezerItem).one().portions == 4
+    client.patch(f"/api/plan/entries/{entry_id}", json={"persons": 6})
+    db.expire_all()
+    assert db.query(FreezerItem).one().portions == 6
+    client.delete(f"/api/plan/entries/{entry_id}")
+    db.expire_all()
+    assert db.query(FreezerItem).count() == 0

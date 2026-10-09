@@ -121,6 +121,12 @@ class EntryCreate(BaseModel):
     freezer_item_id: int | None = None
 
 
+def _freezer_of(db: Session, entry: PlanEntry) -> FreezerItem | None:
+    if entry.kind != "recipe" or entry.cook_double != "freezer":
+        return None
+    return db.execute(select(FreezerItem).where(FreezerItem.source_entry_id == entry.id)).scalars().first()
+
+
 @router.post("/plan/entries")
 async def create_entry(payload: EntryCreate, db: Session = Depends(get_db)):
     day = _valid_date(payload.date)
@@ -152,7 +158,7 @@ async def create_entry(payload: EntryCreate, db: Session = Depends(get_db)):
                 created.append(rest)
             elif payload.cook_double == "freezer":
                 item = FreezerItem(name=recipe.name, portions=persons or planning.household_size(db),
-                                   added_on=str(day), from_recipe_id=recipe.id)
+                                   added_on=str(day), from_recipe_id=recipe.id, source_entry_id=entry.id)
                 db.add(item)
                 db.flush()
                 freezer_json = freezer_item_json(item)
@@ -206,9 +212,15 @@ async def update_entry(entry_id: int, payload: EntryUpdate, db: Session = Depend
             if rest.date == str(old_day + timedelta(days=1)):
                 rest.date = str(new_day + timedelta(days=1))
     if "persons" in fields:
+        before = entry.persons or planning.household_size(db)
         entry.persons = _clean_persons(payload.persons)
         for rest in leftovers:
             rest.persons = entry.persons
+        item = _freezer_of(db, entry)
+        if item:  # "kook dubbel voor de vriezer": porties bewegen mee
+            item.portions = max(0, item.portions + (entry.persons or planning.household_size(db)) - before)
+            if item.portions == 0:
+                db.delete(item)
     if "text" in fields and payload.text is not None:
         if entry.kind == "stock" and not payload.text.strip():
             return _err("Vul in wat jullie eten.")
@@ -239,6 +251,11 @@ async def delete_entry(entry_id: int, db: Session = Depends(get_db)):
         source = db.get(PlanEntry, entry.source_entry_id)
         if source and source.cook_double == "tomorrow":
             source.cook_double = None  # niet meer dubbel inkopen
+    item = _freezer_of(db, entry)
+    if item:  # niet gekookt, dus ook niets voor de vriezer
+        item.portions = max(0, item.portions - (entry.persons or planning.household_size(db)))
+        if item.portions == 0:
+            db.delete(item)
     if entry.kind == "stock" and entry.freezer_name:  # portie terug in de vriezer
         back = db.execute(select(FreezerItem).where(FreezerItem.name == entry.freezer_name)).scalars().first()
         if back:
