@@ -26,7 +26,9 @@ LISTS_URL = f"{API}/mobile-services/lists/v3/lists"
 ORDER_DETAILS_URL = f"{API}/mobile-services/order/v1/{{order_id}}/details-grouped-by-taxonomy"
 
 # Zoals de iOS-app (en appie-go) zich bij GraphQL meldt.
-CLIENT_HEADERS = {"x-client-name": "appie-ios", "x-client-version": "9.28", "Accept": "application/json"}
+CLIENT_HEADERS = {"x-client-name": "appie-ios", "x-client-version": "9.28", "Accept": "application/json",
+                  # nieuwere endpoints (lists v3) kennen de oude "Appie/8.22.3" niet
+                  "User-Agent": "Appie/9.28 (iPhone17,3; iPhone; CPU OS 26_1 like Mac OS X)"}
 
 
 class AHDataError(Exception):
