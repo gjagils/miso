@@ -36,7 +36,7 @@ struct ImportView: View {
                 .misoRow()
                 Section {
                     PhotosPicker(selection: $photos, maxSelectionCount: 6, matching: .images) {
-                        Label(photos.isEmpty ? "Foto's kiezen" : "\(photos.count) foto's gekozen", systemImage: "photo.on.rectangle")
+                        Label(photos.isEmpty ? "Foto's kiezen" : "\(plural(photos.count, "foto", "foto's")) gekozen", systemImage: "photo.on.rectangle")
                             .foregroundStyle(Color.misoBlue).font(.misoButton)
                             .frame(minHeight: 44)
                     }
@@ -47,9 +47,7 @@ struct ImportView: View {
                         .misoRow()
                 }
                 Section {
-                    Button {
-                        Task { await runImport() }
-                    } label: {
+                    Button(action: startImport) {
                         if busy {
                             HStack { ProgressView(); Text("Bezig met omzetten...") }
                         } else {
@@ -65,23 +63,31 @@ struct ImportView: View {
             .misoScreen()
             .navigationTitle("Nieuw recept")
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("Annuleer") { dismiss() } }
+                ToolbarItem(placement: .cancellationAction) { Button("Annuleer", action: cancel) }
             }
         }
     }
 
-    @MainActor
+    private func cancel() {
+        dismiss()
+    }
+
+    private func startImport() {
+        Task { await runImport() }
+    }
+
     private func runImport() async {
         guard let api = session.api else { return }
         busy = true
         errorText = nil
         defer { busy = false }
-        var images: [Data] = []
-        for item in photos {
-            if let data = try? await item.loadTransferable(type: Data.self),
-               let jpeg = UIImage(data: data)?.jpegData(compressionQuality: 0.85) {
-                images.append(jpeg)
-            }
+        let (images, failed) = await Self.jpegs(from: photos)
+        if failed > 0 {
+            errorText = failed == photos.count
+                ? (failed == 1 ? "De foto kon niet worden gelezen." : "De \(failed) foto's konden niet worden gelezen.")
+                : "\(failed) van de \(photos.count) foto's \(failed == 1 ? "kon" : "konden") niet worden gelezen."
+            errorText? += " Kies de foto's opnieuw."
+            return
         }
         do {
             let result = try await api.importRecipe(url: url, text: text, images: images)
@@ -89,5 +95,21 @@ struct ImportView: View {
         } catch {
             errorText = error.localizedDescription
         }
+    }
+
+    /// Foto's laden en als JPEG klaarzetten, buiten de main actor (decoderen en comprimeren is zwaar).
+    /// Geeft ook terug hoeveel foto's niet gelezen konden worden.
+    private nonisolated static func jpegs(from items: [PhotosPickerItem]) async -> (images: [Data], failed: Int) {
+        var images: [Data] = []
+        var failed = 0
+        for item in items {
+            if let data = try? await item.loadTransferable(type: Data.self),
+               let jpeg = UIImage(data: data)?.jpegData(compressionQuality: 0.85) {
+                images.append(jpeg)
+            } else {
+                failed += 1
+            }
+        }
+        return (images, failed)
     }
 }

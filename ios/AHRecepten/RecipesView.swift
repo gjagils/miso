@@ -9,7 +9,7 @@ struct RecipesView: View {
     @State private var loaded = false
 
     private var filtered: [RecipeSummary] {
-        search.isEmpty ? recipes : recipes.filter { $0.name.localizedCaseInsensitiveContains(search) }
+        search.isEmpty ? recipes : recipes.filter { $0.name.localizedStandardContains(search) }
     }
 
     var body: some View {
@@ -22,8 +22,7 @@ struct RecipesView: View {
                                    message: "Tik op + om je eerste recept toe te voegen.")
                         .listRowBackground(Color.clear)
                 } else if loaded && filtered.isEmpty {
-                    EmptyStateView(pose: "confused", title: "Niets gevonden",
-                                   message: "Probeer een andere zoekterm.")
+                    ContentUnavailableView.search(text: search)
                         .listRowBackground(Color.clear)
                 }
                 ForEach(filtered) { recipe in
@@ -37,17 +36,28 @@ struct RecipesView: View {
             .navigationDestination(for: RecipeSummary.self) { RecipeDetailView(recipeID: $0.id) }
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Button { showImport = true } label: { Image(systemName: "plus").frame(minWidth: 44, minHeight: 44) }
-                        .accessibilityLabel("Recept toevoegen")
+                    Button(action: showImporter) {
+                        Label("Recept toevoegen", systemImage: "plus")
+                            .labelStyle(.iconOnly)
+                            .frame(minWidth: 44, minHeight: 44)
+                            .contentShape(.rect)
+                    }
                 }
             }
-            .sheet(isPresented: $showImport, onDismiss: { Task { await load() } }) { ImportView() }
+            .sheet(isPresented: $showImport, onDismiss: reload) { ImportView() }
             .refreshable { await load() }
             .task { await load() }
         }
     }
 
-    @MainActor
+    private func showImporter() {
+        showImport = true
+    }
+
+    private func reload() {
+        Task { await load() }
+    }
+
     private func load() async {
         guard let api = session.api else { return }
         do {

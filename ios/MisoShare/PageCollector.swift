@@ -3,18 +3,21 @@ import UIKit
 import UniformTypeIdentifiers
 import WebKit
 
-/// Wat de extensie van de gedeelde pagina weet: titel, link, JSON-LD-blokken en zichtbare tekst.
+/// Wat de extensie van de gedeelde pagina weet: titel, link, JSON-LD-blokken, zichtbare tekst en receptfoto.
 struct PageContent {
     var title: String
     var url: String
     var jsonLD: [String]
     var text: String
+    /// Foto van het recept (JSON-LD `image`, anders og:image/twitter:image, anders de grootste foto). Leeg = onbekend.
+    var imageURL: String
 
-    init(title: String, url: String, jsonLD: [String] = [], text: String) {
+    init(title: String, url: String, jsonLD: [String] = [], text: String, imageURL: String = "") {
         self.title = title
         self.url = url
         self.jsonLD = jsonLD
         self.text = text
+        self.imageURL = imageURL
     }
 
     /// Uit het resultaat van GetPageContent.js (Safari-preprocessing of WKWebView).
@@ -24,6 +27,7 @@ struct PageContent {
         url = dict["url"] as? String ?? ""
         jsonLD = dict["jsonld"] as? [String] ?? []
         text = dict["text"] as? String ?? ""
+        imageURL = dict["image"] as? String ?? ""
     }
 
     var recipeJSONLD: [String] { jsonLD.filter { $0.contains("Recipe") } }

@@ -11,6 +11,9 @@ struct WeekOverviewView: View {
             ScrollView {
                 LazyVStack(spacing: 14) {
                     if let week {
+                        if let errorText {
+                            ErrorBanner(message: errorText, onDismiss: dismissError)
+                        }
                         if week.days.allSatisfy({ $0.recipes.isEmpty }) {
                             EmptyStateView(pose: "idea", title: "Nog niets op de planning",
                                            message: "Kies bij Weekmenu wat jullie deze week eten.")
@@ -26,10 +29,10 @@ struct WeekOverviewView: View {
                                 if day.recipes.isEmpty {
                                     Text("Niets gepland").font(.misoBody).foregroundStyle(.secondary)
                                 }
-                                ForEach(Array(day.recipes.enumerated()), id: \.offset) { _, recipe in
-                                    NavigationLink(value: recipe) {
+                                ForEach(day.entries) { entry in
+                                    NavigationLink(value: entry.recipe) {
                                         HStack {
-                                            RecipeRow(recipe: recipe)
+                                            RecipeRow(recipe: entry.recipe)
                                             Image(systemName: "chevron.right").font(.footnote.weight(.semibold))
                                                 .foregroundStyle(.secondary).accessibilityHidden(true)
                                         }
@@ -38,10 +41,10 @@ struct WeekOverviewView: View {
                                 }
                             }
                             .misoCard()
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 20)
                                     .stroke(Color.misoOrange, lineWidth: day.today ? 2 : 0)
-                            )
+                            }
                         }
                     } else if let errorText {
                         ErrorStateView(message: errorText)
@@ -59,7 +62,10 @@ struct WeekOverviewView: View {
         }
     }
 
-    @MainActor
+    private func dismissError() {
+        withAnimation { errorText = nil }
+    }
+
     private func load() async {
         guard let api = session.api else { return }
         do {
@@ -67,6 +73,7 @@ struct WeekOverviewView: View {
             week = result
             errorText = nil
         } catch {
+            if (error as? URLError)?.code == .cancelled { return }
             errorText = error.localizedDescription
         }
     }

@@ -6,5 +6,9 @@
 	<array>
 		<string>group.nl.gerdjan.ahrecepten</string>
 	</array>
+	<key>keychain-access-groups</key>
+	<array>
+		<string>$(AppIdentifierPrefix)nl.gerdjan.ahrecepten.shared</string>
+	</array>
 </dict>
 </plist>

@@ -18,9 +18,9 @@ extension Color {
 extension Font {
     static let misoLargeTitle = Font.system(.largeTitle, design: .rounded).weight(.heavy)
     static let misoTitle = Font.system(.title, design: .rounded).weight(.heavy)
-    static let misoTitle2 = Font.system(.title2, design: .rounded).weight(.bold)
-    static let misoHeadline = Font.system(.headline, design: .rounded).weight(.bold)
-    static let misoButton = Font.system(.body, design: .rounded).weight(.bold)
+    static let misoTitle2 = Font.system(.title2, design: .rounded).bold()
+    static let misoHeadline = Font.system(.headline, design: .rounded).bold()
+    static let misoButton = Font.system(.body, design: .rounded).bold()
     static let misoBody = Font.system(.body)
     static let misoCaption = Font.system(.caption)
 }
@@ -51,7 +51,7 @@ struct MisoSecondaryButtonStyle: ButtonStyle {
             .padding(.horizontal, 16)
             .padding(.vertical, 6)
             .background(Color.misoCard, in: Capsule())
-            .overlay(Capsule().stroke(Color.misoBlue, lineWidth: 1.5))
+            .overlay { Capsule().stroke(Color.misoBlue, lineWidth: 1.5) }
             .opacity(enabled ? 1 : 0.5)
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
     }
@@ -72,7 +72,7 @@ struct MisoCardModifier: ViewModifier {
         content
             .padding(padding)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.misoCard, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .background(Color.misoCard, in: .rect(cornerRadius: 20))
             .shadow(color: Color.misoInk.opacity(0.08), radius: 8, x: 0, y: 3)
     }
 }
@@ -102,18 +102,24 @@ extension View {
     /// Rijen in een List/Form als kaart.
     func misoRow() -> some View {
         self.listRowBackground(
-            RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.misoCard)
+            Color.misoCard.clipShape(.rect(cornerRadius: 16))
         )
     }
 }
 
-/// Rij met afgeronde invoerveld-stijl.
-struct MisoFieldStyle: TextFieldStyle {
-    func _body(configuration: TextField<Self._Label>) -> some View {
-        configuration
+/// Afgerond invoerveld (voor TextField en SecureField).
+struct MisoFieldModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
             .padding(12)
             .frame(minHeight: 44)
-            .background(Color.misoCard, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Color.misoBlue.opacity(0.2), lineWidth: 1))
+            .background(Color.misoCard, in: .rect(cornerRadius: 14))
+            .overlay {
+                RoundedRectangle(cornerRadius: 14).stroke(Color.misoBlue.opacity(0.2), lineWidth: 1)
+            }
     }
+}
+
+extension View {
+    func misoField() -> some View { modifier(MisoFieldModifier()) }
 }

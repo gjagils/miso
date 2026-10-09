@@ -4,7 +4,7 @@ struct RecipeDetailView: View {
     @Environment(Session.self) private var session
     let recipeID: Int
     @State private var recipe: RecipeDetail?
-    @State private var showCook = false
+    @State private var cookRecipe: RecipeDetail?
     @State private var busy = false
     @State private var message: String?
     @State private var errorText: String?
@@ -18,7 +18,7 @@ struct RecipeDetailView: View {
                         let meta = [recipe.servings, recipe.totalTime].filter { !$0.isEmpty }.joined(separator: " · ")
                         if !meta.isEmpty { Text(meta).font(.misoCaption).foregroundStyle(.secondary) }
                         if !recipe.description.isEmpty { Text(recipe.description).font(.misoBody) }
-                        Button { showCook = true } label: { Label("Kookmodus", systemImage: "flame") }
+                        Button("Kookmodus", systemImage: "flame", action: startCooking)
                             .buttonStyle(.misoPrimary)
                     }
                     .frame(maxWidth: .infinity)
@@ -27,14 +27,12 @@ struct RecipeDetailView: View {
 
                 Section {
                     switch recipe.gfMode {
-                    case "extra": Text("Extra glutenvrij product erbij (voor 1 persoon)")
-                    case "replace": Text("Ingrediënt voor iedereen vervangen")
-                    default: Text("Nog niet ingesteld").foregroundStyle(.secondary)
+                    case .extra: Text("Extra glutenvrij product erbij (voor 1 persoon)")
+                    case .replace: Text("Ingrediënt voor iedereen vervangen")
+                    case .none: Text("Nog niet ingesteld").foregroundStyle(.secondary)
                     }
                     if !recipe.gfNote.isEmpty { Text(recipe.gfNote).font(.callout) }
-                    Button {
-                        Task { await suggestGlutenFree() }
-                    } label: {
+                    Button(action: startGlutenFreeSuggestion) {
                         if busy { ProgressView() } else { Label("Voorstel van Claude", systemImage: "wand.and.stars") }
                     }
                     .buttonStyle(.misoSecondary)
@@ -83,13 +81,20 @@ struct RecipeDetailView: View {
         .misoScreen()
         .navigationTitle(recipe?.name ?? "Recept")
         .navigationBarTitleDisplayMode(.inline)
-        .fullScreenCover(isPresented: $showCook) {
-            if let recipe { CookView(recipe: recipe) }
+        .fullScreenCover(item: $cookRecipe) { recipe in
+            CookView(recipe: recipe)
         }
         .task { await load() }
     }
 
-    @MainActor
+    private func startCooking() {
+        cookRecipe = recipe
+    }
+
+    private func startGlutenFreeSuggestion() {
+        Task { await suggestGlutenFree() }
+    }
+
     private func load() async {
         guard let api = session.api else { return }
         do {
@@ -101,14 +106,17 @@ struct RecipeDetailView: View {
         }
     }
 
-    @MainActor
     private func suggestGlutenFree() async {
         guard let api = session.api else { return }
         busy = true
         message = nil
         defer { busy = false }
         do {
-            let _: GlutenSuggestResult = try await api.post("api/recipe/\(recipeID)/gluten-suggest")
+            let result: GlutenSuggestResult = try await api.post("api/recipe/\(recipeID)/gluten-suggest")
+            guard result.ok else {
+                message = result.error ?? "Er kwam geen voorstel. Probeer het later nog eens."
+                return
+            }
             await load()
             message = "Voorstel opgeslagen."
         } catch {

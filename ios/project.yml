@@ -1,23 +1,31 @@
 name: AHRecepten
 options:
   bundleIdPrefix: nl.gerdjan
+  # De app is Nederlandstalig; zo tonen ook systeemteksten (Annuleer, "Geen resultaten") in het Nederlands.
+  developmentLanguage: nl
   deploymentTarget:
     iOS: "17.0"
 targets:
   AHRecepten:
     type: application
     platform: iOS
+    # Hele map (ook submappen zoals Kiezen/) wordt meegenomen.
     sources: [AHRecepten]
     dependencies:
       - target: MisoShare
+    scheme:
+      testTargets: [AHReceptenTests]
     entitlements:
       path: AHRecepten/AHRecepten.entitlements
       properties:
         com.apple.security.application-groups: [group.nl.gerdjan.ahrecepten]
+        # Gedeelde keychain-groep voor het login-token (app + deel-extensie).
+        keychain-access-groups: ["$(AppIdentifierPrefix)nl.gerdjan.ahrecepten.shared"]
     info:
       path: AHRecepten/Info.plist
       properties:
         CFBundleDisplayName: Miso
+        MisoKeychainGroup: "$(AppIdentifierPrefix)nl.gerdjan.ahrecepten.shared"
         UILaunchScreen:
           UIColorName: MisoCream
           UIImageName: LaunchMascot
@@ -46,6 +54,7 @@ targets:
       - path: MisoShare
         excludes: [Info.plist, "*.entitlements"]
       - AHRecepten/Session.swift
+      - AHRecepten/Keychain.swift
       - AHRecepten/API.swift
       - AHRecepten/Models.swift
       - AHRecepten/Theme.swift
@@ -54,10 +63,12 @@ targets:
       path: MisoShare/MisoShare.entitlements
       properties:
         com.apple.security.application-groups: [group.nl.gerdjan.ahrecepten]
+        keychain-access-groups: ["$(AppIdentifierPrefix)nl.gerdjan.ahrecepten.shared"]
     info:
       path: MisoShare/Info.plist
       properties:
         CFBundleDisplayName: Miso
+        MisoKeychainGroup: "$(AppIdentifierPrefix)nl.gerdjan.ahrecepten.shared"
         CFBundleShortVersionString: "1.0"
         CFBundleVersion: "1"
         NSAppTransportSecurity:
@@ -81,3 +92,19 @@ targets:
         CURRENT_PROJECT_VERSION: "1"
         TARGETED_DEVICE_FAMILY: "1"
         APPLICATION_EXTENSION_API_ONLY: YES
+
+  # Unit-tests voor pure logica (boodschappenlijst samenvoegen, datums).
+  AHReceptenTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [AHReceptenTests]
+    dependencies:
+      - target: AHRecepten
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: nl.gerdjan.ahrecepten.tests
+        DEVELOPMENT_TEAM: 65FAHRU88M
+        CODE_SIGN_STYLE: Automatic
+        SWIFT_VERSION: "5.9"
+        GENERATE_INFOPLIST_FILE: YES
+        TARGETED_DEVICE_FAMILY: "1"

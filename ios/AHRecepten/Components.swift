@@ -45,7 +45,13 @@ struct ErrorStateView: View {
 
 /// Wordmark "Miso" met oranje accent.
 struct MisoWordmark: View {
-    var size: CGFloat = 48
+    /// Groeit mee met de tekstgrootte van het systeem.
+    @ScaledMetric(relativeTo: .largeTitle) private var size: CGFloat = 48
+
+    init(size: CGFloat = 48) {
+        _size = ScaledMetric(wrappedValue: size, relativeTo: .largeTitle)
+    }
+
     var body: some View {
         HStack(spacing: 0) {
             Text("Mis").foregroundStyle(Color.misoBlue)
@@ -83,7 +89,7 @@ struct RecipeImage: View {
             }
         }
         .frame(width: size, height: size)
-        .clipShape(RoundedRectangle(cornerRadius: size > 100 ? 20 : 12, style: .continuous))
+        .clipShape(.rect(cornerRadius: size > 100 ? 20 : 12))
         .accessibilityHidden(true)
     }
 }
@@ -108,11 +114,11 @@ struct RecipeRow: View {
                 if !meta.isEmpty {
                     Text(meta).font(.misoCaption).foregroundStyle(.secondary)
                 }
-                if recipe.gfMode != "none" { GlutenFreeChip() }
+                if recipe.gfMode.isActive { GlutenFreeChip() }
             }
             Spacer(minLength: 0)
         }
         .frame(minHeight: 44)
-        .contentShape(Rectangle())
+        .contentShape(.rect)
     }
 }

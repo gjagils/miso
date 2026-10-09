@@ -1,12 +1,28 @@
 import Foundation
 
+/// Glutenvrij voor minstens 1 persoon. Onbekende waarden van de server tellen als `.none`.
+enum GlutenFreeMode: String, Decodable, Hashable {
+    case none
+    /// Extra glutenvrij product erbij (voor 1 persoon).
+    case extra
+    /// Ingrediënt voor iedereen vervangen.
+    case replace
+
+    var isActive: Bool { self != .none }
+
+    init(from decoder: Decoder) throws {
+        let raw = (try? decoder.singleValueContainer().decode(String.self)) ?? ""
+        self = GlutenFreeMode(rawValue: raw) ?? .none
+    }
+}
+
 struct RecipeSummary: Decodable, Identifiable, Hashable {
     let id: Int
     let name: String
     let servings: String
     let totalTime: String
     let imageUrl: String
-    let gfMode: String
+    let gfMode: GlutenFreeMode
 }
 
 struct RecipesResponse: Decodable { let recipes: [RecipeSummary] }
@@ -67,13 +83,13 @@ struct Ingredient: Decodable, Identifiable {
     }
 }
 
-struct RecipeDetail: Decodable {
+struct RecipeDetail: Decodable, Identifiable {
     let id: Int
     let name: String
     let servings: String
     let totalTime: String
     let imageUrl: String
-    let gfMode: String
+    let gfMode: GlutenFreeMode
     let gfNote: String
     let description: String
     let sourceUrl: String
@@ -101,6 +117,27 @@ struct PlanDay: Decodable, Identifiable {
     let label: String
     let today: Bool
     let recipes: [RecipeSummary]
+}
+
+/// Eén recept op een dag in het weekmenu. De server stuurt geen eigen id per regel, dus het id is
+/// datum + recept-id + hoeveelste keer dat recept die dag voorkomt; zo blijft het stabiel als er iets
+/// anders op die dag bijkomt of verdwijnt.
+struct PlanEntry: Identifiable {
+    let id: String
+    let recipe: RecipeSummary
+
+    static func entries(date: String, recipes: [RecipeSummary]) -> [PlanEntry] {
+        var seen: [Int: Int] = [:]
+        return recipes.map { recipe in
+            let n = seen[recipe.id, default: 0]
+            seen[recipe.id] = n + 1
+            return PlanEntry(id: "\(date)/\(recipe.id)/\(n)", recipe: recipe)
+        }
+    }
+}
+
+extension PlanDay {
+    var entries: [PlanEntry] { PlanEntry.entries(date: date, recipes: recipes) }
 }
 
 struct WeekResponse: Decodable {
@@ -133,6 +170,8 @@ struct SyncResult: Decodable {
 struct ImportResult: Decodable {
     let ok: Bool
     let id: Int?
+    /// Naam van het nieuwe recept (nieuwere servers).
+    let name: String?
     let error: String?
 }
 

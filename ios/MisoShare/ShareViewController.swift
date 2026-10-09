@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 /// Ingang van de deel-extensie "Deel naar Miso". Host de SwiftUI-weergave.
 final class ShareViewController: UIViewController {
@@ -69,14 +68,19 @@ final class ShareModel {
         Task {
             do {
                 // Geen url meesturen: dan zou de server de site zelf ophalen (en geblokkeerd worden).
-                // De link staat wel in de tekst ("Bron: ...").
-                let result = try await api.importRecipe(url: "", text: page.importText, images: [])
+                // De link gaat mee als source_url (alleen bewaard) en staat ook in de tekst ("Bron: ...").
+                // De receptfoto downloadt het toestel zelf; lukt dat niet, dan probeert de server image_url.
+                let photo = page.imageURL.isEmpty ? nil
+                    : await RecipePhotoDownloader.download(page.imageURL, referer: page.url)
+                let result = try await api.importRecipe(url: "", text: page.importText, images: [],
+                                                        sourceURL: page.url, imageURL: page.imageURL, photo: photo)
                 guard result.ok else {
                     phase = .failed(result.error ?? "Importeren mislukt.", page)
                     return
                 }
-                var name = page.displayTitle
-                if let id = result.id, let detail = try? await api.recipe(id: id) { name = detail.name }
+                var name = result.name ?? ""
+                if name.isEmpty, let id = result.id, let detail = try? await api.recipe(id: id) { name = detail.name }
+                if name.isEmpty { name = page.displayTitle }
                 phase = .saved(name)
             } catch {
                 phase = .failed(error.localizedDescription, page)

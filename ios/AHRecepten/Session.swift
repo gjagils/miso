@@ -1,12 +1,15 @@
 import Foundation
 import Observation
 
-/// Server address and login token, stored on the device.
+/// Serveradres en login-token, opgeslagen op het toestel.
 ///
-/// Staat in de App Group, zodat de deel-extensie ("Deel naar Miso") dezelfde login gebruikt.
+/// Het serveradres staat in de App Group en het token in een gedeelde keychain-groep, zodat de
+/// deel-extensie ("Deel naar Miso") dezelfde login gebruikt.
+@MainActor
 @Observable
 final class Session {
     static let appGroup = "group.nl.gerdjan.ahrecepten"
+    private static let tokenKey = "token"
 
     /// Gedeelde opslag (app + extensie). Valt terug op standard als de App Group niet beschikbaar is.
     static let defaults: UserDefaults = {
@@ -14,21 +17,42 @@ final class Session {
         // Eenmalige migratie: oudere versies bewaarden de login in UserDefaults.standard.
         if shared.string(forKey: "serverURL") == nil, let old = UserDefaults.standard.string(forKey: "serverURL") {
             shared.set(old, forKey: "serverURL")
-            shared.set(UserDefaults.standard.string(forKey: "token") ?? "", forKey: "token")
+            shared.set(UserDefaults.standard.string(forKey: tokenKey) ?? "", forKey: tokenKey)
             shared.set(UserDefaults.standard.bool(forKey: "connected"), forKey: "connected")
         }
         return shared
     }()
 
     var serverURL: String { didSet { Self.defaults.set(serverURL, forKey: "serverURL") } }
-    var token: String { didSet { Self.defaults.set(token, forKey: "token") } }
+    var token: String { didSet { Self.storeToken(token) } }
     var connected: Bool { didSet { Self.defaults.set(connected, forKey: "connected") } }
 
     init() {
         let defaults = Self.defaults
         serverURL = defaults.string(forKey: "serverURL") ?? ""
-        token = defaults.string(forKey: "token") ?? ""
+        token = Self.loadToken()
         connected = defaults.bool(forKey: "connected")
+    }
+
+    /// Token uit de keychain. Eenmalige migratie: oudere versies bewaarden het in de App Group-defaults;
+    /// dat wordt pas weggehaald als het veilig in de keychain staat, zodat je ingelogd blijft.
+    private static func loadToken() -> String {
+        if let token = Keychain.string(for: tokenKey) {
+            defaults.removeObject(forKey: tokenKey)
+            return token
+        }
+        guard let legacy = defaults.string(forKey: tokenKey), !legacy.isEmpty else { return "" }
+        if Keychain.set(legacy, for: tokenKey) { defaults.removeObject(forKey: tokenKey) }
+        return legacy
+    }
+
+    private static func storeToken(_ token: String) {
+        if Keychain.set(token, for: tokenKey) {
+            defaults.removeObject(forKey: tokenKey)
+        } else {
+            // Keychain niet beschikbaar: liever ingelogd blijven dan het token kwijtraken.
+            defaults.set(token, forKey: tokenKey)
+        }
     }
 
     var isConnected: Bool { connected && api != nil }

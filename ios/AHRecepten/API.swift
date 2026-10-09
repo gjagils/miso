@@ -24,10 +24,11 @@ struct API {
         return URL(string: path)
     }
 
-    private func request(_ path: String, method: String, query: [URLQueryItem] = []) -> URLRequest {
-        var comps = URLComponents(url: baseURL.appendingPathComponent(path), resolvingAgainstBaseURL: false)!
-        if !query.isEmpty { comps.queryItems = query }
-        var req = URLRequest(url: comps.url!)
+    private func request(_ path: String, method: String, query: [URLQueryItem] = []) throws -> URLRequest {
+        var url = baseURL.appending(path: path)
+        if !query.isEmpty { url.append(queryItems: query) }
+        guard url.scheme != nil else { throw APIError(message: "Ongeldig serveradres") }
+        var req = URLRequest(url: url)
         req.httpMethod = method
         req.timeoutInterval = 120 // Claude kan even bezig zijn
         if !token.isEmpty { req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
@@ -46,11 +47,11 @@ struct API {
     }
 
     func get<T: Decodable>(_ path: String, query: [URLQueryItem] = []) async throws -> T {
-        try await send(request(path, method: "GET", query: query))
+        try await send(try request(path, method: "GET", query: query))
     }
 
     func post<T: Decodable>(_ path: String, json body: some Encodable) async throws -> T {
-        var req = request(path, method: "POST")
+        var req = try request(path, method: "POST")
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         let enc = JSONEncoder()
         req.httpBody = try enc.encode(body)
@@ -58,32 +59,52 @@ struct API {
     }
 
     func post<T: Decodable>(_ path: String, form: [String: String] = [:]) async throws -> T {
-        var req = request(path, method: "POST")
+        var req = try request(path, method: "POST")
         req.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         var allowed = CharacterSet.urlQueryAllowed
         allowed.remove(charactersIn: "&=+")
-        req.httpBody = form.map { "\($0.key)=\($0.value.addingPercentEncoding(withAllowedCharacters: allowed) ?? "")" }
-            .joined(separator: "&").data(using: .utf8)
+        req.httpBody = Data(form.map { "\($0.key)=\($0.value.addingPercentEncoding(withAllowedCharacters: allowed) ?? "")" }
+            .joined(separator: "&").utf8)
         return try await send(req)
     }
 
+    /// Bestand voor een multipart-upload.
+    struct UploadFile {
+        let data: Data
+        let filename: String
+        let mimeType: String
+    }
+
     /// Recept importeren uit een link, tekst en/of foto's.
-    func importRecipe(url: String, text: String, images: [Data]) async throws -> ImportResult {
-        var req = request("api/import", method: "POST")
+    /// - Parameters:
+    ///   - url: pagina die de server zelf ophaalt (leeg laten als de site de server blokkeert).
+    ///   - images: foto's waar Claude het recept uit leest.
+    ///   - sourceURL: bronlink die alleen bewaard wordt (de server haalt hem niet op).
+    ///   - imageURL: receptfoto op de site; de server haalt alleen die foto op.
+    ///   - photo: receptfoto die het toestel al heeft gedownload (wordt de receptfoto, gaat niet naar Claude).
+    func importRecipe(url: String, text: String, images: [Data], sourceURL: String = "", imageURL: String = "",
+                      photo: UploadFile? = nil) async throws -> ImportResult {
+        var req = try request("api/import", method: "POST")
         let boundary = "Boundary-\(UUID().uuidString)"
         req.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         var body = Data()
         func field(_ name: String, _ value: String) {
-            body.append("--\(boundary)\r\nContent-Disposition: form-data; name=\"\(name)\"\r\n\r\n\(value)\r\n".data(using: .utf8)!)
+            body.append(Data("--\(boundary)\r\nContent-Disposition: form-data; name=\"\(name)\"\r\n\r\n\(value)\r\n".utf8))
+        }
+        func file(_ name: String, _ file: UploadFile) {
+            body.append(Data("--\(boundary)\r\nContent-Disposition: form-data; name=\"\(name)\"; filename=\"\(file.filename)\"\r\nContent-Type: \(file.mimeType)\r\n\r\n".utf8))
+            body.append(file.data)
+            body.append(Data("\r\n".utf8))
         }
         field("url", url)
         field("text", text)
+        if !sourceURL.isEmpty { field("source_url", sourceURL) }
+        if !imageURL.isEmpty { field("image_url", imageURL) }
         for (i, img) in images.enumerated() {
-            body.append("--\(boundary)\r\nContent-Disposition: form-data; name=\"images\"; filename=\"foto\(i).jpg\"\r\nContent-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
-            body.append(img)
-            body.append("\r\n".data(using: .utf8)!)
+            file("images", UploadFile(data: img, filename: "foto\(i).jpg", mimeType: "image/jpeg"))
         }
-        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        if let photo { file("photo", photo) }
+        body.append(Data("--\(boundary)--\r\n".utf8))
         req.httpBody = body
         return try await send(req)
     }

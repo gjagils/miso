@@ -26,23 +26,21 @@ struct ConnectView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Waar woont jullie Miso?").font(.misoHeadline).foregroundStyle(Color.misoBlue)
                     Text("Server").font(.misoCaption).foregroundStyle(.secondary)
-                    TextField("https://recepten.voorbeeld.nl", text: $server)
-                        .textFieldStyle(MisoFieldStyle())
+                    TextField("Server", text: $server, prompt: Text("https://recepten.voorbeeld.nl"))
+                        .misoField()
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                     Text("Pincode van het gezin").font(.misoCaption).foregroundStyle(.secondary)
-                    SecureField("Pincode", text: $pin)
-                        .textFieldStyle(MisoFieldStyle())
+                    SecureField("Pincode", text: $pin, prompt: Text("Pincode"))
+                        .misoField()
                         .keyboardType(.numberPad)
                     if let errorText {
                         Label(errorText, systemImage: "exclamationmark.triangle.fill")
                             .font(.callout)
                             .foregroundStyle(Color.red)
                     }
-                    Button {
-                        Task { await connect() }
-                    } label: {
+                    Button(action: startConnect) {
                         if busy { ProgressView().tint(Color.misoInk) } else { Text("Aan de slag") }
                     }
                     .buttonStyle(.misoPrimary)
@@ -56,10 +54,17 @@ struct ConnectView: View {
         }
         .background(Color.misoCream.ignoresSafeArea())
         .scrollDismissesKeyboard(.interactively)
-        .onAppear { server = session.serverURL }
+        .onAppear(perform: fillServer)
     }
 
-    @MainActor
+    private func fillServer() {
+        server = session.serverURL
+    }
+
+    private func startConnect() {
+        Task { await connect() }
+    }
+
     private func connect() async {
         busy = true
         errorText = nil
