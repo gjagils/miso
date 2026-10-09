@@ -353,7 +353,25 @@ async def get_lists() -> list[dict]:
             return parse_lists(await get_json(LISTS_URL, "favorietenlijsten", params=params))
         except AHDataError as e:
             last = e
+    # REST gaf live 404: probeer GraphQL-varianten (namen uit de AH-app; fouten loggen helpt de juiste te vinden)
+    for name, query in LISTS_GQL:
+        try:
+            data = await gql(query, None, f"favorietenlijsten ({name})")
+        except AHDataError as e:
+            last = e
+            continue
+        rows = _first(data, "favoriteListsV2", "favoriteLists", "lists", "memberLists", default=None)
+        if rows is not None:
+            logger.info("AH favorietenlijsten via %s: %s", name, str(rows)[:200])
+            return parse_lists(rows if isinstance(rows, list) else _first(rows, "lists", "items", default=[]))
     raise last or AHDataError("Je AH-lijsten konden niet worden opgehaald.")
+
+
+LISTS_GQL = [
+    ("favoriteListsV2", "query FavoriteListsV2 { favoriteListsV2 { id description totalSize } }"),
+    ("favoriteLists", "query FavoriteLists { favoriteLists { id description totalSize } }"),
+    ("memberLists", "query MemberLists { memberLists { id description } }"),
+]
 
 
 LIST_ITEMS_QUERY = """query FavoriteListV2($ids: [String!]!) {
