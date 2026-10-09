@@ -456,3 +456,16 @@ def test_cook_double_freezer_follows_entry(db):
     client.delete(f"/api/plan/entries/{entry_id}")
     db.expire_all()
     assert db.query(FreezerItem).count() == 0
+
+
+def test_per_person_lines_are_not_scaled_twice(db):
+    from app.matching import needed
+
+    need = needed("Kipfilet (per persoon: 1 stuk)")
+    assert need["amount"] == 4 and need["for_persons"] == 4
+    ing = {"text": "Kipfilet (per persoon: 1 stuk)", "search": "kipfilet", "skip": False, "quantity": 2,
+           "match_v": MATCH_VERSION, "product": {"id": 7, "name": "Kipfilet 2 stuks", "unit_size": "2 stuks"},
+           "need": need, "pack": {"amount": 2, "unit": "stuk"}}
+    r = _recipe4(db, "Kip", [ing], servings="2 personen")
+    cart, _ = routes.aggregate_cart([r], [planning.scale_factor(4, r)])
+    assert _qty(cart)[7] == 2  # 4 personen = 4 stuks = 2 pakken, niet 4

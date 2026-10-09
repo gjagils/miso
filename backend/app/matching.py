@@ -11,7 +11,7 @@ from fractions import Fraction
 
 from app.clients.mealie import clean_search
 
-MATCH_VERSION = 22
+MATCH_VERSION = 23
 
 # Basisspullen die je meestal in huis hebt: niet automatisch op de lijst
 PANTRY = {
@@ -98,7 +98,7 @@ def needed(text: str) -> dict | None:
     if series:  # HelloFresh "(1, 2, 3, 3, 4, 4)" = per aantal personen 1..6 -> neem 4 personen
         values = re.findall(r"\d+(?:[.,]\d+)?", series.group(0))
         amount = _to_number(values[min(PERSONS - 1, len(values) - 1)])
-        return {"amount": amount, "unit": "stuk", "spoon": False}
+        return {"amount": amount, "unit": "stuk", "spoon": False, "for_persons": PERSONS}
     m2 = re.match(r"\s*(\d+)\s*x\b.*?\(\D*?(\d+(?:[.,]\d+)?)\s*(g|gram|ml)\b", low)
     if m2:  # "2x garnalen (ontdooid, 250g)" = 500 g
         base = "ml" if m2.group(3) == "ml" else "g"
@@ -111,19 +111,20 @@ def needed(text: str) -> dict | None:
     if not parsed:
         return None
     amount, unit = parsed
+    extra = {"for_persons": PERSONS} if m else {}  # al voor 4 personen gerekend: niet nog eens schalen
     if m:
         amount *= PERSONS  # "per persoon: 1 stuk" -> 4
     for word, grams in PIECE_WEIGHT.items():
         if re.search(rf"\b{word}", low):
             if unit == "stuk":
-                return {"amount": amount, "unit": "stuk", "spoon": False, "piece_g": grams}
+                return {"amount": amount, "unit": "stuk", "spoon": False, "piece_g": grams, **extra}
             if unit in ("g", "kg"):
                 base, factor = _TO_BASE[unit]
-                return {"amount": amount * factor, "unit": base, "spoon": False, "piece_g": grams}
+                return {"amount": amount * factor, "unit": base, "spoon": False, "piece_g": grams, **extra}
     if unit in _TO_BASE:
         base, factor = _TO_BASE[unit]
-        return {"amount": amount * factor, "unit": base, "spoon": unit in ("el", "tl")}
-    return {"amount": amount, "unit": unit, "spoon": False}
+        return {"amount": amount * factor, "unit": base, "spoon": unit in ("el", "tl"), **extra}
+    return {"amount": amount, "unit": unit, "spoon": False, **extra}
 
 
 def pack_size(unit_size: str) -> dict | None:

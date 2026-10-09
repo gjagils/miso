@@ -787,7 +787,11 @@ def aggregate_cart(recipes: list[Recipe], factors: list[float] | None = None,
             if ing.get("skip"):
                 continue
             text = ing.get("text", "")
-            qty = planning.scale_quantity(int(ing.get("quantity") or 1), factor)
+            f = factor
+            base = (ing.get("need") or {}).get("for_persons")
+            if base:  # "per persoon" / HelloFresh-reeks: al voor `base` personen, niet voor het receptaantal
+                f = factor * planning.recipe_servings(recipe) / base
+            qty = planning.scale_quantity(int(ing.get("quantity") or 1), f)
             product = ing.get("product")
             has_product = bool(product and product.get("id"))
             gf = ing.get("gf_product")
@@ -801,7 +805,7 @@ def aggregate_cart(recipes: list[Recipe], factors: list[float] | None = None,
                 continue
 
             if has_product:
-                add(product, qty, ing, factor)
+                add(product, qty, ing, f)
             else:
                 unmatched.append(text)
             if ing.get("gluten") and recipe.gf_mode == "extra":
