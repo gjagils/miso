@@ -3,6 +3,20 @@
 Stand van zaken na 56 commits in twee dagen. Wat is af, wat kan beter, en in welke volgorde.
 Verwijzingen zijn naar bestanden in deze repo; regelnummers kloppen op de datum hierboven.
 
+## Status na opvolging (9 oktober, avond)
+
+Opgepakt: A1 (iOS koppelen + Ontbrekend), A2 (recept bewerken/verwijderen, web-JSON + iOS), A3 (week-sync leest
+het echte AH-lijstje; mandje per bestelling), A4 (Kiezen stap 3 web + iOS), A5 (vriezer volgt kook dubbel),
+A6 (profielen bij import + dagelijks), A7 (iOS uitloggen bij 401), A8 (herinnering na inplannen), A9
+(bevestigen bij verwijderen), A10 (geen stil eerste product), A11 deels (zoekveld Recepten), B (dode code,
+`/allerhande`, lock-flag, naam Miso/versie 1.1, foto's lokaal, opruimen bij verwijderen), C2 (tempo-limiet,
+backoff, zoekcache, half zoveel calls), C5 deels (vertraging JSON-login), C6 (geen dubbele schaling).
+Back-up: dagelijks in `data/backups` (zelfde schijf; neem de datamap mee in Hyper Backup).
+
+Nog open: tokens versleutelen (vraagt een geheime sleutel als omgevingsvariabele), C3 (gedeelde
+AH-client bij gelijktijdige gebruikersacties), C4 (zware GET's), C7-C11, weeknavigatie op Vandaag,
+`POST /api/plan` (oude route, alleen nog door tests gebruikt), gedupliceerde helpers.
+
 ## Kort oordeel
 
 De kern, van recept naar weekmenu naar AH-lijstje, is compleet en werkt op web én iOS. De kwaliteit van de
