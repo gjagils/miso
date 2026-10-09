@@ -5,6 +5,7 @@ import re
 import hmac
 import io
 import os
+import time
 from datetime import date, timedelta
 from urllib.parse import parse_qs, urlparse
 
@@ -197,6 +198,25 @@ async def recipe_image(recipe_id: int):
     if not os.path.exists(path):
         raise HTTPException(404)
     return FileResponse(path, headers={"Cache-Control": "public, max-age=86400"})
+
+
+@router.post("/api/recipe/{recipe_id}/photo")
+async def replace_photo(recipe_id: int, photo: UploadFile | None = File(default=None),
+                        image_url: str = Form(""), db: Session = Depends(get_db)):
+    """Vervang de gerechtfoto: een geüploade foto, of een foto-URL die de server zelf ophaalt."""
+    recipe = _get_recipe(db, recipe_id)
+    data = await photo.read() if photo and photo.filename else None
+    if photo and photo.filename and photo.content_type not in ALLOWED_IMAGE_TYPES:
+        return JSONResponse({"ok": False, "error": f"Ongeldig bestandstype: {photo.content_type}"}, status_code=400)
+    if not data and image_url.strip():
+        data = await fetch_image(image_url.strip())
+    if not data:
+        return JSONResponse({"ok": False, "error": "Geen foto ontvangen."}, status_code=400)
+    if len(data) > 15 * 1024 * 1024 or not _save_food_photo(recipe.id, data):
+        return JSONResponse({"ok": False, "error": "Deze foto kon niet worden opgeslagen."}, status_code=400)
+    recipe.image_url = f"/image/{recipe.id}?v={int(time.time())}"  # nieuwe URL: oude foto staat nog in caches
+    db.commit()
+    return {"ok": True, "image_url": recipe.image_url}
 
 
 # ── Import (URL / tekst / foto's) ──────────────────────────────────────

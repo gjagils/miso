@@ -244,3 +244,19 @@ def test_import_text_keeps_source_link_and_uses_shared_photo(db, monkeypatch):
     assert r["ok"] and r["name"] == "Burrito bowl"
     recipe = db.get(Recipe, r["id"])
     assert recipe.source_url == "https://miljuschka.nl/x/" and recipe.image_url == f"/image/{recipe.id}"
+
+
+def test_replace_photo_saves_upload(db, tmp_path, monkeypatch):
+    import io
+
+    from PIL import Image
+
+    monkeypatch.setattr(routes, "IMAGE_DIR", str(tmp_path))
+    r = _recipe(db, "Pasta", [])
+    buf = io.BytesIO()
+    Image.new("RGB", (40, 30), "red").save(buf, format="JPEG")
+    client = TestClient(app)
+    resp = client.post(f"/api/recipe/{r.id}/photo", files={"photo": ("p.jpg", buf.getvalue(), "image/jpeg")})
+    assert resp.json()["image_url"].startswith(f"/image/{r.id}?v=")
+    assert (tmp_path / f"{r.id}.jpg").exists()
+    assert client.post(f"/api/recipe/{r.id}/photo", data={}).status_code == 400
