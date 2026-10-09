@@ -3,6 +3,12 @@
 {% block content %}
 <p class="breadcrumb"><a href="/dekking">Koppeling met AH</a> / Ontbrekend</p>
 <h1>Ontbrekende producten</h1>
+<div class="status-box missing-score" aria-live="polite">
+    <p><strong id="ms-pct">{{ totaal.pct|string|replace(".", ",") }}%</strong> van de ingrediënten is gekoppeld aan een AH-product ·
+       <span id="ms-done">{{ totaal.volledig }}</span> van {{ totaal.recepten }} recepten compleet</p>
+    <div class="ms-bar" role="progressbar" aria-label="Gekoppeld" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ totaal.pct }}">
+        <span id="ms-fill" style="width: {{ totaal.pct }}%"></span></div>
+</div>
 <p class="muted">{{ lines }} ingrediënten in {{ groups|length }} groepen hebben nog geen AH-product. Zoek en kies een product:
 het geldt voor alle recepten in de groep en Miso onthoudt het voor de volgende keer. Niet nodig? Dan vink je het uit.</p>
 
@@ -36,7 +42,16 @@ async function assign(box, product) {
     box.style.opacity = 0.5;
     const r = await fetch("/api/missing/assign", {method: "POST", headers: {"Content-Type": "application/json"},
         body: JSON.stringify({lines: JSON.parse(box.dataset.lines), product})}).then(x => x.json()).catch(() => ({}));
-    if (r.ok) { box.remove(); return; }
+    if (r.ok) {
+        box.remove();
+        if (r.totaal) {
+            document.getElementById("ms-pct").textContent = String(r.totaal.pct).replace(".", ",") + "%";
+            document.getElementById("ms-done").textContent = r.totaal.volledig;
+            document.getElementById("ms-fill").style.width = r.totaal.pct + "%";
+            document.querySelector(".ms-bar").setAttribute("aria-valuenow", r.totaal.pct);
+        }
+        return;
+    }
     box.style.opacity = 1; alert("Opslaan mislukt");
 }
 document.querySelectorAll(".missing-group").forEach(box => {

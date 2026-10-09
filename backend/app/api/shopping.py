@@ -106,14 +106,14 @@ async def assign_missing(payload: AssignPayload, db: Session = Depends(get_db)):
         recipe.ingredients = ings
         done += 1
     db.commit()
-    return {"ok": True, "updated": done}
+    return {"ok": True, "updated": done, "totaal": coverage(db)["totaal"]}
 
 
 @router.get("/dekking/ontbrekend", response_class=HTMLResponse)
 async def missing_page(request: Request, db: Session = Depends(get_db)):
     groups = missing_groups(db)
-    return routes.templates.TemplateResponse(request, "missing.html", {"groups": groups,
-                                                                       "lines": sum(len(g["lines"]) for g in groups)})
+    return routes.templates.TemplateResponse(request, "missing.html", {
+        "groups": groups, "lines": sum(len(g["lines"]) for g in groups), "totaal": coverage(db)["totaal"]})
 
 
 REFRESH: dict = {"running": False, "done": 0, "total": 0, "started": None, "finished": None, "error": None}

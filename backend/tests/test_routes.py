@@ -300,7 +300,7 @@ def test_missing_page_groups_and_assigns(db):
     b = _recipe(db, "B", [_ing("1 gele paprika"), _ing("dragon")])
     client = TestClient(app)
     page = client.get("/dekking/ontbrekend").text
-    assert "gele paprika" in page and "2×" in page
+    assert "gele paprika" in page and "2×" in page and "gekoppeld aan een AH-product" in page
     lines = [{"recipe_id": a.id, "index": 0, "text": "2 gele paprika's"},
              {"recipe_id": b.id, "index": 0, "text": "1 gele paprika"}]
     product = {"id": 9, "name": "AH Paprika geel", "unit_size": "per stuk"}
