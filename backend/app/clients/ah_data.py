@@ -344,7 +344,14 @@ def parse_lists(data) -> list[dict]:
 
 async def get_lists() -> list[dict]:
     # De API wil een productId-parameter, maar geeft alle lijsten terug (zie appie-go).
-    return parse_lists(await get_json(LISTS_URL, "favorietenlijsten", params={"productId": 1}))
+    # De API wil een productId (geeft dan alle lijsten). appie-go gebruikt 1; live gaf dat 404 -> ook een echt id.
+    last: AHDataError | None = None
+    for params in ({"productId": 1}, {"productId": 197585}, {}):
+        try:
+            return parse_lists(await get_json(LISTS_URL, "favorietenlijsten", params=params))
+        except AHDataError as e:
+            last = e
+    raise last or AHDataError("Je AH-lijsten konden niet worden opgehaald.")
 
 
 LIST_ITEMS_QUERY = """query FavoriteListV2($ids: [String!]!) {
@@ -424,11 +431,12 @@ def is_basis(name: str) -> bool:
 # Allerhande bewaart favoriete recepten als "recipe collection": categorieën met recepten
 # (schema: Query.recipeCollectionCategories -> [RecipeCollectionCategory{id name isDefault recipes{id type}}]).
 FAVORITE_RECIPES_QUERIES = [
+    # RecipeSummary heeft (live, 2026-10) geen "type"-veld; alleen id/title vragen
     ("recipeCollectionCategories", """query RecipeCollectionCategories {
-  recipeCollectionCategories { id name isDefault recipes { id type } }
+  recipeCollectionCategories { id name isDefault recipes { id title } }
 }"""),
-    ("recipeCollectionCategory", """query RecipeCollectionCategory {
-  recipeCollectionCategory { id name isDefault recipes { id type } }
+    ("recipeCollectionCategories-ids", """query RecipeCollectionCategories {
+  recipeCollectionCategories { id name isDefault recipes { id } }
 }"""),
 ]
 
