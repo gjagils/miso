@@ -456,7 +456,11 @@ async def _automatch(ingredients: list[dict], gluten_free: bool = False, force: 
         ing["need"] = need if packs is not None else None
         ing["pack"] = pack if packs is not None else None
         n_stuk = need and need["unit"] == "stuk" and pack is None and not re.search(r"\b(zakje|zakjes)\b", ing.get("text", "").lower())
-        ing["quantity"] = packs or container_count(ing.get("text", "")) or (
+        big = pack and pack["unit"] in ("g", "ml") and pack["amount"] >= 400
+        containers = container_count(ing.get("text", ""))
+        if containers and big and re.search(r"\b(kuipjes?|bekertjes?|potjes?)\b", ing.get("text", "").lower()):
+            containers = 1  # "2 kuipjes yoghurt" is geen 2 liter
+        ing["quantity"] = packs or containers or (
             max(1, math.ceil(need["amount"] - 1e-9)) if n_stuk and need["amount"] <= 12 and not str(product.get("unit_size", "")).strip().endswith(("g", "kg", "ml", "l")) else 1)
 
     async def match(ing: dict) -> int:

@@ -11,7 +11,7 @@ from fractions import Fraction
 
 from app.clients.mealie import clean_search
 
-MATCH_VERSION = 17
+MATCH_VERSION = 19
 
 # Basisspullen die je meestal in huis hebt: niet automatisch op de lijst
 PANTRY = {
@@ -38,7 +38,7 @@ PRODUCE = {
     "peultje", "doperwt", "mais", "granaatappel", "kiwi", "meloen", "lollo",
 }
 SPECIFIC = {"gerookte", "gerookt", "doorregen", "zoete", "scherpe", "groninger", "goudreinet", "panko", "komijne",
-            "kleine", "light", "gedroogde", "diepvries", "truffel", "truffelaroma", "zongedroogde", "magere"}
+            "kleine", "light", "gedroogde", "diepvries", "truffel", "truffelaroma", "zongedroogde", "magere", "toscaanse"}
 OPTIONAL_WORDS = {"vers", "biologisch", "bio", "half", "heel", "mild", "jong", "oud", "belegen",
                   "fijn", "naturel", "gerookt", "gezouten", "ongezouten", "puur"}
 SPICES = {"komijn", "kurkuma", "kaneel", "paprikapoeder", "nootmuskaat", "kardemom", "kruidnagel", "chilipoeder",
@@ -156,7 +156,7 @@ def packs_for(need: dict | None, pack: dict | None) -> int | None:
         return max(1, math.ceil(need["amount"] * need["piece_g"] / pack["amount"] - 0.15))
     if need["unit"] != pack["unit"]:
         return None
-    slack = 0.03 if need["unit"] in ("g", "ml") else 1e-9  # zoals AH: 250 g bij pakken van 225 g = 2 pakken
+    slack = 0.05 if need["unit"] in ("g", "ml") else 1e-9  # zoals AH: 250 g bij pakken van 225 g = 2 pakken
     return max(1, math.ceil(need["amount"] / pack["amount"] - slack))
 
 
@@ -252,7 +252,7 @@ DESCRIPTORS = {
     "diepvries", "bevroren", "gedroogd", "gedroogde", "vers", "verse",
     "biologisch", "biologische", "bio", "in", "blik", "pot", "potje", "zak", "pak", "of", "en", "een", "van",
     "met", "de", "het", "voor", "naar", "smaak", "iets", "ongeveer", "ca", "stevig", "stevige", "handvol",
-    "bevroren", "geraspt", "geraspte", "ah", "hele", "heel", "excellent",
+    "bevroren", "ah", "hele", "heel", "excellent",
     "afbakbroodje", "stijl", "blikken", "blikjes", "blikje", "stengels", "stengel", "zakjes", "zakje", "pakje",
     "pakjes", "sneetjes", "sneetje", "bakjes", "bakje", "klont", "glas", "glazen", "bol", "bollen", "eetl", "theel",
     "tl", "el", "cm", "kuipje", "kuipjes", "uit", "molen", "desgewenst", "onbehandelde", "onbehandeld", "panklare",
@@ -277,7 +277,14 @@ SYNONYMS = [
     (r"\b(hete|warme) (\w*bouillon)", r"\2"),
     (r"\bvleesbouillon", "runderbouillon"), (r"\btuinkruidenbouillon", "groentebouillon"),
     (r"\bparmaham\b", "prosciutto di parma"),
-    (r"\btruffelolie\b", "olijfolie truffel"),
+    (r"\btruffelolie\b|\bolijfolie met truffel\w*", "olijfolie truffel"),
+    (r"\b(geraspte )?italiaanse (harde )?kaas\b", "grana padano"),  # HelloFresh/Marley Spoon: harde Italiaanse kaas
+    (r"\brunderchipolata(worstjes?)?\b", "runderchipolata"), (r"\bvarkensboerengehakt\b", "varkensgehakt"),
+    (r"\bbalsamicoglazuur\b|\bbalsamico-?creme\b", "crema balsamico"),
+    (r"\bchilipoeder\b", "chili poeder"),
+    (r"\btabasco\b", "tabasco red pepper"),
+    (r"\broerbaknoedels\b", "woknoedels"),
+    (r"(?<!gepelde )(?<!hele )\btomaten in blik\b", "tomatenblokjes"),
     (r"\bshii-?takes?\b", "shiitake"),
     (r"\bsteranijs(je|jes)?\b", "steranijs"),
     (r"\bkaneelstok(je|jes|ken)?\b", "kaneel heel"),
@@ -314,7 +321,7 @@ SYNONYMS = [
     (r"\bcoriander\b", "koriander"),
     (r"\bsesam\b", "sesamzaad"),
     (r"\bpruimtomaat\b", "roma tomaten"),
-    (r"\bcranberry'?s\b", "cranberries"),
+    (r"\bcranberry('?s)?\b", "cranberries"),
     (r"\b(?!uitjes)(\w*[aeiou]t)jes\b", r"\1"),  # verkleinwoord: sjalotjes -> sjalot, tomaatjes -> tomaat
     (r"\bgrove\b", "grof"),
     (r"\bzoete soja ?saus\b", "ketjap manis"),
@@ -352,7 +359,8 @@ TITLE_NOISE = {"ah", "biologisch", "terra", "excellent", "basic", "scharrel", "p
 OTHER_PRODUCT = {"siroop", "sap", "saus", "chips", "toast", "salami", "smaak", "snack", "snacks", "reep", "koek",
                  "taart", "cake", "mix", "spread", "drank", "thee", "verspakket", "maaltijd", "salade", "soep",
                  "pie", "roomkaas", "melba", "chocolade", "ijs", "dressing", "tapenade", "worst", "pizza",
-                 "wrap", "burger", "kroket", "nuggets", "olijfmix", "woksmaakmaker", "kruidenmix", "marinade"}
+                 "wrap", "burger", "kroket", "nuggets", "olijfmix", "woksmaakmaker", "kruidenmix", "marinade", "sate",
+                 "schnitzel", "pate"}
 COMPOUND_OK = {"baby", "mini", "bio", "buffel", "kastanje", "cherry", "tros", "pruim", "roma", "jonge", "jong",
                "oude", "wilde", "half", "volle", "halfvolle", "magere", "rode", "witte", "gele", "groene", "zwarte",
                "platte", "krul", "room", "scharrel", "vrije", "uitloop", "verse", "vers", "griekse", "turkse", "italiaanse", "hollandse",
@@ -366,7 +374,7 @@ OTHER_SUFFIX = ("wraps", "wrap", "biscuits", "biscuit", "tapenade", "sticks", "t
                 "saus", "pilsener", "partymix", "noodles", "hummus", "dip", "dipsaus", "chips", "crackers", "koekjes",
                 "drank", "sap", "siroop", "toast", "repen", "reep", "salade", "soep", "spread", "pasta-saus",
                 "maaltijd", "verspakket", "pakket", "mix", "smaak", "sensatie", "kroketten", "snack", "azijn",
-                "drink", "olijven", "olijf", "omelet", "spread", "smeerkaas", "dressing", "marinade")
+                "drink", "olijven", "olijf", "omelet", "spread", "smeerkaas", "dressing", "marinade", "pate", "schnitzel")
 # Kenmerken die in het product staan maar niet in het recept: verkeerd product
 NUTS = ("pinda", "noot", "noten", "cashew", "amandel", "walnot", "hazelno", "pecan", "pistach", "olijf", "olijv",
         "chips", "zaden", "pitten", "rozijn", "cranberr", "dadel", "abrikoz", "vijg", "macadamia", "pesto",
@@ -374,9 +382,9 @@ NUTS = ("pinda", "noot", "noten", "cashew", "amandel", "walnot", "hazelno", "pec
 MARKED = ("cordon", "bleu", "spray", "geklaard", "kalkoen", "gepaneerd", "gemarineerd", "glutenvrij", "geiten", "geit", "lactosevrij", "suikervrij", "light", "zero", "gevuld",
           "gepaneerd", "vegan", "vegetarisch", "knoflook", "kruiden", "pikant", "pittig", "truffel", "volkoren",
           "minder", "spaanse", "deelblokjes", "gegrild", "gegrilde", "gekruid", "gekruide", "meergranen",
-          "vloeibaar", "vloeibare")
+          "vloeibaar", "vloeibare", "reepjes", "sriracha", "geslagen", "shoarma", "sate")
 # Kenmerken die het recept vraagt en die het product dan ook moet hebben
-REQUIRED = ("gemalen", "gerookt", "gerookte", "zongedroogd", "zongedroogde", "vastkokend", "vastkokende", "gezeefd",
+REQUIRED = ("gemalen", "gerookt", "gerookte", "zongedroogd", "zongedroogde", "vastkokend", "vastkokende", "gezeefd", "geraspt",
             "ongezouten", "geroosterd", "geroosterde", "grof", "dijon")
 # Gewicht per stuk om "2 kipfilets" naar pakken van ~300 g om te rekenen
 PIECE_WEIGHT = {"aubergine": 350, "courgette": 300, "sjalot": 30, "paprika": 160, "pompoen": 1000,
@@ -386,7 +394,9 @@ PIECE_WEIGHT = {"aubergine": 350, "courgette": 300, "sjalot": 30, "paprika": 160
                 "slavink": 100, "braadworst": 100, "kipdrumstick": 110, "kippenpoot": 250}
 COLORS = {"rode", "rood", "groene", "groen", "gele", "geel", "witte", "wit", "zwarte", "zwart", "oranje", "paarse"}
 CONFLICTS = [({"doorregen"}, {"magere", "mager"}), ({"diepvries"}, {"grootverpakking"}),({"vastkokend", "vastkokende"}, {"kruimig", "kruimige"}), ({"kruimig", "kruimige"}, {"vastkokend", "vastkokende"}),
-             ({"scherp", "scherpe"}, {"mild", "milde"}), ({"zoet", "zoete"}, {"pittig", "pittige", "scherp"})]
+             ({"scherp", "scherpe"}, {"mild", "milde"}), ({"zoet", "zoete"}, {"pittig", "pittige", "scherp", "gerookte", "gerookt"}),
+             ({"kleine", "klein", "mini"}, {"large", "groot", "grote", "xl"}), ({"dijon"}, {"mild", "milde"}),
+             ({"geraspt", "geraspte"}, {"stuk", "plakken", "blok"})]
 ALCOHOL = {"wijn", "bier", "brandy", "cognac", "port", "rum", "wodka", "whisky", "sherry", "likeur", "cider", "marsala",
            "prosecco", "cava", "jenever", "gin", "calvados", "amaretto", "grappa"}
 # Rassen/soorten die AH als productnaam gebruikt zonder het woord zelf ("AH Conference schaal" = peren)
@@ -426,8 +436,9 @@ def query_terms(text: str) -> tuple[str, list[str], set[str]]:
         flags.add("frozen")
     if re.search(r"\bblik", low):
         flags.add("canned")
-    if re.search(r"kruidenmix|specerij|gemalen|\bpoeder|\bzaad\b|zaadjes", low):
-        flags.add("dried")
+    if re.search(r"kruidenmix|specerij|gemalen|\bpoeder|\bzaad\b|zaadjes", low) and not (
+            "fresh" in flags and "kruidenmix" in low):
+        flags.add("dried")  # "verse Italiaanse kruidenmix" blijft vers
     for pct in re.findall(r"(\d+(?:[.,]\d+)?)\s*%", low):
         flags.add(f"pct:{pct.replace(',', '.')}")
     if re.search(r"\bbiologisch", low):
@@ -447,6 +458,22 @@ PARTICIPLES = {"fijngesneden", "gesneden", "geraspt", "geraspte", "gehakt", "geh
                "geschild", "geschilde", "gepeld", "gepelde", "grofgesneden", "fijngehakt", "gemalen", "heel"}
 
 
+ADJECTIVES = {"zoete", "jonge", "oude", "verse", "kleine", "grote", "halve", "hele", "magere", "mager", "volle", "vol",
+              "halfvol", "halfvolle", "milde", "pittige", "fijne", "grove", "lekkere", "luxe", "dikke", "dunne", "zachte",
+              "witte", "zure", "blanke", "koude", "warme", "nieuwe", "echte", "gezonde", "romige", "krokante",
+              "belegen", "jong", "oud", "extra", "geraspt", "geraspte", "gesneden", "gemalen"}
+
+
+def _is_adjective(t: str) -> bool:
+    """'rode', 'griekse', 'gerookte' ja; 'spinazie', 'cottage', 'cremepate' (zelfstandig naamwoord op -e) nee."""
+    return (t in ADJECTIVES or t in COLORS or t in COMPOUND_OK and t.endswith("e") or t.endswith(("se", "sche"))
+            or (t.startswith("ge") and t.endswith(("de", "te", "en")) and len(t) > 5))
+
+
+FLAVOURS = {"paprika", "chili", "zeezout", "kerrie", "barbecue", "bbq", "honing", "cranberry", "truffel", "naturel", "wasabi",
+            "knoflook", "kaas", "pesto", "tomaat", "ui"}
+
+
 def _head_index(q: list[str]) -> int:
     for i in range(len(q) - 1, -1, -1):
         if q[i] not in PARTICIPLES:
@@ -458,7 +485,8 @@ def _same(q: str, t: str) -> int:
     """2 = zelfde woord, 1 = samenstelling met dit woord als kern achteraan ("babyspinazie" bij "spinazie",
     of "scharrelkipfilet" bij "kipfilet"), 0 = niet."""
     qs, ts = _stem(q), _stem(t)
-    if q == t or qs == ts or qs == t or ts == q or plural(q) == t or plural(t) == q or _stem(plural(q)) == ts:
+    if q == t or qs == ts or qs == t or ts == q or plural(q) == t or plural(t) == q or _stem(plural(q)) == ts \
+            or (q.endswith("e") and q[:-1] == t) or (t.endswith("e") and t[:-1] == q):  # italiaanse = italiaans
         return 2
     if len(q) >= 3 and len(t) - len(q) >= 3 and (t.endswith(q) or ts.endswith(qs)):
         prefix = t[: len(t) - len(q)] if t.endswith(q) else ts[: len(ts) - len(qs)]
@@ -548,13 +576,15 @@ def score(product: dict, query: str, flags: set[str] | None = None, need: dict |
             s -= 15  # recept vraagt "gemalen"/"gerookt"/"grof", product heeft het niet
     if q and _stem(q[_head_index(q)]).startswith("paprika") and not qraw & COLORS and title_tokens & {"groene", "groen"}:
         s -= 10  # paprika zonder kleur: rood/mix, niet groen
-    nouns = [i for i, t in enumerate(content) if not ((len(t) > 3 and t.endswith(("e", "se", "ge")) or t in {"mager", "vol", "halfvol"})
-                                                      and t not in qset)]
+    nouns = [i for i, t in enumerate(content) if not (_is_adjective(t) and t not in qset)]
     first_noun = nouns[0] if nouns else 0
     if content and first_noun not in matched_t and content[first_noun] in extra and len(content) > 1:
         s -= 60  # het product gaat over iets anders ("roomkaas met gember", "spinazie met boursin")
     if q and content and (q[-1] in content[-1] or _same(q[-1], content[-1])):
         s += 4
+    if matched_t and any(i > max(matched_t) and content[i] in FLAVOURS and content[i] not in qset
+                         for i in range(len(content))):
+        s -= 40  # smaakje achter het product: "Kikkererwten paprika" is een snack, geen blik kikkererwten
     organic = "biologisch" in title or product.get("organic")
     huismerk = brand.startswith("ah") or title.startswith("ah ")
     if organic:
@@ -576,8 +606,9 @@ def score(product: dict, query: str, flags: set[str] | None = None, need: dict |
         s -= 25  # "uienchutney truffelsmaak"
     if re.search(r"\bmild\b", title) and qset & {"scherpe", "scherp", "pittige", "pittig"}:
         s -= 30
-    if "fresh" in flags and category.startswith("soepen, sauzen, kruiden"):
-        s -= 40  # verse kruiden, geen potje gedroogd
+    if "fresh" in flags and (category.startswith("soepen, sauzen, kruiden") or (
+            head in {_stem(w) for w in HERBS | {"kruiden"}} and not category.startswith(("groente", "fruit")))):
+        s -= 60  # verse kruiden, geen potje gedroogd
     if "dried" in flags and category.startswith("groente"):
         s -= 20
     if re.search(r"\b\d+-pack\b|\bmultipack\b", title) or re.match(r"^\s*\d+\s*x\s", product.get("unit_size") or ""):
