@@ -267,3 +267,29 @@ async def api_staples(week: str | None = None, refresh: bool = False, db: Sessio
     counts = history.get("counts") or {}
     return {"ok": True, "week": str(monday), "staples": staples,
             "source_counts": {**counts, "ritten": len(history["trips"]), "basislijst": len(basis)}}
+
+
+@router.get("/ah/list-probe")
+async def ah_list_probe(db: Session = Depends(get_db)):
+    """TIJDELIJK (diagnose): welke AH-route geeft het boodschappenlijstje terug? Alleen lezen."""
+    from app.clients.ah import _user_call
+
+    if not _use_user_tokens(db):
+        return {"ok": False, "error": "AH niet gekoppeld"}
+    out = {}
+    for url in ("https://api.ah.nl/mobile-services/shoppinglist/v2/items",
+                "https://api.ah.nl/mobile-services/shoppinglist/v2/list",
+                "https://api.ah.nl/mobile-services/shoppinglist/v2",
+                "https://api.ah.nl/mobile-services/shoppinglist/v1/items"):
+        try:
+            resp = await _user_call(ah_client, "GET", url)
+            out[url] = {"status": resp.status_code, "body": resp.text[:1500]}
+        except Exception as e:  # noqa: BLE001
+            out[url] = {"error": str(e)[:300]}
+    for name, q in (("shoppingList", "query { shoppingList { items { productId quantity strikeThrough } } }"),
+                    ("shoppingListV2", "query { shoppingListV2 { items { productId quantity } } }")):
+        try:
+            out[name] = await ah_client.graphql(q, {})
+        except Exception as e:  # noqa: BLE001
+            out[name] = {"error": str(e)[:500]}
+    return out
