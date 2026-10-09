@@ -321,3 +321,31 @@ def test_missing_page_groups_and_assigns(db):
 def test_favicon_is_public():
     resp = TestClient(app).get("/favicon.ico")
     assert resp.status_code == 200 and len(resp.content) > 100
+
+
+def test_json_ingredient_update_edit_and_delete(db, monkeypatch):
+    from app.models import PlanEntry, ProductPreference
+
+    async def no_match(db_, recipe):
+        return None
+
+    monkeypatch.setattr(routes, "ensure_matched", no_match)
+    r = _recipe(db, "Soep", [_ing("1 ui", 1), _ing("2 gele paprika's")])
+    db.add(PlanEntry(date="2026-10-12", kind="recipe", recipe_id=r.id))
+    db.commit()
+    client = TestClient(app)
+    product = {"id": 9, "name": "AH Paprika geel", "unit_size": "per stuk"}
+    res = client.post(f"/api/recipes/{r.id}/ingredients/1", json={"text": "2 gele paprika's", "product": product}).json()
+    assert res["ingredient"]["product_id"] == 9 and res["ingredient"]["manual"] and res["ingredient"]["quantity"] == 2
+    assert db.query(ProductPreference).count() == 1
+    assert client.post(f"/api/recipes/{r.id}/ingredients/0", json={"text": "1 ui", "skip": True}).json()["ingredient"]["skip"]
+    assert client.post(f"/api/recipes/{r.id}/ingredients/0", json={"text": "fout", "skip": True}).status_code == 409
+    edited = client.patch(f"/api/recipes/{r.id}", json={"name": "Paprikasoep", "instructions": ["Kook.", " "],
+                                                        "ingredients": ["2 gele paprika's", "1 l bouillon"]}).json()
+    assert edited["name"] == "Paprikasoep" and edited["instructions"] == ["Kook."]
+    assert [i["text"] for i in edited["ingredients"]] == ["2 gele paprika's", "1 l bouillon"]
+    assert edited["ingredients"][0]["product_id"] == 9  # ongewijzigde regel houdt zijn koppeling
+    assert client.patch(f"/api/recipes/{r.id}", json={"name": " "}).status_code == 400
+    assert "groups" in client.get("/api/missing").json()
+    assert client.delete(f"/api/recipes/{r.id}").json() == {"ok": True}
+    assert db.query(PlanEntry).count() == 0

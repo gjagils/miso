@@ -61,21 +61,118 @@ async def api_recipe(recipe_id: int, db: Session = Depends(get_db)):
         "source_url": r.source_url,
         "gf_note": r.gf_note,
         "instructions": r.instructions,
-        "ingredients": [
-            {
-                "text": i["text"], "skip": bool(i.get("skip")), "gluten": bool(i.get("gluten")),
-                "gf_search": i.get("gf_search", ""),
-                "product": (i.get("product") or {}).get("name"),
-                "product_id": (i.get("product") or {}).get("id"),
-                "product_image": (i.get("product") or {}).get("image_url", ""),
-                "quantity": i.get("quantity", 1), "pantry": bool(i.get("auto_skip")),
-                "unit_size": (i.get("product") or {}).get("unit_size"),
-                "gf_product": (i.get("gf_product") or {}).get("name"),
-                "gf_product_id": (i.get("gf_product") or {}).get("id"),
-            }
-            for i in r.ingredients
-        ],
+        "ingredients": [_ing_json(i, idx) for idx, i in enumerate(r.ingredients)],
     }
+
+
+def _ing_json(i: dict, idx: int) -> dict:
+    return {
+        "index": idx, "text": i["text"], "skip": bool(i.get("skip")), "gluten": bool(i.get("gluten")),
+        "gf_search": i.get("gf_search", ""),
+        "product": (i.get("product") or {}).get("name"),
+        "product_id": (i.get("product") or {}).get("id"),
+        "product_image": (i.get("product") or {}).get("image_url", ""),
+        "quantity": i.get("quantity", 1), "pantry": bool(i.get("auto_skip")),
+        "unit_size": (i.get("product") or {}).get("unit_size"),
+        "manual": bool(i.get("manual")),
+        "gf_product": (i.get("gf_product") or {}).get("name"),
+        "gf_product_id": (i.get("gf_product") or {}).get("id"),
+    }
+
+
+class IngredientUpdate(BaseModel):
+    text: str  # huidige tekst van de regel, ter controle
+    product: dict | None = None  # AH-product (zoals /api/ah/search het geeft); None + skip=false = ontkoppelen
+    skip: bool = False  # uitvinken: niet kopen
+    quantity: int | None = None
+
+
+@router.post("/recipes/{recipe_id}/ingredients/{index}")
+async def api_update_ingredient(recipe_id: int, index: int, payload: IngredientUpdate, db: Session = Depends(get_db)):
+    """Eén ingrediënt koppelen, uitvinken of aantal wijzigen (iOS). Een gekozen product is handmatig
+    (wordt nooit automatisch overschreven) en wordt onthouden voor andere recepten."""
+    from app.matching import MATCH_VERSION, needed, pack_size, packs_for
+
+    r = db.get(Recipe, recipe_id)
+    if not r:
+        raise HTTPException(404, "Recept niet gevonden")
+    ings = r.ingredients
+    if not (0 <= index < len(ings)) or ings[index].get("text", "").strip() != payload.text.strip():
+        return JSONResponse({"ok": False, "error": "Het recept is intussen gewijzigd. Ververs en probeer opnieuw."},
+                            status_code=409)
+    ing = ings[index]
+    if payload.skip:
+        ing.update(skip=True, auto_skip=False)
+    elif payload.product and payload.product.get("id"):
+        old = (ing.get("product") or {}).get("id")
+        ing.update(product=payload.product, skip=False, auto_skip=False, manual=True, source="handmatig",
+                   match_v=MATCH_VERSION)
+        if old != payload.product["id"]:
+            routes.learn_pref(db, ing)
+            packs = packs_for(needed(ing.get("text", "")), pack_size(payload.product.get("unit_size", "")))
+            ing["quantity"] = packs or 1
+    else:
+        ing.update(skip=False, auto_skip=False)
+        if payload.product is None and "product" in payload.model_fields_set:
+            ing.update(product=None, manual=False)
+    if payload.quantity is not None:
+        ing["quantity"] = max(1, min(99, payload.quantity))
+    r.ingredients = ings
+    db.commit()
+    return {"ok": True, "ingredient": _ing_json(ing, index)}
+
+
+class RecipeEdit(BaseModel):
+    name: str | None = None
+    servings: str | None = None
+    total_time: str | None = None
+    description: str | None = None
+    instructions: list[str] | None = None
+    ingredients: list[str] | None = None  # alle ingrediëntregels als tekst; ongewijzigde regels houden hun koppeling
+
+
+@router.patch("/recipes/{recipe_id}")
+async def api_edit_recipe(recipe_id: int, payload: RecipeEdit, db: Session = Depends(get_db)):
+    r = db.get(Recipe, recipe_id)
+    if not r:
+        raise HTTPException(404, "Recept niet gevonden")
+    for field in ("name", "servings", "total_time", "description"):
+        value = getattr(payload, field)
+        if value is not None:
+            if field == "name" and not value.strip():
+                return JSONResponse({"ok": False, "error": "Geef het recept een naam."}, status_code=400)
+            setattr(r, field, value.strip())
+    if payload.instructions is not None:
+        r.instructions = [s.strip() for s in payload.instructions if s.strip()]
+    if payload.ingredients is not None:
+        old = {}
+        for ing in r.ingredients:
+            old.setdefault(ing.get("text", "").strip(), ing)
+        new = []
+        for text in (t.strip() for t in payload.ingredients):
+            if text:
+                new.append(old.pop(text, None) or {"text": text, "search": text, "skip": False, "quantity": 1,
+                                                   "product": None})
+        r.ingredients = new
+    db.commit()
+    return await api_recipe(recipe_id, db)  # koppelt nieuwe regels meteen (ensure_matched)
+
+
+@router.delete("/recipes/{recipe_id}")
+async def api_delete_recipe(recipe_id: int, db: Session = Depends(get_db)):
+    r = db.get(Recipe, recipe_id)
+    if not r:
+        raise HTTPException(404, "Recept niet gevonden")
+    routes.remove_recipe(db, r)
+    return {"ok": True}
+
+
+@router.get("/missing")
+async def api_missing(db: Session = Depends(get_db)):
+    """Ontbrekende AH-producten gegroepeerd (zoals de webpagina Ontbrekend); kiezen via POST /api/missing/assign."""
+    from app.api.shopping import coverage, missing_groups
+
+    return {"groups": missing_groups(db), "totaal": coverage(db)["totaal"]}
 
 
 @router.get("/week")

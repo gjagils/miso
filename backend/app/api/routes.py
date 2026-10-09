@@ -332,16 +332,27 @@ async def import_recipe(
     return {"ok": True, "id": recipe.id, "name": recipe.name}
 
 
-@router.post("/recipe/{recipe_id}/delete")
-async def delete_recipe(recipe_id: int, db: Session = Depends(get_db)):
-    recipe = _get_recipe(db, recipe_id)
-    for entry in db.execute(select(PlanEntry).where(PlanEntry.recipe_id == recipe_id)).scalars():
+def remove_recipe(db: Session, recipe: Recipe) -> None:
+    """Recept weg, met alles wat ernaar verwijst (planregels, gezondheidsprofiel, foto)."""
+    from app.models import FreezerItem, RecipeProfile
+
+    rid = recipe.id
+    for entry in db.execute(select(PlanEntry).where(PlanEntry.recipe_id == rid)).scalars():
         db.delete(entry)
+    for prof in db.execute(select(RecipeProfile).where(RecipeProfile.recipe_id == rid)).scalars():
+        db.delete(prof)
+    for item in db.execute(select(FreezerItem).where(FreezerItem.from_recipe_id == rid)).scalars():
+        item.from_recipe_id = None  # de porties liggen nog in de vriezer
     db.delete(recipe)
     db.commit()
-    path = os.path.join(IMAGE_DIR, f"{recipe_id}.jpg")
+    path = os.path.join(IMAGE_DIR, f"{rid}.jpg")
     if os.path.exists(path):
         os.remove(path)
+
+
+@router.post("/recipe/{recipe_id}/delete")
+async def delete_recipe(recipe_id: int, db: Session = Depends(get_db)):
+    remove_recipe(db, _get_recipe(db, recipe_id))
     return RedirectResponse("/recepten", status_code=303)
 
 
