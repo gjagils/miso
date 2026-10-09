@@ -275,3 +275,19 @@ def test_no_photo_filter_and_remove(db, tmp_path, monkeypatch):
     assert client.post(f"/api/recipe/{with_photo.id}/photo/remove").json() == {"ok": True}
     assert "Met foto" in client.get("/recepten?foto=nee").text
     assert "Foto toevoegen" in client.get(f"/recipe/{with_photo.id}").text
+
+
+def test_rematch_keeps_valid_product_when_search_is_empty(monkeypatch):
+    import asyncio
+
+    async def empty(query, size=20):
+        return []
+
+    monkeypatch.setattr(routes.ah_client, "search_products", empty)
+    good = {"id": 1, "name": "AH Biologisch Basmati rijst", "unit_size": "400 g", "category": "Pasta, rijst, wereldkeuken"}
+    bad = {"id": 2, "name": "AH Zoete kleine appeltjes", "unit_size": "4 stuks", "category": "Groente, aardappelen"}
+    ings = [{"text": "400g basmatirijst", "search": "basmatirijst", "product": dict(good), "match_v": 1},
+            {"text": "400g basmatirijst", "search": "basmatirijst", "product": dict(bad), "match_v": 1}]
+    asyncio.run(routes._automatch(ings))
+    assert ings[0]["product"]["id"] == 1
+    assert ings[1]["product"] is None

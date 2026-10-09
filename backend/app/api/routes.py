@@ -21,7 +21,7 @@ from sqlalchemy.orm import Session
 from app.clients.ah import ah_client, convert_ah_recipe
 from app.clients.extractor import extract_recipe, fetch_url, suggest_gluten_free
 from app.clients.mealie import MealieClient, clean_search, convert_recipe
-from app.matching import MATCH_VERSION, choose, container_count, has_no_product, is_equipment, is_pantry, needed, pack_size, packs_for, query_terms, search_queries
+from app.matching import MATCH_VERSION, choose, container_count, has_no_product, is_equipment, is_pantry, needed, pack_size, packs_for, query_terms, score, search_queries
 from app.config import settings
 from app.database import get_db
 from app.logging_config import logger
@@ -483,8 +483,14 @@ async def _automatch(ingredients: list[dict], gluten_free: bool = False, force: 
                 ing["source"] = "geleerd" if learned else "auto"
                 apply_quantity(ing, product)
             elif ing.get("product") and not ing.get("manual"):
-                ing["product"] = None  # nieuwe regels vinden niets goeds: oude (foute) koppeling weghalen
-                ing.pop("source", None)
+                # Niets gevonden. Klopt de oude koppeling volgens de nieuwe regels nog, dan blijft hij staan
+                # (AH-zoeken geeft soms tijdelijk niets terug); anders was hij fout en gaat hij weg.
+                q, _, fl = query_terms(text or search)
+                if max(score(ing["product"], q, fl, needed(text or search), relaxed) for relaxed in (False, True)) >= 30:
+                    apply_quantity(ing, ing["product"])
+                else:
+                    ing["product"] = None
+                    ing.pop("source", None)
             ing["match_v"] = MATCH_VERSION
         if gluten_free and ing.get("gluten") and not ing.get("gf_product") and ing.get("gf_search"):
             product = await find(ing["gf_search"])

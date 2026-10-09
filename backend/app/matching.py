@@ -11,7 +11,7 @@ from fractions import Fraction
 
 from app.clients.mealie import clean_search
 
-MATCH_VERSION = 15
+MATCH_VERSION = 16
 
 # Basisspullen die je meestal in huis hebt: niet automatisch op de lijst
 PANTRY = {
@@ -237,6 +237,10 @@ def _stem(t: str) -> str:
             break
     if t.endswith("e") and len(t) >= 5:
         t = t[:-1]
+    if t.endswith("tj") and len(t) >= 6:
+        t = t[:-1]  # verkleinwoord: granaatappelpitjes -> granaatappelpit, radijsjes -> radijs
+    elif t.endswith("sj") and len(t) >= 6:
+        t = t[:-1]
     t = re.sub(r"(aa|ee|oo|uu)", lambda m: m.group(0)[0], t)
     t = re.sub(r"([bcdfgklmnprstvz])\1$", r"\1", t)
     return t
@@ -256,7 +260,7 @@ DESCRIPTORS = {
     "plakjes", "partjes", "teentjes", "tenen", "liter", "dl", "ml", "gram", "kg", "g", "stuk", "stuks", "per", "persoon",
     "stukken", "garnering", "garneren", "serveren", "liefst", "bijvoorbeeld", "bv", "evt", "eventueel", "naar", "keuze",
     "sneet", "sneden", "tak", "takje", "scheut", "scheuten", "zakken", "beker", "bekers", "milliliter", "milliliters",
-    "grams", "flinke", "flink", "aan", "tip",
+    "grams", "flinke", "flink", "aan", "tip", "druppels", "druppel", "nr", "naturel", "schaal", "koelverse",
 }
 # Vaste vertalingen van receptwoorden naar hoe AH het noemt
 SYNONYMS = [
@@ -266,11 +270,34 @@ SYNONYMS = [
     (r"\s+(en|&)\s+.*$", ""),  # "bieslook & dille", "rucola en veldsla" -> eerste
     (r"\s+met\s+.*$", ""),  # "kipfilet met tuinbrood" -> kipfilet
     (r"\b\d+x\b", ""),
+    (r"(\w)'s\b", r"\1"),  # "paprika's" -> paprika, "scampi's" -> scampi (AH zoekt slecht op "paprikas")
+    (r"\bhalf[- ]om[- ]half\s*-?\s*", "half om half "),
+    (r"\bkippen(dij|filet|borst|gehakt|vleugel|pootje|drumstick)", r"kip\1"),  # kippendijfilet -> kipdijfilet
+    (r"\b(\w+bouillon) van (tablet|blokje|poeder)s?\b", r"\1"),  # "kippenbouillon van tablet"
+    (r"\b(hete|warme) (\w*bouillon)", r"\2"),
+    (r"\bvleesbouillon", "runderbouillon"), (r"\btuinkruidenbouillon", "groentebouillon"),
+    (r"\bparmaham\b", "prosciutto di parma"),
+    (r"\btruffelolie\b", "olijfolie truffel"),
+    (r"\bshii-?takes?\b", "shiitake"),
+    (r"\bsteranijs(je|jes)?\b", "steranijs"),
+    (r"\bkaneelstok(je|jes|ken)?\b", "kaneelstokjes"),
+    (r"\bchorizoworst(je|jes)?\b", "chorizo"), (r"\bmerguezworst(je|jes)?\b", "merguez"),
+    (r"\btomaatblokjes\b", "tomatenblokjes"),
+    (r"\bbosuitjes\b", "bosui"),
+    (r"\blasagnebla(d|den|deren)\b", "lasagne"),
+    (r"\b(?:thaise )?zoete chili ?saus\b", "sweet chili sauce"),
+    (r"\b(italiaanse) (roerbakmix|groentenmix|groentemix)\b", r"roerbakgroente \1"),
+    (r"\b(oosterse) (roerbakmix|groentenmix|groentemix)\b", r"wokgroente \1"),
+    (r"\brib-?runderlap(pen)?\b|\bribrunderlap(pen)?\b", "runder riblap"),
+    (r"\bdoorregen runderlappen\b", "runder sukadelappen"),
+    (r"\bgoudre?nett?e?[- ]appels?\b", "goudreinette"),
+    (r"\bmilde (kerrie|curry)poeder\b", r"\1poeder"),
+    (r"\b(manchego|pecorino|cheddar|gruyere|comte|feta|mozzarella|gouda) (kaas|kazen)\b", r"\1"),
     (r"\bbladpeterselie\b", "platte peterselie"),
-    (r"\bbasilicumblad(eren)?\b", "basilicum"),
+    (r"\bbasilicumbla(d|deren|adjes|adje)\b", "basilicum"),
     (r"\bsalieblaadjes\b", "salie"),
     (r"\bknoflooktenen\b", "knoflook"),
-    (r"\blaurierblaadjes\b|\blaunierblaadjes\b", "laurierblaadjes"),
+    (r"\blaurierblaadjes?\b|\blaunierblaadjes?\b", "laurierblaadjes"),
     (r"\bgriekse grillkaas\b", "grillkaas"),
     (r"\b(kippen|kip)bouillon(blokjes?|tabletten|tablet|poeder)?\b", "bouillon kip"),
     (r"\b(runder|rund|rundvlees)bouillon(blokjes?|tabletten|tablet|poeder)?\b", "bouillon rund"),
@@ -286,7 +313,7 @@ SYNONYMS = [
     (r"\b(?!uitjes)(\w*[aeiou]t)jes\b", r"\1"),  # verkleinwoord: sjalotjes -> sjalot, tomaatjes -> tomaat
     (r"\bgrove\b", "grof"),
     (r"\bzoete soja ?saus\b", "ketjap manis"),
-    (r"\bgoudrenet\b", "goudreinet"),
+    (r"\bgoudrenet\b", "goudreinette"),
     (r"\bpanko paneermeel\b", "panko"),
     (r"\bkomijnekaas\b", "komijnekaas"),
     (r"\brices?\b", "rijst"), (r"\bbasils?\b", "basilicum"), (r"\b(bouillon )?cubes?\b", "bouillon"),
@@ -380,7 +407,8 @@ def query_terms(text: str) -> tuple[str, list[str], set[str]]:
     for pat, rep in SYNONYMS:
         term = re.sub(pat, rep, term)
     term = re.sub(r"\b(?!\w+se\b)(\w+) kruiden\b", r"\1", term)  # "harissa kruiden" -> harissa, "italiaanse kruiden" blijft
-    words = list(dict.fromkeys(_tokens(term)))  # "kaneelstokje kaneelstokje"
+    toks = _tokens(term)
+    words = [w for i, w in enumerate(toks) if i == 0 or toks[i - 1] != w]  # "kaneelstokje kaneelstokje"; "half om half" blijft
     term = " ".join(words)
     flags = set()
     low = f" {text.lower()} "
@@ -401,8 +429,11 @@ def query_terms(text: str) -> tuple[str, list[str], set[str]]:
     keep = [w for w in words if w not in DESCRIPTORS and not w.isdigit()]
     if not keep:
         keep = words
-    if keep and keep[-1] in HERBS and "dried" not in flags and not re.search(r"\b(tl|el|theelepel|eetlepel)\b", low):
-        flags.add("fresh")  # "5 g koriander" = verse koriander; "1 tl koriander" = gedroogd
+    if keep and keep[-1] in HERBS and "dried" not in flags:
+        if re.search(r"\b(tl|el|theelepels?|eetlepels?)\b", low) and "fresh" not in flags:
+            flags.add("dried")  # "1 tl dragon" = gedroogd uit een potje
+        elif not re.search(r"\b(tl|el|theelepels?|eetlepels?)\b", low):
+            flags.add("fresh")  # "5 g koriander" = verse koriander
     return " ".join(keep), keep, flags
 
 
@@ -421,7 +452,7 @@ def _same(q: str, t: str) -> int:
     """2 = zelfde woord, 1 = samenstelling met dit woord als kern achteraan ("babyspinazie" bij "spinazie",
     of "scharrelkipfilet" bij "kipfilet"), 0 = niet."""
     qs, ts = _stem(q), _stem(t)
-    if q == t or qs == ts or plural(q) == t or plural(t) == q or _stem(plural(q)) == ts:
+    if q == t or qs == ts or qs == t or ts == q or plural(q) == t or plural(t) == q or _stem(plural(q)) == ts:
         return 2
     if len(q) >= 3 and len(t) - len(q) >= 3 and (t.endswith(q) or ts.endswith(qs)):
         prefix = t[: len(t) - len(q)] if t.endswith(q) else ts[: len(ts) - len(qs)]
@@ -511,7 +542,8 @@ def score(product: dict, query: str, flags: set[str] | None = None, need: dict |
             s -= 15  # recept vraagt "gemalen"/"gerookt"/"grof", product heeft het niet
     if q and _stem(q[_head_index(q)]).startswith("paprika") and not qraw & COLORS and title_tokens & {"groene", "groen"}:
         s -= 10  # paprika zonder kleur: rood/mix, niet groen
-    nouns = [i for i, t in enumerate(content) if not (len(t) > 3 and t.endswith(("e", "se", "ge")) and t not in qset)]
+    nouns = [i for i, t in enumerate(content) if not ((len(t) > 3 and t.endswith(("e", "se", "ge")) or t in {"mager", "vol", "halfvol"})
+                                                      and t not in qset)]
     first_noun = nouns[0] if nouns else 0
     if content and first_noun not in matched_t and content[first_noun] in extra and len(content) > 1:
         s -= 60  # het product gaat over iets anders ("roomkaas met gember", "spinazie met boursin")

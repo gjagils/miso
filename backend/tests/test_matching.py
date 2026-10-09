@@ -1,5 +1,7 @@
 from app.api.routes import aggregate_cart
-from app.matching import choose, is_pantry, needed, pack_size, packs_for
+import pytest
+
+from app.matching import choose, is_pantry, needed, pack_size, packs_for, query_terms, score
 from app.models import Recipe
 
 
@@ -41,3 +43,40 @@ def test_cart_sums_amounts_across_recipes_before_rounding_packs():
         recipes.append(r)
     cart, unmatched = aggregate_cart(recipes)
     assert cart[0]["quantity"] == 2 and unmatched == []  # 300 g -> 2 pakken (niet 3)
+
+
+@pytest.mark.parametrize("text,query", [
+    ("2 gele paprika's", "gele paprika"),
+    ("350 g kippendijfilet", "kipdijfilet"),
+    ("500 ml kippenbouillon van tablet", "bouillon kip"),
+    ("1 vleesbouillontablet", "bouillon rund"),
+    ("1 gedroogd laurierblaadje", "laurier"),
+    ("Half-om-half gehakt 450 g", "half om half gehakt"),
+    ("500 g half-om-halfgehakt", "half om half gehakt"),
+    ("90 g parmaham", "prosciutto di parma"),
+    ("2 druppels tabasco", "tabasco"),
+    ("300 g mezzi rigatoni nr. 26", "mezzi rigatoni"),
+    ("150 g Manchego kazen", "manchego"),
+    ("400 g Italiaanse roerbakmix", "roerbakgroente italiaanse"),
+    ("6 basilicumblaadjes", "basilicum"),
+])
+def test_query_normalisation_round6(text, query):
+    assert query_terms(text)[0] == query
+
+
+def test_spoon_of_herb_is_dried():
+    assert "dried" in query_terms("3 tl dragon")[2]
+    assert "fresh" in query_terms("10 g dragon")[2]
+
+
+def test_diminutive_matches_product_title():
+    p = {"name": "AH Verse granaatappelpitjes", "unit_size": "90 g", "category": "Groente, aardappelen"}
+    q, _, flags = query_terms("100 g verse granaatappelpitjes")
+    assert score(p, q, flags) >= 30
+    radish = {"name": "AH Radijs", "unit_size": "200 g", "category": "Groente, aardappelen"}
+    assert score(radish, *[query_terms("5 radijsjes")[i] for i in (0, 2)]) >= 30
+
+
+def test_lean_adjective_first_is_not_other_product():
+    p = {"name": "AH Mager spekblokjes", "unit_size": "250 g", "category": "Vlees, kip, vis, vega"}
+    assert score(p, "spekblokjes") >= 30
