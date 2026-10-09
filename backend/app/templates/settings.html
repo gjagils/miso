@@ -18,6 +18,30 @@
     {% if plan_result %}<p class="msg-ok" role="status"><img src="/static/miso/miso-celebrate.webp" alt="" width="56" height="56" loading="lazy"><span>{{ plan_result }}</span></p>{% endif %}
 </section>
 
+<section class="settings-section" id="weergave">
+    <h2>Weergave</h2>
+    <p class="muted">Licht of donker voor de webpagina's in deze browser. De app op je telefoon stel je in onder Meer.</p>
+    <div class="theme-pick" role="radiogroup" aria-label="Weergave">
+        <label><input type="radio" name="theme" value="system"> Zoals apparaat</label>
+        <label><input type="radio" name="theme" value="light"> Licht</label>
+        <label><input type="radio" name="theme" value="dark"> Donker</label>
+    </div>
+    <script>
+    (() => {
+        let current = "system";
+        try { current = localStorage.getItem("miso-theme") || "system"; } catch (e) {}
+        document.querySelectorAll('input[name="theme"]').forEach(r => {
+            r.checked = r.value === current;
+            r.addEventListener("change", () => {
+                try { r.value === "system" ? localStorage.removeItem("miso-theme") : localStorage.setItem("miso-theme", r.value); } catch (e) {}
+                if (r.value === "system") delete document.documentElement.dataset.theme;
+                else document.documentElement.dataset.theme = r.value;
+            });
+        });
+    })();
+    </script>
+</section>
+
 <section class="settings-section">
     <h2>Koppeling met AH</h2>
     <p><a class="btn" href="/dekking">Bekijk per recept hoeveel er gekoppeld is</a></p>

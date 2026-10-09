@@ -12,11 +12,21 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="theme-color" content="#FF8A00" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#0A1F35" media="(prefers-color-scheme: dark)">
+    <script>
+    // Weergave licht/donker voor deze browser (Instellingen); vóór het tekenen, zodat er niets knippert.
+    try {
+        const t = localStorage.getItem("miso-theme");
+        if (t === "light" || t === "dark") {
+            document.documentElement.dataset.theme = t;
+            document.querySelectorAll('meta[name="theme-color"]').forEach(m => { m.removeAttribute("media"); m.content = t === "dark" ? "#0A1F35" : "#FF8A00"; });
+        }
+    } catch (e) {}
+    </script>
     <meta name="description" content="Miso: altijd iets lekkers op de planning.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/style.css?v=5">
+    <link rel="stylesheet" href="/static/style.css?v=6">
 </head>
 <body>
     <nav class="topbar">

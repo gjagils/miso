@@ -39,7 +39,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme="light"]) {
         --bg: #0A1F35;
         --surface: #12304F;
         --surface-2: #17395c;
@@ -59,6 +59,26 @@
         --shadow-lift: 0 4px 10px rgba(0, 0, 0, 0.35), 0 14px 32px rgba(0, 0, 0, 0.35);
     }
 }
+:root[data-theme="dark"] {
+    --bg: #0A1F35;
+    --surface: #12304F;
+    --surface-2: #17395c;
+    --text: #FFF6E8;
+    --muted: #B5C3D3;
+    --border: rgba(255, 246, 232, 0.16);
+    --primary-hover: #FF9D2E;
+    --accent-ink: #FFB04D;
+    --mint-bg: rgba(183, 228, 199, 0.2);
+    --mint-ink: #B7E4C7;
+    --lila-bg: rgba(230, 215, 255, 0.18);
+    --lila-ink: #E6D7FF;
+    --red: #FF8F86;
+    --red-bg: rgba(255, 143, 134, 0.14);
+    --header-bg: rgba(10, 31, 53, 0.92);
+    --shadow: 0 2px 6px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25);
+    --shadow-lift: 0 4px 10px rgba(0, 0, 0, 0.35), 0 14px 32px rgba(0, 0, 0, 0.35);
+}
+
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -162,12 +182,18 @@ nav.topbar .tagline { display: none; font-size: 0.85rem; color: var(--muted); }
 .btn-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--muted); min-width: 44px; min-height: 44px; }
 
 @media (prefers-color-scheme: dark) {
-    .btn { border-color: rgba(255, 246, 232, 0.5); background: transparent; color: var(--text); }
-    .btn:hover { background: rgba(255, 246, 232, 0.1); color: var(--text); }
-    .btn-primary { background: var(--miso-orange); border-color: var(--miso-orange); color: var(--miso-blue); }
-    .btn-primary:hover { background: var(--primary-hover); color: var(--miso-blue); }
-    .btn-danger { border-color: var(--red); color: var(--red); }
+    :root:not([data-theme="light"]) .btn { border-color: rgba(255, 246, 232, 0.5); background: transparent; color: var(--text); }
+    :root:not([data-theme="light"]) .btn:hover { background: rgba(255, 246, 232, 0.1); color: var(--text); }
+    :root:not([data-theme="light"]) .btn-primary { background: var(--miso-orange); border-color: var(--miso-orange); color: var(--miso-blue); }
+    :root:not([data-theme="light"]) .btn-primary:hover { background: var(--primary-hover); color: var(--miso-blue); }
+    :root:not([data-theme="light"]) .btn-danger { border-color: var(--red); color: var(--red); }
 }
+:root[data-theme="dark"] .btn { border-color: rgba(255, 246, 232, 0.5); background: transparent; color: var(--text); }
+:root[data-theme="dark"] .btn:hover { background: rgba(255, 246, 232, 0.1); color: var(--text); }
+:root[data-theme="dark"] .btn-primary { background: var(--miso-orange); border-color: var(--miso-orange); color: var(--miso-blue); }
+:root[data-theme="dark"] .btn-primary:hover { background: var(--primary-hover); color: var(--miso-blue); }
+:root[data-theme="dark"] .btn-danger { border-color: var(--red); color: var(--red); }
+
 
 /* ── Formulieren ────────────────────────────────────────── */
 input, select, textarea, button { font-size: 16px; font-family: inherit; }
@@ -225,7 +251,11 @@ input::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.8; }
 .badge-mapped { background: var(--mint-bg); color: var(--mint-ink); }
 .badge-skipped { background: #FFE3BD; color: #7A3B00; }
 .badge-unmapped { background: var(--lila-bg); color: var(--lila-ink); }
-@media (prefers-color-scheme: dark) { .badge-skipped { background: rgba(255, 138, 0, 0.2); color: #FFB04D; } }
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .badge-skipped { background: rgba(255, 138, 0, 0.2); color: #FFB04D; }
+}
+:root[data-theme="dark"] .badge-skipped { background: rgba(255, 138, 0, 0.2); color: #FFB04D; }
+
 .mapping-status { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-top: 0.35rem; }
 
 /* ── Receptenraster ─────────────────────────────────────── */
@@ -471,7 +501,11 @@ a.day-recipe:hover span { text-decoration: underline; }
 .kz-bar #bar-back { flex: none; width: 48px; min-height: 48px; padding: 0; font-size: 1.2rem; background: transparent; color: var(--miso-cream); border-color: rgba(255, 246, 232, 0.5); }
 .kz-bar #bar-back:not([hidden]) ~ .btn-primary { flex: 1; }
 .kz-bar #bar-count[hidden] + .btn-primary { margin-left: auto; }
-@media (prefers-color-scheme: dark) { .kz-bar-inner { background: #1d4670; } }
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .kz-bar-inner { background: #1d4670; }
+}
+:root[data-theme="dark"] .kz-bar-inner { background: #1d4670; }
+
 
 /* Stap 2 */
 .kz-day { padding: 0.8rem 1rem; margin-bottom: 0.6rem; }
@@ -694,9 +728,20 @@ dialog.mp::backdrop { background: rgba(14, 42, 71, 0.5); }
 .kz-persons .mp-stepper output { font-size: 1.1rem; min-width: 1.8rem; }
 .kz-persons .kz-linkbtn { min-height: 38px; padding: 0 0.25rem; }
 @media (prefers-color-scheme: dark) {
-    .mp-chip[aria-pressed="true"] { background: var(--miso-orange); border-color: var(--miso-orange); color: var(--miso-blue); }
-    .mp-chip[aria-pressed="true"] .mp-wd { color: var(--miso-blue); }
-    dialog.mp::backdrop { background: rgba(0, 0, 0, 0.6); }
+    :root:not([data-theme="light"]) .mp-chip[aria-pressed="true"] { background: var(--miso-orange); border-color: var(--miso-orange); color: var(--miso-blue); }
+    :root:not([data-theme="light"]) .mp-chip[aria-pressed="true"] .mp-wd { color: var(--miso-blue); }
+    :root:not([data-theme="light"]) dialog.mp::backdrop { background: rgba(0, 0, 0, 0.6); }
 }
+:root[data-theme="dark"] .mp-chip[aria-pressed="true"] { background: var(--miso-orange); border-color: var(--miso-orange); color: var(--miso-blue); }
+:root[data-theme="dark"] .mp-chip[aria-pressed="true"] .mp-wd { color: var(--miso-blue); }
+:root[data-theme="dark"] dialog.mp::backdrop { background: rgba(0, 0, 0, 0.6); }
+
 .photo-pick { margin-top: 0.5rem; display: inline-block; }
 .photo-edit summary { cursor: pointer; font-weight: 600; }
+
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+.theme-pick { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.theme-pick label { display: inline-flex; align-items: center; gap: 0.4rem; min-height: 44px; padding: 0 0.9rem;
+    border: 2px solid var(--border); border-radius: 999px; cursor: pointer; font-weight: 600; }
+.theme-pick label:has(input:checked) { border-color: var(--miso-orange); }
