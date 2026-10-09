@@ -213,3 +213,14 @@ def test_app_login_and_bearer_with_pin(db, monkeypatch):
     assert client.post("/api/login", json={"pin": "0000"}).status_code == 401
     token = client.post("/api/login", json={"pin": "1234"}).json()["token"]
     assert client.get("/api/recipes", headers={"Authorization": f"Bearer {token}"}).status_code == 200
+
+
+def test_import_fetch_errors_are_understandable():
+    import httpx
+
+    req = httpx.Request("GET", "https://example.nl/r")
+    err = httpx.HTTPStatusError("403", request=req, response=httpx.Response(403, request=req))
+    msg = routes.fetch_error_text(err)
+    assert "niet meelezen" in msg and "403" not in msg
+    assert "bestaat niet" in routes.fetch_error_text(
+        httpx.HTTPStatusError("404", request=req, response=httpx.Response(404, request=req)))

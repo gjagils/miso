@@ -199,6 +199,18 @@ async def recipe_image(recipe_id: int):
 # ── Import (URL / tekst / foto's) ──────────────────────────────────────
 
 
+def fetch_error_text(e: Exception) -> str:
+    """Begrijpelijke melding als een receptsite niet op te halen is."""
+    status = getattr(getattr(e, "response", None), "status_code", None)
+    if status in (401, 403, 429, 503):
+        return ("Deze website laat Miso niet meelezen. Deel het recept vanuit Safari of Chrome naar Miso, "
+                "plak de recepttekst hier, of kies screenshots van het recept.")
+    if status == 404:
+        return "Deze pagina bestaat niet (meer). Controleer de link."
+    return ("De website was niet bereikbaar. Probeer het later nog eens, of plak de recepttekst / "
+            "kies screenshots van het recept.")
+
+
 @router.post("/api/import")
 async def import_recipe(
     url: str = Form(""),
@@ -229,7 +241,7 @@ async def import_recipe(
         raw = await extract_recipe(text=text or None, images=image_list or None)
     except httpx.HTTPError as e:
         logger.error("Fetching %s failed: %s", url, e)
-        return JSONResponse({"ok": False, "error": f"Website ophalen mislukt: {e}"}, status_code=502)
+        return JSONResponse({"ok": False, "error": fetch_error_text(e)}, status_code=502)
     except Exception as e:
         logger.error("Recipe import failed: %s", e)
         return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
