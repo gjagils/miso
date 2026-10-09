@@ -412,7 +412,7 @@ def test_migration_adds_missing_columns_idempotently(tmp_path):
         conn.execute(text("INSERT INTO plan_entries (date, recipe_id) VALUES ('2026-10-12', 3)"))
     added = migrate(engine)
     assert set(added) == {f"plan_entries.{c}" for c in ("kind", "persons", "text", "extras_json",
-                                                        "source_entry_id", "cook_double")}
+                                                        "source_entry_id", "cook_double", "freezer_name")}
     assert migrate(engine) == []  # tweede keer: niets te doen
     with engine.connect() as conn:
         row = conn.execute(text("SELECT kind, persons, text, extras_json, cook_double FROM plan_entries")).one()
@@ -428,3 +428,16 @@ def test_migration_adds_missing_columns_idempotently(tmp_path):
         s.add(PlanEntry(date="2026-10-13", kind="stock", recipe_id=0, text="Soep"))
         s.add(FreezerItem(name="Soep", portions=2, added_on="2026-10-12"))
         s.commit()
+
+
+def test_deleting_freezer_stock_day_puts_portion_back(db, monkeypatch):
+    _fake_search(monkeypatch)
+    client = TestClient(app)
+    item = client.post("/api/freezer", json={"name": "Pastasaus", "portions": 1}).json()["item"]
+    day = str(_future_monday())
+    r = client.post("/api/plan/entries", json={"date": day, "kind": "stock", "freezer_item_id": item["id"]}).json()
+    assert r["ok"] and client.get("/api/freezer").json()["items"] == []  # laatste portie gebruikt
+    entry_id = r["entries"][0]["entry_id"]
+    assert client.delete(f"/api/plan/entries/{entry_id}").json()["ok"]
+    items = client.get("/api/freezer").json()["items"]
+    assert [(i["name"], i["portions"]) for i in items] == [("Pastasaus", 1)]

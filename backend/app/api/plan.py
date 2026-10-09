@@ -170,7 +170,8 @@ async def create_entry(payload: EntryCreate, db: Session = Depends(get_db)):
                 freezer_json = freezer_item_json(item)
         if not text:
             return _err("Vul in wat jullie eten, bijvoorbeeld 'Pastasaus uit de vriezer'.")
-        entry = PlanEntry(date=str(day), kind="stock", recipe_id=0, persons=persons, text=text)
+        entry = PlanEntry(date=str(day), kind="stock", recipe_id=0, persons=persons, text=text,
+                          freezer_name=item.name if payload.freezer_item_id and item else None)
         entry.extras = await routes.match_extras(db, _clean_extras(payload.extras))
         db.add(entry)
         created.append(entry)
@@ -238,6 +239,12 @@ async def delete_entry(entry_id: int, db: Session = Depends(get_db)):
         source = db.get(PlanEntry, entry.source_entry_id)
         if source and source.cook_double == "tomorrow":
             source.cook_double = None  # niet meer dubbel inkopen
+    if entry.kind == "stock" and entry.freezer_name:  # portie terug in de vriezer
+        back = db.execute(select(FreezerItem).where(FreezerItem.name == entry.freezer_name)).scalars().first()
+        if back:
+            back.portions += 1
+        else:
+            db.add(FreezerItem(name=entry.freezer_name, portions=1, added_on=str(date.today())))
     day = entry.date
     db.delete(entry)
     db.commit()

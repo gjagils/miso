@@ -18,6 +18,7 @@ COLUMNS: dict[str, dict[str, str]] = {
         "extras_json": "TEXT NOT NULL DEFAULT '[]'",
         "source_entry_id": "INTEGER",
         "cook_double": "VARCHAR(10)",
+        "freezer_name": "VARCHAR(300)",
     },
 }
 

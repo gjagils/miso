@@ -73,6 +73,8 @@ class PlanEntry(Base):
     # JSON list of {"text", "product": {...}|None}
     extras_json: Mapped[str] = mapped_column(Text, default="[]", server_default="[]")
     source_entry_id: Mapped[int | None] = mapped_column(Integer, nullable=True, index=True)
+    # naam van het vriezer-item waar deze voorraaddag een portie van nam (zodat verwijderen hem teruglegt)
+    freezer_name: Mapped[str | None] = mapped_column(String(300), nullable=True)
     cook_double: Mapped[str | None] = mapped_column(String(10), nullable=True)  # "tomorrow" | "freezer"
 
     @property
