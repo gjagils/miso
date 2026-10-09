@@ -39,7 +39,7 @@ struct GroceriesSection: View {
             if let result {
                 Label(result.text, systemImage: result.ok ? "checkmark.circle" : "exclamationmark.triangle")
                     .font(.callout)
-                    .foregroundStyle(result.ok ? Color.misoBlue : Color.misoInk)
+                    .foregroundStyle(Color.misoBlue)
             }
             if count > 0 && !status.missing.isEmpty {
                 DisclosureGroup("Wat moet er nog op?", isExpanded: $showMissing) {

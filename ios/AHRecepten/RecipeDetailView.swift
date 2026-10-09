@@ -27,7 +27,7 @@ struct RecipeDetailView: View {
                         if let plannedMessage {
                             HStack(spacing: 10) {
                                 MascotView(pose: "celebrate", size: 48)
-                                Text(plannedMessage).font(.callout).foregroundStyle(Color.misoInk)
+                                Text(plannedMessage).font(.callout).foregroundStyle(Color.misoBlue)
                                     .fixedSize(horizontal: false, vertical: true)
                                 Spacer(minLength: 0)
                             }

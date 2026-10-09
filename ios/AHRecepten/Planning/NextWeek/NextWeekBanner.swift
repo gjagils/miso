@@ -19,7 +19,7 @@ struct NextWeekBanner: View {
                             Text("Tijd om volgende week te plannen")
                                 .font(.misoHeadline).foregroundStyle(Color.misoBlue)
                                 .accessibilityAddTraits(.isHeader)
-                            Text(status.message).font(.callout).foregroundStyle(Color.misoInk)
+                            Text(status.message).font(.callout).foregroundStyle(Color.misoBlue)
                             PlannedDots(planned: status.plannedDays, total: status.totalDays)
                         }
                     }

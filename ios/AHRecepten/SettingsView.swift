@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(Session.self) private var session
     @State private var planSettings = PlanSettingsModel()
+    @AppStorage(Appearance.storageKey) private var appearance = Appearance.system
 
     private var settingsURL: URL? {
         guard let base = URL(string: session.serverURL.trimmingCharacters(in: .whitespaces)), base.scheme != nil else { return nil }
@@ -19,6 +20,14 @@ struct SettingsView: View {
                 HouseholdSettingsSection(settings: planSettings.settings, errorText: planSettings.errorText,
                                          onHouseholdSize: setHouseholdSize, onOrderWeekday: setOrderWeekday)
                 ReminderSettingsSection()
+                Section {
+                    Picker("Weergave", selection: $appearance) {
+                        ForEach(Appearance.allCases) { Text($0.title).tag($0) }
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(minHeight: 44)
+                } header: { Text("Weergave").misoSectionHeader() }
+                .misoRow()
                 Section {
                     NavigationLink {
                         FreezerView()

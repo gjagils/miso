@@ -8,9 +8,11 @@ struct PlannedDots: View {
     var body: some View {
         HStack(spacing: 3) {
             ForEach(0..<max(total, 1), id: \.self) { index in
+                // Lege dagen als randje: een licht vlakje verdwijnt in dark mode tegen de kaart.
                 Circle()
-                    .fill(index < planned ? Color.misoOrange : Color.misoBlue.opacity(0.15))
-                    .frame(width: 7, height: 7)
+                    .fill(index < planned ? Color.misoOrange : Color.clear)
+                    .strokeBorder(index < planned ? Color.misoOrange : Color.misoBlue.opacity(0.55), lineWidth: 1.5)
+                    .frame(width: 9, height: 9)
             }
         }
         .accessibilityElement(children: .ignore)

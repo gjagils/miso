@@ -4,6 +4,7 @@ import SwiftUI
 struct AHReceptenApp: App {
     @State private var session = Session()
     @State private var router = AppRouter()
+    @AppStorage(Appearance.storageKey) private var appearance = Appearance.system
 
     init() {
         let blue = UIColor(named: "MisoBlue") ?? .label
@@ -39,6 +40,7 @@ struct AHReceptenApp: App {
             .environment(router)
             .tint(Color.misoOrange)
             .background(Color.misoCream)
+            .preferredColorScheme(appearance.colorScheme)
         }
     }
 }

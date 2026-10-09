@@ -637,8 +637,8 @@ dialog.mp::backdrop { background: rgba(14, 42, 71, 0.5); }
     padding: 0.55rem 0.9rem; background: var(--surface); border: 1px solid var(--border); font-size: 0.9rem; }
 .nw-compact p { display: flex; align-items: center; gap: 0.5rem; margin: 0; flex: 1 1 14rem; }
 .nw-dots { display: inline-flex; gap: 3px; flex: none; }
-.nw-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
-.nw-dots i.on { background: var(--miso-orange); }
+.nw-dots i { width: 9px; height: 9px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--text); opacity: 0.55; }
+.nw-dots i.on { background: var(--miso-orange); box-shadow: none; opacity: 1; }
 .nw-link { font-weight: 700; white-space: nowrap; min-height: 44px; display: inline-flex; align-items: center; }
 @media (max-width: 420px) { .nw-prominent > img { width: 52px; height: 52px; } .nw-actions .btn { flex: 1 1 100%; } }
 

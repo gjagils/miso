@@ -122,7 +122,7 @@ struct KiezenShopView: View {
     private func resultBanner(_ r: (ok: Bool, text: String)) -> some View {
         HStack(spacing: 12) {
             MascotView(pose: r.ok ? "celebrate" : "surprised", size: 56)
-            Text(r.text).font(.callout).foregroundStyle(Color.misoInk)
+            Text(r.text).font(.callout).foregroundStyle(Color.misoBlue)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(12)
