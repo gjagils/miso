@@ -100,3 +100,14 @@ class BasketPush(Base):
     product_id: Mapped[int] = mapped_column(Integer, index=True)
     quantity: Mapped[int] = mapped_column(Integer, default=0)
     name: Mapped[str] = mapped_column(String(500), default="")
+
+
+class RecipeProfile(Base):
+    """Geschat gezondheids-/variatieprofiel per recept (kcal, groente, eiwitbron, basis, keuken, Schijf van Vijf)."""
+
+    __tablename__ = "recipe_profiles"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    recipe_id: Mapped[int] = mapped_column(Integer, unique=True, index=True)
+    profile_json: Mapped[str] = mapped_column(Text, default="{}")
+    version: Mapped[int] = mapped_column(Integer, default=1)

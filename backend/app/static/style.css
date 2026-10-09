@@ -519,3 +519,13 @@ a.day-recipe:hover span { text-decoration: underline; }
 .kz-note { text-align: center; }
 .kz-linkbtn { align-self: center; background: none; border: none; color: var(--accent-ink); text-decoration: underline;
     text-underline-offset: 2px; font-size: 0.9rem; min-height: 44px; padding: 0 0.75rem; cursor: pointer; }
+
+/* ── Gezond en gevarieerd (weekmenu) ─────────────────────────────── */
+.health-box h2 { margin: 0 0 .25rem; font-size: 1.15rem; }
+.health-signals { list-style: none; padding: 0; margin: .5rem 0 .75rem; display: grid; gap: .35rem; }
+.health-signals li { padding: .45rem .7rem; border-radius: 12px; background: var(--cream, #FFF6E8); }
+.health-signals .sig-goed { background: color-mix(in srgb, #B7E4C7 55%, transparent); }
+.health-signals .sig-let_op { background: color-mix(in srgb, #FF8A00 18%, transparent); }
+.health-signals .sig-tip { background: color-mix(in srgb, #E6D7FF 60%, transparent); }
+.suggest-list { padding-left: 1.1rem; margin: .5rem 0; }
+.health-note { font-size: .8rem; margin-top: .5rem; }

@@ -12,6 +12,15 @@
 {% if not recipes %}
 <div class="empty-state"><img src="/static/miso/miso-confused.webp" alt="" width="140" height="140" loading="lazy"><p>Nog geen recepten om te plannen. <a href="/recepten">Voeg er eerst een toe.</a></p></div>
 {% else %}
+<section class="status-box health-box" id="health-box" aria-live="polite">
+  <h2>Gezond en gevarieerd</h2>
+  <p class="muted" id="health-sum">Weekmenu wordt beoordeeld…</p>
+  <ul class="health-signals" id="health-signals"></ul>
+  <button class="btn" type="button" id="suggest-btn">Stel een gevarieerde week voor</button>
+  <div id="suggestions"></div>
+  <p class="muted health-note">Schatting per persoon door Claude (±20%), als richting, niet als harde getallen.</p>
+</section>
+
 <div id="days"></div>
 
 <div class="status-box" id="status-box"></div>
@@ -33,6 +42,42 @@ let status = {{ status|tojson }};
 const nameOf = id => (RECIPES.find(r => r.id === id) || {name: "?"}).name;
 const msg = document.getElementById("msg");
 
+const ICON = {goed: "✅", let_op: "⚠️", tip: "💡"};
+function esc(t) { const d = document.createElement("div"); d.textContent = t; return d.innerHTML; }
+async function loadHealth() {
+    const box = document.getElementById("health-sum");
+    try {
+        const h = await (await fetch(`/api/week/health?week=${WEEK}`)).json();
+        if (!h.dagen) { box.textContent = "Nog niets gepland deze week."; document.getElementById("health-signals").innerHTML = ""; return; }
+        const parts = [];
+        if (h.gemiddeld_kcal) parts.push(`gem. ${h.gemiddeld_kcal} kcal p.p.`);
+        if (h.groente_g_per_dag != null) parts.push(`${h.groente_g_per_dag} g groente p.p.`);
+        if (h.schijf_pct != null) parts.push(`Schijf van Vijf ${h.schijf_pct}%`);
+        const eiwit = Object.entries(h.eiwit || {}).map(([k, v]) => `${v}x ${k}`).join(", ");
+        box.textContent = `${h.dagen} avonden · ${parts.join(" · ")}${eiwit ? " · " + eiwit : ""}`;
+        document.getElementById("health-signals").innerHTML =
+            h.signalen.map(s => `<li class="sig-${s.type}">${ICON[s.type] || ""} ${esc(s.tekst)}</li>`).join("");
+    } catch (e) { box.textContent = "Beoordeling niet beschikbaar."; }
+}
+document.getElementById("suggest-btn").onclick = async () => {
+    const btn = document.getElementById("suggest-btn"), out = document.getElementById("suggestions");
+    btn.disabled = true; btn.textContent = "Miso denkt na…";
+    const r = await post("/api/week/suggest", {week: WEEK});
+    btn.disabled = false; btn.textContent = "Stel een gevarieerde week voor";
+    if (!r.voorstel || !r.voorstel.length) {
+        out.innerHTML = `<p class="muted">${r.zonder_profiel ? "Recepten worden nog beoordeeld; probeer het zo nog eens." : "Geen lege dagen meer deze week."}</p>`;
+        return;
+    }
+    const day = d => new Date(d).toLocaleDateString("nl-NL", {weekday: "long", day: "numeric", month: "short"});
+    out.innerHTML = `<ul class="suggest-list">${r.voorstel.map(v => `<li><strong>${day(v.date)}</strong>: ${esc(v.name)}
+        <span class="muted">(${v.profiel.eiwit}, ${v.profiel.basis}, ~${v.profiel.kcal} kcal)</span></li>`).join("")}</ul>
+        <button class="btn btn-primary" type="button" id="apply-suggest">Zet deze in het weekmenu</button>`;
+    document.getElementById("apply-suggest").onclick = async () => {
+        r.voorstel.forEach(v => (plan[v.date] = plan[v.date] || []).push(v.recipe_id));
+        await savePlan(); renderDays(); out.innerHTML = `<p class="msg-ok">Toegevoegd aan je weekmenu.</p>`;
+    };
+};
+
 async function post(url, body) {
     const r = await fetch(url, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
     return r.json();
@@ -40,7 +85,7 @@ async function post(url, body) {
 
 async function savePlan() {
     const r = await post("/api/plan", {week: WEEK, days: plan});
-    status = r.status; renderStatus();
+    status = r.status; renderStatus(); loadHealth();
 }
 
 function renderDays() {
@@ -103,7 +148,7 @@ const lockBtn = document.getElementById("lock-btn");
 if (lockBtn) {
     lockBtn.onclick = () => run({week: WEEK, locked: !status.locked});
     document.getElementById("sync-btn").onclick = () => run({week: WEEK});
-    renderDays(); renderStatus();
+    renderDays(); renderStatus(); loadHealth();
 }
 </script>
 {% endblock %}
