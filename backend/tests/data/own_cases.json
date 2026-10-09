@@ -698,7 +698,7 @@
  {
   "text": "1 el gedroogde salie",
   "exclude": [
-   "vers"
+   "AH Salie"
   ],
   "include": [
    "salie"

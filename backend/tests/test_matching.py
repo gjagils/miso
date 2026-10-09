@@ -89,7 +89,7 @@ def test_color_word_after_noun_in_title():
 
 
 @pytest.mark.parametrize("text,query", [
-    ("1 kaneelstokje", "kaneel"),
+    ("1 kaneelstokje", "kaneel heel"),
     ("1 beker zure room", "sour cream"),
     ("1 pak quichedeeg", "quiche taartdeeg"),
     ("85 g geraspte oude kaas", "goudse oud geraspt"),
@@ -135,3 +135,18 @@ def test_round8_normalisation(text, query, flag):
     assert q == query
     if flag:
         assert flag in flags
+
+
+def test_round9_rules():
+    q, _, flags = query_terms("2 zakjes Mexicaanse kruidenmix")
+    assert score(_p("AH Biologisch Kruiden kamille", "20 stuks", "Koffie, thee"), q, flags) < 0
+    q, _, flags = query_terms("2 zakjes Griekse kruidenmix")
+    assert score(_p("Verstegen Italiaanse kruiden", "12 g", "Soepen, sauzen, kruiden, olie"), q, flags) < 30
+    q, _, flags = query_terms("1 kaneelstokje")
+    assert score(_p("Verstegen Kaneel heel", "20 g", "Soepen, sauzen, kruiden, olie") | {"brand": "Verstegen"}, q, flags) > \
+        score(_p("AH Kaneel gemalen", "40 g", "Soepen, sauzen, kruiden, olie"), q, flags)
+    q, _, flags = query_terms("4 ansjovisfilets")
+    assert score(_p("AH Filet americain naturel", "150 g", "Vleeswaren"), q, flags) < 30
+    assert needed("2x garnalen (ontdooid, 250g)")["amount"] == 500
+    q, _, flags = query_terms("1 hele kip")
+    assert score(_p("AH Kip knakworst", "200 g", "Vlees"), q, flags) < score(_p("AH Scharrel hele kip", "1,4 kg", "Vlees"), q, flags)

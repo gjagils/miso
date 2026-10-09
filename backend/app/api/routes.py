@@ -456,7 +456,8 @@ async def _automatch(ingredients: list[dict], gluten_free: bool = False, force: 
         ing["need"] = need if packs is not None else None
         ing["pack"] = pack if packs is not None else None
         n_stuk = need and need["unit"] == "stuk" and pack is None and not re.search(r"\b(zakje|zakjes)\b", ing.get("text", "").lower())
-        big = pack and pack["unit"] in ("g", "ml") and pack["amount"] >= 400
+        small_tub = re.search(r"siroop|saus|dressing|mayonaise|ketchup|pesto|olie|azijn|honing", ing.get("text", "").lower())
+        big = pack and pack["unit"] in ("g", "ml") and pack["amount"] >= (100 if small_tub else 400)  # sauskuipje ~25 ml
         containers = container_count(ing.get("text", ""))
         if containers and big and re.search(r"\b(kuipjes?|bekertjes?|potjes?)\b", ing.get("text", "").lower()):
             containers = 1  # "2 kuipjes yoghurt" is geen 2 liter

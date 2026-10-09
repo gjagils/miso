@@ -757,6 +757,18 @@
   {
    "available": true,
    "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 605149,
+   "name": "AH Basilicum olijven",
+   "nix18": false,
+   "organic": false,
+   "price": "2.29",
+   "unit_price": "KG",
+   "unit_size": "130 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
    "category": "Pasta, rijst, wereldkeuken",
    "id": 556728,
    "name": "AH Pastasaus basilicum",
@@ -801,18 +813,6 @@
    "price": "1.69",
    "unit_price": "KG",
    "unit_size": "690 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 605149,
-   "name": "AH Basilicum olijven",
-   "nix18": false,
-   "organic": false,
-   "price": "2.29",
-   "unit_price": "KG",
-   "unit_size": "130 g"
   },
   {
    "available": true,
@@ -2003,18 +2003,6 @@
   {
    "available": true,
    "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 627581,
-   "name": "AH Kleintje boter gekarameliseerde ui",
-   "nix18": false,
-   "organic": false,
-   "price": "1.49",
-   "unit_price": "KG",
-   "unit_size": "40 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
    "category": "Zuivel, eieren",
    "id": 136100,
    "name": "AH Margarine",
@@ -2191,6 +2179,18 @@
    "price": "1.99",
    "unit_price": "KG",
    "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vleeswaren",
+   "id": 598813,
+   "name": "AH Boterhamworst grootverpakking",
+   "nix18": false,
+   "organic": false,
+   "price": "2.29",
+   "unit_price": "KG",
+   "unit_size": "250 g"
   }
  ],
  "ah bouillon groente": [
@@ -5848,18 +5848,6 @@
   },
   {
    "available": true,
-   "brand": "AH Excellent",
-   "category": "Diepvries",
-   "id": 565788,
-   "name": "AH Excellent Parmezaanse kaaskroketjes met truffel",
-   "nix18": false,
-   "organic": false,
-   "price": "3.99",
-   "unit_price": "",
-   "unit_size": "6 stuks"
-  },
-  {
-   "available": true,
    "brand": "AH Biologisch",
    "category": "Pasta, rijst, wereldkeuken",
    "id": 238913,
@@ -5917,6 +5905,18 @@
    "price": "3.39",
    "unit_price": "KG",
    "unit_size": "90 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Excellent",
+   "category": "Diepvries",
+   "id": 565788,
+   "name": "AH Excellent Parmezaanse kaaskroketjes met truffel",
+   "nix18": false,
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "",
+   "unit_size": "6 stuks"
   },
   {
    "available": true,
@@ -6091,6 +6091,18 @@
   {
    "available": true,
    "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 605191,
+   "name": "AH Griekse stijl olijven",
+   "nix18": false,
+   "organic": false,
+   "price": "2.69",
+   "unit_price": "KG",
+   "unit_size": "130 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
    "category": "Groente, aardappelen",
    "id": 611643,
    "name": "AH Dille",
@@ -6255,18 +6267,6 @@
    "price": "2.99",
    "unit_price": "KG",
    "unit_size": "1 kg"
-  },
-  {
-   "available": true,
-   "brand": "AH Biologisch",
-   "category": "Groente, aardappelen",
-   "id": 485310,
-   "name": "AH Biologisch Kurkuma",
-   "nix18": false,
-   "organic": true,
-   "price": "1.69",
-   "unit_price": "KG",
-   "unit_size": "80 g"
   }
  ],
  "ah groene saus": [
@@ -7007,6 +7007,80 @@
    "nix18": false,
    "organic": false,
    "price": "9.98",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  }
+ ],
+ "ah hele kip": [
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 556791,
+   "name": "AH Scharrel kip provencaalse",
+   "nix18": false,
+   "organic": false,
+   "price": "12.99",
+   "unit_price": "KG",
+   "unit_size": "ca. 1400 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Excellent",
+   "category": "Vlees",
+   "id": 619326,
+   "name": "AH Excellent Hele mais kip",
+   "nix18": false,
+   "organic": false,
+   "price": "16.48",
+   "unit_price": "KG",
+   "unit_size": "ca. 1300 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 165536,
+   "name": "AH Scharrel hele kip",
+   "nix18": false,
+   "organic": false,
+   "price": "11.34",
+   "unit_price": "KG",
+   "unit_size": "ca. 1375 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 620068,
+   "name": "AH Scharrel kip provencaalse 3-pack",
+   "nix18": false,
+   "organic": false,
+   "price": "38.97",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 620069,
+   "name": "AH Scharrel kip provencaalse 4-pack",
+   "nix18": false,
+   "organic": false,
+   "price": "51.96",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 620067,
+   "name": "AH Scharrel kip provencaalse 2-pack",
+   "nix18": false,
+   "organic": false,
+   "price": "25.98",
    "unit_price": null,
    "unit_size": "2 stuks"
   }
@@ -8411,18 +8485,6 @@
   {
    "available": true,
    "brand": "AH",
-   "category": "Kaas",
-   "id": 627589,
-   "name": "AH Kaasblokjes 50+ zwarte knoflook",
-   "nix18": false,
-   "organic": false,
-   "price": "2.99",
-   "unit_price": "KG",
-   "unit_size": "100 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
    "category": "Zuivel, eieren",
    "id": 560686,
    "name": "AH Knoflookboter",
@@ -8515,6 +8577,18 @@
    "price": "1.59",
    "unit_price": "LT",
    "unit_size": "300 ml"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 306507,
+   "name": "AH Picos knoflook",
+   "nix18": false,
+   "organic": false,
+   "price": "2.09",
+   "unit_price": "KG",
+   "unit_size": "200 g"
   }
  ],
  "ah kookroom light": [
@@ -9104,18 +9178,6 @@
    "available": true,
    "brand": "AH",
    "category": "Borrel, chips, snacks",
-   "id": 605149,
-   "name": "AH Basilicum olijven",
-   "nix18": false,
-   "organic": false,
-   "price": "2.29",
-   "unit_price": "KG",
-   "unit_size": "130 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
    "id": 217336,
    "name": "AH Groene olijven met knoflook",
    "nix18": false,
@@ -9123,6 +9185,18 @@
    "price": "3.39",
    "unit_price": "KG",
    "unit_size": "260 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 605182,
+   "name": "AH Zoete olijven",
+   "nix18": false,
+   "organic": false,
+   "price": "2.29",
+   "unit_price": "KG",
+   "unit_size": "130 g"
   },
   {
    "available": true,
@@ -9176,18 +9250,6 @@
    "available": true,
    "brand": "AH",
    "category": "Borrel, chips, snacks",
-   "id": 605191,
-   "name": "AH Griekse stijl olijven",
-   "nix18": false,
-   "organic": false,
-   "price": "2.69",
-   "unit_price": "KG",
-   "unit_size": "130 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
    "id": 605180,
    "name": "AH Knoflook olijven",
    "nix18": false,
@@ -9224,13 +9286,13 @@
    "available": true,
    "brand": "AH",
    "category": "Borrel, chips, snacks",
-   "id": 627590,
-   "name": "AH Harissa olijven",
+   "id": 605183,
+   "name": "AH Mammoet olijven",
    "nix18": false,
    "organic": false,
-   "price": "3.29",
+   "price": "2.29",
    "unit_price": "KG",
-   "unit_size": "130 g"
+   "unit_size": "110 g"
   },
   {
    "available": true,
@@ -9243,18 +9305,6 @@
    "price": "1.39",
    "unit_price": "KG",
    "unit_size": "235 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 605183,
-   "name": "AH Mammoet olijven",
-   "nix18": false,
-   "organic": false,
-   "price": "2.29",
-   "unit_price": "KG",
-   "unit_size": "110 g"
   },
   {
    "available": true,
@@ -9332,13 +9382,37 @@
    "available": true,
    "brand": "AH",
    "category": "Borrel, chips, snacks",
-   "id": 605182,
-   "name": "AH Zoete olijven",
+   "id": 605149,
+   "name": "AH Basilicum olijven",
    "nix18": false,
    "organic": false,
    "price": "2.29",
    "unit_price": "KG",
    "unit_size": "130 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 605181,
+   "name": "AH Witte kaas olijven",
+   "nix18": false,
+   "organic": false,
+   "price": "2.29",
+   "unit_price": "KG",
+   "unit_size": "130 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Excellent",
+   "category": "Borrel, chips, snacks",
+   "id": 480034,
+   "name": "AH Excellent Taggiasca olijf zonder pit",
+   "nix18": false,
+   "organic": false,
+   "price": "3.19",
+   "unit_price": "KG",
+   "unit_size": "135 g"
   }
  ],
  "ah melk": [
@@ -9880,18 +9954,6 @@
    "available": true,
    "brand": "AH",
    "category": "Diepvries",
-   "id": 582292,
-   "name": "AH Tempura garnalen",
-   "nix18": false,
-   "organic": false,
-   "price": "4.49",
-   "unit_price": "KG",
-   "unit_size": "130 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Diepvries",
    "id": 626238,
    "name": "AH Tempura groente bites",
    "nix18": false,
@@ -9899,6 +9961,18 @@
    "price": "2.49",
    "unit_price": "KG",
    "unit_size": "250 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Diepvries",
+   "id": 582292,
+   "name": "AH Tempura garnalen",
+   "nix18": false,
+   "organic": false,
+   "price": "4.49",
+   "unit_price": "KG",
+   "unit_size": "130 g"
   },
   {
    "available": true,
@@ -10522,18 +10596,6 @@
   },
   {
    "available": true,
-   "brand": "AH Excellent",
-   "category": "Diepvries",
-   "id": 565788,
-   "name": "AH Excellent Parmezaanse kaaskroketjes met truffel",
-   "nix18": false,
-   "organic": false,
-   "price": "3.99",
-   "unit_price": "",
-   "unit_size": "6 stuks"
-  },
-  {
-   "available": true,
    "brand": "AH",
    "category": "Pasta, rijst, wereldkeuken",
    "id": 462470,
@@ -10627,6 +10689,18 @@
    "price": "3.39",
    "unit_price": "KG",
    "unit_size": "90 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Excellent",
+   "category": "Diepvries",
+   "id": 565788,
+   "name": "AH Excellent Parmezaanse kaaskroketjes met truffel",
+   "nix18": false,
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "",
+   "unit_size": "6 stuks"
   },
   {
    "available": true,
@@ -12798,6 +12872,18 @@
   },
   {
    "available": true,
+   "brand": "AH Excellent",
+   "category": "Kaas",
+   "id": 627619,
+   "name": "AH Excellent Schapenkaas pesto-ader",
+   "nix18": false,
+   "organic": false,
+   "price": "4.99",
+   "unit_price": "KG",
+   "unit_size": "150 g"
+  },
+  {
+   "available": true,
    "brand": "AH",
    "category": "Vlees",
    "id": 199712,
@@ -12855,18 +12941,6 @@
    "price": "7.29",
    "unit_price": "KG",
    "unit_size": "ca. 410 g"
-  },
-  {
-   "available": true,
-   "brand": "AH Excellent",
-   "category": "Kaas",
-   "id": 627619,
-   "name": "AH Excellent Schapenkaas pesto-ader",
-   "nix18": false,
-   "organic": false,
-   "price": "4.99",
-   "unit_price": "KG",
-   "unit_size": "150 g"
   },
   {
    "available": true,
@@ -13613,18 +13687,6 @@
   {
    "available": true,
    "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 605181,
-   "name": "AH Witte kaas olijven",
-   "nix18": false,
-   "organic": false,
-   "price": "2.29",
-   "unit_price": "KG",
-   "unit_size": "130 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
    "category": "Zuivel, eieren",
    "id": 442922,
    "name": "AH Witte vrije uitloopeieren M",
@@ -13849,6 +13911,18 @@
    "price": "3.99",
    "unit_price": "",
    "unit_size": "25 wasbeurten"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Groente, aardappelen",
+   "id": 160716,
+   "name": "AH Biologisch Witte kool",
+   "nix18": false,
+   "organic": true,
+   "price": "1.99",
+   "unit_price": "KG",
+   "unit_size": "300 g"
   }
  ],
  "ah witte wijn": [
@@ -14205,6 +14279,18 @@
   {
    "available": true,
    "brand": "AH",
+   "category": "Diepvries",
+   "id": 625228,
+   "name": "AH Yoghurtijs naturel",
+   "nix18": false,
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "LT",
+   "unit_size": "0,5 l"
+  },
+  {
+   "available": true,
+   "brand": "AH",
    "category": "Zuivel, eieren",
    "id": 575364,
    "name": "AH Magere yoghurt aardbei",
@@ -14321,18 +14407,6 @@
    "price": "1.99",
    "unit_price": "KG",
    "unit_size": "500 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Zuivel, eieren",
-   "id": 412578,
-   "name": "AH Yoghurt Griekse stijl",
-   "nix18": false,
-   "organic": false,
-   "price": "2.39",
-   "unit_price": "KG",
-   "unit_size": "600 g"
   }
  ],
  "ah zoete aardappels": [
@@ -15174,6 +15248,18 @@
   },
   {
    "available": true,
+   "brand": "Plaza Foods",
+   "category": "Maaltijden, salades",
+   "id": 624601,
+   "name": "Plaza Foods Terong blado auberginestoof",
+   "nix18": false,
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "KG",
+   "unit_size": "250 g"
+  },
+  {
+   "available": true,
    "brand": "Zonnatura",
    "category": "Zuivel, eieren",
    "id": 604136,
@@ -15234,18 +15320,6 @@
   },
   {
    "available": true,
-   "brand": "Plaza Foods",
-   "category": "Maaltijden, salades",
-   "id": 624601,
-   "name": "Plaza Foods Terong blado auberginestoof",
-   "nix18": false,
-   "organic": false,
-   "price": "3.99",
-   "unit_price": "KG",
-   "unit_size": "250 g"
-  },
-  {
-   "available": true,
    "brand": "AH Terra",
    "category": "Soepen, sauzen, kruiden, olie",
    "id": 620566,
@@ -15284,18 +15358,6 @@
  "auberginen": [
   {
    "available": true,
-   "brand": "AH Biologisch",
-   "category": "Groente, aardappelen",
-   "id": 239244,
-   "name": "AH Biologisch Aubergine",
-   "nix18": false,
-   "organic": true,
-   "price": "1.69",
-   "unit_price": "",
-   "unit_size": "per stuk"
-  },
-  {
-   "available": true,
    "brand": "Plaza Foods",
    "category": "Maaltijden, salades",
    "id": 624601,
@@ -15305,6 +15367,18 @@
    "price": "3.99",
    "unit_price": "KG",
    "unit_size": "250 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Biologisch",
+   "category": "Groente, aardappelen",
+   "id": 239244,
+   "name": "AH Biologisch Aubergine",
+   "nix18": false,
+   "organic": true,
+   "price": "1.69",
+   "unit_price": "",
+   "unit_size": "per stuk"
   },
   {
    "available": true,
@@ -21840,6 +21914,7 @@
  "biologisch guacamole": [],
  "biologisch harissa": [],
  "biologisch heekfilets": [],
+ "biologisch hele kip": [],
  "biologisch italiaanse": [
   {
    "available": true,
@@ -26486,6 +26561,18 @@
   },
   {
    "available": true,
+   "brand": "Australian",
+   "category": "Diepvries",
+   "id": 625236,
+   "name": "Australian Cardamom wit cinnamon biscuits",
+   "nix18": false,
+   "organic": true,
+   "price": "5.99",
+   "unit_price": "LT",
+   "unit_size": "325 ml"
+  },
+  {
+   "available": true,
    "brand": "AH Biologisch",
    "category": "Groente, aardappelen",
    "id": 160716,
@@ -26663,18 +26750,6 @@
    "price": "1.99",
    "unit_price": "KG",
    "unit_size": "250 g"
-  },
-  {
-   "available": true,
-   "brand": "Australian",
-   "category": "Diepvries",
-   "id": 625236,
-   "name": "Australian Cardamom wit cinnamon biscuits",
-   "nix18": false,
-   "organic": true,
-   "price": "5.99",
-   "unit_price": "LT",
-   "unit_size": "325 ml"
   },
   {
    "available": true,
@@ -28725,6 +28800,18 @@
   },
   {
    "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 627581,
+   "name": "AH Kleintje boter gekarameliseerde ui",
+   "nix18": false,
+   "organic": false,
+   "price": "1.49",
+   "unit_price": "KG",
+   "unit_size": "40 g"
+  },
+  {
+   "available": true,
    "brand": "Flower Farm",
    "category": "Zuivel, eieren",
    "id": 476433,
@@ -28842,18 +28929,6 @@
    "price": "3.75",
    "unit_price": "KG",
    "unit_size": "550 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 627581,
-   "name": "AH Kleintje boter gekarameliseerde ui",
-   "nix18": false,
-   "organic": false,
-   "price": "1.49",
-   "unit_price": "KG",
-   "unit_size": "40 g"
   },
   {
    "available": true,
@@ -31611,18 +31686,6 @@
   },
   {
    "available": true,
-   "brand": "Iglo",
-   "category": "Diepvries",
-   "id": 626236,
-   "name": "Iglo Chicken shop burger ultimate crunch",
-   "nix18": false,
-   "organic": false,
-   "price": "3.99",
-   "unit_price": "KG",
-   "unit_size": "227 g"
-  },
-  {
-   "available": true,
    "brand": "AH",
    "category": "Bakkerij",
    "id": 478210,
@@ -31671,18 +31734,6 @@
   },
   {
    "available": true,
-   "brand": "Mekkafood",
-   "category": "Diepvries",
-   "id": 582299,
-   "name": "Mekkafood 4 crispy chicken burger",
-   "nix18": false,
-   "organic": false,
-   "price": "4.49",
-   "unit_price": "KG",
-   "unit_size": "360 g"
-  },
-  {
-   "available": true,
    "brand": "AH Biologisch",
    "category": "Vlees",
    "id": 597950,
@@ -31707,6 +31758,18 @@
   },
   {
    "available": true,
+   "brand": "Mekkafood",
+   "category": "Diepvries",
+   "id": 582299,
+   "name": "Mekkafood 4 crispy chicken burger",
+   "nix18": false,
+   "organic": false,
+   "price": "4.49",
+   "unit_price": "KG",
+   "unit_size": "360 g"
+  },
+  {
+   "available": true,
    "brand": "AH Terra",
    "category": "Vegetarisch, vegan en plantaardig",
    "id": 621431,
@@ -31719,15 +31782,15 @@
   },
   {
    "available": true,
-   "brand": "AH Greenfields",
-   "category": "Vlees",
-   "id": 187593,
-   "name": "AH Greenfields Beefburger jalapeno 2 stuks",
+   "brand": "Iglo",
+   "category": "Diepvries",
+   "id": 626236,
+   "name": "Iglo Chicken shop burger ultimate crunch",
    "nix18": false,
    "organic": false,
-   "price": "4.99",
+   "price": "3.99",
    "unit_price": "KG",
-   "unit_size": "2 stuks"
+   "unit_size": "227 g"
   },
   {
    "available": true,
@@ -31740,6 +31803,18 @@
    "price": "5.99",
    "unit_price": "KG",
    "unit_size": "400 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Greenfields",
+   "category": "Vlees",
+   "id": 187593,
+   "name": "AH Greenfields Beefburger jalapeno 2 stuks",
+   "nix18": false,
+   "organic": false,
+   "price": "4.99",
+   "unit_price": "KG",
+   "unit_size": "2 stuks"
   },
   {
    "available": true,
@@ -41315,18 +41390,6 @@
  "grana padano": [
   {
    "available": true,
-   "brand": "AH Excellent",
-   "category": "Diepvries",
-   "id": 565788,
-   "name": "AH Excellent Parmezaanse kaaskroketjes met truffel",
-   "nix18": false,
-   "organic": false,
-   "price": "3.99",
-   "unit_price": "",
-   "unit_size": "6 stuks"
-  },
-  {
-   "available": true,
    "brand": "AH",
    "category": "Pasta, rijst, wereldkeuken",
    "id": 462470,
@@ -41444,6 +41507,18 @@
    "price": "3.39",
    "unit_price": "KG",
    "unit_size": "90 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Excellent",
+   "category": "Diepvries",
+   "id": 565788,
+   "name": "AH Excellent Parmezaanse kaaskroketjes met truffel",
+   "nix18": false,
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "",
+   "unit_size": "6 stuks"
   },
   {
    "available": true,
@@ -41629,18 +41704,6 @@
   },
   {
    "available": true,
-   "brand": "AH Excellent",
-   "category": "Diepvries",
-   "id": 565788,
-   "name": "AH Excellent Parmezaanse kaaskroketjes met truffel",
-   "nix18": false,
-   "organic": false,
-   "price": "3.99",
-   "unit_price": "",
-   "unit_size": "6 stuks"
-  },
-  {
-   "available": true,
    "brand": "AH",
    "category": "Pasta, rijst, wereldkeuken",
    "id": 486713,
@@ -41650,6 +41713,18 @@
    "price": "2.99",
    "unit_price": "KG",
    "unit_size": "80 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Excellent",
+   "category": "Diepvries",
+   "id": 565788,
+   "name": "AH Excellent Parmezaanse kaaskroketjes met truffel",
+   "nix18": false,
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "",
+   "unit_size": "6 stuks"
   },
   {
    "available": true,
@@ -42464,18 +42539,6 @@
   },
   {
    "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 605191,
-   "name": "AH Griekse stijl olijven",
-   "nix18": false,
-   "organic": false,
-   "price": "2.69",
-   "unit_price": "KG",
-   "unit_size": "130 g"
-  },
-  {
-   "available": true,
    "brand": "Hela",
    "category": "Soepen, sauzen, kruiden, olie",
    "id": 441050,
@@ -42533,6 +42596,18 @@
    "price": "4.95",
    "unit_price": "KG",
    "unit_size": "1 kg"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 238974,
+   "name": "AH Tijm",
+   "nix18": false,
+   "organic": false,
+   "price": "1.29",
+   "unit_price": "KG",
+   "unit_size": "15 g"
   }
  ],
  "griekse kruidens": [
@@ -42559,18 +42634,6 @@
    "price": "4.95",
    "unit_price": "KG",
    "unit_size": "500 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 605191,
-   "name": "AH Griekse stijl olijven",
-   "nix18": false,
-   "organic": false,
-   "price": "2.69",
-   "unit_price": "KG",
-   "unit_size": "130 g"
   },
   {
    "available": true,
@@ -42703,6 +42766,18 @@
    "price": "5.25",
    "unit_price": "KG",
    "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 605191,
+   "name": "AH Griekse stijl olijven",
+   "nix18": false,
+   "organic": false,
+   "price": "2.69",
+   "unit_price": "KG",
+   "unit_size": "130 g"
   },
   {
    "available": true,
@@ -44354,6 +44429,18 @@
   {
    "available": true,
    "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 627590,
+   "name": "AH Harissa olijven",
+   "nix18": false,
+   "organic": false,
+   "price": "3.29",
+   "unit_price": "KG",
+   "unit_size": "130 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
    "category": "Groente, aardappelen",
    "id": 624557,
    "name": "AH Gratin harissa",
@@ -44374,18 +44461,6 @@
    "price": "3.29",
    "unit_price": "KG",
    "unit_size": "120 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 627590,
-   "name": "AH Harissa olijven",
-   "nix18": false,
-   "organic": false,
-   "price": "3.29",
-   "unit_price": "KG",
-   "unit_size": "130 g"
   },
   {
    "available": true,
@@ -44475,18 +44550,6 @@
   },
   {
    "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 627590,
-   "name": "AH Harissa olijven",
-   "nix18": false,
-   "organic": false,
-   "price": "3.29",
-   "unit_price": "KG",
-   "unit_size": "130 g"
-  },
-  {
-   "available": true,
    "brand": "Souq",
    "category": "Pasta, rijst, wereldkeuken",
    "id": 450275,
@@ -44532,6 +44595,18 @@
    "price": "3.29",
    "unit_price": "KG",
    "unit_size": "500 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 627590,
+   "name": "AH Harissa olijven",
+   "nix18": false,
+   "organic": false,
+   "price": "3.29",
+   "unit_price": "KG",
+   "unit_size": "130 g"
   },
   {
    "available": true,
@@ -44745,18 +44820,6 @@
    "available": true,
    "brand": "AH",
    "category": "Vlees",
-   "id": 533081,
-   "name": "AH Kipfilethaasjes",
-   "nix18": false,
-   "organic": false,
-   "price": "5.49",
-   "unit_price": "KG",
-   "unit_size": "300 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vlees",
    "id": 589122,
    "name": "AH Kipfilethaasjes",
    "nix18": false,
@@ -44764,6 +44827,18 @@
    "price": "3.99",
    "unit_price": "KG",
    "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 533081,
+   "name": "AH Kipfilethaasjes",
+   "nix18": false,
+   "organic": false,
+   "price": "5.49",
+   "unit_price": "KG",
+   "unit_size": "300 g"
   },
   {
    "available": true,
@@ -44853,18 +44928,6 @@
    "available": true,
    "brand": "AH",
    "category": "Vleeswaren",
-   "id": 505441,
-   "name": "AH Scharrel kipfilet",
-   "nix18": false,
-   "organic": false,
-   "price": "4.89",
-   "unit_price": "KG",
-   "unit_size": "ca. 180 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vleeswaren",
    "id": 137939,
    "name": "AH Scharrel kipfilet",
    "nix18": false,
@@ -44872,6 +44935,18 @@
    "price": "3.69",
    "unit_price": "KG",
    "unit_size": "ca. 125 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vleeswaren",
+   "id": 505441,
+   "name": "AH Scharrel kipfilet",
+   "nix18": false,
+   "organic": false,
+   "price": "4.89",
+   "unit_price": "KG",
+   "unit_size": "ca. 180 g"
   },
   {
    "available": true,
@@ -44956,6 +45031,154 @@
    "nix18": false,
    "organic": false,
    "price": "9.98",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  }
+ ],
+ "hele kip": [
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 556791,
+   "name": "AH Scharrel kip provencaalse",
+   "nix18": false,
+   "organic": false,
+   "price": "12.99",
+   "unit_price": "KG",
+   "unit_size": "ca. 1400 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Excellent",
+   "category": "Vlees",
+   "id": 619326,
+   "name": "AH Excellent Hele mais kip",
+   "nix18": false,
+   "organic": false,
+   "price": "16.48",
+   "unit_price": "KG",
+   "unit_size": "ca. 1300 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 165536,
+   "name": "AH Scharrel hele kip",
+   "nix18": false,
+   "organic": false,
+   "price": "11.34",
+   "unit_price": "KG",
+   "unit_size": "ca. 1375 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 620067,
+   "name": "AH Scharrel kip provencaalse 2-pack",
+   "nix18": false,
+   "organic": false,
+   "price": "25.98",
+   "unit_price": null,
+   "unit_size": "2 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 620068,
+   "name": "AH Scharrel kip provencaalse 3-pack",
+   "nix18": false,
+   "organic": false,
+   "price": "38.97",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 620069,
+   "name": "AH Scharrel kip provencaalse 4-pack",
+   "nix18": false,
+   "organic": false,
+   "price": "51.96",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  }
+ ],
+ "hele kipen": [
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 556791,
+   "name": "AH Scharrel kip provencaalse",
+   "nix18": false,
+   "organic": false,
+   "price": "12.99",
+   "unit_price": "KG",
+   "unit_size": "ca. 1400 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Excellent",
+   "category": "Vlees",
+   "id": 619326,
+   "name": "AH Excellent Hele mais kip",
+   "nix18": false,
+   "organic": false,
+   "price": "16.48",
+   "unit_price": "KG",
+   "unit_size": "ca. 1300 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 165536,
+   "name": "AH Scharrel hele kip",
+   "nix18": false,
+   "organic": false,
+   "price": "11.34",
+   "unit_price": "KG",
+   "unit_size": "ca. 1375 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 620068,
+   "name": "AH Scharrel kip provencaalse 3-pack",
+   "nix18": false,
+   "organic": false,
+   "price": "38.97",
+   "unit_price": null,
+   "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 620069,
+   "name": "AH Scharrel kip provencaalse 4-pack",
+   "nix18": false,
+   "organic": false,
+   "price": "51.96",
+   "unit_price": null,
+   "unit_size": "4 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Vlees",
+   "id": 620067,
+   "name": "AH Scharrel kip provencaalse 2-pack",
+   "nix18": false,
+   "organic": false,
+   "price": "25.98",
    "unit_price": null,
    "unit_size": "2 stuks"
   }
@@ -46719,13 +46942,13 @@
    "available": true,
    "brand": "Boursin",
    "category": "Kaas",
-   "id": 444854,
-   "name": "Boursin Creamy knoflook fijne kruiden",
+   "id": 213546,
+   "name": "Boursin Sjalot & bieslook",
    "nix18": false,
    "organic": false,
    "price": "3.79",
    "unit_price": "KG",
-   "unit_size": "125 g"
+   "unit_size": "150 g"
   },
   {
    "available": true,
@@ -46762,6 +46985,18 @@
    "price": "1.39",
    "unit_price": "KG",
    "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 627621,
+   "name": "AH Roomkaasbal mango-perzik",
+   "nix18": false,
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "KG",
+   "unit_size": "120 g"
   },
   {
    "available": true,
@@ -46882,18 +47117,6 @@
    "price": "3.19",
    "unit_price": "KG",
    "unit_size": "600 g"
-  },
-  {
-   "available": true,
-   "brand": "Garlan",
-   "category": "Kaas",
-   "id": 239019,
-   "name": "Garlan Verse roomkaas met knoflook & kruiden",
-   "nix18": false,
-   "organic": false,
-   "price": "1.29",
-   "unit_price": "KG",
-   "unit_size": "150 g"
   }
  ],
  "kaas belegen": [
@@ -46983,6 +47206,18 @@
   },
   {
    "available": true,
+   "brand": "Streeckgenoten",
+   "category": "Kaas",
+   "id": 627591,
+   "name": "Streeckgenoten Friese nagelkaas belegen blokjes",
+   "nix18": false,
+   "organic": false,
+   "price": "3.29",
+   "unit_price": "KG",
+   "unit_size": "100 g"
+  },
+  {
+   "available": true,
    "brand": "AH Zaanlander",
    "category": "Kaas",
    "id": 104395,
@@ -47052,18 +47287,6 @@
    "price": "4.25",
    "unit_price": "KG",
    "unit_size": "300 g"
-  },
-  {
-   "available": true,
-   "brand": "Streeckgenoten",
-   "category": "Kaas",
-   "id": 627591,
-   "name": "Streeckgenoten Friese nagelkaas belegen blokjes",
-   "nix18": false,
-   "organic": false,
-   "price": "3.29",
-   "unit_price": "KG",
-   "unit_size": "100 g"
   },
   {
    "available": true,
@@ -47201,6 +47424,18 @@
   },
   {
    "available": true,
+   "brand": "Streeckgenoten",
+   "category": "Kaas",
+   "id": 627591,
+   "name": "Streeckgenoten Friese nagelkaas belegen blokjes",
+   "nix18": false,
+   "organic": false,
+   "price": "3.29",
+   "unit_price": "KG",
+   "unit_size": "100 g"
+  },
+  {
+   "available": true,
    "brand": "AH",
    "category": "Kaas",
    "id": 2601,
@@ -47282,18 +47517,6 @@
    "price": "5.29",
    "unit_price": "KG",
    "unit_size": "ca. 215 g"
-  },
-  {
-   "available": true,
-   "brand": "Streeckgenoten",
-   "category": "Kaas",
-   "id": 627591,
-   "name": "Streeckgenoten Friese nagelkaas belegen blokjes",
-   "nix18": false,
-   "organic": false,
-   "price": "3.29",
-   "unit_price": "KG",
-   "unit_size": "100 g"
   },
   {
    "available": true,
@@ -50696,6 +50919,18 @@
   {
    "available": true,
    "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 605180,
+   "name": "AH Knoflook olijven",
+   "nix18": false,
+   "organic": false,
+   "price": "2.29",
+   "unit_price": "KG",
+   "unit_size": "130 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
    "category": "Soepen, sauzen, kruiden, olie",
    "id": 506186,
    "name": "AH Knoflooksaus",
@@ -50752,18 +50987,6 @@
    "price": "1.19",
    "unit_price": "LT",
    "unit_size": "300 ml"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 605180,
-   "name": "AH Knoflook olijven",
-   "nix18": false,
-   "organic": false,
-   "price": "2.29",
-   "unit_price": "KG",
-   "unit_size": "130 g"
   },
   {
    "available": true,
@@ -51119,18 +51342,6 @@
   },
   {
    "available": true,
-   "brand": "AH",
-   "category": "Kaas",
-   "id": 627589,
-   "name": "AH Kaasblokjes 50+ zwarte knoflook",
-   "nix18": false,
-   "organic": false,
-   "price": "2.99",
-   "unit_price": "KG",
-   "unit_size": "100 g"
-  },
-  {
-   "available": true,
    "brand": "AH Biologisch",
    "category": "Groente, aardappelen",
    "id": 185774,
@@ -51284,6 +51495,18 @@
    "price": "1.79",
    "unit_price": "KG",
    "unit_size": "600 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 627589,
+   "name": "AH Kaasblokjes 50+ zwarte knoflook",
+   "nix18": false,
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "KG",
+   "unit_size": "100 g"
   },
   {
    "available": true,
@@ -52921,13 +53144,13 @@
    "available": true,
    "brand": "AH",
    "category": "Zuivel, eieren",
-   "id": 1524,
+   "id": 33710,
    "name": "AH Volle melk",
    "nix18": false,
    "organic": false,
-   "price": "1.39",
+   "price": "0.95",
    "unit_price": "LT",
-   "unit_size": "1 l"
+   "unit_size": "0,5 l"
   },
   {
    "available": true,
@@ -52945,13 +53168,13 @@
    "available": true,
    "brand": "AH",
    "category": "Zuivel, eieren",
-   "id": 33710,
+   "id": 1524,
    "name": "AH Volle melk",
    "nix18": false,
    "organic": false,
-   "price": "0.95",
+   "price": "1.39",
    "unit_price": "LT",
-   "unit_size": "0,5 l"
+   "unit_size": "1 l"
   },
   {
    "available": true,
@@ -55721,7 +55944,7 @@
    "unit_size": "36 stuks"
   },
   {
-   "available": false,
+   "available": true,
    "brand": "Pampers",
    "category": "Baby en kind",
    "id": 475365,
@@ -55865,7 +56088,7 @@
    "unit_size": "9 stuks"
   },
   {
-   "available": false,
+   "available": true,
    "brand": "Pampers",
    "category": "Baby en kind",
    "id": 550549,
@@ -56574,18 +56797,6 @@
    "available": true,
    "brand": "Pringles",
    "category": "Borrel, chips, snacks",
-   "id": 233277,
-   "name": "Pringles Paprika",
-   "nix18": false,
-   "organic": false,
-   "price": "2.69",
-   "unit_price": "KG",
-   "unit_size": "165 g"
-  },
-  {
-   "available": true,
-   "brand": "Pringles",
-   "category": "Borrel, chips, snacks",
    "id": 195970,
    "name": "Pringles Paprika",
    "nix18": false,
@@ -56593,6 +56804,18 @@
    "price": "1.29",
    "unit_price": "KG",
    "unit_size": "40 g"
+  },
+  {
+   "available": true,
+   "brand": "Pringles",
+   "category": "Borrel, chips, snacks",
+   "id": 233277,
+   "name": "Pringles Paprika",
+   "nix18": false,
+   "organic": false,
+   "price": "2.69",
+   "unit_price": "KG",
+   "unit_size": "165 g"
   },
   {
    "available": true,
@@ -57084,18 +57307,6 @@
   },
   {
    "available": true,
-   "brand": "AH Excellent",
-   "category": "Diepvries",
-   "id": 565788,
-   "name": "AH Excellent Parmezaanse kaaskroketjes met truffel",
-   "nix18": false,
-   "organic": false,
-   "price": "3.99",
-   "unit_price": "",
-   "unit_size": "6 stuks"
-  },
-  {
-   "available": true,
    "brand": "AH",
    "category": "Pasta, rijst, wereldkeuken",
    "id": 497553,
@@ -57225,6 +57436,18 @@
    "price": "4.29",
    "unit_price": "KG",
    "unit_size": "100 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Excellent",
+   "category": "Diepvries",
+   "id": 565788,
+   "name": "AH Excellent Parmezaanse kaaskroketjes met truffel",
+   "nix18": false,
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "",
+   "unit_size": "6 stuks"
   },
   {
    "available": true,
@@ -58986,7 +59209,7 @@
    "unit_size": "185 g"
   },
   {
-   "available": false,
+   "available": true,
    "brand": "Grand' Italia",
    "category": "Borrel, chips, snacks",
    "id": 36585,
@@ -59085,18 +59308,6 @@
   },
   {
    "available": true,
-   "brand": "Argento",
-   "category": "Bier, wijn, aperitieven",
-   "id": 594296,
-   "name": "Argento Malbec",
-   "nix18": true,
-   "organic": false,
-   "price": "6.65",
-   "unit_price": "LT",
-   "unit_size": "0,75 l"
-  },
-  {
-   "available": true,
    "brand": "Viña Albali",
    "category": "Bier, wijn, aperitieven",
    "id": 421179,
@@ -59116,18 +59327,6 @@
    "nix18": true,
    "organic": false,
    "price": "6.99",
-   "unit_price": "LT",
-   "unit_size": "0,75 l"
-  },
-  {
-   "available": true,
-   "brand": "La Palma",
-   "category": "Bier, wijn, aperitieven",
-   "id": 93766,
-   "name": "La Palma Merlot Reserve",
-   "nix18": true,
-   "organic": false,
-   "price": "7.29",
    "unit_price": "LT",
    "unit_size": "0,75 l"
   },
@@ -59217,6 +59416,30 @@
   },
   {
    "available": true,
+   "brand": "Saint Emilion",
+   "category": "Bier, wijn, aperitieven",
+   "id": 221375,
+   "name": "Saint Emilion Merlot Cabernet Franc",
+   "nix18": true,
+   "organic": false,
+   "price": "18.99",
+   "unit_price": "LT",
+   "unit_size": "0,75 l"
+  },
+  {
+   "available": true,
+   "brand": "La Palma",
+   "category": "Bier, wijn, aperitieven",
+   "id": 93766,
+   "name": "La Palma Merlot Reserve",
+   "nix18": true,
+   "organic": false,
+   "price": "7.29",
+   "unit_price": "LT",
+   "unit_size": "0,75 l"
+  },
+  {
+   "available": true,
    "brand": "Adobe",
    "category": "Bier, wijn, aperitieven",
    "id": 186044,
@@ -59267,13 +59490,13 @@
  "rode wijnen": [
   {
    "available": true,
-   "brand": "La Palma",
+   "brand": "Chateau le Bourdieu",
    "category": "Bier, wijn, aperitieven",
-   "id": 93766,
-   "name": "La Palma Merlot Reserve",
+   "id": 457124,
+   "name": "Chateau le Bourdieu Médoc",
    "nix18": true,
    "organic": false,
-   "price": "7.29",
+   "price": "13.29",
    "unit_price": "LT",
    "unit_size": "0,75 l"
   },
@@ -59286,18 +59509,6 @@
    "nix18": true,
    "organic": false,
    "price": "3.99",
-   "unit_price": "LT",
-   "unit_size": "0,75 l"
-  },
-  {
-   "available": true,
-   "brand": "Saint Emilion",
-   "category": "Bier, wijn, aperitieven",
-   "id": 398292,
-   "name": "Saint Emilion Graves de Rabion",
-   "nix18": true,
-   "organic": false,
-   "price": "15.29",
    "unit_price": "LT",
    "unit_size": "0,75 l"
   },
@@ -59363,6 +59574,18 @@
   },
   {
    "available": true,
+   "brand": "Château Maillard",
+   "category": "Bier, wijn, aperitieven",
+   "id": 93267,
+   "name": "Château Maillard Cabernet Sauvignon",
+   "nix18": true,
+   "organic": false,
+   "price": "9.29",
+   "unit_price": "LT",
+   "unit_size": "0,75 l"
+  },
+  {
+   "available": true,
    "brand": "Mucho Mas",
    "category": "Bier, wijn, aperitieven",
    "id": 435571,
@@ -59423,6 +59646,18 @@
   },
   {
    "available": true,
+   "brand": "Winemaker's Lot",
+   "category": "Bier, wijn, aperitieven",
+   "id": 386447,
+   "name": "Winemaker's Lot Cabernet sauvignon",
+   "nix18": true,
+   "organic": false,
+   "price": "4.79",
+   "unit_price": "LT",
+   "unit_size": "0,75 l"
+  },
+  {
+   "available": true,
    "brand": "AH Excellent",
    "category": "Bier, wijn, aperitieven",
    "id": 419990,
@@ -59459,6 +59694,18 @@
   },
   {
    "available": true,
+   "brand": "Argento",
+   "category": "Bier, wijn, aperitieven",
+   "id": 594296,
+   "name": "Argento Malbec",
+   "nix18": true,
+   "organic": false,
+   "price": "6.65",
+   "unit_price": "LT",
+   "unit_size": "0,75 l"
+  },
+  {
+   "available": true,
    "brand": "Fantini",
    "category": "Bier, wijn, aperitieven",
    "id": 139788,
@@ -59480,30 +59727,6 @@
    "price": "2.49",
    "unit_price": "LT",
    "unit_size": "250 ml"
-  },
-  {
-   "available": true,
-   "brand": "Los Molinos",
-   "category": "Bier, wijn, aperitieven",
-   "id": 440929,
-   "name": "Los Molinos Rood",
-   "nix18": true,
-   "organic": false,
-   "price": "10.99",
-   "unit_price": "LT",
-   "unit_size": "3 l"
-  },
-  {
-   "available": true,
-   "brand": "Chateau le Bourdieu",
-   "category": "Bier, wijn, aperitieven",
-   "id": 457124,
-   "name": "Chateau le Bourdieu Médoc",
-   "nix18": true,
-   "organic": false,
-   "price": "13.29",
-   "unit_price": "LT",
-   "unit_size": "0,75 l"
   }
  ],
  "roden": [
@@ -60591,11 +60814,11 @@
    "available": true,
    "brand": "Lurpak",
    "category": "Zuivel, eieren",
-   "id": 451444,
-   "name": "Lurpak Smeerbaar ongezouten",
+   "id": 548041,
+   "name": "Lurpak Smeerbaar gezouten",
    "nix18": false,
    "organic": false,
-   "price": "5.89",
+   "price": "5.99",
    "unit_price": "KG",
    "unit_size": "500 g"
   },
@@ -62015,18 +62238,6 @@
   },
   {
    "available": true,
-   "brand": "AH Excellent",
-   "category": "Vis",
-   "id": 627596,
-   "name": "AH Excellent krab hoki salade",
-   "nix18": false,
-   "organic": false,
-   "price": "3.39",
-   "unit_price": "KG",
-   "unit_size": "125 g"
-  },
-  {
-   "available": true,
    "brand": "AH",
    "category": "Borrel, chips, snacks",
    "id": 604903,
@@ -62036,6 +62247,18 @@
    "price": "2.89",
    "unit_price": "KG",
    "unit_size": "150 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Excellent",
+   "category": "Vis",
+   "id": 627596,
+   "name": "AH Excellent krab hoki salade",
+   "nix18": false,
+   "organic": false,
+   "price": "3.39",
+   "unit_price": "KG",
+   "unit_size": "125 g"
   },
   {
    "available": true,
@@ -62072,18 +62295,6 @@
    "price": "3.19",
    "unit_price": "KG",
    "unit_size": "175 g"
-  },
-  {
-   "available": true,
-   "brand": "Streeckgenoten",
-   "category": "Maaltijden, salades",
-   "id": 627598,
-   "name": "Streeckgenoten Sparerib salade",
-   "nix18": false,
-   "organic": false,
-   "price": "2.99",
-   "unit_price": "KG",
-   "unit_size": "125 g"
   },
   {
    "available": true,
@@ -62147,15 +62358,15 @@
   },
   {
    "available": true,
-   "brand": "AH",
+   "brand": "AH Excellent",
    "category": "Borrel, chips, snacks",
-   "id": 627578,
-   "name": "AH Wrap zalmsalade bieslook roomkaas",
+   "id": 627599,
+   "name": "AH Excellent Pulled beef brisket salade",
    "nix18": false,
    "organic": false,
-   "price": "3.99",
+   "price": "3.29",
    "unit_price": "KG",
-   "unit_size": "149 g"
+   "unit_size": "125 g"
   },
   {
    "available": true,
@@ -62204,6 +62415,18 @@
    "price": "1.59",
    "unit_price": "KG",
    "unit_size": "300 g"
+  },
+  {
+   "available": true,
+   "brand": "Streeckgenoten",
+   "category": "Maaltijden, salades",
+   "id": 627598,
+   "name": "Streeckgenoten Sparerib salade",
+   "nix18": false,
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "KG",
+   "unit_size": "125 g"
   },
   {
    "available": true,
@@ -64860,6 +65083,18 @@
   },
   {
    "available": true,
+   "brand": "AH Excellent",
+   "category": "Kaas",
+   "id": 627619,
+   "name": "AH Excellent Schapenkaas pesto-ader",
+   "nix18": false,
+   "organic": false,
+   "price": "4.99",
+   "unit_price": "KG",
+   "unit_size": "150 g"
+  },
+  {
+   "available": true,
    "brand": "AH",
    "category": "Vlees",
    "id": 103377,
@@ -64977,18 +65212,6 @@
    "price": "7.29",
    "unit_price": "KG",
    "unit_size": "ca. 410 g"
-  },
-  {
-   "available": true,
-   "brand": "AH Excellent",
-   "category": "Kaas",
-   "id": 627619,
-   "name": "AH Excellent Schapenkaas pesto-ader",
-   "nix18": false,
-   "organic": false,
-   "price": "4.99",
-   "unit_price": "KG",
-   "unit_size": "150 g"
   },
   {
    "available": true,
@@ -65320,6 +65543,18 @@
   },
   {
    "available": true,
+   "brand": "AH Excellent",
+   "category": "Kaas",
+   "id": 627619,
+   "name": "AH Excellent Schapenkaas pesto-ader",
+   "nix18": false,
+   "organic": false,
+   "price": "4.99",
+   "unit_price": "KG",
+   "unit_size": "150 g"
+  },
+  {
+   "available": true,
    "brand": "AH",
    "category": "Vlees",
    "id": 483907,
@@ -65377,18 +65612,6 @@
    "price": "3.39",
    "unit_price": "KG",
    "unit_size": "250 g"
-  },
-  {
-   "available": true,
-   "brand": "AH Excellent",
-   "category": "Kaas",
-   "id": 627619,
-   "name": "AH Excellent Schapenkaas pesto-ader",
-   "nix18": false,
-   "organic": false,
-   "price": "4.99",
-   "unit_price": "KG",
-   "unit_size": "150 g"
   },
   {
    "available": true,
@@ -67247,7 +67470,7 @@
    "unit_size": "400 g"
   },
   {
-   "available": false,
+   "available": true,
    "brand": "Heinz",
    "category": "Soepen, sauzen, kruiden, olie",
    "id": 378627,
@@ -69154,18 +69377,6 @@
   },
   {
    "available": true,
-   "brand": "Australian",
-   "category": "Diepvries",
-   "id": 625236,
-   "name": "Australian Cardamom wit cinnamon biscuits",
-   "nix18": false,
-   "organic": true,
-   "price": "5.99",
-   "unit_price": "LT",
-   "unit_size": "325 ml"
-  },
-  {
-   "available": true,
    "brand": "AH Biologisch",
    "category": "Soepen, sauzen, kruiden, olie",
    "id": 185775,
@@ -69238,6 +69449,18 @@
   },
   {
    "available": true,
+   "brand": "Winemaker's Lot",
+   "category": "Bier, wijn, aperitieven",
+   "id": 387101,
+   "name": "Winemaker's Lot Chardonnay-pedro jiménez",
+   "nix18": true,
+   "organic": false,
+   "price": "4.79",
+   "unit_price": "LT",
+   "unit_size": "0,75 l"
+  },
+  {
+   "available": true,
    "brand": "AH",
    "category": "Koken, tafelen, vrije tijd",
    "id": 624,
@@ -69250,18 +69473,6 @@
   },
   {
    "available": true,
-   "brand": "Le Chant de la Vigne",
-   "category": "Bier, wijn, aperitieven",
-   "id": 465765,
-   "name": "Le Chant de la Vigne Pouilly-fumé",
-   "nix18": true,
-   "organic": false,
-   "price": "14.99",
-   "unit_price": "LT",
-   "unit_size": "0,75 l"
-  },
-  {
-   "available": true,
    "brand": "AH",
    "category": "Bakkerij",
    "id": 582995,
@@ -69271,6 +69482,18 @@
    "price": "1.59",
    "unit_price": "",
    "unit_size": "6 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Omo",
+   "category": "Huishouden",
+   "id": 232035,
+   "name": "Omo Vloeibaar wasmiddel wit",
+   "nix18": false,
+   "organic": false,
+   "price": "33.29",
+   "unit_price": "",
+   "unit_size": "75 wasbeurten"
   },
   {
    "available": true,
@@ -69372,18 +69595,6 @@
  "wit tarwebroden": [
   {
    "available": true,
-   "brand": "Le Chant de la Vigne",
-   "category": "Bier, wijn, aperitieven",
-   "id": 465765,
-   "name": "Le Chant de la Vigne Pouilly-fumé",
-   "nix18": true,
-   "organic": false,
-   "price": "14.99",
-   "unit_price": "LT",
-   "unit_size": "0,75 l"
-  },
-  {
-   "available": true,
    "brand": "AH",
    "category": "Zuivel, eieren",
    "id": 442922,
@@ -69396,6 +69607,18 @@
   },
   {
    "available": true,
+   "brand": "Comte du Haut-Lesc.",
+   "category": "Bier, wijn, aperitieven",
+   "id": 93300,
+   "name": "Comte du Haut-Lesc. Moelleux",
+   "nix18": true,
+   "organic": false,
+   "price": "6.29",
+   "unit_price": "LT",
+   "unit_size": "0,75 l"
+  },
+  {
+   "available": true,
    "brand": "AH",
    "category": "Bakkerij",
    "id": 32494,
@@ -69405,30 +69628,6 @@
    "price": "1.99",
    "unit_price": "",
    "unit_size": "10 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Omo",
-   "category": "Huishouden",
-   "id": 232035,
-   "name": "Omo Vloeibaar wasmiddel wit",
-   "nix18": false,
-   "organic": false,
-   "price": "33.29",
-   "unit_price": "",
-   "unit_size": "75 wasbeurten"
-  },
-  {
-   "available": true,
-   "brand": "Argento",
-   "category": "Bier, wijn, aperitieven",
-   "id": 594299,
-   "name": "Argento Pinot Grigio",
-   "nix18": true,
-   "organic": false,
-   "price": "6.65",
-   "unit_price": "LT",
-   "unit_size": "0,75 l"
   },
   {
    "available": true,
@@ -69492,6 +69691,18 @@
   },
   {
    "available": true,
+   "brand": "Graves Superieures",
+   "category": "Bier, wijn, aperitieven",
+   "id": 93284,
+   "name": "Graves Superieures Superieures Blanc",
+   "nix18": true,
+   "organic": false,
+   "price": "8.29",
+   "unit_price": "LT",
+   "unit_size": "0,75 l"
+  },
+  {
+   "available": true,
    "brand": "AH",
    "category": "Koken, tafelen, vrije tijd",
    "id": 475849,
@@ -69537,6 +69748,18 @@
    "price": "0.89",
    "unit_price": "",
    "unit_size": "5 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Le Chant de la Vigne",
+   "category": "Bier, wijn, aperitieven",
+   "id": 465765,
+   "name": "Le Chant de la Vigne Pouilly-fumé",
+   "nix18": true,
+   "organic": false,
+   "price": "14.99",
+   "unit_price": "LT",
+   "unit_size": "0,75 l"
   },
   {
    "available": true,
@@ -69600,30 +69823,18 @@
   },
   {
    "available": true,
-   "brand": "AH Biologisch",
-   "category": "Groente, aardappelen",
-   "id": 160716,
-   "name": "AH Biologisch Witte kool",
-   "nix18": false,
-   "organic": true,
-   "price": "1.99",
-   "unit_price": "KG",
-   "unit_size": "300 g"
+   "brand": "Winemaker's Lot",
+   "category": "Bier, wijn, aperitieven",
+   "id": 387101,
+   "name": "Winemaker's Lot Chardonnay-pedro jiménez",
+   "nix18": true,
+   "organic": false,
+   "price": "4.79",
+   "unit_price": "LT",
+   "unit_size": "0,75 l"
   }
  ],
  "wit tarwebrood": [
-  {
-   "available": true,
-   "brand": "",
-   "category": "Bier, wijn, aperitieven",
-   "id": 629364,
-   "name": "Wit en Weizen Bierpakket",
-   "nix18": true,
-   "organic": false,
-   "price": "11.41",
-   "unit_price": "",
-   "unit_size": "per pakket"
-  },
   {
    "available": true,
    "brand": "AH",
@@ -69638,18 +69849,6 @@
   },
   {
    "available": true,
-   "brand": "Argento",
-   "category": "Bier, wijn, aperitieven",
-   "id": 594299,
-   "name": "Argento Pinot Grigio",
-   "nix18": true,
-   "organic": false,
-   "price": "6.65",
-   "unit_price": "LT",
-   "unit_size": "0,75 l"
-  },
-  {
-   "available": true,
    "brand": "AH",
    "category": "Bakkerij",
    "id": 625321,
@@ -69659,30 +69858,6 @@
    "price": "2.99",
    "unit_price": "",
    "unit_size": "per stuk"
-  },
-  {
-   "available": true,
-   "brand": "Omo",
-   "category": "Huishouden",
-   "id": 232035,
-   "name": "Omo Vloeibaar wasmiddel wit",
-   "nix18": false,
-   "organic": false,
-   "price": "33.29",
-   "unit_price": "",
-   "unit_size": "75 wasbeurten"
-  },
-  {
-   "available": true,
-   "brand": "Omo",
-   "category": "Huishouden",
-   "id": 381435,
-   "name": "Omo Poeder wasmiddel wit",
-   "nix18": false,
-   "organic": false,
-   "price": "33.29",
-   "unit_price": "",
-   "unit_size": "65 wasbeurten"
   },
   {
    "available": true,
@@ -69794,6 +69969,30 @@
   },
   {
    "available": true,
+   "brand": "",
+   "category": "Bier, wijn, aperitieven",
+   "id": 629364,
+   "name": "Wit en Weizen Bierpakket",
+   "nix18": true,
+   "organic": false,
+   "price": "11.41",
+   "unit_price": "",
+   "unit_size": "per pakket"
+  },
+  {
+   "available": true,
+   "brand": "Ch. Hautes Terres",
+   "category": "Bier, wijn, aperitieven",
+   "id": 470664,
+   "name": "Ch. Hautes Terres Bordeaux Blanc",
+   "nix18": true,
+   "organic": false,
+   "price": "7.99",
+   "unit_price": "LT",
+   "unit_size": "0,75 l"
+  },
+  {
+   "available": true,
    "brand": "AH",
    "category": "Bakkerij",
    "id": 221857,
@@ -69803,6 +70002,18 @@
    "price": "0.89",
    "unit_price": "",
    "unit_size": "5 stuks"
+  },
+  {
+   "available": true,
+   "brand": "Australian",
+   "category": "Diepvries",
+   "id": 625236,
+   "name": "Australian Cardamom wit cinnamon biscuits",
+   "nix18": false,
+   "organic": true,
+   "price": "5.99",
+   "unit_price": "LT",
+   "unit_size": "325 ml"
   },
   {
    "available": true,
@@ -69851,21 +70062,21 @@
    "price": "2.69",
    "unit_price": "KG",
    "unit_size": "400 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Fruit, verse sappen",
+   "id": 569467,
+   "name": "AH Sweet crisp pitloze witte druiven",
+   "nix18": false,
+   "organic": false,
+   "price": "3.29",
+   "unit_price": "KG",
+   "unit_size": "400 g"
   }
  ],
  "witte wijn": [
-  {
-   "available": true,
-   "brand": "Winemaker's Lot",
-   "category": "Bier, wijn, aperitieven",
-   "id": 387100,
-   "name": "Winemaker's Lot Sauvignon blanc",
-   "nix18": true,
-   "organic": false,
-   "price": "4.79",
-   "unit_price": "LT",
-   "unit_size": "0,75 l"
-  },
   {
    "available": true,
    "brand": "Mesta",
@@ -69904,18 +70115,6 @@
   },
   {
    "available": true,
-   "brand": "Winemaker's Lot",
-   "category": "Bier, wijn, aperitieven",
-   "id": 387101,
-   "name": "Winemaker's Lot Chardonnay-pedro jiménez",
-   "nix18": true,
-   "organic": false,
-   "price": "4.79",
-   "unit_price": "LT",
-   "unit_size": "0,75 l"
-  },
-  {
-   "available": true,
    "brand": "Settesoli",
    "category": "Bier, wijn, aperitieven",
    "id": 163546,
@@ -69935,18 +70134,6 @@
    "nix18": true,
    "organic": false,
    "price": "6.99",
-   "unit_price": "LT",
-   "unit_size": "0,75 l"
-  },
-  {
-   "available": true,
-   "brand": "Graves Superieures",
-   "category": "Bier, wijn, aperitieven",
-   "id": 93284,
-   "name": "Graves Superieures Superieures Blanc",
-   "nix18": true,
-   "organic": false,
-   "price": "8.29",
    "unit_price": "LT",
    "unit_size": "0,75 l"
   },
@@ -70000,13 +70187,13 @@
   },
   {
    "available": true,
-   "brand": "Le Chant de la Vigne",
+   "brand": "Winemaker's Lot",
    "category": "Bier, wijn, aperitieven",
-   "id": 465765,
-   "name": "Le Chant de la Vigne Pouilly-fumé",
+   "id": 387101,
+   "name": "Winemaker's Lot Chardonnay-pedro jiménez",
    "nix18": true,
    "organic": false,
-   "price": "14.99",
+   "price": "4.79",
    "unit_price": "LT",
    "unit_size": "0,75 l"
   },
@@ -70019,6 +70206,18 @@
    "nix18": true,
    "organic": false,
    "price": "8.69",
+   "unit_price": "LT",
+   "unit_size": "0,75 l"
+  },
+  {
+   "available": true,
+   "brand": "Comte du Haut-Lesc.",
+   "category": "Bier, wijn, aperitieven",
+   "id": 93300,
+   "name": "Comte du Haut-Lesc. Moelleux",
+   "nix18": true,
+   "organic": false,
+   "price": "6.29",
    "unit_price": "LT",
    "unit_size": "0,75 l"
   },
@@ -70093,6 +70292,30 @@
    "price": "7.29",
    "unit_price": "LT",
    "unit_size": "0,75 l"
+  },
+  {
+   "available": true,
+   "brand": "Los Molinos",
+   "category": "Bier, wijn, aperitieven",
+   "id": 440931,
+   "name": "Los Molinos Wit",
+   "nix18": true,
+   "organic": false,
+   "price": "10.99",
+   "unit_price": "LT",
+   "unit_size": "3 l"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Bier, wijn, aperitieven",
+   "id": 475973,
+   "name": "AH Vol & droge Zuid-Afrikaanse wit wijntap",
+   "nix18": true,
+   "organic": false,
+   "price": "11.99",
+   "unit_price": "LT",
+   "unit_size": "3 l"
   }
  ],
  "witte wijnen": [
@@ -70129,6 +70352,30 @@
    "nix18": true,
    "organic": false,
    "price": "5.29",
+   "unit_price": "LT",
+   "unit_size": "0,75 l"
+  },
+  {
+   "available": true,
+   "brand": "Winemaker's Lot",
+   "category": "Bier, wijn, aperitieven",
+   "id": 387101,
+   "name": "Winemaker's Lot Chardonnay-pedro jiménez",
+   "nix18": true,
+   "organic": false,
+   "price": "4.79",
+   "unit_price": "LT",
+   "unit_size": "0,75 l"
+  },
+  {
+   "available": true,
+   "brand": "Ch. Hautes Terres",
+   "category": "Bier, wijn, aperitieven",
+   "id": 470664,
+   "name": "Ch. Hautes Terres Bordeaux Blanc",
+   "nix18": true,
+   "organic": false,
+   "price": "7.99",
    "unit_price": "LT",
    "unit_size": "0,75 l"
   },
@@ -70213,30 +70460,6 @@
    "nix18": true,
    "organic": false,
    "price": "3.99",
-   "unit_price": "LT",
-   "unit_size": "0,75 l"
-  },
-  {
-   "available": true,
-   "brand": "Ch. Hautes Terres",
-   "category": "Bier, wijn, aperitieven",
-   "id": 470664,
-   "name": "Ch. Hautes Terres Bordeaux Blanc",
-   "nix18": true,
-   "organic": false,
-   "price": "7.99",
-   "unit_price": "LT",
-   "unit_size": "0,75 l"
-  },
-  {
-   "available": true,
-   "brand": "Graves Superieures",
-   "category": "Bier, wijn, aperitieven",
-   "id": 93284,
-   "name": "Graves Superieures Superieures Blanc",
-   "nix18": true,
-   "organic": false,
-   "price": "8.29",
    "unit_price": "LT",
    "unit_size": "0,75 l"
   },
@@ -70844,15 +71067,15 @@
   },
   {
    "available": true,
-   "brand": "Almhof",
+   "brand": "Alpro",
    "category": "Zuivel, eieren",
-   "id": 177502,
-   "name": "Almhof 0% vet yoghurt perzik-maracuja",
+   "id": 606095,
+   "name": "Alpro Yoghurt bosbessen muffin smaak",
    "nix18": false,
    "organic": false,
-   "price": "1.65",
+   "price": "2.89",
    "unit_price": "KG",
-   "unit_size": "500 g"
+   "unit_size": "400 g"
   },
   {
    "available": true,

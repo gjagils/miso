@@ -6,7 +6,7 @@ import asyncio
 
 from tools.eval_own import run
 
-MIN_OK = 89  # van 100 (2026-10-09, app-zoeken)
+MIN_OK = 90  # van 100 (2026-10-09, ronde 9)
 
 
 def test_review_cases_stay_fixed():
