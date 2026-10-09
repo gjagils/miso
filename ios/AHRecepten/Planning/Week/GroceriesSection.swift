@@ -52,7 +52,14 @@ struct GroceriesSection: View {
             if !status.unmatched.isEmpty {
                 DisclosureGroup(isExpanded: $showUnmatched) {
                     ForEach(status.unmatched, id: \.self) { Text($0).font(.callout) }
-                    Text("Koppel die in het recept, of vink ze uit.").font(.caption).foregroundStyle(.secondary)
+                    NavigationLink(value: PlanRoute.missing) {
+                        Label("Kies producten bij Ontbrekend", systemImage: "cart.badge.questionmark")
+                            .font(.misoButton)
+                            .foregroundStyle(Color.misoBlue)
+                            .frame(minHeight: 44)
+                    }
+                    Text("Kies daar een AH-product of zet ze op niet nodig. Dat kan ook per recept: tik op een ingrediënt.")
+                        .font(.caption).foregroundStyle(.secondary)
                 } label: {
                     Text("\(plural(status.unmatched.count, "ingrediënt", "ingrediënten")) zonder AH-product")
                 }

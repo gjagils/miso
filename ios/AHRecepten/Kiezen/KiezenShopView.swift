@@ -7,6 +7,7 @@ struct KiezenShopView: View {
     private enum Action { case sync, basket, clear }
 
     @Environment(Session.self) private var session
+    @Environment(AppRouter.self) private var router
     @Environment(KiezenModel.self) private var model
     @Environment(\.openURL) private var openURL
     let onRestart: () -> Void
@@ -24,6 +25,8 @@ struct KiezenShopView: View {
     @State private var confirmClear = false
     @State private var basketLabel: String?  // alleen gezet als er een actieve AH-bestelling is
     @State private var showPantry = false
+    /// Een recept is gekoppeld of bewerkt terwijl je in het recept zat: bij terugkomen opnieuw laden.
+    @State private var stale = false
 
     var body: some View {
         List {
@@ -74,7 +77,7 @@ struct KiezenShopView: View {
                 } header: {
                     Text("Nog geen AH-product").misoSectionHeader()
                 } footer: {
-                    Text("Kies in het recept een product, of vink het ingrediënt uit.")
+                    Text("Tik op een ingrediënt en kies in het recept een AH-product, of zet het op niet nodig.")
                 }
                 .misoRow()
             }
@@ -109,6 +112,8 @@ struct KiezenShopView: View {
             }
         }
         .task { if !loaded { await load() } }
+        .onChange(of: router.recipesVersion) { stale = true }
+        .onAppear(perform: reloadIfStale)
         .refreshable { await load() }
     }
 
@@ -218,6 +223,12 @@ struct KiezenShopView: View {
 
     // MARK: Knoppen
 
+    private func reloadIfStale() {
+        guard stale else { return }
+        stale = false
+        Task { await load() }
+    }
+
     private func startSync() { Task { await syncList() } }
     private func startFillBasket() { Task { await fillBasket() } }
     private func startClearBasket() { Task { await clearBasket() } }
@@ -296,12 +307,11 @@ struct KiezenShopView: View {
         busy = .sync
         defer { busy = nil }
         do {
-            let r = try await api.syncWeek(model.week, locked: true)
+            let r = try await api.pushWeekToList(model.week)
             if r.ok {
                 let left = r.status?.unmatched.count ?? 0
                 let added = r.added ?? 0
                 show(true, (added > 0 ? "\(plural(added, "product", "producten")) op je AH-lijstje gezet." : "Alles stond al op je AH-lijstje.")
-                     + " Je weekmenu staat vast."
                      + (left > 0 ? " Nog \(plural(left, "ingrediënt", "ingrediënten")) zonder AH-product." : ""))
             } else {
                 show(false, r.error ?? "Het lijstje vullen is mislukt.")

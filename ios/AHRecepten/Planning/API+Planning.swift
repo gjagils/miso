@@ -26,6 +26,7 @@ extension API {
     // MARK: Boodschappen
 
     /// Zet de delta van de week (`status.missing`) op het AH-lijstje. Bestelt niets.
+    /// Enige sync-pad: Weekmenu en "Wat eten we?" stap 3 gebruiken allebei deze call.
     func pushWeekToList(_ week: String) async throws -> SyncResult {
         try await post("api/plan/sync", json: WeekBody(week: week))
     }

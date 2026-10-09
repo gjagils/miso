@@ -2,7 +2,12 @@ import Foundation
 
 struct APIError: LocalizedError {
     let message: String
+    /// HTTP-status van de server (nil bij fouten op het toestel).
+    var status: Int? = nil
     var errorDescription: String? { message }
+
+    /// 409: de gegevens zijn op de server intussen gewijzigd (bijv. het recept is bewerkt).
+    var isConflict: Bool { status == 409 }
 }
 
 private struct ServerError: Decodable { let error: String? }
@@ -10,6 +15,10 @@ private struct ServerError: Decodable { let error: String? }
 struct API {
     let baseURL: URL
     let token: String
+
+    /// Wordt verstuurd als de server een ingelogde aanvraag weigert (401): de sessie is verlopen of de
+    /// pincode is gewijzigd. De app logt dan uit en toont het inlogscherm.
+    static let sessionExpired = Notification.Name("MisoSessionExpired")
 
     /// Gedeelde decoder (snake_case -> camelCase); ook gebruikt door de tests.
     static let decoder: JSONDecoder = {
@@ -40,10 +49,15 @@ struct API {
         let (data, response) = try await URLSession.shared.data(for: req)
         let status = (response as? HTTPURLResponse)?.statusCode ?? 0
         guard (200..<300).contains(status) else {
-            if status == 401 { throw APIError(message: "Niet ingelogd of verkeerde pincode.") }
+            if status == 401 {
+                // Inloggen zelf (zonder token) geeft 401 bij een verkeerde pincode; dat is geen verlopen sessie.
+                guard !token.isEmpty else { throw APIError(message: "Pincode klopt niet.", status: status) }
+                NotificationCenter.default.post(name: Self.sessionExpired, object: nil)
+                throw APIError(message: "Je bent uitgelogd. Log opnieuw in met de pincode.", status: status)
+            }
             let msg = (try? Self.decoder.decode(ServerError.self, from: data))?.error
-            if msg == nil && status == 422 { throw APIError(message: "Controleer de invoer.") }
-            throw APIError(message: msg ?? "Serverfout (HTTP \(status))")
+            if msg == nil && status == 422 { throw APIError(message: "Controleer de invoer.", status: status) }
+            throw APIError(message: msg ?? "Serverfout (HTTP \(status))", status: status)
         }
         return try Self.decoder.decode(T.self, from: data)
     }
@@ -160,16 +174,6 @@ extension API {
 
     func week(_ start: String?) async throws -> WeekResponse {
         try await get("api/week", query: start.map { [URLQueryItem(name: "week", value: $0)] } ?? [])
-    }
-
-    /// Hele week opslaan: {week, days: {"YYYY-MM-DD": [recipe ids]}}.
-    func savePlan(week: String, days: [String: [Int]]) async throws -> SavePlanResult {
-        try await post("api/plan", json: SavePlanBody(week: week, days: days))
-    }
-
-    /// Zet wat de week nog nodig heeft op het AH-lijstje; met locked=true wordt de week ook vastgezet.
-    func syncWeek(_ week: String, locked: Bool?) async throws -> SyncResult {
-        try await post("api/plan/sync", json: SyncBody(week: week, locked: locked))
     }
 
     /// Producten van deze recepten in het AH-mandje zetten. Bestelt niets.

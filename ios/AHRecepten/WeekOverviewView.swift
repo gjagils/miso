@@ -40,7 +40,14 @@ struct WeekOverviewView: View {
             .navigationDestination(for: RecipeSummary.self) { RecipeDetailView(recipeID: $0.id) }
             .refreshable { await load() }
             .task { await load() }
+            // Elders ingepland, of een recept bewerkt/verwijderd: deze week opnieuw ophalen.
+            .onChange(of: router.planVersion) { reload() }
+            .onChange(of: router.recipesVersion) { reload() }
         }
+    }
+
+    private func reload() {
+        Task { await load() }
     }
 
     // MARK: Acties

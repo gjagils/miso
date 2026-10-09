@@ -2,6 +2,7 @@ import SwiftUI
 
 struct RecipesView: View {
     @Environment(Session.self) private var session
+    @Environment(AppRouter.self) private var router
     @State private var recipes: [RecipeSummary] = []
     @State private var search = ""
     @State private var showImport = false
@@ -47,6 +48,8 @@ struct RecipesView: View {
             .sheet(isPresented: $showImport, onDismiss: reload) { ImportView() }
             .refreshable { await load() }
             .task { await load() }
+            // Recept bewerkt of verwijderd: lijst verversen.
+            .onChange(of: router.recipesVersion) { reload() }
         }
     }
 
