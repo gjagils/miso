@@ -254,6 +254,19 @@ async def fetch_image(url: str) -> bytes | None:
     return None
 
 
+async def store_photo_locally(db: Session, recipe: Recipe) -> bool:
+    """Externe foto-link (receptsite, Allerhande) eenmalig ophalen en zelf bewaren: werkt dan ook als de site
+    de link verandert of hotlinken blokkeert."""
+    if not (recipe.image_url or "").startswith(("http://", "https://")):
+        return False
+    data = await fetch_image(recipe.image_url)
+    if data and len(data) <= 15 * 1024 * 1024 and _save_food_photo(recipe.id, data):
+        recipe.image_url = f"/image/{recipe.id}"
+        db.commit()
+        return True
+    return False
+
+
 def fetch_error_text(e: Exception) -> str:
     """Begrijpelijke melding als een receptsite niet op te halen is."""
     status = getattr(getattr(e, "response", None), "status_code", None)
@@ -328,6 +341,10 @@ async def import_recipe(
             recipe.image_url = f"/image/{recipe.id}"
             db.commit()
 
+    await store_photo_locally(db, recipe)
+    from app.maintenance import profile_later
+
+    profile_later(recipe.id)
     logger.info("Imported recipe %s (id=%s)", recipe.name, recipe.id)
     return {"ok": True, "id": recipe.id, "name": recipe.name}
 
@@ -865,21 +882,6 @@ async def fill_cart(payload: CartPayload, db: Session = Depends(get_db)):
 # ── AH-recepten (Allerhande) ───────────────────────────────────────────
 
 
-@router.get("/allerhande", response_class=HTMLResponse)
-async def allerhande_page(request: Request, q: str = "", db: Session = Depends(get_db)):
-    results, error = [], ""
-    if q.strip():
-        try:
-            results = await ah_client.search_recipes(q.strip())
-        except Exception as e:
-            logger.error("Allerhande search failed: %s", e)
-            error = f"Zoeken bij AH mislukt: {e}"
-    saved = set(db.execute(select(Recipe.ah_recipe_id).where(Recipe.ah_recipe_id.is_not(None))).scalars())
-    return templates.TemplateResponse(
-        request, "allerhande.html", {"q": q, "results": results, "error": error, "saved": saved},
-    )
-
-
 @router.post("/api/allerhande/add")
 async def allerhande_add(recipe_id: int = Form(...), db: Session = Depends(get_db)):
     result = await import_allerhande_recipe(db, recipe_id)
@@ -910,6 +912,10 @@ async def import_allerhande_recipe(db: Session, recipe_id: int) -> dict:
     recipe.instructions = data["instructions"]
     db.add(recipe)
     db.commit()
+    await store_photo_locally(db, recipe)
+    from app.maintenance import profile_later
+
+    profile_later(recipe.id)
     logger.info("Added Allerhande recipe %s (id=%s)", recipe.name, recipe.id)
     return {"ok": True, "id": recipe.id, "new": True}
 

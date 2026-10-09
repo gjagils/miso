@@ -1,5 +1,7 @@
+import asyncio
 import hashlib
 import hmac
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, RedirectResponse
@@ -20,7 +22,16 @@ setup_logging()
 Base.metadata.create_all(engine)
 migrate(engine)
 
-app = FastAPI(title="AH Recepten", version="0.2.0")
+@asynccontextmanager
+async def lifespan(app_: FastAPI):
+    from app.maintenance import daily_loop
+
+    task = asyncio.create_task(daily_loop())  # back-up + gezondheidsprofielen, elke 24 uur
+    yield
+    task.cancel()
+
+
+app = FastAPI(title="Miso", version="1.1.0", lifespan=lifespan)
 
 PUBLIC_PREFIXES = ("/login", "/api/login", "/static", "/image", "/favicon.ico")
 

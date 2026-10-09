@@ -147,15 +147,15 @@ function render() {
             btn.onclick = async () => {
                 ing.search = search.value; save();
                 const r = await (await fetch("/api/ah/search?q=" + encodeURIComponent(search.value))).json();
-                results.innerHTML = "";
+                results.innerHTML = '<option value="">Kies een product…</option>';
                 (r.products || []).forEach((prd, k) => {
                     const o = document.createElement("option");
                     o.value = k; o.textContent = `${prd.name} (${prd.unit_size || ""}) € ${prd.price}`;
                     results.appendChild(o);
                 });
                 results.style.display = r.products && r.products.length ? "" : "none";
-                results.onchange = () => { ing.product = r.products[results.value]; save(); render(); };
-                if (r.products && r.products.length) { ing.product = r.products[0]; save(); label.textContent = results.options[0].textContent; }
+                // pas opslaan als je zelf iets kiest (niet stilzwijgend het eerste resultaat)
+                results.onchange = () => { if (results.value === "") return; ing.product = r.products[results.value]; save(); render(); };
             };
             prod.append(label, search, btn, results);
         }

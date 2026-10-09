@@ -38,6 +38,9 @@ async def api_login(payload: LoginPayload):
         return {"ok": True, "token": ""}
     if hmac.compare_digest(payload.pin.strip(), settings.app_pin):
         return {"ok": True, "token": session_token()}
+    import asyncio
+
+    await asyncio.sleep(1)  # raden vertragen, net als de webpagina
     return JSONResponse({"ok": False, "error": "Pincode klopt niet."}, status_code=401)
 
 

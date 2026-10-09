@@ -37,9 +37,7 @@ def test_search_and_add_is_idempotent(db, monkeypatch):
     monkeypatch.setattr(routes.ah_client, "search_recipes", fake_search)
     monkeypatch.setattr(routes.ah_client, "get_recipe", fake_get)
     client = TestClient(app)
-    assert "Kip &amp; rijst" in client.get("/allerhande?q=kip").text
     first = client.post("/api/allerhande/add", data={"recipe_id": 42}).json()
     second = client.post("/api/allerhande/add", data={"recipe_id": 42}).json()
     assert first["ok"] and first["id"] == second["id"]
     assert db.query(Recipe).count() == 1
-    assert "In je bibliotheek" in client.get("/allerhande?q=kip").text

@@ -135,7 +135,7 @@ async def fetch_url(url: str) -> tuple[str, str]:
     async with httpx.AsyncClient(follow_redirects=True, timeout=20) as client:
         resp = await client.get(
             url,
-            headers={"User-Agent": "Mozilla/5.0 (compatible; AHRecepten/0.1)", "Accept-Language": "nl,en;q=0.8"},
+            headers={"User-Agent": "Mozilla/5.0 (compatible; Miso/1.1)", "Accept-Language": "nl,en;q=0.8"},
         )
         resp.raise_for_status()
         _check_public_url(str(resp.url))

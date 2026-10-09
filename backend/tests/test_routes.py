@@ -349,3 +349,24 @@ def test_json_ingredient_update_edit_and_delete(db, monkeypatch):
     assert "groups" in client.get("/api/missing").json()
     assert client.delete(f"/api/recipes/{r.id}").json() == {"ok": True}
     assert db.query(PlanEntry).count() == 0
+
+
+def test_daily_backup(tmp_path, monkeypatch):
+    import sqlite3
+    from datetime import date
+
+    from app import maintenance
+
+    db_file = tmp_path / "miso.db"
+    sqlite3.connect(db_file).execute("create table t(x)").connection.commit()
+    (tmp_path / "images").mkdir()
+    (tmp_path / "images" / "1.jpg").write_bytes(b"x")
+    monkeypatch.setattr(maintenance, "DATA_DIR", str(tmp_path))
+    monkeypatch.setattr(maintenance, "BACKUP_DIR", str(tmp_path / "backups"))
+    monkeypatch.setattr(maintenance, "_db_path", lambda: str(db_file))
+    made = maintenance.backup_now(date(2026, 10, 9))
+    assert len(made) == 2
+    assert maintenance.backup_now(date(2026, 10, 9)) == []  # één per dag
+    for d in range(10, 30):
+        maintenance.backup_now(date(2026, 10, d))
+    assert len([f for f in (tmp_path / "backups").iterdir() if f.name.startswith("miso-")]) == maintenance.KEEP_DB

@@ -31,6 +31,7 @@
 </p>
 
 {% if recipes %}
+<input type="search" id="recipe-filter" class="form-input recipe-filter" placeholder="Zoek in je recepten…" aria-label="Zoek in je recepten">
 <div class="recipe-grid">
     {% for r in recipes %}
     <a href="/recipe/{{ r.id }}" class="recipe-card" style="text-decoration:none">
@@ -54,6 +55,13 @@
 
 {% block scripts %}
 <script>
+const filter = document.getElementById("recipe-filter");
+if (filter) filter.addEventListener("input", () => {
+    const q = filter.value.trim().toLowerCase();
+    document.querySelectorAll(".recipe-grid .recipe-card").forEach(card => {
+        card.hidden = q && !card.querySelector("h3").textContent.toLowerCase().includes(q);
+    });
+});
 document.querySelectorAll(".photo-pick").forEach(label => label.addEventListener("click", e => {
     if (e.target === label) { e.preventDefault(); label.querySelector("input").click(); }
 }));

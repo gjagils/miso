@@ -1,4 +1,6 @@
+import asyncio
 import html
+import time
 from typing import Callable
 
 import httpx
@@ -76,6 +78,58 @@ def build_list_items(items: list[dict]) -> list[dict]:
                 "strikeThrough": False,
             }
     return list(merged.values())
+
+
+# ── Netjes blijven tegen de (onofficiële) AH-API ───────────────────────
+# Max. 3 tegelijk, minimaal 0,15 s tussen aanroepen, terugtrekken bij 429/5xx, en zoekresultaten 6 uur
+# bewaren: "alles opnieuw koppelen" vraagt veel dezelfde zoektermen op.
+_AH_SEM = asyncio.Semaphore(3)
+_AH_PACE = {"last": 0.0}
+_AH_PACE_LOCK = asyncio.Lock()
+MIN_GAP_S = 0.15
+SEARCH_TTL_S = 6 * 3600
+_SEARCH_CACHE: dict[str, tuple[float, list[dict]]] = {}
+_SEARCH_CACHE_MAX = 4000
+RETRY_STATUS = {429, 500, 502, 503, 504}
+
+
+async def _polite(send: Callable) -> httpx.Response:
+    """Voer een AH-request uit met tempo-limiet en backoff. `send` is een coroutine-factory."""
+    for attempt in range(3):
+        async with _AH_SEM:
+            async with _AH_PACE_LOCK:
+                wait = _AH_PACE["last"] + MIN_GAP_S - time.monotonic()
+                if wait > 0:
+                    await asyncio.sleep(wait)
+                _AH_PACE["last"] = time.monotonic()
+            try:
+                resp = await send()
+            except httpx.TransportError:
+                if attempt == 2:
+                    raise
+                resp = None
+        if resp is not None and (resp.status_code not in RETRY_STATUS or attempt == 2):
+            return resp
+        delay = 1.5 * (attempt + 1)
+        if resp is not None and resp.headers.get("retry-after", "").isdigit():
+            delay = min(30, int(resp.headers["retry-after"]))
+        logger.warning("AH %s, opnieuw over %.1fs", resp.status_code if resp is not None else "netwerkfout", delay)
+        await asyncio.sleep(delay)
+    raise RuntimeError("unreachable")
+
+
+def _cache_get(key: str) -> list[dict] | None:
+    hit = _SEARCH_CACHE.get(key)
+    if hit and time.monotonic() - hit[0] < SEARCH_TTL_S:
+        return [dict(p) for p in hit[1]]
+    return None
+
+
+def _cache_put(key: str, products: list[dict]) -> None:
+    if len(_SEARCH_CACHE) >= _SEARCH_CACHE_MAX:
+        for k in sorted(_SEARCH_CACHE, key=lambda k: _SEARCH_CACHE[k][0])[: _SEARCH_CACHE_MAX // 4]:
+            _SEARCH_CACHE.pop(k, None)
+    _SEARCH_CACHE[key] = (time.monotonic(), [dict(p) for p in products])
 
 
 class AHClient:
@@ -170,18 +224,23 @@ class AHClient:
         """Zoek producten zoals de Appie-app: GraphQL `searchProducts` begrijpt synoniemen en spelling
         ("parmaham" -> Prosciutto di parma, "scampi" -> garnalen). Het oude REST-zoeken (`search/v2`) zoekt
         alleen letterlijk in titels en blijft als aanvulling/reserve."""
+        key = " ".join(query.lower().split())
+        cached = _cache_get(key)
+        if cached is not None:
+            return cached[:size]
         try:
             products = await self._search_graphql(query)
         except Exception as e:  # noqa: BLE001 - dan het oude zoeken
             logger.warning("AH searchProducts failed for %r: %s", query, e)
             products = []
-        if size <= len(products):
-            return products[:size]
-        seen = {p["id"] for p in products}  # app-zoeken geeft er max. 10: aanvullen met letterlijk zoeken
-        return products + [p for p in await self._search_legacy(query, size) if p["id"] not in seen]
+        if len(products) < 5:  # weinig of niets: aanvullen met letterlijk zoeken (scheelt de helft van de calls)
+            seen = {p["id"] for p in products}
+            products += [p for p in await self._search_legacy(query, 20) if p["id"] not in seen]
+        _cache_put(key, products)
+        return products[:size]
 
     async def _search_graphql(self, query: str) -> list[dict]:
-        data = await self.graphql(SEARCH_GQL, {"q": query})
+        data = await self.graphql(SEARCH_GQL, {"q": query}, anonymous=True)
         out = []
         for p in (data.get("searchProducts") or {}).get("products") or []:
             price = p.get("price") or {}
@@ -209,21 +268,14 @@ class AHClient:
         headers = {**DEFAULT_HEADERS, "Authorization": f"Bearer {token}"}
         async with httpx.AsyncClient() as client:
             logger.debug("Searching AH products: %s", query)
-            resp = await client.get(
-                AH_SEARCH_URL,
-                headers=headers,
-                params={"query": query, "sortOn": "RELEVANCE", "size": size},
-            )
+            params = {"query": query, "sortOn": "RELEVANCE", "size": size}
+            resp = await _polite(lambda: client.get(AH_SEARCH_URL, headers=headers, params=params, timeout=20))
             if resp.status_code == 401:
                 logger.info("Anonymous token expired, refreshing")
                 self._anonymous_token = None
                 token = await self._get_anonymous_token()
                 headers["Authorization"] = f"Bearer {token}"
-                resp = await client.get(
-                    AH_SEARCH_URL,
-                    headers=headers,
-                    params={"query": query, "sortOn": "RELEVANCE", "size": size},
-                )
+                resp = await _polite(lambda: client.get(AH_SEARCH_URL, headers=headers, params=params, timeout=20))
             resp.raise_for_status()
             data = resp.json()
 
@@ -251,21 +303,21 @@ class AHClient:
         logger.debug("Found %d AH products for '%s'", len(products), query)
         return products
 
-    async def graphql(self, query: str, variables: dict) -> dict:
-        """Run a GraphQL query with the user token when set, else an anonymous one."""
+    async def graphql(self, query: str, variables: dict, anonymous: bool = False) -> dict:
+        """Run a GraphQL query with the user token when set (unless `anonymous`), else an anonymous one."""
         async with httpx.AsyncClient(timeout=30) as client:
             for attempt in (1, 2):
-                token = self._user_token or await self._get_anonymous_token()
+                user = None if anonymous else self._user_token
+                token = user or await self._get_anonymous_token()
                 headers = {
                     **DEFAULT_HEADERS,
                     "x-client-name": "appie-ios",
                     "x-client-version": "9.28",
                     "Authorization": f"Bearer {token}",
                 }
-                resp = await client.post(
-                    AH_GRAPHQL_URL, headers=headers, json={"query": query, "variables": variables}
-                )
-                if resp.status_code == 401 and attempt == 1 and not self._user_token:
+                body = {"query": query, "variables": variables}
+                resp = await _polite(lambda: client.post(AH_GRAPHQL_URL, headers=headers, json=body))
+                if resp.status_code == 401 and attempt == 1 and not user:
                     self._anonymous_token = None
                     continue
                 resp.raise_for_status()

@@ -753,3 +753,4 @@ dialog.mp::backdrop { background: rgba(14, 42, 71, 0.5); }
 .missing-products img { border-radius: 8px; object-fit: contain; background: #fff; }
 .missing-score .ms-bar { height: 10px; border-radius: 999px; background: var(--border); overflow: hidden; margin-top: 0.5rem; }
 .missing-score .ms-bar span { display: block; height: 100%; background: var(--miso-orange); transition: width 0.4s ease; }
+.recipe-filter { width: 100%; max-width: 420px; margin: 0 0 1rem; }

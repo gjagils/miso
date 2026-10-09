@@ -142,6 +142,18 @@
   {
    "available": true,
    "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 605149,
+   "name": "AH Basilicum olijven",
+   "nix18": false,
+   "organic": false,
+   "price": "2.29",
+   "unit_price": "KG",
+   "unit_size": "130 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
    "category": "Groente, aardappelen",
    "id": 611642,
    "name": "AH Basilicum",
@@ -198,18 +210,6 @@
    "price": "1.69",
    "unit_price": "KG",
    "unit_size": "690 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 605149,
-   "name": "AH Basilicum olijven",
-   "nix18": false,
-   "organic": false,
-   "price": "2.29",
-   "unit_price": "KG",
-   "unit_size": "130 g"
   },
   {
    "available": true,
@@ -1742,42 +1742,6 @@
    "price": "12.87",
    "unit_price": "",
    "unit_size": "4 pers | 30 min"
-  },
-  {
-   "available": true,
-   "brand": "AH Terra",
-   "category": "Maaltijden, salades",
-   "id": 622642,
-   "name": "AH Terra Comfort bowl curry madras 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "7.77",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH Terra",
-   "category": "Maaltijden, salades",
-   "id": 622641,
-   "name": "AH Terra Comfort bowl curry madras 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.18",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH Terra",
-   "category": "Maaltijden, salades",
-   "id": 622643,
-   "name": "AH Terra Comfort bowl curry madras 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "10.36",
-   "unit_price": null,
-   "unit_size": "4 stuks"
   }
  ],
  "ah dille": [
@@ -1864,78 +1828,6 @@
    "price": "2.99",
    "unit_price": "LT",
    "unit_size": "250 ml"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 617751,
-   "name": "AH Komkommer dille dressing 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "7.16",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 617750,
-   "name": "AH Komkommer dille dressing 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.37",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Kaas",
-   "id": 621586,
-   "name": "AH Gemarineerd kaasblokjes mosterddille 4pk",
-   "nix18": false,
-   "organic": false,
-   "price": "11.16",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Kaas",
-   "id": 621585,
-   "name": "AH Gemarineerd kaasblokjes mosterddille 3pk",
-   "nix18": false,
-   "organic": false,
-   "price": "8.37",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Kaas",
-   "id": 621584,
-   "name": "AH Gemarineerd kaasblokjes mosterddille 2pk",
-   "nix18": false,
-   "organic": false,
-   "price": "5.58",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 597482,
-   "name": "AH Komkommer dille dressing 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.58",
-   "unit_price": null,
-   "unit_size": "2 stuks"
   }
  ],
  "ah eieren": [
@@ -2556,6 +2448,18 @@
   },
   {
    "available": true,
+   "brand": "AH Excellent",
+   "category": "Diepvries",
+   "id": 565788,
+   "name": "AH Excellent Parmezaanse kaaskroketjes met truffel",
+   "nix18": false,
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "",
+   "unit_size": "6 stuks"
+  },
+  {
+   "available": true,
    "brand": "AH",
    "category": "Pasta, rijst, wereldkeuken",
    "id": 497553,
@@ -2665,18 +2569,6 @@
   {
    "available": true,
    "brand": "AH Excellent",
-   "category": "Diepvries",
-   "id": 565788,
-   "name": "AH Excellent Parmezaanse kaaskroketjes met truffel",
-   "nix18": false,
-   "organic": false,
-   "price": "3.99",
-   "unit_price": "",
-   "unit_size": "6 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH Excellent",
    "category": "Pasta, rijst, wereldkeuken",
    "id": 550407,
    "name": "AH Excellent Parmigiano reggiano montagna 32+",
@@ -2709,78 +2601,6 @@
    "price": "2.39",
    "unit_price": "KG",
    "unit_size": "75 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Kaas",
-   "id": 618894,
-   "name": "AH Italiaanse grana padano 32+ flakes 2-pck",
-   "nix18": false,
-   "organic": false,
-   "price": "5.98",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Kaas",
-   "id": 618896,
-   "name": "AH Italiaanse grana padano 32+ flakes 4-pck",
-   "nix18": false,
-   "organic": false,
-   "price": "11.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Kaas",
-   "id": 618067,
-   "name": "AH Grana padano 32+ 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "13.38",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Kaas",
-   "id": 618068,
-   "name": "AH Grana padano 32+ 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "20.07",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Kaas",
-   "id": 618069,
-   "name": "AH Grana padano 32+ 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "26.76",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Kaas",
-   "id": 618895,
-   "name": "AH Italiaanse grana padano 32+ flakes 3-pck",
-   "nix18": false,
-   "organic": false,
-   "price": "8.97",
-   "unit_price": null,
-   "unit_size": "3 stuks"
   }
  ],
  "ah groene linzen": [
@@ -3127,6 +2947,18 @@
   {
    "available": true,
    "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 627590,
+   "name": "AH Harissa olijven",
+   "nix18": false,
+   "organic": false,
+   "price": "3.29",
+   "unit_price": "KG",
+   "unit_size": "130 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
    "category": "Groente, aardappelen",
    "id": 624557,
    "name": "AH Gratin harissa",
@@ -3147,18 +2979,6 @@
    "price": "1.95",
    "unit_price": "KG",
    "unit_size": "200 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 627590,
-   "name": "AH Harissa olijven",
-   "nix18": false,
-   "organic": false,
-   "price": "3.29",
-   "unit_price": "KG",
-   "unit_size": "130 g"
   },
   {
    "available": true,
@@ -4525,6 +4345,18 @@
   {
    "available": true,
    "brand": "AH",
+   "category": "Kaas",
+   "id": 627589,
+   "name": "AH Kaasblokjes 50+ zwarte knoflook",
+   "nix18": false,
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "KG",
+   "unit_size": "100 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
    "category": "Zuivel, eieren",
    "id": 560686,
    "name": "AH Knoflookboter",
@@ -4569,18 +4401,6 @@
    "price": "6.99",
    "unit_price": "",
    "unit_size": "per stuk"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Kaas",
-   "id": 627589,
-   "name": "AH Kaasblokjes 50+ zwarte knoflook",
-   "nix18": false,
-   "organic": false,
-   "price": "2.99",
-   "unit_price": "KG",
-   "unit_size": "100 g"
   },
   {
    "available": true,
@@ -4983,30 +4803,6 @@
    "price": "2.19",
    "unit_price": "",
    "unit_size": "per stuk"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Bakkerij",
-   "id": 597490,
-   "name": "AH Mini naanbrood knoflook koriander 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.78",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Bakkerij",
-   "id": 620044,
-   "name": "AH Mini naanbrood knoflook koriander 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.67",
-   "unit_price": null,
-   "unit_size": "3 stuks"
   }
  ],
  "ah korianderzaad": [
@@ -5819,42 +5615,6 @@
    "price": "0.69",
    "unit_price": "LT",
    "unit_size": "0,5 l"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Fruit, verse sappen",
-   "id": 622818,
-   "name": "AH Vers geperst sap appel kiwi limoen 2-pck",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Fruit, verse sappen",
-   "id": 622819,
-   "name": "AH Vers geperst sap appel kiwi limoen 3-pck",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Fruit, verse sappen",
-   "id": 622820,
-   "name": "AH Vers geperst sap appel kiwi limoen 4-pck",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "4 stuks"
   }
  ],
  "ah mayonaise": [
@@ -6037,54 +5797,6 @@
    "price": "0.69",
    "unit_price": "LT",
    "unit_size": "0,65 l"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 598185,
-   "name": "AH Pesto mayonaise 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "4.58",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 619247,
-   "name": "AH Pesto mayonaise 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "9.16",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 619246,
-   "name": "AH Pesto mayonaise 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "6.87",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 598205,
-   "name": "AH Truffelmayonaise 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "4.58",
-   "unit_price": null,
-   "unit_size": "2 stuks"
   }
  ],
  "ah mini naanbrood volkoren": [
@@ -6183,78 +5895,6 @@
    "price": "1.89",
    "unit_price": "KG",
    "unit_size": "200 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Bakkerij",
-   "id": 597490,
-   "name": "AH Mini naanbrood knoflook koriander 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.78",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Bakkerij",
-   "id": 620981,
-   "name": "AH Mini naan brood volkoren 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.67",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Bakkerij",
-   "id": 597491,
-   "name": "AH Mini naanbrood naturel 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.78",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Bakkerij",
-   "id": 620045,
-   "name": "AH Mini naanbrood naturel 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.67",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Bakkerij",
-   "id": 597489,
-   "name": "AH Mini naan brood volkoren 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.78",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Bakkerij",
-   "id": 620044,
-   "name": "AH Mini naanbrood knoflook koriander 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.67",
-   "unit_price": null,
-   "unit_size": "3 stuks"
   }
  ],
  "ah nasi bamigroente": [
@@ -6437,66 +6077,6 @@
    "price": "12.48",
    "unit_price": "",
    "unit_size": "2-3 pers | 14 m"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Maaltijden, salades",
-   "id": 621751,
-   "name": "AH Ajam sate & nasi 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "19.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Groente, aardappelen",
-   "id": 615287,
-   "name": "AH Nasi bami groente kleinverpakking 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.38",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Maaltijden, salades",
-   "id": 622064,
-   "name": "AH Nasi 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "14.36",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Maaltijden, salades",
-   "id": 622063,
-   "name": "AH Nasi 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "10.77",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Groente, aardappelen",
-   "id": 615288,
-   "name": "AH Nasi bami groente kleinverpakking 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.07",
-   "unit_price": null,
-   "unit_size": "3 stuks"
   }
  ],
  "ah nduja": [
@@ -6779,90 +6359,6 @@
    "price": "4.49",
    "unit_price": "KG",
    "unit_size": "150 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 618856,
-   "name": "AH Cashewmix ongezouten 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "17.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 618857,
-   "name": "AH Cashewmix ongezouten 6-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "26.94",
-   "unit_price": null,
-   "unit_size": "6 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 617951,
-   "name": "AH Cashewnoten ongezouten 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "11.97",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 617952,
-   "name": "AH Cashewnoten ongezouten 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "15.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 617953,
-   "name": "AH Cashewnoten ongezouten 6-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "23.94",
-   "unit_price": null,
-   "unit_size": "6 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 620162,
-   "name": "AH Ongezouten cashewnoten 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "19.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 620163,
-   "name": "AH Ongezouten cashewnoten 6-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "29.94",
-   "unit_price": null,
-   "unit_size": "6 stuks"
   }
  ],
  "ah ongezouten roomboter": [
@@ -6937,102 +6433,6 @@
    "price": "2.29",
    "unit_price": "KG",
    "unit_size": "250 g"
-  },
-  {
-   "available": true,
-   "brand": "AH Biologisch",
-   "category": "Zuivel, eieren",
-   "id": 567982,
-   "name": "AH Biologisch Roomboter ongezouten 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "8.67",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH Biologisch",
-   "category": "Zuivel, eieren",
-   "id": 618237,
-   "name": "AH Biologisch Roomboter ongezouten 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.78",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH Biologisch",
-   "category": "Zuivel, eieren",
-   "id": 618240,
-   "name": "AH Biologisch Roomboter ongezouten 5-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "14.45",
-   "unit_price": null,
-   "unit_size": "5 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH Biologisch",
-   "category": "Zuivel, eieren",
-   "id": 620023,
-   "name": "AH Biologisch Grasboter makkelijk smeerbaar ongezo 5pk",
-   "nix18": false,
-   "organic": false,
-   "price": "16.95",
-   "unit_price": null,
-   "unit_size": "5 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH Biologisch",
-   "category": "Zuivel, eieren",
-   "id": 620021,
-   "name": "AH Biologisch Grasboter makkelijk smeerbaar ongezo 2pk",
-   "nix18": false,
-   "organic": false,
-   "price": "6.78",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Zuivel, eieren",
-   "id": 618239,
-   "name": "AH Roomboter ongezouten 5pack",
-   "nix18": false,
-   "organic": false,
-   "price": "7.95",
-   "unit_price": null,
-   "unit_size": "5 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Zuivel, eieren",
-   "id": 618238,
-   "name": "AH Roomboter ongezouten 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "4.77",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH Biologisch",
-   "category": "Zuivel, eieren",
-   "id": 620022,
-   "name": "AH Biologisch Grasboter makkelijk smeerbaar ongezo 3pk",
-   "nix18": false,
-   "organic": false,
-   "price": "10.17",
-   "unit_price": null,
-   "unit_size": "3 stuks"
   }
  ],
  "ah pastinaak": [
@@ -7101,18 +6501,6 @@
   {
    "available": true,
    "brand": "AH",
-   "category": "Fruit, verse sappen",
-   "id": 100265,
-   "name": "AH Doyenné du comice eetrijp",
-   "nix18": false,
-   "organic": false,
-   "price": "2.99",
-   "unit_price": "",
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
    "category": "Frisdrank, sappen, water",
    "id": 485743,
    "name": "AH Siroop peer 0% suiker toegevoegd",
@@ -7145,6 +6533,18 @@
    "price": "1.99",
    "unit_price": "KG",
    "unit_size": "1 kg"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Fruit, verse sappen",
+   "id": 100265,
+   "name": "AH Doyenné du comice eetrijp",
+   "nix18": false,
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "",
+   "unit_size": "4 stuks"
   },
   {
    "available": true,
@@ -7399,78 +6799,6 @@
    "price": "2.19",
    "unit_price": "",
    "unit_size": "per stuk"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 621008,
-   "name": "AH Vis ovenschotel met peterselie 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 621009,
-   "name": "AH Vis ovenschotel met peterselie 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 621010,
-   "name": "AH Vis ovenschotel met peterselie 5-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "5 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 622838,
-   "name": "AH Krokante zalmstick citron peterselie 2pk",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 622839,
-   "name": "AH Krokante zalmstick citron peterselie 3pk",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 622840,
-   "name": "AH Krokante zalmstick citron peterselie 4pk",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "4 stuks"
   }
  ],
  "ah pinda ongezouten": [
@@ -8262,42 +7590,6 @@
    "price": "5.49",
    "unit_price": "KG",
    "unit_size": "350 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Groente, aardappelen",
-   "id": 620467,
-   "name": "AH Rode uienringen zoetzuur 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.07",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Groente, aardappelen",
-   "id": 620468,
-   "name": "AH Rode uienringen zoetzuur 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "6.76",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Groente, aardappelen",
-   "id": 620466,
-   "name": "AH Rode uienringen zoetzuur 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.38",
-   "unit_price": null,
-   "unit_size": "2 stuks"
   }
  ],
  "ah rozemarijn": [
@@ -8492,66 +7784,6 @@
    "price": "1.59",
    "unit_price": "",
    "unit_size": "per stuk"
-  },
-  {
-   "available": true,
-   "brand": "AH Excellent",
-   "category": "Borrel, chips, snacks",
-   "id": 621490,
-   "name": "AH Excellent Nocellara rozemarijn peper olijven 4-pck",
-   "nix18": false,
-   "organic": false,
-   "price": "13.16",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Bakkerij",
-   "id": 622731,
-   "name": "AH Snackcrackers tijm & rozemarijn 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "7.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Bakkerij",
-   "id": 622730,
-   "name": "AH Snackcrackers tijm & rozemarijn 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.97",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH Excellent",
-   "category": "Borrel, chips, snacks",
-   "id": 621489,
-   "name": "AH Excellent Nocellara rozemarijn peper olijven 3-pck",
-   "nix18": false,
-   "organic": false,
-   "price": "9.87",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH Excellent",
-   "category": "Borrel, chips, snacks",
-   "id": 621488,
-   "name": "AH Excellent Nocellara rozemarijn peper olijven 2-pck",
-   "nix18": false,
-   "organic": false,
-   "price": "6.58",
-   "unit_price": null,
-   "unit_size": "2 stuks"
   }
  ],
  "ah sambal oelek": [
@@ -8948,78 +8180,6 @@
    "price": "5.99",
    "unit_price": "KG",
    "unit_size": "600 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Koek, snoep, chocolade",
-   "id": 619532,
-   "name": "AH Pure chocolade truffels slagroom 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "14.36",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Koek, snoep, chocolade",
-   "id": 619531,
-   "name": "AH Pure chocolade truffels slagroom 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "10.77",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Zuivel, eieren",
-   "id": 618267,
-   "name": "AH Slagroom 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.97",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Zuivel, eieren",
-   "id": 622851,
-   "name": "AH Slagroom vol & romig 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "23.97",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Zuivel, eieren",
-   "id": 568380,
-   "name": "AH Slagroom 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.38",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Koek, snoep, chocolade",
-   "id": 619533,
-   "name": "AH Pure chocolade truffels slagroom 6-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "21.54",
-   "unit_price": null,
-   "unit_size": "6 stuks"
   }
  ],
  "ah sojasaus": [
@@ -9564,18 +8724,6 @@
   {
    "available": true,
    "brand": "AH",
-   "category": "Kaas",
-   "id": 604957,
-   "name": "AH Uienchutney truffelsmaak",
-   "nix18": false,
-   "organic": false,
-   "price": "1.79",
-   "unit_price": "KG",
-   "unit_size": "110 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
    "category": "Groente, aardappelen",
    "id": 4083,
    "name": "AH Gele uien",
@@ -9719,18 +8867,6 @@
   },
   {
    "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 627581,
-   "name": "AH Kleintje boter gekarameliseerde ui",
-   "nix18": false,
-   "organic": false,
-   "price": "1.49",
-   "unit_price": "KG",
-   "unit_size": "40 g"
-  },
-  {
-   "available": true,
    "brand": "AH Biologisch",
    "category": "Zuivel, eieren",
    "id": 127231,
@@ -9768,6 +8904,18 @@
   {
    "available": true,
    "brand": "AH",
+   "category": "Kaas",
+   "id": 604957,
+   "name": "AH Uienchutney truffelsmaak",
+   "nix18": false,
+   "organic": false,
+   "price": "1.79",
+   "unit_price": "KG",
+   "unit_size": "110 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
    "category": "Groente, aardappelen",
    "id": 62824,
    "name": "AH Augurken schijven zoetzuur",
@@ -9776,6 +8924,18 @@
    "price": "1.19",
    "unit_price": "KG",
    "unit_size": "530 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 627581,
+   "name": "AH Kleintje boter gekarameliseerde ui",
+   "nix18": false,
+   "organic": false,
+   "price": "1.49",
+   "unit_price": "KG",
+   "unit_size": "40 g"
   },
   {
    "available": true,
@@ -10670,114 +9830,6 @@
    "price": "2.79",
    "unit_price": "KG",
    "unit_size": "250 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 602353,
-   "name": "AH Zalmfilet 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "11.18",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 598216,
-   "name": "AH Zalmfilet a  la minute 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "12.26",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 620610,
-   "name": "AH Warmgerookte zalmfilet 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "9.36",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 567218,
-   "name": "AH Zalmfilet 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "16.77",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 618357,
-   "name": "AH Zalmfilet 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "19.98",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH Biologisch",
-   "category": "Vis",
-   "id": 619655,
-   "name": "AH Biologisch Zalmfilet op huid 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "17.97",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 618358,
-   "name": "AH Zalmfilet 3 pk",
-   "nix18": false,
-   "organic": false,
-   "price": "29.97",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH Biologisch",
-   "category": "Vis",
-   "id": 619656,
-   "name": "AH Biologisch Zalmfilet op huid 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "23.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 567333,
-   "name": "AH Gerookte zalmfilet 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "13.77",
-   "unit_price": null,
-   "unit_size": "3 stuks"
   }
  ],
  "ah zalmzijde": [
@@ -10882,6 +9934,18 @@
   {
    "available": true,
    "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 627587,
+   "name": "AH Mini pompoentjes roomkaas",
+   "nix18": false,
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "KG",
+   "unit_size": "100 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
    "category": "Kaas",
    "id": 604910,
    "name": "AH Roomkaas bieslook",
@@ -10890,6 +9954,18 @@
    "price": "2.89",
    "unit_price": "KG",
    "unit_size": "125 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 627621,
+   "name": "AH Roomkaasbal mango-perzik",
+   "nix18": false,
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "KG",
+   "unit_size": "120 g"
   },
   {
    "available": true,
@@ -10926,18 +10002,6 @@
    "price": "1.49",
    "unit_price": "KG",
    "unit_size": "50 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Kaas",
-   "id": 627621,
-   "name": "AH Roomkaasbal mango-perzik",
-   "nix18": false,
-   "organic": false,
-   "price": "2.99",
-   "unit_price": "KG",
-   "unit_size": "120 g"
   },
   {
    "available": true,
@@ -11002,14 +10066,14 @@
   {
    "available": true,
    "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 627587,
-   "name": "AH Mini pompoentjes roomkaas",
+   "category": "Kaas",
+   "id": 627622,
+   "name": "AH Roomkaasbal cranberry-pistache",
    "nix18": false,
    "organic": false,
    "price": "2.99",
    "unit_price": "KG",
-   "unit_size": "100 g"
+   "unit_size": "120 g"
   },
   {
    "available": true,
@@ -11022,18 +10086,6 @@
    "price": "2.89",
    "unit_price": "KG",
    "unit_size": "150 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Maaltijden, salades",
-   "id": 624590,
-   "name": "AH Pastasaus spinazie roomkaas",
-   "nix18": false,
-   "organic": false,
-   "price": "2.49",
-   "unit_price": "KG",
-   "unit_size": "225 g"
   }
  ],
  "ah zuivelspread naturel": [
@@ -11363,18 +10415,6 @@
    "available": true,
    "brand": "AH",
    "category": "Borrel, chips, snacks",
-   "id": 605149,
-   "name": "AH Basilicum olijven",
-   "nix18": false,
-   "organic": false,
-   "price": "2.29",
-   "unit_price": "KG",
-   "unit_size": "130 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
    "id": 217337,
    "name": "AH Groene olijven met basilicum",
    "nix18": false,
@@ -11442,6 +10482,18 @@
    "price": "1.69",
    "unit_price": "KG",
    "unit_size": "690 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 605149,
+   "name": "AH Basilicum olijven",
+   "nix18": false,
+   "organic": false,
+   "price": "2.29",
+   "unit_price": "KG",
+   "unit_size": "130 g"
   },
   {
    "available": true,
@@ -11850,18 +10902,6 @@
    "price": "3.09",
    "unit_price": "KG",
    "unit_size": "140 g"
-  },
-  {
-   "available": true,
-   "brand": "AH Biologisch",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 570121,
-   "name": "AH Biologisch Champignon soep met room",
-   "nix18": false,
-   "organic": true,
-   "price": "2.39",
-   "unit_price": "prijs per liter €4.19",
-   "unit_size": "0,57 l"
   }
  ],
  "biologisch chilivlokken": [],
@@ -12079,174 +11119,6 @@
    "price": "0.79",
    "unit_price": "KG",
    "unit_size": "100 g"
-  },
-  {
-   "available": true,
-   "brand": "De Kleine Keuken",
-   "category": "Baby en kind",
-   "id": 570746,
-   "name": "De Kleine Keuken Biologische granenreepjes aardbei 18m+",
-   "nix18": false,
-   "organic": true,
-   "price": "3.19",
-   "unit_price": "prijs per kg €24.17",
-   "unit_size": "132 g"
-  },
-  {
-   "available": true,
-   "brand": "De Kleine Keuken",
-   "category": "Baby en kind",
-   "id": 408364,
-   "name": "De Kleine Keuken Biologisch broodbeleg aardbei & biet 6m+",
-   "nix18": false,
-   "organic": true,
-   "price": "3.29",
-   "unit_price": "prijs per kg €19.35",
-   "unit_size": "170 g"
-  },
-  {
-   "available": true,
-   "brand": "AH Biologisch",
-   "category": "Ontbijtgranen, beleg",
-   "id": 413588,
-   "name": "AH Biologisch Aardbei fruitspread",
-   "nix18": false,
-   "organic": true,
-   "price": "2.69",
-   "unit_price": "prijs per kg €10.76",
-   "unit_size": "250 g"
-  },
-  {
-   "available": true,
-   "brand": "Let it Bio",
-   "category": "Frisdrank, sappen, water",
-   "id": 589323,
-   "name": "Let it Bio Rabarber aardbei siroop",
-   "nix18": false,
-   "organic": true,
-   "price": "3.99",
-   "unit_price": "prijs per liter €7.98",
-   "unit_size": "0,5 l"
-  },
-  {
-   "available": true,
-   "brand": "De Kleine Keuken",
-   "category": "Baby en kind",
-   "id": 585631,
-   "name": "De Kleine Keuken Biologische hartjes koekjes aardbei 18m+",
-   "nix18": false,
-   "organic": true,
-   "price": "2.79",
-   "unit_price": "prijs per kg €23.25",
-   "unit_size": "120 g"
-  },
-  {
-   "available": true,
-   "brand": "Smaakt",
-   "category": "Bakkerij",
-   "id": 596887,
-   "name": "Smaakt Vegan eivervanger biologisch",
-   "nix18": false,
-   "organic": true,
-   "price": "1.29",
-   "unit_price": "prijs per kg €61.43",
-   "unit_size": "21 g"
-  },
-  {
-   "available": true,
-   "brand": "De Kleine Keuken",
-   "category": "Baby en kind",
-   "id": 616892,
-   "name": "De Kleine Keuken Biologische bites haver & aardbei 12m+",
-   "nix18": false,
-   "organic": true,
-   "price": "1.89",
-   "unit_price": "prijs per kg €37.80",
-   "unit_size": "50 g"
-  },
-  {
-   "available": true,
-   "brand": "AH Biologisch",
-   "category": "Baby en kind",
-   "id": 172552,
-   "name": "AH Biologisch Fruithapje appel blauwe bes aardbei 8m+",
-   "nix18": false,
-   "organic": true,
-   "price": "1.15",
-   "unit_price": "prijs per kg €5.75",
-   "unit_size": "200 g"
-  },
-  {
-   "available": true,
-   "brand": "Ella's kitchen",
-   "category": "Baby en kind",
-   "id": 388962,
-   "name": "Ella's kitchen Biologische Aardbeien yoghurt 6m+",
-   "nix18": false,
-   "organic": true,
-   "price": "1.65",
-   "unit_price": "prijs per kg €18.33",
-   "unit_size": "90 g"
-  },
-  {
-   "available": true,
-   "brand": "Ella's kitchen",
-   "category": "Baby en kind",
-   "id": 587956,
-   "name": "Ella's kitchen Maize sticks aardbei & appel 7m+",
-   "nix18": false,
-   "organic": true,
-   "price": "1.99",
-   "unit_price": "prijs per kg €124.38",
-   "unit_size": "16 g"
-  },
-  {
-   "available": true,
-   "brand": "AH Biologisch",
-   "category": "Groente, aardappelen",
-   "id": 186650,
-   "name": "AH Biologisch Prei",
-   "nix18": false,
-   "organic": true,
-   "price": "0.99",
-   "unit_price": null,
-   "unit_size": "per stuk"
-  },
-  {
-   "available": true,
-   "brand": "De Kleine Keuken",
-   "category": "Baby en kind",
-   "id": 492662,
-   "name": "De Kleine Keuken Biologische fruitmix rozijn aardbei 18m+",
-   "nix18": false,
-   "organic": true,
-   "price": "3.09",
-   "unit_price": "prijs per kg €36.79",
-   "unit_size": "84 g"
-  },
-  {
-   "available": true,
-   "brand": "De Kleine Keuken",
-   "category": "Baby en kind",
-   "id": 585621,
-   "name": "De Kleine Keuken Biologische rijstwafeltjes aardbei 7m+",
-   "nix18": false,
-   "organic": true,
-   "price": "1.89",
-   "unit_price": "prijs per kg €54.00",
-   "unit_size": "35 g"
-  },
-  {
-   "available": true,
-   "brand": "AH Biologisch",
-   "category": "Baby en kind",
-   "id": 576937,
-   "name": "AH Biologisch Luchtige babysnacks aardbei banaan 7m+",
-   "nix18": false,
-   "organic": true,
-   "price": "0.99",
-   "unit_price": "prijs per kg €49.50",
-   "unit_size": "20 g"
   }
  ],
  "biologisch fijne soepgroente": [
@@ -14277,7 +13149,7 @@
    "unit_size": "20 g"
   },
   {
-   "available": false,
+   "available": true,
    "brand": "AH Biologisch",
    "category": "Baby en kind",
    "id": 452242,
@@ -16100,102 +14972,6 @@
    "price": "1.69",
    "unit_price": "LT",
    "unit_size": "340 ml"
-  },
-  {
-   "available": true,
-   "brand": "Maggi",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 627864,
-   "name": "Maggi Opkikker drinkbouillon kip 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "4.47",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Knorr",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 624180,
-   "name": "Knorr Kippen bouillon 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.58",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Knorr",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 624089,
-   "name": "Knorr Drinkbouillon kip 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.56",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Knorr",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 624087,
-   "name": "Knorr Drinkbouillon kip 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "2.78",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Knorr",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 624182,
-   "name": "Knorr Kippen bouillon 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "7.16",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Knorr",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 624088,
-   "name": "Knorr Drinkbouillon kip 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "4.17",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Knorr",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 624181,
-   "name": "Knorr Kippen bouillon 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.37",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Maggi",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 627868,
-   "name": "Maggi Opkikker drinkbouillon kip 6-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "8.94",
-   "unit_price": null,
-   "unit_size": "6 stuks"
   }
  ],
  "bouillon kipen": [
@@ -16390,90 +15166,6 @@
    "price": "1.69",
    "unit_price": "LT",
    "unit_size": "340 ml"
-  },
-  {
-   "available": true,
-   "brand": "Maggi",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 627864,
-   "name": "Maggi Opkikker drinkbouillon kip 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "4.47",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Knorr",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 624180,
-   "name": "Knorr Kippen bouillon 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.58",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Knorr",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 624089,
-   "name": "Knorr Drinkbouillon kip 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.56",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Knorr",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 624087,
-   "name": "Knorr Drinkbouillon kip 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "2.78",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Knorr",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 624182,
-   "name": "Knorr Kippen bouillon 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "7.16",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Knorr",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 624088,
-   "name": "Knorr Drinkbouillon kip 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "4.17",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Knorr",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 624181,
-   "name": "Knorr Kippen bouillon 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.37",
-   "unit_price": null,
-   "unit_size": "3 stuks"
   }
  ],
  "bouillon paddenstoel": [
@@ -17841,18 +16533,6 @@
    "available": true,
    "brand": "Go-Tan",
    "category": "Soepen, sauzen, kruiden, olie",
-   "id": 439402,
-   "name": "Go-Tan Sweet chilli sauce",
-   "nix18": false,
-   "organic": false,
-   "price": "3.95",
-   "unit_price": "LT",
-   "unit_size": "0,64 l"
-  },
-  {
-   "available": true,
-   "brand": "Go-Tan",
-   "category": "Soepen, sauzen, kruiden, olie",
    "id": 236467,
    "name": "Go-Tan Sweet chilli sauce",
    "nix18": false,
@@ -17860,6 +16540,18 @@
    "price": "2.99",
    "unit_price": "LT",
    "unit_size": "270 ml"
+  },
+  {
+   "available": true,
+   "brand": "Go-Tan",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 439402,
+   "name": "Go-Tan Sweet chilli sauce",
+   "nix18": false,
+   "organic": false,
+   "price": "3.95",
+   "unit_price": "LT",
+   "unit_size": "0,64 l"
   },
   {
    "available": true,
@@ -18243,18 +16935,6 @@
  "citroen": [
   {
    "available": true,
-   "brand": "Koopmans",
-   "category": "Bakkerij",
-   "id": 444410,
-   "name": "Koopmans Mix voor citroencake",
-   "nix18": false,
-   "organic": false,
-   "price": "1.99",
-   "unit_price": "KG",
-   "unit_size": "400 g"
-  },
-  {
-   "available": true,
    "brand": "Spa",
    "category": "Frisdrank, sappen, water",
    "id": 518946,
@@ -18264,6 +16944,18 @@
    "price": "2.49",
    "unit_price": "LT",
    "unit_size": "1,25 l"
+  },
+  {
+   "available": true,
+   "brand": "Koopmans",
+   "category": "Bakkerij",
+   "id": 444410,
+   "name": "Koopmans Mix voor citroencake",
+   "nix18": false,
+   "organic": false,
+   "price": "1.99",
+   "unit_price": "KG",
+   "unit_size": "400 g"
   },
   {
    "available": true,
@@ -18602,30 +17294,6 @@
    "price": "17.99",
    "unit_price": "",
    "unit_size": "60 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Melkunie",
-   "category": "Zuivel, eieren",
-   "id": 609488,
-   "name": "Melkunie Citroensmaak vla 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.56",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Melkunie",
-   "category": "Zuivel, eieren",
-   "id": 609487,
-   "name": "Melkunie Citroensmaak vla 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "2.78",
-   "unit_price": null,
-   "unit_size": "2 stuks"
   }
  ],
  "cottage cheese": [
@@ -18796,30 +17464,6 @@
    "price": "1.39",
    "unit_price": "KG",
    "unit_size": "200 g"
-  },
-  {
-   "available": true,
-   "brand": "Danone",
-   "category": "Kaas",
-   "id": 607857,
-   "name": "Danone Hüttenkäse original 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.98",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Danone",
-   "category": "Kaas",
-   "id": 607858,
-   "name": "Danone Hüttenkäse original 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "7.58",
-   "unit_price": null,
-   "unit_size": "2 stuks"
   }
  ],
  "cottagecheese": [
@@ -18990,30 +17634,6 @@
    "price": "1.39",
    "unit_price": "KG",
    "unit_size": "200 g"
-  },
-  {
-   "available": true,
-   "brand": "Danone",
-   "category": "Kaas",
-   "id": 607857,
-   "name": "Danone Hüttenkäse original 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.98",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Danone",
-   "category": "Kaas",
-   "id": 607858,
-   "name": "Danone Hüttenkäse original 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "7.58",
-   "unit_price": null,
-   "unit_size": "2 stuks"
   }
  ],
  "cottagecheesen": [
@@ -19184,30 +17804,6 @@
    "price": "1.39",
    "unit_price": "KG",
    "unit_size": "200 g"
-  },
-  {
-   "available": true,
-   "brand": "Danone",
-   "category": "Kaas",
-   "id": 607857,
-   "name": "Danone Hüttenkäse original 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.98",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Danone",
-   "category": "Kaas",
-   "id": 607858,
-   "name": "Danone Hüttenkäse original 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "7.58",
-   "unit_price": null,
-   "unit_size": "2 stuks"
   }
  ],
  "cottageches": [
@@ -19523,18 +18119,6 @@
  "crispy chili oil": [
   {
    "available": true,
-   "brand": "Duca",
-   "category": "Diepvries",
-   "id": 626241,
-   "name": "Duca 12 crispy chicken gyoza's chili oil",
-   "nix18": false,
-   "organic": false,
-   "price": "3.99",
-   "unit_price": "KG",
-   "unit_size": "240 g"
-  },
-  {
-   "available": true,
    "brand": "Old Mother",
    "category": "Soepen, sauzen, kruiden, olie",
    "id": 553362,
@@ -19556,6 +18140,18 @@
    "price": "4.15",
    "unit_price": "KG",
    "unit_size": "190 g"
+  },
+  {
+   "available": true,
+   "brand": "Duca",
+   "category": "Diepvries",
+   "id": 626241,
+   "name": "Duca 12 crispy chicken gyoza's chili oil",
+   "nix18": false,
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "KG",
+   "unit_size": "240 g"
   },
   {
    "available": true,
@@ -19609,18 +18205,6 @@
   },
   {
    "available": true,
-   "brand": "Duca",
-   "category": "Diepvries",
-   "id": 626241,
-   "name": "Duca 12 crispy chicken gyoza's chili oil",
-   "nix18": false,
-   "organic": false,
-   "price": "3.99",
-   "unit_price": "KG",
-   "unit_size": "240 g"
-  },
-  {
-   "available": true,
    "brand": "Go-Tan",
    "category": "Pasta, rijst, wereldkeuken",
    "id": 591782,
@@ -19666,6 +18250,18 @@
    "price": "4.19",
    "unit_price": "KG",
    "unit_size": "120 g"
+  },
+  {
+   "available": true,
+   "brand": "Duca",
+   "category": "Diepvries",
+   "id": 626241,
+   "name": "Duca 12 crispy chicken gyoza's chili oil",
+   "nix18": false,
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "KG",
+   "unit_size": "240 g"
   }
  ],
  "curry madra": [
@@ -19776,42 +18372,6 @@
    "price": "1.89",
    "unit_price": "KG",
    "unit_size": "70 g"
-  },
-  {
-   "available": true,
-   "brand": "AH Terra",
-   "category": "Maaltijden, salades",
-   "id": 622642,
-   "name": "AH Terra Comfort bowl curry madras 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "7.77",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH Terra",
-   "category": "Maaltijden, salades",
-   "id": 622641,
-   "name": "AH Terra Comfort bowl curry madras 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.18",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH Terra",
-   "category": "Maaltijden, salades",
-   "id": 622643,
-   "name": "AH Terra Comfort bowl curry madras 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "10.36",
-   "unit_price": null,
-   "unit_size": "4 stuks"
   }
  ],
  "curry madras": [
@@ -19922,42 +18482,6 @@
    "price": "1.89",
    "unit_price": "KG",
    "unit_size": "70 g"
-  },
-  {
-   "available": true,
-   "brand": "AH Terra",
-   "category": "Maaltijden, salades",
-   "id": 622642,
-   "name": "AH Terra Comfort bowl curry madras 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "7.77",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH Terra",
-   "category": "Maaltijden, salades",
-   "id": 622641,
-   "name": "AH Terra Comfort bowl curry madras 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.18",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH Terra",
-   "category": "Maaltijden, salades",
-   "id": 622643,
-   "name": "AH Terra Comfort bowl curry madras 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "10.36",
-   "unit_price": null,
-   "unit_size": "4 stuks"
   }
  ],
  "curry madras kruiden": [
@@ -20704,114 +19228,6 @@
    "price": "1.49",
    "unit_price": "KG",
    "unit_size": "50 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 617751,
-   "name": "AH Komkommer dille dressing 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "7.16",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 617750,
-   "name": "AH Komkommer dille dressing 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.37",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Knorr",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 624243,
-   "name": "Knorr Mix vis-dillesaus 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "2.9",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Knorr",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 624245,
-   "name": "Knorr Mix vis-dillesaus 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.8",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Knorr",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 624244,
-   "name": "Knorr Mix vis-dillesaus 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "4.35",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Kaas",
-   "id": 621586,
-   "name": "AH Gemarineerd kaasblokjes mosterddille 4pk",
-   "nix18": false,
-   "organic": false,
-   "price": "11.16",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Kaas",
-   "id": 621585,
-   "name": "AH Gemarineerd kaasblokjes mosterddille 3pk",
-   "nix18": false,
-   "organic": false,
-   "price": "8.37",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Kaas",
-   "id": 621584,
-   "name": "AH Gemarineerd kaasblokjes mosterddille 2pk",
-   "nix18": false,
-   "organic": false,
-   "price": "5.58",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 597482,
-   "name": "AH Komkommer dille dressing 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.58",
-   "unit_price": null,
-   "unit_size": "2 stuks"
   }
  ],
  "dillen": [
@@ -20970,102 +19386,6 @@
    "price": "2.99",
    "unit_price": "LT",
    "unit_size": "250 ml"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 617751,
-   "name": "AH Komkommer dille dressing 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "7.16",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 617750,
-   "name": "AH Komkommer dille dressing 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.37",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Knorr",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 624243,
-   "name": "Knorr Mix vis-dillesaus 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "2.9",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Knorr",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 624245,
-   "name": "Knorr Mix vis-dillesaus 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.8",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Knorr",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 624244,
-   "name": "Knorr Mix vis-dillesaus 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "4.35",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Kaas",
-   "id": 621586,
-   "name": "AH Gemarineerd kaasblokjes mosterddille 4pk",
-   "nix18": false,
-   "organic": false,
-   "price": "11.16",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Kaas",
-   "id": 621585,
-   "name": "AH Gemarineerd kaasblokjes mosterddille 3pk",
-   "nix18": false,
-   "organic": false,
-   "price": "8.37",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Kaas",
-   "id": 621584,
-   "name": "AH Gemarineerd kaasblokjes mosterddille 2pk",
-   "nix18": false,
-   "organic": false,
-   "price": "5.58",
-   "unit_price": null,
-   "unit_size": "2 stuks"
   }
  ],
  "eieren": [
@@ -22861,18 +21181,6 @@
  "grana padano": [
   {
    "available": true,
-   "brand": "AH Excellent",
-   "category": "Diepvries",
-   "id": 565788,
-   "name": "AH Excellent Parmezaanse kaaskroketjes met truffel",
-   "nix18": false,
-   "organic": false,
-   "price": "3.99",
-   "unit_price": "",
-   "unit_size": "6 stuks"
-  },
-  {
-   "available": true,
    "brand": "AH",
    "category": "Pasta, rijst, wereldkeuken",
    "id": 462470,
@@ -23050,6 +21358,18 @@
    "price": "3.99",
    "unit_price": "KG",
    "unit_size": "190 g"
+  },
+  {
+   "available": true,
+   "brand": "AH Excellent",
+   "category": "Diepvries",
+   "id": 565788,
+   "name": "AH Excellent Parmezaanse kaaskroketjes met truffel",
+   "nix18": false,
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "",
+   "unit_size": "6 stuks"
   },
   {
    "available": true,
@@ -23671,78 +21991,6 @@
    "price": "2.89",
    "unit_price": "KG",
    "unit_size": "400 g"
-  },
-  {
-   "available": true,
-   "brand": "Bonduelle",
-   "category": "Groente, aardappelen",
-   "id": 624644,
-   "name": "Bonduelle Bonduelle Linzen bio 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.67",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Bonduelle",
-   "category": "Groente, aardappelen",
-   "id": 624645,
-   "name": "Bonduelle Bonduelle Linzen bio 6-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "11.34",
-   "unit_price": null,
-   "unit_size": "6 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Bonduelle",
-   "category": "Groente, aardappelen",
-   "id": 624642,
-   "name": "Bonduelle Bonduelle Linzen 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "4.47",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Bonduelle",
-   "category": "Groente, aardappelen",
-   "id": 624643,
-   "name": "Bonduelle Bonduelle Linzen 6-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "8.94",
-   "unit_price": null,
-   "unit_size": "6 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Bonduelle",
-   "category": "Groente, aardappelen",
-   "id": 624628,
-   "name": "Bonduelle Bonduelle Beluga linzen 2 mini's 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "6.57",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Bonduelle",
-   "category": "Groente, aardappelen",
-   "id": 624629,
-   "name": "Bonduelle Bonduelle Beluga linzen 2 mini's 6-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "13.14",
-   "unit_price": null,
-   "unit_size": "6 stuks"
   }
  ],
  "groene linzen": [
@@ -23973,78 +22221,6 @@
    "price": "0.89",
    "unit_price": "KG",
    "unit_size": "200 g"
-  },
-  {
-   "available": true,
-   "brand": "Bonduelle",
-   "category": "Groente, aardappelen",
-   "id": 624644,
-   "name": "Bonduelle Bonduelle Linzen bio 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.67",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Bonduelle",
-   "category": "Groente, aardappelen",
-   "id": 624645,
-   "name": "Bonduelle Bonduelle Linzen bio 6-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "11.34",
-   "unit_price": null,
-   "unit_size": "6 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Bonduelle",
-   "category": "Groente, aardappelen",
-   "id": 624642,
-   "name": "Bonduelle Bonduelle Linzen 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "4.47",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Bonduelle",
-   "category": "Groente, aardappelen",
-   "id": 624628,
-   "name": "Bonduelle Bonduelle Beluga linzen 2 mini's 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "6.57",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Bonduelle",
-   "category": "Groente, aardappelen",
-   "id": 624643,
-   "name": "Bonduelle Bonduelle Linzen 6-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "8.94",
-   "unit_price": null,
-   "unit_size": "6 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Bonduelle",
-   "category": "Groente, aardappelen",
-   "id": 624629,
-   "name": "Bonduelle Bonduelle Beluga linzen 2 mini's 6-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "13.14",
-   "unit_price": null,
-   "unit_size": "6 stuks"
   }
  ],
  "groene linzennen": [
@@ -24145,7 +22321,7 @@
    "unit_size": "4 stuks"
   },
   {
-   "available": false,
+   "available": true,
    "brand": "Pickwick",
    "category": "Koffie, thee",
    "id": 626145,
@@ -24496,18 +22672,6 @@
   },
   {
    "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 627590,
-   "name": "AH Harissa olijven",
-   "nix18": false,
-   "organic": false,
-   "price": "3.29",
-   "unit_price": "KG",
-   "unit_size": "130 g"
-  },
-  {
-   "available": true,
    "brand": "Souq",
    "category": "Pasta, rijst, wereldkeuken",
    "id": 494781,
@@ -24558,6 +22722,18 @@
    "available": true,
    "brand": "AH",
    "category": "Borrel, chips, snacks",
+   "id": 627590,
+   "name": "AH Harissa olijven",
+   "nix18": false,
+   "organic": false,
+   "price": "3.29",
+   "unit_price": "KG",
+   "unit_size": "130 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
    "id": 604952,
    "name": "AH Yoghurtdip harissa",
    "nix18": false,
@@ -24589,66 +22765,6 @@
    "price": "3.29",
    "unit_price": "KG",
    "unit_size": "120 g"
-  },
-  {
-   "available": true,
-   "brand": "Verstegen",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 623543,
-   "name": "Verstegen World spice blend harissa 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "6.38",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Verstegen",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 623544,
-   "name": "Verstegen World spice blend harissa 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "9.57",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 622421,
-   "name": "AH Yoghurtdip harissa 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "8.07",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 622422,
-   "name": "AH Yoghurtdip harissa 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "10.76",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 622420,
-   "name": "AH Yoghurtdip harissa 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.38",
-   "unit_price": null,
-   "unit_size": "2 stuks"
   }
  ],
  "harissa kruiden": [
@@ -24887,6 +23003,18 @@
    "available": true,
    "brand": "AH",
    "category": "Borrel, chips, snacks",
+   "id": 627590,
+   "name": "AH Harissa olijven",
+   "nix18": false,
+   "organic": false,
+   "price": "3.29",
+   "unit_price": "KG",
+   "unit_size": "130 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
    "id": 604952,
    "name": "AH Yoghurtdip harissa",
    "nix18": false,
@@ -24930,78 +23058,6 @@
    "price": "1.95",
    "unit_price": "KG",
    "unit_size": "200 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 627590,
-   "name": "AH Harissa olijven",
-   "nix18": false,
-   "organic": false,
-   "price": "3.29",
-   "unit_price": "KG",
-   "unit_size": "130 g"
-  },
-  {
-   "available": true,
-   "brand": "Verstegen",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 623543,
-   "name": "Verstegen World spice blend harissa 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "6.38",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Verstegen",
-   "category": "Soepen, sauzen, kruiden, olie",
-   "id": 623544,
-   "name": "Verstegen World spice blend harissa 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "9.57",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 622421,
-   "name": "AH Yoghurtdip harissa 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "8.07",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 622422,
-   "name": "AH Yoghurtdip harissa 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "10.76",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 622420,
-   "name": "AH Yoghurtdip harissa 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.38",
-   "unit_price": null,
-   "unit_size": "2 stuks"
   }
  ],
  "hele zalmzijd": [
@@ -26027,78 +24083,6 @@
    "price": "6.99",
    "unit_price": "LT",
    "unit_size": "25 ml"
-  },
-  {
-   "available": true,
-   "brand": "Robijn",
-   "category": "Huishouden",
-   "id": 608826,
-   "name": "Robijn Wasverzachter jasmijn sandelhout 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "29.4",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Lenor",
-   "category": "Huishouden",
-   "id": 605867,
-   "name": "Lenor Wasverzachter robijn jasmijn 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "39.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Lenor",
-   "category": "Huishouden",
-   "id": 622966,
-   "name": "Lenor Wasverzachter robijn jasmijn 6-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "59.94",
-   "unit_price": null,
-   "unit_size": "6 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Lenor",
-   "category": "Huishouden",
-   "id": 622965,
-   "name": "Lenor Wasverzachter robijn jasmijn 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "19.98",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Robijn",
-   "category": "Huishouden",
-   "id": 608825,
-   "name": "Robijn Wasverzachter jasmijn sandelhout 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "14.7",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Robijn",
-   "category": "Huishouden",
-   "id": 608827,
-   "name": "Robijn Wasverzachter jasmijn sandelhout 8-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "58.8",
-   "unit_price": null,
-   "unit_size": "8 stuks"
   }
  ],
  "jasmijnrijst": [],
@@ -26957,126 +24941,6 @@
    "price": "0.49",
    "unit_price": "KG",
    "unit_size": "100 g"
-  },
-  {
-   "available": true,
-   "brand": "AH Biologisch",
-   "category": "Groente, aardappelen",
-   "id": 620721,
-   "name": "AH Biologisch Kappertjes 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Groente, aardappelen",
-   "id": 617474,
-   "name": "AH Kapperappeltjes 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "7.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Groente, aardappelen",
-   "id": 617473,
-   "name": "AH Kapperappeltjes 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.97",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 622392,
-   "name": "AH Loaded dip zalm met kappertjes 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "6.58",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 622393,
-   "name": "AH Loaded dip zalm met kappertjes 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "9.87",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 622394,
-   "name": "AH Loaded dip zalm met kappertjes 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "13.16",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Groente, aardappelen",
-   "id": 567548,
-   "name": "AH Groene pesto 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "11.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH Biologisch",
-   "category": "Groente, aardappelen",
-   "id": 620722,
-   "name": "AH Biologisch Kappertjes 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH Biologisch",
-   "category": "Groente, aardappelen",
-   "id": 620723,
-   "name": "AH Biologisch Kappertjes 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Groente, aardappelen",
-   "id": 617472,
-   "name": "AH Kapperappeltjes 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.98",
-   "unit_price": null,
-   "unit_size": "2 stuks"
   }
  ],
  "kappertjesen": [
@@ -27151,126 +25015,6 @@
    "price": "0.49",
    "unit_price": "KG",
    "unit_size": "100 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Groente, aardappelen",
-   "id": 617474,
-   "name": "AH Kapperappeltjes 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "7.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Groente, aardappelen",
-   "id": 617473,
-   "name": "AH Kapperappeltjes 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.97",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 622392,
-   "name": "AH Loaded dip zalm met kappertjes 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "6.58",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 622393,
-   "name": "AH Loaded dip zalm met kappertjes 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "9.87",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 622394,
-   "name": "AH Loaded dip zalm met kappertjes 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "13.16",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Groente, aardappelen",
-   "id": 567548,
-   "name": "AH Groene pesto 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "11.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH Biologisch",
-   "category": "Groente, aardappelen",
-   "id": 620721,
-   "name": "AH Biologisch Kappertjes 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH Biologisch",
-   "category": "Groente, aardappelen",
-   "id": 620722,
-   "name": "AH Biologisch Kappertjes 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH Biologisch",
-   "category": "Groente, aardappelen",
-   "id": 620723,
-   "name": "AH Biologisch Kappertjes 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Groente, aardappelen",
-   "id": 617472,
-   "name": "AH Kapperappeltjes 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.98",
-   "unit_price": null,
-   "unit_size": "2 stuks"
   }
  ],
  "ketjap mani": [
@@ -27369,42 +25113,6 @@
    "price": "4.69",
    "unit_price": "LT",
    "unit_size": "250 ml"
-  },
-  {
-   "available": true,
-   "brand": "Conimex",
-   "category": "Pasta, rijst, wereldkeuken",
-   "id": 628404,
-   "name": "Conimex Ketjap Manis 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.98",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Conimex",
-   "category": "Pasta, rijst, wereldkeuken",
-   "id": 628416,
-   "name": "Conimex Ketjap Manis 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.97",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Conimex",
-   "category": "Pasta, rijst, wereldkeuken",
-   "id": 628403,
-   "name": "Conimex Ketjap manis 2pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.98",
-   "unit_price": null,
-   "unit_size": "2 stuks"
   }
  ],
  "ketjap manis": [
@@ -27503,42 +25211,6 @@
    "price": "4.69",
    "unit_price": "LT",
    "unit_size": "250 ml"
-  },
-  {
-   "available": true,
-   "brand": "Conimex",
-   "category": "Pasta, rijst, wereldkeuken",
-   "id": 628404,
-   "name": "Conimex Ketjap Manis 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.98",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Conimex",
-   "category": "Pasta, rijst, wereldkeuken",
-   "id": 628416,
-   "name": "Conimex Ketjap Manis 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.97",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Conimex",
-   "category": "Pasta, rijst, wereldkeuken",
-   "id": 628403,
-   "name": "Conimex Ketjap manis 2pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.98",
-   "unit_price": null,
-   "unit_size": "2 stuks"
   }
  ],
  "ketjap manissen": [
@@ -28839,18 +26511,6 @@
   },
   {
    "available": true,
-   "brand": "AH",
-   "category": "Kaas",
-   "id": 627589,
-   "name": "AH Kaasblokjes 50+ zwarte knoflook",
-   "nix18": false,
-   "organic": false,
-   "price": "2.99",
-   "unit_price": "KG",
-   "unit_size": "100 g"
-  },
-  {
-   "available": true,
    "brand": "Go-Tan",
    "category": "Soepen, sauzen, kruiden, olie",
    "id": 122302,
@@ -28948,6 +26608,18 @@
   {
    "available": true,
    "brand": "AH",
+   "category": "Kaas",
+   "id": 627589,
+   "name": "AH Kaasblokjes 50+ zwarte knoflook",
+   "nix18": false,
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "KG",
+   "unit_size": "100 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
    "category": "Vis",
    "id": 136373,
    "name": "AH Wokgarnalen met knoflook en peterselie",
@@ -28956,18 +26628,6 @@
    "price": "6.89",
    "unit_price": "KG",
    "unit_size": "400 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 605180,
-   "name": "AH Knoflook olijven",
-   "nix18": false,
-   "organic": false,
-   "price": "2.29",
-   "unit_price": "KG",
-   "unit_size": "130 g"
   },
   {
    "available": true,
@@ -28992,6 +26652,18 @@
    "price": "2.09",
    "unit_price": "KG",
    "unit_size": "45 g"
+  },
+  {
+   "available": true,
+   "brand": "Calvé",
+   "category": "Soepen, sauzen, kruiden, olie",
+   "id": 193444,
+   "name": "Calvé Knoflooksaus",
+   "nix18": false,
+   "organic": false,
+   "price": "2.19",
+   "unit_price": "LT",
+   "unit_size": "320 ml"
   }
  ],
  "knofloken": [
@@ -29419,18 +27091,6 @@
   },
   {
    "available": true,
-   "brand": "AH",
-   "category": "Kaas",
-   "id": 627589,
-   "name": "AH Kaasblokjes 50+ zwarte knoflook",
-   "nix18": false,
-   "organic": false,
-   "price": "2.99",
-   "unit_price": "KG",
-   "unit_size": "100 g"
-  },
-  {
-   "available": true,
    "brand": "Paolo",
    "category": "Soepen, sauzen, kruiden, olie",
    "id": 584481,
@@ -29464,6 +27124,18 @@
    "price": "1.99",
    "unit_price": "KG",
    "unit_size": "80 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 627589,
+   "name": "AH Kaasblokjes 50+ zwarte knoflook",
+   "nix18": false,
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "KG",
+   "unit_size": "100 g"
   },
   {
    "available": true,
@@ -30316,42 +27988,6 @@
    "price": "2.19",
    "unit_price": "",
    "unit_size": "per stuk"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Bakkerij",
-   "id": 620044,
-   "name": "AH Mini naanbrood knoflook koriander 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.67",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Maza",
-   "category": "Vegetarisch, vegan en plantaardig",
-   "id": 611392,
-   "name": "Maza Hoemoes koriander limoen 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "7.77",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Bakkerij",
-   "id": 597490,
-   "name": "AH Mini naanbrood knoflook koriander 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.78",
-   "unit_price": null,
-   "unit_size": "2 stuks"
   }
  ],
  "korianders": [
@@ -30558,42 +28194,6 @@
    "price": "2.19",
    "unit_price": "",
    "unit_size": "per stuk"
-  },
-  {
-   "available": true,
-   "brand": "Maza",
-   "category": "Vegetarisch, vegan en plantaardig",
-   "id": 611392,
-   "name": "Maza Hoemoes koriander limoen 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "7.77",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Bakkerij",
-   "id": 597490,
-   "name": "AH Mini naanbrood knoflook koriander 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.78",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Bakkerij",
-   "id": 620044,
-   "name": "AH Mini naanbrood knoflook koriander 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.67",
-   "unit_price": null,
-   "unit_size": "3 stuks"
   }
  ],
  "korianderzaad": [
@@ -31527,13 +29127,13 @@
    "available": true,
    "brand": "Knorr",
    "category": "Pasta, rijst, wereldkeuken",
-   "id": 162594,
-   "name": "Knorr Wereldgerechten lasagnette napoletana",
+   "id": 237866,
+   "name": "Knorr Wereldgerechten lasagne bolognese",
    "nix18": false,
    "organic": false,
-   "price": "3.29",
+   "price": "4.45",
    "unit_price": "",
-   "unit_size": "226 g"
+   "unit_size": "191 g"
   },
   {
    "available": true,
@@ -31575,13 +29175,13 @@
    "available": true,
    "brand": "Knorr",
    "category": "Pasta, rijst, wereldkeuken",
-   "id": 594772,
-   "name": "Knorr Maaltijdmix lasagne bolognese",
+   "id": 162594,
+   "name": "Knorr Wereldgerechten lasagnette napoletana",
    "nix18": false,
    "organic": false,
-   "price": "1.99",
-   "unit_price": "KG",
-   "unit_size": "67 g"
+   "price": "3.29",
+   "unit_price": "",
+   "unit_size": "226 g"
   },
   {
    "available": true,
@@ -35030,78 +32630,6 @@
    "price": "2.29",
    "unit_price": "KG",
    "unit_size": "350 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Bakkerij",
-   "id": 597490,
-   "name": "AH Mini naanbrood knoflook koriander 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.78",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Bakkerij",
-   "id": 620981,
-   "name": "AH Mini naan brood volkoren 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.67",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Bakkerij",
-   "id": 597491,
-   "name": "AH Mini naanbrood naturel 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.78",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Bakkerij",
-   "id": 620045,
-   "name": "AH Mini naanbrood naturel 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.67",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Bakkerij",
-   "id": 597489,
-   "name": "AH Mini naan brood volkoren 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.78",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Bakkerij",
-   "id": 620044,
-   "name": "AH Mini naanbrood knoflook koriander 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.67",
-   "unit_price": null,
-   "unit_size": "3 stuks"
   }
  ],
  "mini naanbrood volkorens": [
@@ -35830,90 +33358,6 @@
    "price": "4.49",
    "unit_price": "KG",
    "unit_size": "150 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 618856,
-   "name": "AH Cashewmix ongezouten 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "17.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 618857,
-   "name": "AH Cashewmix ongezouten 6-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "26.94",
-   "unit_price": null,
-   "unit_size": "6 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 617951,
-   "name": "AH Cashewnoten ongezouten 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "11.97",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 617952,
-   "name": "AH Cashewnoten ongezouten 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "15.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 617953,
-   "name": "AH Cashewnoten ongezouten 6-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "23.94",
-   "unit_price": null,
-   "unit_size": "6 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 620162,
-   "name": "AH Ongezouten cashewnoten 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "19.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 620163,
-   "name": "AH Ongezouten cashewnoten 6-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "29.94",
-   "unit_price": null,
-   "unit_size": "6 stuks"
   }
  ],
  "ongezouten cashewnoten": [
@@ -36084,90 +33528,6 @@
    "price": "4.49",
    "unit_price": "KG",
    "unit_size": "150 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 618856,
-   "name": "AH Cashewmix ongezouten 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "17.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 618857,
-   "name": "AH Cashewmix ongezouten 6-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "26.94",
-   "unit_price": null,
-   "unit_size": "6 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 617951,
-   "name": "AH Cashewnoten ongezouten 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "11.97",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 617952,
-   "name": "AH Cashewnoten ongezouten 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "15.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 617953,
-   "name": "AH Cashewnoten ongezouten 6-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "23.94",
-   "unit_price": null,
-   "unit_size": "6 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 620162,
-   "name": "AH Ongezouten cashewnoten 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "19.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 620163,
-   "name": "AH Ongezouten cashewnoten 6-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "29.94",
-   "unit_price": null,
-   "unit_size": "6 stuks"
   }
  ],
  "ongezouten cashewnotens": [
@@ -36338,90 +33698,6 @@
    "price": "4.49",
    "unit_price": "KG",
    "unit_size": "150 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 618856,
-   "name": "AH Cashewmix ongezouten 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "17.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 618857,
-   "name": "AH Cashewmix ongezouten 6-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "26.94",
-   "unit_price": null,
-   "unit_size": "6 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 617951,
-   "name": "AH Cashewnoten ongezouten 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "11.97",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 617952,
-   "name": "AH Cashewnoten ongezouten 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "15.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 617953,
-   "name": "AH Cashewnoten ongezouten 6-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "23.94",
-   "unit_price": null,
-   "unit_size": "6 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 620162,
-   "name": "AH Ongezouten cashewnoten 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "19.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 620163,
-   "name": "AH Ongezouten cashewnoten 6-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "29.94",
-   "unit_price": null,
-   "unit_size": "6 stuks"
   }
  ],
  "ongezouten romboter": [
@@ -36923,18 +34199,6 @@
   },
   {
    "available": true,
-   "brand": "Lurpak",
-   "category": "Zuivel, eieren",
-   "id": 548039,
-   "name": "Lurpak Roomboter ongezouten",
-   "nix18": false,
-   "organic": false,
-   "price": "2.89",
-   "unit_price": "KG",
-   "unit_size": "200 g"
-  },
-  {
-   "available": true,
    "brand": "De Zaanse Hoeve",
    "category": "Zuivel, eieren",
    "id": 514748,
@@ -36966,18 +34230,6 @@
    "nix18": false,
    "organic": false,
    "price": "2.59",
-   "unit_price": "KG",
-   "unit_size": "250 g"
-  },
-  {
-   "available": true,
-   "brand": "Lurpak",
-   "category": "Zuivel, eieren",
-   "id": 172761,
-   "name": "Lurpak Smeerbaar ongezouten",
-   "nix18": false,
-   "organic": false,
-   "price": "2.95",
    "unit_price": "KG",
    "unit_size": "250 g"
   },
@@ -37067,6 +34319,18 @@
   },
   {
    "available": true,
+   "brand": "Lurpak",
+   "category": "Zuivel, eieren",
+   "id": 548039,
+   "name": "Lurpak Roomboter ongezouten",
+   "nix18": false,
+   "organic": false,
+   "price": "2.89",
+   "unit_price": "KG",
+   "unit_size": "200 g"
+  },
+  {
+   "available": true,
    "brand": "Campina",
    "category": "Zuivel, eieren",
    "id": 60374,
@@ -37148,6 +34412,18 @@
    "price": "3.39",
    "unit_price": "KG",
    "unit_size": "250 g"
+  },
+  {
+   "available": true,
+   "brand": "Campina",
+   "category": "Zuivel, eieren",
+   "id": 465868,
+   "name": "Campina Botergoud ongezouten roomboter",
+   "nix18": false,
+   "organic": false,
+   "price": "1.85",
+   "unit_price": "KG",
+   "unit_size": "125 g"
   }
  ],
  "ongezouten roomboters": [
@@ -37476,78 +34752,6 @@
    "price": "1.25",
    "unit_price": "KG",
    "unit_size": "85 g"
-  },
-  {
-   "available": true,
-   "brand": "Ella's kitchen",
-   "category": "Baby en kind",
-   "id": 628828,
-   "name": "Ella's kitchen Wortels, appels, pastinaak 4m+ bio 5-pk",
-   "nix18": false,
-   "organic": false,
-   "price": "9.95",
-   "unit_price": null,
-   "unit_size": "5 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Ella's kitchen",
-   "category": "Baby en kind",
-   "id": 628760,
-   "name": "Ella's kitchen Wortels, appels,pastinaak 4m+ bio 3-pk",
-   "nix18": false,
-   "organic": false,
-   "price": "5.97",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Ella's kitchen",
-   "category": "Baby en kind",
-   "id": 628794,
-   "name": "Ella's kitchen Wortels, appels,pastinaak 4m+ bio 4-pk",
-   "nix18": false,
-   "organic": false,
-   "price": "7.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Ella's kitchen",
-   "category": "Baby en kind",
-   "id": 628753,
-   "name": "Ella's kitchen Maize puffs wortel + pastinaak 6m+ 3-pck",
-   "nix18": false,
-   "organic": false,
-   "price": "5.07",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Ella's kitchen",
-   "category": "Baby en kind",
-   "id": 628787,
-   "name": "Ella's kitchen Maize puffs wortel + pastinaak 6m+ 4-pck",
-   "nix18": false,
-   "organic": false,
-   "price": "6.76",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Ella's kitchen",
-   "category": "Baby en kind",
-   "id": 628821,
-   "name": "Ella's kitchen Maize puffs wortel + pastinaak 6m+ 5-pck",
-   "nix18": false,
-   "organic": false,
-   "price": "8.45",
-   "unit_price": null,
-   "unit_size": "5 stuks"
   }
  ],
  "pastinak": [
@@ -37612,7 +34816,7 @@
    "unit_size": "20 g"
   },
   {
-   "available": false,
+   "available": true,
    "brand": "AH Biologisch",
    "category": "Baby en kind",
    "id": 452242,
@@ -37634,78 +34838,6 @@
    "price": "1.25",
    "unit_price": "KG",
    "unit_size": "85 g"
-  },
-  {
-   "available": true,
-   "brand": "Ella's kitchen",
-   "category": "Baby en kind",
-   "id": 628828,
-   "name": "Ella's kitchen Wortels, appels, pastinaak 4m+ bio 5-pk",
-   "nix18": false,
-   "organic": false,
-   "price": "9.95",
-   "unit_price": null,
-   "unit_size": "5 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Ella's kitchen",
-   "category": "Baby en kind",
-   "id": 628760,
-   "name": "Ella's kitchen Wortels, appels,pastinaak 4m+ bio 3-pk",
-   "nix18": false,
-   "organic": false,
-   "price": "5.97",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Ella's kitchen",
-   "category": "Baby en kind",
-   "id": 628794,
-   "name": "Ella's kitchen Wortels, appels,pastinaak 4m+ bio 4-pk",
-   "nix18": false,
-   "organic": false,
-   "price": "7.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Ella's kitchen",
-   "category": "Baby en kind",
-   "id": 628753,
-   "name": "Ella's kitchen Maize puffs wortel + pastinaak 6m+ 3-pck",
-   "nix18": false,
-   "organic": false,
-   "price": "5.07",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Ella's kitchen",
-   "category": "Baby en kind",
-   "id": 628787,
-   "name": "Ella's kitchen Maize puffs wortel + pastinaak 6m+ 4-pck",
-   "nix18": false,
-   "organic": false,
-   "price": "6.76",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Ella's kitchen",
-   "category": "Baby en kind",
-   "id": 628821,
-   "name": "Ella's kitchen Maize puffs wortel + pastinaak 6m+ 5-pck",
-   "nix18": false,
-   "organic": false,
-   "price": "8.45",
-   "unit_price": null,
-   "unit_size": "5 stuks"
   }
  ],
  "pastinaken": [
@@ -37770,7 +34902,7 @@
    "unit_size": "20 g"
   },
   {
-   "available": false,
+   "available": true,
    "brand": "AH Biologisch",
    "category": "Baby en kind",
    "id": 452242,
@@ -37792,78 +34924,6 @@
    "price": "1.25",
    "unit_price": "KG",
    "unit_size": "85 g"
-  },
-  {
-   "available": true,
-   "brand": "Ella's kitchen",
-   "category": "Baby en kind",
-   "id": 628828,
-   "name": "Ella's kitchen Wortels, appels, pastinaak 4m+ bio 5-pk",
-   "nix18": false,
-   "organic": false,
-   "price": "9.95",
-   "unit_price": null,
-   "unit_size": "5 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Ella's kitchen",
-   "category": "Baby en kind",
-   "id": 628760,
-   "name": "Ella's kitchen Wortels, appels,pastinaak 4m+ bio 3-pk",
-   "nix18": false,
-   "organic": false,
-   "price": "5.97",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Ella's kitchen",
-   "category": "Baby en kind",
-   "id": 628794,
-   "name": "Ella's kitchen Wortels, appels,pastinaak 4m+ bio 4-pk",
-   "nix18": false,
-   "organic": false,
-   "price": "7.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Ella's kitchen",
-   "category": "Baby en kind",
-   "id": 628753,
-   "name": "Ella's kitchen Maize puffs wortel + pastinaak 6m+ 3-pck",
-   "nix18": false,
-   "organic": false,
-   "price": "5.07",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Ella's kitchen",
-   "category": "Baby en kind",
-   "id": 628787,
-   "name": "Ella's kitchen Maize puffs wortel + pastinaak 6m+ 4-pck",
-   "nix18": false,
-   "organic": false,
-   "price": "6.76",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Ella's kitchen",
-   "category": "Baby en kind",
-   "id": 628821,
-   "name": "Ella's kitchen Maize puffs wortel + pastinaak 6m+ 5-pck",
-   "nix18": false,
-   "organic": false,
-   "price": "8.45",
-   "unit_price": null,
-   "unit_size": "5 stuks"
   }
  ],
  "peer": [
@@ -38506,78 +35566,6 @@
    "price": "2.19",
    "unit_price": "",
    "unit_size": "per stuk"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 621008,
-   "name": "AH Vis ovenschotel met peterselie 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 621009,
-   "name": "AH Vis ovenschotel met peterselie 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 621010,
-   "name": "AH Vis ovenschotel met peterselie 5-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "5 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 622838,
-   "name": "AH Krokante zalmstick citron peterselie 2pk",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 622839,
-   "name": "AH Krokante zalmstick citron peterselie 3pk",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 622840,
-   "name": "AH Krokante zalmstick citron peterselie 4pk",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "4 stuks"
   }
  ],
  "peterselie": [
@@ -38736,78 +35724,6 @@
    "price": "2.19",
    "unit_price": "",
    "unit_size": "per stuk"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 621008,
-   "name": "AH Vis ovenschotel met peterselie 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 621009,
-   "name": "AH Vis ovenschotel met peterselie 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 621010,
-   "name": "AH Vis ovenschotel met peterselie 5-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "5 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 622838,
-   "name": "AH Krokante zalmstick citron peterselie 2pk",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 622839,
-   "name": "AH Krokante zalmstick citron peterselie 3pk",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 622840,
-   "name": "AH Krokante zalmstick citron peterselie 4pk",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "4 stuks"
   }
  ],
  "peterselies": [
@@ -38966,78 +35882,6 @@
    "price": "2.19",
    "unit_price": "",
    "unit_size": "per stuk"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 621008,
-   "name": "AH Vis ovenschotel met peterselie 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 621009,
-   "name": "AH Vis ovenschotel met peterselie 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 621010,
-   "name": "AH Vis ovenschotel met peterselie 5-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "5 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 622838,
-   "name": "AH Krokante zalmstick citron peterselie 2pk",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 622839,
-   "name": "AH Krokante zalmstick citron peterselie 3pk",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 622840,
-   "name": "AH Krokante zalmstick citron peterselie 4pk",
-   "nix18": false,
-   "organic": false,
-   "price": "None",
-   "unit_price": null,
-   "unit_size": "4 stuks"
   }
  ],
  "pinda kaas": [
@@ -39969,13 +36813,13 @@
    "available": true,
    "brand": "Calvé",
    "category": "Ontbijtgranen, beleg",
-   "id": 32847,
-   "name": "Calvé Pindakaas stukjes pinda",
+   "id": 232946,
+   "name": "Calvé Pindakaas pot",
    "nix18": false,
    "organic": false,
-   "price": "3.55",
+   "price": "7.19",
    "unit_price": "KG",
-   "unit_size": "350 g"
+   "unit_size": "1000 g"
   },
   {
    "available": true,
@@ -40017,13 +36861,13 @@
    "available": true,
    "brand": "Calvé",
    "category": "Ontbijtgranen, beleg",
-   "id": 220740,
-   "name": "Calvé Pindakaas met stukjes pinda",
+   "id": 32847,
+   "name": "Calvé Pindakaas stukjes pinda",
    "nix18": false,
    "organic": false,
-   "price": "4.79",
+   "price": "3.55",
    "unit_price": "KG",
-   "unit_size": "650 g"
+   "unit_size": "350 g"
   },
   {
    "available": true,
@@ -40147,6 +36991,18 @@
   },
   {
    "available": true,
+   "brand": "Calvé",
+   "category": "Ontbijtgranen, beleg",
+   "id": 220740,
+   "name": "Calvé Pindakaas met stukjes pinda",
+   "nix18": false,
+   "organic": false,
+   "price": "4.79",
+   "unit_price": "KG",
+   "unit_size": "650 g"
+  },
+  {
+   "available": true,
    "brand": "AH Terra",
    "category": "Ontbijtgranen, beleg",
    "id": 564841,
@@ -40156,18 +37012,6 @@
    "price": "2.79",
    "unit_price": "KG",
    "unit_size": "350 g"
-  },
-  {
-   "available": true,
-   "brand": "Calvé",
-   "category": "Ontbijtgranen, beleg",
-   "id": 232946,
-   "name": "Calvé Pindakaas pot",
-   "nix18": false,
-   "organic": false,
-   "price": "7.19",
-   "unit_price": "KG",
-   "unit_size": "1000 g"
   },
   {
    "available": true,
@@ -41702,42 +38546,6 @@
    "price": "5.49",
    "unit_price": "KG",
    "unit_size": "350 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Groente, aardappelen",
-   "id": 620467,
-   "name": "AH Rode uienringen zoetzuur 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.07",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Groente, aardappelen",
-   "id": 620468,
-   "name": "AH Rode uienringen zoetzuur 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "6.76",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Groente, aardappelen",
-   "id": 620466,
-   "name": "AH Rode uienringen zoetzuur 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.38",
-   "unit_price": null,
-   "unit_size": "2 stuks"
   }
  ],
  "rode uien": [
@@ -41824,42 +38632,6 @@
    "price": "2.19",
    "unit_price": "KG",
    "unit_size": "680 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Groente, aardappelen",
-   "id": 620468,
-   "name": "AH Rode uienringen zoetzuur 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "6.76",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Groente, aardappelen",
-   "id": 620467,
-   "name": "AH Rode uienringen zoetzuur 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.07",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Groente, aardappelen",
-   "id": 620466,
-   "name": "AH Rode uienringen zoetzuur 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.38",
-   "unit_price": null,
-   "unit_size": "2 stuks"
   }
  ],
  "rozemarijn": [
@@ -42406,18 +39178,6 @@
    "price": "0.89",
    "unit_price": "KG",
    "unit_size": "280 g"
-  },
-  {
-   "available": true,
-   "brand": "Conimex",
-   "category": "Pasta, rijst, wereldkeuken",
-   "id": 628407,
-   "name": "Conimex Sambal Oelek 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.5",
-   "unit_price": null,
-   "unit_size": "2 stuks"
   }
  ],
  "sambal oelekken": [
@@ -42531,18 +39291,6 @@
   },
   {
    "available": true,
-   "brand": "AH",
-   "category": "Kaas",
-   "id": 627592,
-   "name": "AH Gemarineerde kaasblokjes sambal",
-   "nix18": false,
-   "organic": false,
-   "price": "2.79",
-   "unit_price": "KG",
-   "unit_size": "100 g"
-  },
-  {
-   "available": true,
    "brand": "Koningsvogel",
    "category": "Soepen, sauzen, kruiden, olie",
    "id": 591784,
@@ -42600,6 +39348,18 @@
    "price": "3.89",
    "unit_price": "KG",
    "unit_size": "280 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 627592,
+   "name": "AH Gemarineerde kaasblokjes sambal",
+   "nix18": false,
+   "organic": false,
+   "price": "2.79",
+   "unit_price": "KG",
+   "unit_size": "100 g"
   },
   {
    "available": true,
@@ -43758,18 +40518,6 @@
    "price": "1.39",
    "unit_price": "KG",
    "unit_size": "100 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Ontbijtgranen, beleg",
-   "id": 580063,
-   "name": "AH Sesamzaad 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.98",
-   "unit_price": null,
-   "unit_size": "2 stuks"
   }
  ],
  "sesamzad": [
@@ -43844,18 +40592,6 @@
    "price": "2.19",
    "unit_price": "KG",
    "unit_size": "150 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Ontbijtgranen, beleg",
-   "id": 580063,
-   "name": "AH Sesamzaad 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.98",
-   "unit_price": null,
-   "unit_size": "2 stuks"
   }
  ],
  "sesamzaden": [
@@ -43930,18 +40666,6 @@
    "price": "2.19",
    "unit_price": "KG",
    "unit_size": "150 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Ontbijtgranen, beleg",
-   "id": 580063,
-   "name": "AH Sesamzaad 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.98",
-   "unit_price": null,
-   "unit_size": "2 stuks"
   }
  ],
  "silken tofu": [
@@ -44837,18 +41561,6 @@
   },
   {
    "available": true,
-   "brand": "Almhof",
-   "category": "Zuivel, eieren",
-   "id": 493085,
-   "name": "Almhof Choco met echte slagroom karamel",
-   "nix18": false,
-   "organic": false,
-   "price": "1.59",
-   "unit_price": "KG",
-   "unit_size": "180 g"
-  },
-  {
-   "available": true,
    "brand": "AH",
    "category": "Zuivel, eieren",
    "id": 509633,
@@ -44882,18 +41594,6 @@
    "price": "1.99",
    "unit_price": "KG",
    "unit_size": "250 g"
-  },
-  {
-   "available": true,
-   "brand": "Almhof",
-   "category": "Zuivel, eieren",
-   "id": 474625,
-   "name": "Almhof Choco met echte slagroom original",
-   "nix18": false,
-   "organic": false,
-   "price": "1.59",
-   "unit_price": "KG",
-   "unit_size": "180 g"
   },
   {
    "available": true,
@@ -45062,6 +41762,30 @@
    "price": "3.59",
    "unit_price": "KG",
    "unit_size": "150 g"
+  },
+  {
+   "available": true,
+   "brand": "Campina",
+   "category": "Zuivel, eieren",
+   "id": 68022,
+   "name": "Campina Vla slagroom vanille smaak",
+   "nix18": false,
+   "organic": false,
+   "price": "2.39",
+   "unit_price": "LT",
+   "unit_size": "1 l"
+  },
+  {
+   "available": true,
+   "brand": "Dr. Oetker",
+   "category": "Zuivel, eieren",
+   "id": 601762,
+   "name": "Dr. Oetker Slagschuim",
+   "nix18": false,
+   "organic": false,
+   "price": "2.69",
+   "unit_price": "KG",
+   "unit_size": "70 g"
   }
  ],
  "soja saus": [
@@ -46887,18 +43611,6 @@
   },
   {
    "available": true,
-   "brand": "Plaza Foods",
-   "category": "Maaltijden, salades",
-   "id": 624605,
-   "name": "Plaza Foods Sticky tempeh met sajoerboontjes",
-   "nix18": false,
-   "organic": false,
-   "price": "3.99",
-   "unit_price": "KG",
-   "unit_size": "250 g"
-  },
-  {
-   "available": true,
    "brand": "AH Terra",
    "category": "Vegetarisch, vegan en plantaardig",
    "id": 572429,
@@ -46992,6 +43704,18 @@
    "price": "6.99",
    "unit_price": "KG",
    "unit_size": "450 g"
+  },
+  {
+   "available": true,
+   "brand": "Plaza Foods",
+   "category": "Maaltijden, salades",
+   "id": 624605,
+   "name": "Plaza Foods Sticky tempeh met sajoerboontjes",
+   "nix18": false,
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "KG",
+   "unit_size": "250 g"
   }
  ],
  "tempehen": [
@@ -47021,18 +43745,6 @@
   },
   {
    "available": true,
-   "brand": "Plaza Foods",
-   "category": "Maaltijden, salades",
-   "id": 624605,
-   "name": "Plaza Foods Sticky tempeh met sajoerboontjes",
-   "nix18": false,
-   "organic": false,
-   "price": "3.99",
-   "unit_price": "KG",
-   "unit_size": "250 g"
-  },
-  {
-   "available": true,
    "brand": "AH Terra",
    "category": "Vegetarisch, vegan en plantaardig",
    "id": 587232,
@@ -47054,6 +43766,18 @@
    "price": "2.39",
    "unit_price": "KG",
    "unit_size": "160 g"
+  },
+  {
+   "available": true,
+   "brand": "Plaza Foods",
+   "category": "Maaltijden, salades",
+   "id": 624605,
+   "name": "Plaza Foods Sticky tempeh met sajoerboontjes",
+   "nix18": false,
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "KG",
+   "unit_size": "250 g"
   },
   {
    "available": true,
@@ -47284,90 +44008,6 @@
    "price": "2.99",
    "unit_price": "KG",
    "unit_size": "200 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Bakkerij",
-   "id": 622731,
-   "name": "AH Snackcrackers tijm & rozemarijn 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "7.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Bakkerij",
-   "id": 622730,
-   "name": "AH Snackcrackers tijm & rozemarijn 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "5.97",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Ella's kitchen",
-   "category": "Baby en kind",
-   "id": 628772,
-   "name": "Ella's kitchen Kiplekkere ovenschotel met tijm 8m+ 3-pk",
-   "nix18": false,
-   "organic": false,
-   "price": "9.27",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Aviko",
-   "category": "Diepvries",
-   "id": 614560,
-   "name": "Aviko Aardappel gratin tijm rozemarijn 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "17.97",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Ella's kitchen",
-   "category": "Baby en kind",
-   "id": 628806,
-   "name": "Ella's kitchen Kiplekkere ovenschotel met tijm 8m+ 4-pk",
-   "nix18": false,
-   "organic": false,
-   "price": "12.36",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Ella's kitchen",
-   "category": "Baby en kind",
-   "id": 628840,
-   "name": "Ella's kitchen Kiplekkere ovenschotel met tijm 8m+ 5-pk",
-   "nix18": false,
-   "organic": false,
-   "price": "15.45",
-   "unit_price": null,
-   "unit_size": "5 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Bakkerij",
-   "id": 622729,
-   "name": "AH Snackcrackers tijm & rozemarijn 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "3.98",
-   "unit_price": null,
-   "unit_size": "2 stuks"
   }
  ],
  "tijmen": [
@@ -48133,30 +44773,6 @@
    "price": "0.59",
    "unit_price": "KG",
    "unit_size": "400 g"
-  },
-  {
-   "available": true,
-   "brand": "Heinz",
-   "category": "Pasta, rijst, wereldkeuken",
-   "id": 612281,
-   "name": "Heinz Tomaten blokjes naturel 6-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "8.1",
-   "unit_price": null,
-   "unit_size": "6 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Heinz",
-   "category": "Pasta, rijst, wereldkeuken",
-   "id": 612280,
-   "name": "Heinz Tomaten blokjes naturel 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "4.05",
-   "unit_price": null,
-   "unit_size": "3 stuks"
   }
  ],
  "tomatenblokjes": [
@@ -48267,30 +44883,6 @@
    "price": "0.59",
    "unit_price": "KG",
    "unit_size": "400 g"
-  },
-  {
-   "available": true,
-   "brand": "Heinz",
-   "category": "Pasta, rijst, wereldkeuken",
-   "id": 612280,
-   "name": "Heinz Tomaten blokjes naturel 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "4.05",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Heinz",
-   "category": "Pasta, rijst, wereldkeuken",
-   "id": 612281,
-   "name": "Heinz Tomaten blokjes naturel 6-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "8.1",
-   "unit_price": null,
-   "unit_size": "6 stuks"
   }
  ],
  "tomatenblokjesen": [
@@ -48401,30 +44993,6 @@
    "price": "0.59",
    "unit_price": "KG",
    "unit_size": "400 g"
-  },
-  {
-   "available": true,
-   "brand": "Heinz",
-   "category": "Pasta, rijst, wereldkeuken",
-   "id": 612281,
-   "name": "Heinz Tomaten blokjes naturel 6-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "8.1",
-   "unit_price": null,
-   "unit_size": "6 stuks"
-  },
-  {
-   "available": true,
-   "brand": "Heinz",
-   "category": "Pasta, rijst, wereldkeuken",
-   "id": 612280,
-   "name": "Heinz Tomaten blokjes naturel 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "4.05",
-   "unit_price": null,
-   "unit_size": "3 stuks"
   }
  ],
  "tomatens": [
@@ -48625,18 +45193,6 @@
   {
    "available": true,
    "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 627581,
-   "name": "AH Kleintje boter gekarameliseerde ui",
-   "nix18": false,
-   "organic": false,
-   "price": "1.49",
-   "unit_price": "KG",
-   "unit_size": "40 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
    "category": "Groente, aardappelen",
    "id": 439146,
    "name": "AH Rode uien",
@@ -48685,6 +45241,18 @@
   {
    "available": true,
    "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 627581,
+   "name": "AH Kleintje boter gekarameliseerde ui",
+   "nix18": false,
+   "organic": false,
+   "price": "1.49",
+   "unit_price": "KG",
+   "unit_size": "40 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
    "category": "Groente, aardappelen",
    "id": 230679,
    "name": "AH Uienmix",
@@ -48717,18 +45285,6 @@
    "price": "3.29",
    "unit_price": "LT",
    "unit_size": "390 ml"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 627588,
-   "name": "AH Loaded rookworst kaas en ui",
-   "nix18": false,
-   "organic": false,
-   "price": "3.99",
-   "unit_price": "KG",
-   "unit_size": "160 g"
   },
   {
    "available": true,
@@ -48801,6 +45357,18 @@
    "price": "3.95",
    "unit_price": "KG",
    "unit_size": "250 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 415088,
+   "name": "AH Uienstreng",
+   "nix18": false,
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "KG",
+   "unit_size": "1 kg"
   }
  ],
  "uien": [
@@ -48831,14 +45399,14 @@
   {
    "available": true,
    "brand": "AH",
-   "category": "Kaas",
-   "id": 604957,
-   "name": "AH Uienchutney truffelsmaak",
+   "category": "Borrel, chips, snacks",
+   "id": 627588,
+   "name": "AH Loaded rookworst kaas en ui",
    "nix18": false,
    "organic": false,
-   "price": "1.79",
+   "price": "3.99",
    "unit_price": "KG",
-   "unit_size": "110 g"
+   "unit_size": "160 g"
   },
   {
    "available": true,
@@ -48851,6 +45419,18 @@
    "price": "2.09",
    "unit_price": "KG",
    "unit_size": "175 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 627581,
+   "name": "AH Kleintje boter gekarameliseerde ui",
+   "nix18": false,
+   "organic": false,
+   "price": "1.49",
+   "unit_price": "KG",
+   "unit_size": "40 g"
   },
   {
    "available": true,
@@ -48891,18 +45471,6 @@
   {
    "available": true,
    "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 627581,
-   "name": "AH Kleintje boter gekarameliseerde ui",
-   "nix18": false,
-   "organic": false,
-   "price": "1.49",
-   "unit_price": "KG",
-   "unit_size": "40 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
    "category": "Groente, aardappelen",
    "id": 439146,
    "name": "AH Rode uien",
@@ -48923,6 +45491,18 @@
    "price": "1.79",
    "unit_price": "",
    "unit_size": "3 stuks"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 604957,
+   "name": "AH Uienchutney truffelsmaak",
+   "nix18": false,
+   "organic": false,
+   "price": "1.79",
+   "unit_price": "KG",
+   "unit_size": "110 g"
   },
   {
    "available": true,
@@ -49031,18 +45611,6 @@
    "price": "1.69",
    "unit_price": "KG",
    "unit_size": "110 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Koken, tafelen, vrije tijd",
-   "id": 514253,
-   "name": "AH Papieren uitdeelzakjes",
-   "nix18": false,
-   "organic": false,
-   "price": "1.69",
-   "unit_price": "",
-   "unit_size": "8 stuks"
   }
  ],
  "varkensbraadworst": [
@@ -49540,18 +46108,6 @@
    "available": true,
    "brand": "AH",
    "category": "Groente, aardappelen",
-   "id": 4076,
-   "name": "AH Winterpeen",
-   "nix18": false,
-   "organic": false,
-   "price": "1.39",
-   "unit_price": "KG",
-   "unit_size": "1 kg"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Groente, aardappelen",
    "id": 99036,
    "name": "AH Winterpeen",
    "nix18": false,
@@ -49559,6 +46115,18 @@
    "price": "0.39",
    "unit_price": "",
    "unit_size": "per stuk"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 4076,
+   "name": "AH Winterpeen",
+   "nix18": false,
+   "organic": false,
+   "price": "1.39",
+   "unit_price": "KG",
+   "unit_size": "1 kg"
   },
   {
    "available": true,
@@ -49647,18 +46215,6 @@
   {
    "available": true,
    "brand": "AH",
-   "category": "Groente, aardappelen",
-   "id": 221495,
-   "name": "AH Wortelen",
-   "nix18": false,
-   "organic": false,
-   "price": "1.29",
-   "unit_price": "KG",
-   "unit_size": "500 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
    "category": "Soepen, sauzen, kruiden, olie",
    "id": 39144,
    "name": "AH Wortelen",
@@ -49667,6 +46223,18 @@
    "price": "1.05",
    "unit_price": "KG",
    "unit_size": "680 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Groente, aardappelen",
+   "id": 221495,
+   "name": "AH Wortelen",
+   "nix18": false,
+   "organic": false,
+   "price": "1.29",
+   "unit_price": "KG",
+   "unit_size": "500 g"
   },
   {
    "available": true,
@@ -51557,18 +48125,6 @@
    "price": "0.45",
    "unit_price": "KG",
    "unit_size": "400 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Pasta, rijst, wereldkeuken",
-   "id": 525287,
-   "name": "AH Witte snelkook rijst",
-   "nix18": false,
-   "organic": false,
-   "price": "0.65",
-   "unit_price": "prijs per kg €0.65",
-   "unit_size": "1 kg"
   }
  ],
  "witte snelkook rijst": [
@@ -52879,114 +49435,6 @@
    "price": "2.79",
    "unit_price": "KG",
    "unit_size": "250 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 602353,
-   "name": "AH Zalmfilet 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "11.18",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 598216,
-   "name": "AH Zalmfilet a  la minute 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "12.26",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 620610,
-   "name": "AH Warmgerookte zalmfilet 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "9.36",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 567218,
-   "name": "AH Zalmfilet 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "16.77",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 618357,
-   "name": "AH Zalmfilet 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "19.98",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH Biologisch",
-   "category": "Vis",
-   "id": 619655,
-   "name": "AH Biologisch Zalmfilet op huid 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "17.97",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 618358,
-   "name": "AH Zalmfilet 3 pk",
-   "nix18": false,
-   "organic": false,
-   "price": "29.97",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH Biologisch",
-   "category": "Vis",
-   "id": 619656,
-   "name": "AH Biologisch Zalmfilet op huid 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "23.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 567333,
-   "name": "AH Gerookte zalmfilet 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "13.77",
-   "unit_price": null,
-   "unit_size": "3 stuks"
   }
  ],
  "zalmfileten": [
@@ -53181,114 +49629,6 @@
    "price": "2.79",
    "unit_price": "KG",
    "unit_size": "250 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 602353,
-   "name": "AH Zalmfilet 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "11.18",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 598216,
-   "name": "AH Zalmfilet a  la minute 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "12.26",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 620610,
-   "name": "AH Warmgerookte zalmfilet 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "9.36",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 567218,
-   "name": "AH Zalmfilet 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "16.77",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 618357,
-   "name": "AH Zalmfilet 2-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "19.98",
-   "unit_price": null,
-   "unit_size": "2 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH Biologisch",
-   "category": "Vis",
-   "id": 619655,
-   "name": "AH Biologisch Zalmfilet op huid 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "17.97",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 618358,
-   "name": "AH Zalmfilet 3 pk",
-   "nix18": false,
-   "organic": false,
-   "price": "29.97",
-   "unit_price": null,
-   "unit_size": "3 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH Biologisch",
-   "category": "Vis",
-   "id": 619656,
-   "name": "AH Biologisch Zalmfilet op huid 4-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "23.96",
-   "unit_price": null,
-   "unit_size": "4 stuks"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Vis",
-   "id": 567333,
-   "name": "AH Gerookte zalmfilet 3-pack",
-   "nix18": false,
-   "organic": false,
-   "price": "13.77",
-   "unit_price": null,
-   "unit_size": "3 stuks"
   }
  ],
  "zalmzijd": [
@@ -53361,18 +49701,6 @@
   {
    "available": true,
    "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 627587,
-   "name": "AH Mini pompoentjes roomkaas",
-   "nix18": false,
-   "organic": false,
-   "price": "2.99",
-   "unit_price": "KG",
-   "unit_size": "100 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
    "category": "Kaas",
    "id": 506228,
    "name": "AH Zuivelspread naturel",
@@ -53381,6 +49709,18 @@
    "price": "1.37",
    "unit_price": "KG",
    "unit_size": "200 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 627622,
+   "name": "AH Roomkaasbal cranberry-pistache",
+   "nix18": false,
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "KG",
+   "unit_size": "120 g"
   },
   {
    "available": true,
@@ -53417,18 +49757,6 @@
    "price": "1.39",
    "unit_price": "KG",
    "unit_size": "200 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Kaas",
-   "id": 627621,
-   "name": "AH Roomkaasbal mango-perzik",
-   "nix18": false,
-   "organic": false,
-   "price": "2.99",
-   "unit_price": "KG",
-   "unit_size": "120 g"
   },
   {
    "available": true,
@@ -53542,6 +49870,18 @@
    "available": true,
    "brand": "AH",
    "category": "Borrel, chips, snacks",
+   "id": 627578,
+   "name": "AH Wrap zalmsalade bieslook roomkaas",
+   "nix18": false,
+   "organic": false,
+   "price": "3.99",
+   "unit_price": "KG",
+   "unit_size": "149 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
    "id": 605147,
    "name": "AH Zalmrolletjes roomkaas",
    "nix18": false,
@@ -53549,6 +49889,18 @@
    "price": "3.49",
    "unit_price": "KG",
    "unit_size": "80 g"
+  },
+  {
+   "available": true,
+   "brand": "AH",
+   "category": "Borrel, chips, snacks",
+   "id": 627587,
+   "name": "AH Mini pompoentjes roomkaas",
+   "nix18": false,
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "KG",
+   "unit_size": "100 g"
   },
   {
    "available": true,
@@ -53561,18 +49913,6 @@
    "price": "1.09",
    "unit_price": "KG",
    "unit_size": "125 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 627578,
-   "name": "AH Wrap zalmsalade bieslook roomkaas",
-   "nix18": false,
-   "organic": false,
-   "price": "3.99",
-   "unit_price": "KG",
-   "unit_size": "149 g"
   }
  ],
  "zuivelspread naturel": [
@@ -53666,6 +50006,18 @@
   },
   {
    "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 627621,
+   "name": "AH Roomkaasbal mango-perzik",
+   "nix18": false,
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "KG",
+   "unit_size": "120 g"
+  },
+  {
+   "available": true,
    "brand": "Heks'nkaas",
    "category": "Kaas",
    "id": 213365,
@@ -53726,6 +50078,18 @@
   },
   {
    "available": true,
+   "brand": "AH",
+   "category": "Kaas",
+   "id": 627622,
+   "name": "AH Roomkaasbal cranberry-pistache",
+   "nix18": false,
+   "organic": false,
+   "price": "2.99",
+   "unit_price": "KG",
+   "unit_size": "120 g"
+  },
+  {
+   "available": true,
    "brand": "Paturain",
    "category": "Kaas",
    "id": 1969,
@@ -53750,18 +50114,6 @@
   },
   {
    "available": true,
-   "brand": "AH",
-   "category": "Borrel, chips, snacks",
-   "id": 627587,
-   "name": "AH Mini pompoentjes roomkaas",
-   "nix18": false,
-   "organic": false,
-   "price": "2.99",
-   "unit_price": "KG",
-   "unit_size": "100 g"
-  },
-  {
-   "available": true,
    "brand": "Heks'nkaas",
    "category": "Kaas",
    "id": 218744,
@@ -53771,18 +50123,6 @@
    "price": "2.99",
    "unit_price": "KG",
    "unit_size": "150 g"
-  },
-  {
-   "available": true,
-   "brand": "AH",
-   "category": "Kaas",
-   "id": 627622,
-   "name": "AH Roomkaasbal cranberry-pistache",
-   "nix18": false,
-   "organic": false,
-   "price": "2.99",
-   "unit_price": "KG",
-   "unit_size": "120 g"
   },
   {
    "available": true,

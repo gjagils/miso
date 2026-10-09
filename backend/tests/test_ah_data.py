@@ -389,7 +389,12 @@ def test_search_products_maps_app_search(monkeypatch):
 
     client = AHClient()
 
-    async def fake_graphql(query, variables):
+    from app.clients import ah as ah_mod
+
+    ah_mod._SEARCH_CACHE.clear()
+
+    async def fake_graphql(query, variables, anonymous=False):
+        assert anonymous  # zoeken altijd anoniem: geen gedeelde gebruikerstokens
         assert "searchProducts" in query and variables == {"q": "parmaham"}
         return {"searchProducts": {"products": [{
             "id": 454461, "title": "AH Prosciutto di parma", "brand": "AH", "salesUnitSize": "90 g",
@@ -406,3 +411,40 @@ def test_search_products_maps_app_search(monkeypatch):
     p = asyncio.run(client.search_products("parmaham", size=10))[0]
     assert p["id"] == 454461 and p["unit_size"] == "90 g" and p["price"] == "3.79"
     assert p["category"] == "Vleeswaren" and p["organic"] and p["image_url"] == "m" and not p["nix18"]
+
+
+def test_search_is_cached_and_paced(monkeypatch):
+    import asyncio
+
+    from app.clients import ah as ah_mod
+    from app.clients.ah import AHClient
+
+    ah_mod._SEARCH_CACHE.clear()
+    calls = []
+
+    async def fake_graphql(query, variables, anonymous=False):
+        calls.append(variables["q"])
+        return {"searchProducts": {"products": [{"id": i, "title": f"P{i}"} for i in range(10)]}}
+
+    client = AHClient()
+    monkeypatch.setattr(client, "graphql", fake_graphql)
+    asyncio.run(client.search_products("Ui", 20))
+    asyncio.run(client.search_products(" ui ", 20))
+    assert calls == ["Ui"]
+
+
+def test_polite_retries_on_429(monkeypatch):
+    import asyncio
+
+    import httpx
+
+    from app.clients import ah as ah_mod
+
+    real_sleep = asyncio.sleep
+    monkeypatch.setattr(ah_mod.asyncio, "sleep", lambda s: real_sleep(0))
+    answers = [httpx.Response(429), httpx.Response(200, json={})]
+
+    async def send():
+        return answers.pop(0)
+
+    assert asyncio.run(ah_mod._polite(send)).status_code == 200
