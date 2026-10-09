@@ -203,6 +203,11 @@ def _summarize_order(order: dict) -> dict:
             "delivery": (order.get("deliveryInformation") or {}).get("deliveryDate")}
 
 
+def _order_id(order: dict) -> str | None:
+    oid = order.get("id") or order.get("orderId")
+    return str(oid) if oid else None
+
+
 @router.get("/api/basket")
 async def api_basket(db: Session = Depends(get_db)):
     if not _use_user_tokens(db):
@@ -222,20 +227,25 @@ async def api_basket_fill(payload: BasketPayload, db: Session = Depends(get_db))
     if not _use_user_tokens(db):
         return {"ok": False, "error": "AH niet gekoppeld. Ga naar Instellingen."}
     try:
-        current = {i["product_id"]: i["quantity"] for i in _summarize_order(await get_active_order(ah_client))["items"]}
+        order = await get_active_order(ah_client)
+        order_id = _order_id(order)
+        current = {i["product_id"]: i["quantity"] for i in _summarize_order(order)["items"]}
         items = [{"product_id": c["product_id"], "quantity": current.get(c["product_id"], 0) + c["quantity"]}
                  for c in cart]
         await set_order_items(ah_client, items)
     except Exception as e:  # noqa: BLE001
         logger.error("Basket fill failed: %s", e)
         return {"ok": False, "error": str(e)}
-    rows = {r.product_id: r for r in db.execute(select(BasketPush)).scalars()}
+    for old in db.execute(select(BasketPush).where(BasketPush.order_id != order_id)).scalars():
+        db.delete(old)  # hoorde bij een eerdere (geplaatste) bestelling: niet meer van ons
+    rows = {r.product_id: r for r in db.execute(select(BasketPush).where(BasketPush.order_id == order_id)).scalars()}
     for c in cart:
         row = rows.get(c["product_id"])
         if row:
             row.quantity += c["quantity"]
         else:
-            db.add(BasketPush(product_id=c["product_id"], quantity=c["quantity"], name=c.get("name", "")))
+            db.add(BasketPush(product_id=c["product_id"], quantity=c["quantity"], name=c.get("name", ""),
+                              order_id=order_id))
     db.commit()
     return {"ok": True, "added": len(cart)}
 
@@ -243,20 +253,25 @@ async def api_basket_fill(payload: BasketPayload, db: Session = Depends(get_db))
 @router.post("/api/basket/clear")
 async def api_basket_clear(db: Session = Depends(get_db)):
     """Haalt weg wat Miso in het mandje zette (de rest van het mandje blijft staan). Bestelt niets."""
-    pushes = list(db.execute(select(BasketPush)).scalars())
-    if not pushes:
+    all_pushes = list(db.execute(select(BasketPush)).scalars())
+    if not all_pushes:
         return {"ok": True, "removed": 0}
     if not _use_user_tokens(db):
         return {"ok": False, "error": "AH niet gekoppeld. Ga naar Instellingen."}
     try:
-        current = {i["product_id"]: i["quantity"] for i in _summarize_order(await get_active_order(ah_client))["items"]}
+        order = await get_active_order(ah_client)
+        order_id = _order_id(order)
+        # alleen wat Miso in dít mandje zette; oude regels (eerdere bestelling) laten we met rust
+        pushes = [p for p in all_pushes if p.order_id in (order_id, None)]
+        current = {i["product_id"]: i["quantity"] for i in _summarize_order(order)["items"]}
         items = [{"product_id": p.product_id, "quantity": max(0, current.get(p.product_id, 0) - p.quantity)}
                  for p in pushes]
-        await set_order_items(ah_client, items)
+        if items:
+            await set_order_items(ah_client, items)
     except Exception as e:  # noqa: BLE001
         logger.error("Basket clear failed: %s", e)
         return {"ok": False, "error": str(e)}
-    for p in pushes:
+    for p in all_pushes:
         db.delete(p)
     db.commit()
     return {"ok": True, "removed": len(pushes)}

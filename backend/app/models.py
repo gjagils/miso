@@ -144,6 +144,7 @@ class BasketPush(Base):
     product_id: Mapped[int] = mapped_column(Integer, index=True)
     quantity: Mapped[int] = mapped_column(Integer, default=0)
     name: Mapped[str] = mapped_column(String(500), default="")
+    order_id: Mapped[str | None] = mapped_column(String(60), nullable=True)  # bij welke AH-bestelling
 
 
 class RecipeProfile(Base):

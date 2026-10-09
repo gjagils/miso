@@ -23,6 +23,9 @@ COLUMNS: dict[str, dict[str, str]] = {
     "freezer_items": {
         "source_entry_id": "INTEGER",
     },
+    "basket_pushes": {
+        "order_id": "VARCHAR(60)",
+    },
 }
 
 

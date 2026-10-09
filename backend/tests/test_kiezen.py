@@ -123,3 +123,25 @@ def test_pick_image():
     assert _pick_image(imgs, 2000) == "b"
     assert _pick_image(None) == ""
     assert convert_ah_recipe(RAW)["image_url"] == ""
+
+
+def test_basket_clear_ignores_previous_order(db, monkeypatch):
+    from app.api import shopping
+    from app.models import AppSetting, BasketPush
+
+    db.add(AppSetting(key="ah_user_token", value="t"))
+    db.add(BasketPush(product_id=1, quantity=2, name="oud", order_id="111"))  # vorige, geplaatste bestelling
+    db.commit()
+    sent = []
+
+    async def fake_active(client_obj):
+        return {"id": 222, "orderedProducts": []}
+
+    async def fake_set(client_obj, items):
+        sent.append(items)
+
+    monkeypatch.setattr(shopping, "get_active_order", fake_active)
+    monkeypatch.setattr(shopping, "set_order_items", fake_set)
+    res = TestClient(app).post("/api/basket/clear", json={}).json()
+    assert res == {"ok": True, "removed": 0} and sent == []  # niets uit het nieuwe mandje gehaald
+    assert db.query(BasketPush).count() == 0
