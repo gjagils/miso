@@ -67,7 +67,7 @@ struct ConnectView: View {
     }
 
     private func fillServer() {
-        server = session.serverURL
+        server = session.serverURL.isEmpty ? "https://miso.gerdjan.nl" : session.serverURL  // gezinsserver
     }
 
     private func startConnect() {
