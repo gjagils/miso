@@ -73,3 +73,21 @@ def test_grocery_wish_to_list(fam, monkeypatch):
     assert "koekjes" in client.get("/plannen").text
     out = client.post(f"/api/wishes/{w['id']}/to-list").json()
     assert out["ok"] and out["product"] == "AH Stroopwafels" and "p=77" in out["url"] and out["wishes"] == []
+
+
+def test_avatar_upload_private(fam, tmp_path, monkeypatch):
+    import io
+
+    from PIL import Image
+
+    from app import members
+
+    monkeypatch.setattr(members, "AVATAR_DIR", str(tmp_path))
+    buf = io.BytesIO()
+    Image.new("RGBA", (300, 400), (255, 0, 0, 255)).save(buf, format="PNG")
+    client = TestClient(app)
+    out = client.post("/api/members/hannah/avatar", files={"photo": ("h.png", buf.getvalue(), "image/png")}).json()
+    assert out["ok"] and out["avatar_url"].startswith("/avatar/hannah?v=")
+    assert client.get("/avatar/hannah").status_code == 200
+    assert any(m["avatar_url"] for m in client.get("/api/members").json()["members"])
+    assert "/avatar/" not in __import__("app.main", fromlist=["PUBLIC_PREFIXES"]).PUBLIC_PREFIXES  # achter de pincode

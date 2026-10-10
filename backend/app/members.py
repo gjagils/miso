@@ -5,6 +5,7 @@ Wie er tikt staat in de cookie `miso_member` (web) of de header `X-Miso-Member` 
 """
 
 import json
+import os
 import re
 
 from fastapi import Request
@@ -23,6 +24,14 @@ def slug(name: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-") or "lid"
 
 
+AVATAR_DIR = os.path.join("data", "avatars")  # niet in de (openbare) repo en niet onder /static: alleen na inloggen
+
+
+def avatar_url(mid: str) -> str:
+    path = os.path.join(AVATAR_DIR, f"{mid}.png")
+    return f"/avatar/{mid}?v={int(os.path.getmtime(path))}" if os.path.exists(path) else ""
+
+
 def all_members(db: Session) -> list[dict]:
     from app.api.routes import _get_setting
 
@@ -31,7 +40,8 @@ def all_members(db: Session) -> list[dict]:
         members = json.loads(raw) if raw else DEFAULT
     except ValueError:
         members = DEFAULT
-    return [{**m, "initial": m["name"][:1].upper(), "color": COLORS[i % len(COLORS)]} for i, m in enumerate(members)]
+    return [{**m, "initial": m["name"][:1].upper(), "color": COLORS[i % len(COLORS)], "avatar_url": avatar_url(m["id"])}
+            for i, m in enumerate(members)]
 
 
 def save_members(db: Session, members: list[dict]) -> list[dict]:

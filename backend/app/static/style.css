@@ -844,3 +844,5 @@ dialog.mp::backdrop { background: rgba(14, 42, 71, 0.5); }
 .list-badge.ok { background: rgba(123, 200, 164, 0.25); }
 .list-badge.todo { background: rgba(255, 138, 0, 0.2); }
 .ls-todo { padding-left: 1.2rem; margin: 0.4rem 0 0.6rem; }
+.me-chip img { width: 40px; height: 40px; border-radius: 50%; display: block; }
+img.who-avatar { object-fit: cover; }

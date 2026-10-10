@@ -43,6 +43,16 @@ struct API {
         return URL(string: path)
     }
 
+    /// Afbeelding die achter de pincode staat (bijv. "/avatar/hannah?v=1"): met token ophalen.
+    func protectedData(_ path: String) async throws -> Data {
+        guard let url = URL(string: path, relativeTo: baseURL)?.absoluteURL else { throw APIError(message: "Ongeldig adres") }
+        var req = URLRequest(url: url)
+        if !token.isEmpty { req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
+        let (data, response) = try await URLSession.shared.data(for: req)
+        guard (response as? HTTPURLResponse)?.statusCode == 200 else { throw APIError(message: "Afbeelding niet gevonden") }
+        return data
+    }
+
     /// Aanvraag met serveradres, token en gezinslid (intern, zodat de tests de headers kunnen controleren).
     func request(_ path: String, method: String, query: [URLQueryItem] = []) throws -> URLRequest {
         var url = baseURL.appending(path: path)

@@ -2,8 +2,11 @@
 
 from datetime import date
 
-from fastapi import APIRouter, Depends, Form, Request
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+import io
+import os
+
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -19,7 +22,8 @@ router = APIRouter()
 KID_BLOCKED = [("DELETE", "/api/recipes/"), ("POST", "/recipe/"), ("DELETE", "/api/plan/entries/"),
                ("PATCH", "/api/plan/entries/"), ("POST", "/api/plan/sync"), ("POST", "/api/plan/apply"),
                ("POST", "/api/basket/"), ("POST", "/api/cart/"), ("POST", "/api/packs/"), ("PUT", "/api/members"),
-               ("POST", "/api/missing/assign"), ("POST", "/api/recipes/"), ("POST", "/api/wishes/") ]
+               ("POST", "/api/missing/assign"), ("POST", "/api/recipes/"), ("POST", "/api/wishes/"),
+               ("POST", "/api/members/")]
 KID_ALLOWED = ("/feedback", "/cooked", "/photo")  # binnen POST /api/recipes/...
 
 
@@ -192,3 +196,40 @@ async def api_wish_to_list(wish_id: int, db: Session = Depends(get_db)):
     w.done_on = str(date.today())
     db.commit()
     return {"ok": True, "product": product.get("name", ""), "url": build_add_multiple_url([item]), "wishes": open_wishes(db)}
+
+
+# ── Avatars (achter de pincode; niet in de repo) ───────────────────────
+
+
+@router.get("/avatar/{member_id}")
+async def avatar(member_id: str):
+    path = os.path.join(members.AVATAR_DIR, f"{members.slug(member_id)}.png")
+    if not os.path.exists(path):
+        raise HTTPException(404)
+    return FileResponse(path, media_type="image/png", headers={"Cache-Control": "private, max-age=86400"})
+
+
+@router.post("/api/members/{member_id}/avatar")
+async def upload_avatar(member_id: str, photo: UploadFile = File(...), db: Session = Depends(get_db)):
+    """Avatar van een gezinslid (rond, vierkant bijgesneden, 512 px)."""
+    from PIL import Image, ImageDraw, ImageOps
+
+    if member_id not in {m["id"] for m in members.all_members(db)}:
+        return JSONResponse({"ok": False, "error": "Onbekend gezinslid."}, status_code=404)
+    data = await photo.read()
+    if len(data) > 15 * 1024 * 1024:
+        return JSONResponse({"ok": False, "error": "Foto is te groot."}, status_code=400)
+    try:
+        im = ImageOps.exif_transpose(Image.open(io.BytesIO(data))).convert("RGBA")
+    except Exception:  # noqa: BLE001
+        return JSONResponse({"ok": False, "error": "Dit is geen foto."}, status_code=400)
+    side = min(im.size)
+    left, top = (im.width - side) // 2, 0 if im.height > im.width else (im.height - side) // 2
+    im = im.crop((left, top, left + side, top + side)).resize((512, 512), Image.LANCZOS)
+    mask = Image.new("L", (512, 512), 0)
+    ImageDraw.Draw(mask).ellipse((0, 0, 511, 511), fill=255)
+    out = Image.new("RGBA", (512, 512), (0, 0, 0, 0))
+    out.paste(im, (0, 0), mask)
+    os.makedirs(members.AVATAR_DIR, exist_ok=True)
+    out.save(os.path.join(members.AVATAR_DIR, f"{member_id}.png"))
+    return {"ok": True, "avatar_url": members.avatar_url(member_id)}

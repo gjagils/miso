@@ -30,7 +30,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/style.css?v=17">
+    <link rel="stylesheet" href="/static/style.css?v=18">
 </head>
 <body>
     <nav class="topbar">
@@ -38,7 +38,7 @@
         <span class="tagline">Altijd iets lekkers op de planning.</span>
         {% set me = who(request) %}
         <a class="me-chip" href="/wie" title="Wie ben jij?" aria-label="{{ ('Ingelogd als ' ~ me.name ~ ', wisselen') if me else 'Kies wie je bent' }}"
-           style="background: {{ me.color if me else 'var(--border)' }}">{{ me.initial if me else "?" }}</a>
+           style="background: {{ me.color if me else 'var(--border)' }}">{% if me and me.avatar_url %}<img src="{{ me.avatar_url }}" alt="" width="40" height="40">{% else %}{{ me.initial if me else "?" }}{% endif %}</a>
     </nav>
     <main>
         {% block content %}{% endblock %}

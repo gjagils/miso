@@ -6,7 +6,7 @@
 <form method="post" action="/wie" class="who-grid">
     {% for m in members %}
     <button class="who" name="member" value="{{ m.id }}" type="submit"{% if current and current.id == m.id %} aria-current="true"{% endif %}>
-        <span class="who-avatar" style="background: {{ m.color }}">{{ m.initial }}</span>
+        {% if m.avatar_url %}<img class="who-avatar" src="{{ m.avatar_url }}" alt="">{% else %}<span class="who-avatar" style="background: {{ m.color }}">{{ m.initial }}</span>{% endif %}
         <span class="who-name">{{ m.name }}</span>
     </button>
     {% endfor %}
