@@ -126,14 +126,15 @@ final class TodayModel {
     }
 
     /// "Zin in iets?": wens voor het gezin. Geeft true als het doorgegeven is.
-    func sendWish(_ text: String, api: API) async -> Bool {
+    func sendWish(_ text: String, api: API, isKid: Bool = false) async -> Bool {
         let value = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !value.isEmpty else { return false }
         sendingWish = true
         defer { sendingWish = false }
         do {
             let result = try await api.addWish(WishBody(text: value))
-            wishMessage = result.ok ? "Doorgegeven! Het staat bij Plannen." : (result.error ?? "Dat lukte niet.")
+            let done = isKid ? "Doorgegeven! Papa en mama zien het bij het plannen." : "Doorgegeven! Het staat bij Plannen."
+            wishMessage = result.ok ? done : (result.error ?? "Dat lukte niet.")
             return result.ok
         } catch {
             wishMessage = error.localizedDescription

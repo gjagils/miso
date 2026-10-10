@@ -208,7 +208,8 @@ struct PlannenView: View {
             ForEach(selection.days) { day in
                 ProposalDayCard(day: day, chosen: selection.chosen(for: day),
                                 alternatives: selection.alternatives(for: day), fans: model.fans,
-                                replacing: selection.replacing.contains(day.date)) { index in
+                                replacing: selection.replacing.contains(day.date),
+                                replacingTitle: model.days.first { $0.date == day.date }?.taken) { index in
                     withAnimation(.snappy) { model.choose(index, for: day) }
                 }
                 .disabled(model.applying || model.applyOutcome?.success == true)
@@ -440,7 +441,8 @@ struct PlannenView: View {
     private func change(_ day: PlannenDay) {
         let wasReplacing = day.replacing
         withAnimation(.snappy) { model.toggleReplace(day) }
-        focus = wasReplacing ? nil : day.date
+        // Geen toetsenbord: meestal tik je een knop (en anders verdwijnt de knoppenbalk).
+        focus = nil
         AccessibilityNotification.Announcement(wasReplacing ? "\(day.taken) blijft staan."
                                                : "Kies een nieuwe wens voor \(day.label). \(day.taken) blijft tot je bevestigt.").post()
     }

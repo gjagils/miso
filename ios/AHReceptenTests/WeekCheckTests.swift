@@ -73,4 +73,13 @@ struct WeekCheckTests {
         let old = try API.decoder.decode(ProposalOption.self, from: Data(#"{"recipe_id": 1, "name": "X"}"#.utf8))
         #expect(old.eiwit.isEmpty)
     }
+
+    @Test func onlyTonightDoesNotTouchTheList() {
+        let tonight = [PlanApplyChoice(date: "2026-10-12", kind: "recipe", recipeId: 1, ahRecipeId: nil, replace: true)]
+        #expect(!PlannenModel.needsList(tonight, today: "2026-10-12"))
+        let week = tonight + [PlanApplyChoice(date: "2026-10-13", kind: "recipe", recipeId: 2, ahRecipeId: nil)]
+        #expect(PlannenModel.needsList(week, today: "2026-10-12"))
+        let freezer = [PlanApplyChoice(date: "2026-10-14", kind: "vriezer", recipeId: nil, ahRecipeId: nil)]
+        #expect(!PlannenModel.needsList(freezer, today: "2026-10-12"))
+    }
 }

@@ -61,7 +61,7 @@ struct RecipeDetailView: View {
                                 .buttonStyle(.misoPrimary)
                         }
                         // "Ken ik uit mijn hoofd": geen kookmodus, de ingrediënten staan hieronder.
-                        if recipe.isByHeart {
+                        if recipe.isByHeart && !isKid {
                             Text("Je kent dit uit je hoofd. De ingrediënten staan hieronder, voor de boodschappen.")
                                 .font(.callout)
                                 .foregroundStyle(Color.misoBlue)

@@ -9,6 +9,8 @@ struct ProposalDayCard: View {
     var fans: [Int: [String]] = [:]
     /// "Wijzig": dit vervangt wat er stond.
     var replacing = false
+    /// Wat er nu staat en vervangen wordt.
+    var replacingTitle: String?
     let onChoose: (Int) -> Void
 
     var body: some View {
@@ -24,7 +26,8 @@ struct ProposalDayCard: View {
             .accessibilityElement(children: .combine)
             .accessibilityAddTraits(.isHeader)
             if replacing {
-                Text("Vervangt wat er stond").misoChip(.misoLilac)
+                Text(replacingTitle.map { "Vervangt: \(RecipeDisplayName.short($0))" } ?? "Vervangt wat er stond")
+                    .misoChip(.misoLilac)
             }
 
             switch day.kind {

@@ -186,7 +186,7 @@ final class PlannenModel {
         wishes[date] = WishInput(serverValue: wish.what)
         if days.first(where: { $0.date == date })?.isWeekend == true { showWeekend = true }
         await markDone(wish, api: api)
-        wishMessage = "“\(wish.what)” is de wens voor \(KiezenDates.label(date)). Tik op Stel recepten voor."
+        wishMessage = "“\(wish.what)” staat als wens op \(KiezenDates.label(date)). Miso zoekt er recepten bij als je voorstelt."
         return false
     }
 
@@ -358,6 +358,11 @@ final class PlannenModel {
         var unmatched = response.status?.unmatched.count ?? 0
         var listFailed = false
         replacingDates.subtract(selection.replacing)
+        // Alleen vandaag opnieuw gekozen (Iets snellers): de boodschappen voor vanavond horen niet op het lijstje.
+        if !Self.needsList(selection.choices, today: KiezenDates.today) {
+            applyOutcome = ApplyOutcome(success: true, message: text, unmatched: 0, listFailed: false)
+            return response.added > 0
+        }
         guard syncList else {
             text += " Koppel AH bij Meer, dan zet Miso de boodschappen ook op je lijstje."
             applyOutcome = ApplyOutcome(success: true, message: text, unmatched: unmatched, listFailed: false)
@@ -380,6 +385,11 @@ final class PlannenModel {
         }
         applyOutcome = ApplyOutcome(success: true, message: text, unmatched: unmatched, listFailed: listFailed)
         return response.added > 0
+    }
+
+    /// Lijstje alleen bijwerken als er iets na vandaag is ingepland.
+    nonisolated static func needsList(_ choices: [PlanApplyChoice], today: String) -> Bool {
+        choices.contains { $0.date > today && $0.kind == "recipe" }
     }
 
     /// Na "Klaar": opnieuw beginnen met de (nu deels geplande) week.

@@ -48,9 +48,11 @@ struct FamilyWishRow: View {
     let onPlace: (String) -> Void
     let onToList: () -> Void
     let onDone: () -> Void
-    @State private var date: String?
+    @State private var date = ""
 
-    private var chosenDate: String? { date ?? days.first?.date }
+    private var chosenDate: String? {
+        days.contains { $0.date == date } ? date : days.first?.date
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -75,10 +77,12 @@ struct FamilyWishRow: View {
                 } else if days.isEmpty {
                     Text("Geen open dag meer deze week.").font(.callout).foregroundStyle(.secondary)
                 } else {
-                    Picker("Op welke dag?", selection: Binding(get: { chosenDate ?? "" }, set: { date = $0 })) {
+                    Picker("Op welke dag?", selection: $date) {
                         ForEach(days) { Text($0.label).tag($0.date) }
                     }
                     .pickerStyle(.menu)
+                    .onAppear { if let chosenDate { date = chosenDate } }
+                    .onChange(of: days) { if let chosenDate { date = chosenDate } }
                     .tint(Color.misoBlue)
                     .frame(minHeight: 44)
                     Button {

@@ -223,7 +223,7 @@ struct TodayView: View {
     private func sendWish() {
         guard let api = session.api else { return }
         Task {
-            if await model.sendWish(wishText, api: api) { wishText = "" }
+            if await model.sendWish(wishText, api: api, isKid: family.isKid) { wishText = "" }
         }
     }
 

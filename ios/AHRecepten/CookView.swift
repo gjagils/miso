@@ -14,6 +14,12 @@ struct CookView: View {
     @State private var done: Set<Int> = []
     /// "Gekookt" is al gemeld (na de helft van de stappen, of via Lekker?).
     @State private var cookedSent = false
+    /// Lekker? al beantwoord in deze kookbeurt.
+    @State private var rated = false
+    /// Bij "Klaar" zonder Lekker?: nog even vragen (één tik).
+    @State private var askingTaste = false
+
+    private var hints: CookHints { CookHints(instructions: recipe.instructions, totalTime: recipe.totalTime) }
 
     var body: some View {
         NavigationStack {
@@ -24,6 +30,14 @@ struct CookView: View {
                         VStack(alignment: .leading, spacing: 6) {
                             Text(recipe.displayName).font(.misoTitle2).foregroundStyle(Color.misoBlue)
                             if recipe.showsMealKitTag { MealKitBadge() }
+                            if let oven = hints.ovenText {
+                                Label(oven, systemImage: "flame")
+                                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                    .foregroundStyle(Color.misoInk)
+                            }
+                            if let time = hints.timeText {
+                                Label(time, systemImage: "clock").font(.callout).foregroundStyle(Color.misoBlue)
+                            }
                             Text("Veel kookplezier! Tik om af te vinken.").font(.callout).foregroundStyle(.secondary)
                         }
                     }
@@ -102,7 +116,7 @@ struct CookView: View {
                 Section {
                     TasteFeedbackSection(recipeID: recipe.id,
                                          favorite: family.isMine(fans: recipe.fans, fallback: recipe.isFavorite),
-                                         onRated: rated)
+                                         onRated: didRate)
                 }
                 .misoRow()
             }
@@ -110,7 +124,14 @@ struct CookView: View {
             .navigationTitle("Koken")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) { Button("Klaar", action: close).font(.misoButton) }
+                ToolbarItem(placement: .confirmationAction) { Button("Klaar", action: finish).font(.misoButton) }
+            }
+            .confirmationDialog("Lekker?", isPresented: $askingTaste, titleVisibility: .visible) {
+                Button("👍 Lekker") { rateAndClose(.up) }
+                Button("👎 Liever niet") { rateAndClose(.down) }
+                Button("Sla over", role: .cancel) { close() }
+            } message: {
+                Text("Miso leert hiervan wat jullie vaker willen.")
             }
         }
         .task { await findPlannedPersons() }
@@ -141,6 +162,27 @@ struct CookView: View {
         dismiss()
     }
 
+    /// Klaar met koken (de helft van de stappen gedaan) en nog niets gezegd: één vraag, dan dicht.
+    private func finish() {
+        if !rated && CookProgress.isHalfway(done: done.count, steps: recipe.instructions.count) {
+            askingTaste = true
+        } else {
+            close()
+        }
+    }
+
+    private func rateAndClose(_ rating: TasteRating) {
+        guard let api = session.api else { return close() }
+        let member = session.memberID
+        let id = recipe.id
+        Task {
+            if (try? await api.sendFeedback(id, rating: rating)) != nil {
+                RatedStore().mark(recipeID: id, date: KiezenDates.today, member: member)
+            }
+        }
+        close()
+    }
+
     /// Telt pas als gekookt als minstens de helft van de stappen is afgevinkt (zoals de web-kookmodus).
     /// Eén keer per keer openen; de server telt bovendien één keer per dag. Mislukken is niet erg.
     private func markCookedIfHalfway() {
@@ -151,8 +193,9 @@ struct CookView: View {
     }
 
     /// Lekker? telt op de server ook als gekookt.
-    private func rated() {
+    private func didRate() {
         cookedSent = true
+        rated = true
     }
 
     private func setScreenAlwaysOn(_ on: Bool) {
