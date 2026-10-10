@@ -309,7 +309,7 @@ def test_next_week_status(db):
     assert s["planned_days"] == 4 and s["total_days"] == 7 and not s["prominent"]
     assert s["missing_dates"] == ["2026-10-16", "2026-10-17", "2026-10-18"]
     assert s["list_status"]["missing_count"] == 1 and s["list_status"]["needed"] == 1
-    assert s["message"] == "Volgende week: 4 van 7 dagen gepland · nog 3 dagen tot zondag (besteldag)"
+    assert s["message"] == "Volgende week: 4 van 5 doordeweekse dagen gepland · nog 3 dagen tot zondag (besteldag)"
     friday = plan_api.next_week_status(db, today=date(2026, 10, 9))
     assert friday["days_until_order"] == 2 and friday["prominent"]
     assert "morgen is het zondag" in plan_api.next_week_status(db, today=date(2026, 10, 10))["message"]
@@ -390,7 +390,7 @@ def test_pages_render_with_all_entry_kinds(db):
     week = client.get("/weekmenu").text
     assert "Volgende week:" in week and "/static/plan.js" in week and "Vriezer" in week
     assert "Weekmenu vastzetten" not in week and "Controleer en vul aan" not in week
-    assert "Plan volgende week" in week and "/kiezen?week=next" in week
+    assert "Plan volgende week" in week and "/plannen?week=" in week
     detail = client.get(f"/recipe/{r.id}").text
     assert 'id="plan-btn"' in detail and "/static/plan.js" in detail
     assert "/static/plan.js" in client.get("/kiezen?week=next").text

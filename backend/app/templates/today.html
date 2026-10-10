@@ -39,7 +39,7 @@
     {% endif %}
 </section>
 
-{% include "_next_week.html" %}
+{% with compact_only = true %}{% include "_next_week.html" %}{% endwith %}
 
 <h2 class="week-h">Deze week</h2>
 {% for d in days if not d.today and not d.past %}

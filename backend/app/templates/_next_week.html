@@ -1,55 +1,22 @@
 {# Banner "Volgende week": nws = api.plan.next_week_status(db). Prominent vanaf 2 dagen voor de besteldag. #}
 {% if nws %}
-{% set ready = nws.planned_days == 7 %}
-<section class="nw {{ 'nw-prominent' if nws.prominent and not ready else 'nw-compact' }}" aria-labelledby="nw-title" data-week="{{ nws.week }}">
-    {% if nws.prominent and not ready %}
+{% set ready = nws.ready %}
+{% set big = nws.prominent and not ready and not compact_only %}
+<section class="nw {{ 'nw-prominent' if big else 'nw-compact' }}" aria-labelledby="nw-title" data-week="{{ nws.week }}">
+    {% if big %}
     <img src="/static/miso/miso-checklist.webp" alt="" width="72" height="72" loading="lazy">
     <div class="nw-body">
         <h2 id="nw-title">Tijd om volgende week te plannen</h2>
         <p>{{ nws.message }}</p>
         <div class="nw-actions">
-            <a class="btn btn-primary" href="/kiezen?week=next">Plan volgende week</a>
-            <button class="btn" type="button" data-nw-suggest>Laat Miso voorstellen</button>
+            <a class="btn btn-primary" href="/plannen?week={{ nws.week }}">Plan volgende week</a>
         </div>
-        <div class="nw-suggest" aria-live="polite"></div>
     </div>
     {% else %}
-    <p id="nw-title"><span class="nw-dots" aria-hidden="true">{% for i in range(7) %}<i class="{{ 'on' if i < nws.planned_days else '' }}"></i>{% endfor %}</span>
+    <p id="nw-title"><span class="nw-dots" aria-hidden="true">{% for i in range(5) %}<i class="{{ 'on' if i < nws.weekdays_planned else '' }}"></i>{% endfor %}</span>
         <span>{{ nws.message }}{% if ready and nws.list_status.missing_count %} · nog {{ nws.list_status.missing_count }} {{ 'product' if nws.list_status.missing_count == 1 else 'producten' }} niet op je lijstje{% endif %}</span></p>
-    {% if not ready %}<a class="nw-link" href="/kiezen?week=next">Plan volgende week</a>{% else %}<a class="nw-link" href="/weekmenu?week={{ nws.week }}">Bekijk</a>{% endif %}
+    {% if not ready %}<a class="nw-link" href="/plannen?week={{ nws.week }}">Plan volgende week</a>{% else %}<a class="nw-link" href="/weekmenu?week={{ nws.week }}">Bekijk</a>{% endif %}
     {% endif %}
 </section>
-{% if nws.prominent and not ready %}
-<script>
-(() => {
-    const box = document.querySelector(".nw"), out = box.querySelector(".nw-suggest"), btn = box.querySelector("[data-nw-suggest]");
-    const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
-    const day = d => new Date(d + "T12:00").toLocaleDateString("nl-NL", {weekday: "long", day: "numeric", month: "short"});
-    btn.onclick = async () => {
-        btn.disabled = true; btn.textContent = "Miso denkt na…";
-        let r = {};
-        try {
-            r = await (await fetch("/api/week/suggest", {method: "POST", headers: {"Content-Type": "application/json"},
-                                                          body: JSON.stringify({week: box.dataset.week})})).json();
-        } catch (e) { r = {}; }
-        btn.disabled = false; btn.textContent = "Laat Miso voorstellen";
-        const v = r.voorstel || [];
-        if (!v.length) {
-            out.innerHTML = `<p class="muted">${r.zonder_profiel ? "Miso kent je recepten nog niet goed genoeg; probeer het zo nog eens." : "Geen voorstel: alle dagen zijn al bezet."}</p>`;
-            return;
-        }
-        out.innerHTML = `<ul class="suggest-list">${v.map(x => `<li><strong>${esc(day(x.date))}</strong>: ${esc(x.name)}</li>`).join("")}</ul>
-            <button class="btn btn-primary" type="button" data-nw-apply>Zet deze in het weekmenu</button>`;
-        out.querySelector("[data-nw-apply]").onclick = async ev => {
-            ev.target.disabled = true; ev.target.textContent = "Bezig…";
-            for (const x of v) {
-                await fetch("/api/plan/entries", {method: "POST", headers: {"Content-Type": "application/json"},
-                                                  body: JSON.stringify({date: x.date, kind: "recipe", recipe_id: x.recipe_id})});
-            }
-            location.href = `/weekmenu?week=${box.dataset.week}`;
-        };
-    };
-})();
-</script>
-{% endif %}
+
 {% endif %}

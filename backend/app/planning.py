@@ -157,7 +157,7 @@ def order_message(planned: int, days_until: int, weekday: int) -> str:
         when = f"morgen is het {name} (besteldag)"
     else:
         when = f"nog {days_until} dagen tot {name} (besteldag)"
-    return f"Volgende week: {planned} van 7 dagen gepland · {when}"
+    return f"Volgende week: {planned} van 5 doordeweekse dagen gepland · {when}"
 
 
 def next_week_overview(db: Session, today: date | None = None) -> dict:
@@ -169,7 +169,10 @@ def next_week_overview(db: Session, today: date | None = None) -> dict:
     dates = week_dates(monday)
     taken = {e.date for e in week_entries(db, monday)}
     planned = sum(1 for d in dates if d in taken)
+    weekdays_planned = sum(1 for d in dates[:5] if d in taken)
     return {
+        "weekdays_planned": weekdays_planned,
+        "ready": weekdays_planned == 5,  # doordeweeks is de focus; het weekend hoeft niet
         "order_day": weekday,
         "order_day_name": WEEKDAYS[weekday],
         "days_until_order": days_until,
@@ -178,5 +181,5 @@ def next_week_overview(db: Session, today: date | None = None) -> dict:
         "total_days": 7,
         "missing_dates": [d for d in dates if d not in taken],
         "prominent": days_until <= 2,
-        "message": order_message(planned, days_until, weekday),
+        "message": order_message(weekdays_planned, days_until, weekday),
     }

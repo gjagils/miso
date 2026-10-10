@@ -5,6 +5,7 @@ Per dag zoeken we passende recepten (gezondheidsprofiel en naam/ingrediënten), 
 (app/usage.py) en variatie over de week, en geven het beste plus twee alternatieven.
 """
 
+import hashlib
 import re
 from datetime import date, timedelta
 
@@ -16,7 +17,7 @@ from app import llm
 from app.config import settings
 from app.models import PlanEntry, Recipe
 from app.nutrition import get_profile
-from app.usage import plan_stats, preference_score, recently_planned_ids
+from app.usage import plan_stats, preference_score
 
 # chip -> (profielvoorwaarden, woorden in naam/ingrediënten)
 CHIPS: dict[str, dict] = {
@@ -33,6 +34,7 @@ CHIPS: dict[str, dict] = {
     "snel": {"max_minutes": 30, "words": ()},
 }
 SPECIAL = {"vriezer", "vrij", "overslaan"}
+LIGHT = re.compile(r"soep|salade|smoothie|ontbijt|tosti|dessert|taart|koek")
 # Zoekterm bij Allerhande als eigen recepten niet genoeg keuze geven
 AH_QUERY = {"rijst": "rijst", "pasta": "pasta", "aardappel": "aardappel", "wraps": "wraps", "noedels": "noedels",
             "vis": "vis", "vega": "vegetarisch", "kip": "kip", "soep": "soep", "salade": "maaltijdsalade",
@@ -90,10 +92,28 @@ def matches(recipe: Recipe, profile: dict | None, wish: str) -> bool:
     return ok_profile or any(w in low for w in spec.get("words", ()))
 
 
+def display_name(name: str) -> str:
+    """'AH gesneden verspakket \'Indonesische\' nasi goreng' -> 'Indonesische nasi goreng' (label toont 'Maaltijdpakket')."""
+    short = re.sub(r"^ah\s+(excellent\s+|biologisch\s+)?(gesneden\s+)?verspakket\s+", "", name, flags=re.I)
+    short = re.sub(r"(^|\s)['\"]([^'\"]+)['\"]", r"\1\2", short).strip()  # 'Indonesische' -> Indonesische
+    return (short[:1].upper() + short[1:]) if short else name
+
+
+def guessed_profile(recipe: Recipe) -> dict:
+    """Zonder gezondheidsprofiel: basis raden uit de naam, zodat variatie toch werkt."""
+    low = recipe.name.lower()
+    for chip in ("rijst", "pasta", "aardappel", "wraps", "noedels"):
+        if chip in low or any(w in low for w in CHIPS[chip]["words"]):
+            return {"basis": chip}
+    if "soep" in low:
+        return {"basis": "soep"}
+    return {}
+
+
 def _variety_penalty(profile: dict | None, chosen: list[dict]) -> float:
     if not profile:
         return 0.0
-    same = lambda key: sum(1 for p in chosen if p and p.get(key) == profile.get(key))
+    same = lambda key: sum(1 for p in chosen if p and p.get(key) and p.get(key) == profile.get(key))
     return 10 * same("basis") + 8 * same("eiwit") + 5 * same("keuken")
 
 
@@ -108,13 +128,13 @@ def propose(db: Session, monday: date, wishes: dict[str, str], per_day: int = 3,
     """wishes: {"2026-10-12": "rijst", ...}. Geeft per dag {date, wish, kind, options} (niets opgeslagen)."""
     today = today or date.today()
     stats = plan_stats(db)
-    recent = recently_planned_ids(db, 14, today)
     taken = {e.date: e for e in db.execute(select(PlanEntry).where(
         PlanEntry.date >= str(monday), PlanEntry.date <= str(monday + timedelta(days=6)))).scalars()}
     recipes = db.execute(select(Recipe).where(Recipe.archived.is_(False))).scalars().all()
     profiles = {r.id: get_profile(db, r.id) for r in recipes}
     week_ids = {e.recipe_id for e in taken.values() if e.kind == "recipe"}
-    chosen_profiles = [profiles.get(rid) for rid in week_ids]
+    by_id = {r.id: r for r in recipes}
+    chosen_profiles = [profiles.get(rid) or (guessed_profile(by_id[rid]) if rid in by_id else {}) for rid in week_ids]
     used: set[int] = set(week_ids)
     out = []
     for day in sorted(wishes):
@@ -131,21 +151,29 @@ def propose(db: Session, monday: date, wishes: dict[str, str], per_day: int = 3,
             item["kind"] = wish
             out.append(item)
             continue
-        pool = [r for r in recipes if r.id not in used and (wish == "vrij" or matches(r, profiles[r.id], wish))]
+        if wish == "vrij":  # "geen idee" = een volwaardige avondmaaltijd, geen soep of salade
+            pool = [r for r in recipes if r.id not in used and not LIGHT.search(r.name.lower())]
+        else:
+            pool = [r for r in recipes if r.id not in used and matches(r, profiles[r.id], wish)]
+        name_words = CHIPS.get(wish, {}).get("words", ()) + ((wish,) if wish in CHIPS else ())
         scored = []
         for r in pool:
-            p = profiles[r.id]
-            s = preference_score(r, stats.get(r.id), today) + _health(p) - _variety_penalty(p, chosen_profiles)
-            if r.id in recent:
-                s -= 15
-            scored.append((s, r))
-        scored.sort(key=lambda x: (-x[0], x[1].name))
+            p = profiles[r.id] or guessed_profile(r)
+            s = preference_score(r, stats.get(r.id), today) + _health(profiles[r.id]) - _variety_penalty(p, chosen_profiles)
+            if name_words and any(w.strip() and w.strip() in r.name.lower() for w in name_words):
+                s += 15  # wens staat in de naam ("nasi", "rijst"): beter dan alleen een ingrediënt
+            quick = (minutes(r.total_time) or 99) <= 30
+            tiebreak = hashlib.md5(f"{monday}-{r.id}".encode()).hexdigest()  # per week anders, niet alfabetisch
+            scored.append((s, not quick, tiebreak, r))
+        scored.sort(key=lambda x: (-x[0], x[1], x[2]))
         item["kind"] = "recipe" if scored else "none"
-        item["options"] = [{"recipe_id": r.id, "name": r.name, "image_url": r.image_url, "total_time": r.total_time,
-                            "favorite": bool(r.favorite)} for _, r in scored[:per_day]]
+        item["options"] = [{"recipe_id": r.id, "name": display_name(r.name), "image_url": r.image_url,
+                            "total_time": r.total_time, "favorite": bool(r.favorite),
+                            "pack": r.collection == "maaltijdpakket"} for *_, r in scored[:per_day]]
         if scored:
-            used.add(scored[0][1].id)
-            chosen_profiles.append(profiles[scored[0][1].id])
+            top = scored[0][-1]
+            used.add(top.id)
+            chosen_profiles.append(profiles[top.id] or guessed_profile(top))
         out.append(item)
     return out
 

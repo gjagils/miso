@@ -36,7 +36,7 @@ def test_propose_and_apply(db):
     _profile(db, taco, "wraps", keuken="mexicaans")
     lasagne = _recipe(db, "Lasagne bolognese", [_ing("lasagnebladen", 3)])
     _profile(db, lasagne, "pasta", eiwit="vlees")
-    soup = _recipe(db, "Tomatensoep", [_ing("tomaten", 4)])
+    soup = _recipe(db, "Groentecurry", [_ing("tomaten", 4)])
     _profile(db, soup, "geen", eiwit="vega")
     monday = routes.monday_of(date.today()) + timedelta(days=7)
     d = [str(monday + timedelta(days=i)) for i in range(5)]
@@ -56,7 +56,10 @@ def test_propose_and_apply(db):
     assert by[d[1]]["options"][0]["name"] == "Taco's met kip"
     assert by[d[2]]["kind"] == "vriezer"
     assert by[d[3]]["options"][0]["name"] == "Lasagne bolognese"
-    assert by[d[4]]["options"][0]["name"] == "Tomatensoep"  # de andere drie zijn al gekozen
+    assert by[d[4]]["options"][0]["name"] == "Groentecurry"  # de andere drie zijn al gekozen
+    tomato = _recipe(db, "Tomatensoep", [])
+    vrij = client.post("/api/plan/propose", json={"week": str(monday), "wishes": {d[4]: "geen idee"}}).json()
+    assert tomato.name not in [o["name"] for o in vrij["days"][0]["options"]]  # geen soep bij "geen idee"
 
     choices = [{"date": d[0], "kind": "recipe", "recipe_id": nasi.id}, {"date": d[2], "kind": "vriezer"},
                {"date": d[4], "kind": "recipe", "recipe_id": soup.id}]
