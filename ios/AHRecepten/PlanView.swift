@@ -8,7 +8,9 @@ struct PlanView: View {
     var initialWeek: String?
     @Environment(Session.self) private var session
     @Environment(AppRouter.self) private var router
+    @Environment(FamilyModel.self) private var family
     @State private var model = WeekPlanModel()
+    @State private var listStatus = ListStatusModel()
     @State private var recipeToOpen: Int?
     @State private var planRequest: PlanSheetRequest?
     @State private var pendingDelete: PlanItem?
@@ -37,9 +39,11 @@ struct PlanView: View {
                                         persons: model.persons(for: item),
                                         profile: model.profile(for: item),
                                         onOpenRecipe: item.recipeId.map { id in { openRecipe(id) } },
-                                        onPersons: item.isEditable ? { setPersons($0, for: item) } : nil)
+                                        onPersons: item.isEditable && family.isParent ? { setPersons($0, for: item) } : nil,
+                                        listBadge: listStatus.status?.entry(for: item.entryId))
                                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                    if item.isEditable {
+                                    // Kinderen wissen en verplaatsen niets.
+                                    if item.isEditable && family.isParent {
                                         Button("Verwijder", systemImage: "trash") { askDelete(item) }
                                             .tint(.red)
                                         Button("Verplaats naar…", systemImage: "calendar") { move(item) }
@@ -51,13 +55,24 @@ struct PlanView: View {
                             Text("Nog niets gepland").font(.misoBody).foregroundStyle(.secondary)
                         }
                     } header: {
-                        PlanDayHeader(day: day) { add(on: day) }
+                        PlanDayHeader(day: day, onAdd: family.isParent ? { add(on: day) } : nil)
                     }
                     .misoRow()
                 }
 
-                GroceriesSection(status: week.status, pushing: model.pushing, result: model.pushResult,
-                                 onPush: pushToList)
+                if family.isParent, let status = listStatus.status, status.week == week.week,
+                   status.showsCard(hasPlanned: week.days.contains { !model.items(for: $0).isEmpty }) {
+                    Section {
+                        ListStatusCard(status: status, syncing: listStatus.syncing, checking: listStatus.checking,
+                                       message: listStatus.message, onSync: syncList, onCheck: checkList)
+                            .listRowInsets(EdgeInsets())
+                    }
+                    .listRowBackground(Color.clear)
+                }
+                if family.isParent {
+                    GroceriesSection(status: week.status, pushing: model.pushing, result: model.pushResult,
+                                     onPush: pushToList)
+                }
 
                 if let health = model.health, health.dagen > 0 {
                     HealthSection(health: health)
@@ -98,6 +113,7 @@ struct PlanView: View {
         }
         .refreshable { await reload() }
         .task { await load() }
+        .task(id: model.week?.week) { await loadListStatus() }
         // Elders ingepland of een recept gekoppeld/bewerkt/verwijderd: weekmenu en boodschappen verversen.
         .onChange(of: router.planVersion) { Task { await reload() } }
         .onChange(of: router.recipesVersion) { Task { await load() } }
@@ -133,6 +149,7 @@ struct PlanView: View {
     private func reload() async {
         guard let api = session.api else { return }
         await model.afterChange(api: api)
+        await loadListStatus()
     }
 
     private func previousWeek() {
@@ -179,6 +196,28 @@ struct PlanView: View {
 
     private func pushToList() {
         guard let api = session.api else { return }
-        Task { await model.pushToList(api: api) }
+        Task {
+            await model.pushToList(api: api)
+            await loadListStatus()
+        }
+    }
+
+    private func loadListStatus() async {
+        guard family.isParent, family.ahConnected != false, let api = session.api,
+              let week = model.week?.week else { return }
+        await listStatus.load(api: api, week: week)
+    }
+
+    private func syncList() {
+        guard let api = session.api else { return }
+        Task {
+            await listStatus.sync(api: api)
+            await reload()
+        }
+    }
+
+    private func checkList() {
+        guard let api = session.api else { return }
+        Task { await listStatus.check(api: api) }
     }
 }

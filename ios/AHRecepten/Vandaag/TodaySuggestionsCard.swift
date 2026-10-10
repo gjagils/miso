@@ -5,7 +5,8 @@ struct TodaySuggestionsCard: View {
     let suggestions: [TodaySuggestion]
     let planningID: String?
     let onPick: (TodaySuggestion) -> Void
-    let onPlan: () -> Void
+    /// nil = geen knop naar Plannen (kind).
+    var onPlan: (() -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -60,8 +61,10 @@ struct TodaySuggestionsCard: View {
                 .accessibilityElement(children: .combine)
                 .accessibilityHint("Zet dit vandaag op het menu")
             }
-            Button("Toch iets anders? Naar Plannen", systemImage: "calendar.badge.plus", action: onPlan)
-                .buttonStyle(.misoSecondary)
+            if let onPlan {
+                Button("Toch iets anders? Naar Plannen", systemImage: "calendar.badge.plus", action: onPlan)
+                    .buttonStyle(.misoSecondary)
+            }
         }
         .misoCard()
     }

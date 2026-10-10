@@ -5,6 +5,8 @@ import SwiftUI
 struct MissingView: View {
     @Environment(Session.self) private var session
     @Environment(AppRouter.self) private var router
+    /// Alleen de recepten van deze week (na "Zet in weekmenu"); nil = alles.
+    var week: String?
     @State private var model = MissingModel()
     @State private var selected: MissingGroup?
 
@@ -52,7 +54,7 @@ struct MissingView: View {
         }
         .misoScreen()
         .animation(.default, value: model.groups)
-        .navigationTitle("Ontbrekend")
+        .navigationTitle(week == nil ? "Ontbrekend" : "Ontbrekend deze week")
         .refreshable { await load() }
         .task { await load() }
         .sheet(item: $selected) { group in
@@ -66,6 +68,7 @@ struct MissingView: View {
 
     private func load() async {
         guard let api = session.api else { return }
+        model.week = week
         await model.load(api: api)
     }
 

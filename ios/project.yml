@@ -63,6 +63,8 @@ targets:
       - AHRecepten/Planning/Models
       - AHRecepten/Theme.swift
       - AHRecepten/Components.swift
+      # Korte namen voor maaltijdpakketten (RecipeRow).
+      - AHRecepten/Recepten/RecipeDisplayName.swift
     entitlements:
       path: MisoShare/MisoShare.entitlements
       properties:

@@ -5,7 +5,10 @@ import SwiftUI
 struct PlannenView: View {
     @Environment(Session.self) private var session
     @Environment(AppRouter.self) private var router
+    @Environment(FamilyModel.self) private var family
+    @Environment(\.openURL) private var openURL
     @State private var model = PlannenModel()
+    @State private var listStatus = ListStatusModel()
     @State private var showKiezen = false
     @State private var dayToRemove: PlannenDay?
     @State private var confirmingRemove = false
@@ -31,6 +34,32 @@ struct PlannenView: View {
                         if let error = model.loadError {
                             ErrorBanner(message: error)
                         }
+                        if family.ahConnected == false {
+                            Button(action: openSettings) {
+                                Label("Koppel AH bij Meer, dan zet Miso de boodschappen op je lijstje.",
+                                      systemImage: "link")
+                                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                    .foregroundStyle(Color.misoInk)
+                                    .multilineTextAlignment(.leading)
+                                    .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                                    .padding(.horizontal, 12)
+                                    .background(Color.misoLilac, in: .rect(cornerRadius: 14))
+                                    .contentShape(.rect)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        if model.step == .wishes && (!model.familyWishes.isEmpty || model.wishMessage != nil) {
+                            FamilyWishesSection(wishes: model.familyWishes, days: model.wishTargetDays,
+                                                busyID: model.busyWishID, message: model.wishMessage,
+                                                onPlace: placeWish, onToList: wishToList, onDone: wishDone,
+                                                onDismissMessage: model.dismissWishMessage)
+                        }
+                        if model.step == .wishes, let status = listStatus.status,
+                           status.week == model.week,
+                           status.showsCard(hasPlanned: model.days.contains { !$0.taken.isEmpty }) {
+                            ListStatusCard(status: status, syncing: listStatus.syncing, checking: listStatus.checking,
+                                           message: listStatus.message, onSync: syncList, onCheck: checkList)
+                        }
                         switch model.step {
                         case .wishes: wishesStep
                         case .proposal: proposalStep
@@ -45,6 +74,9 @@ struct PlannenView: View {
             .scrollDismissesKeyboard(.interactively)
             .background(Color.misoCream)
             .navigationTitle("Plannen")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) { MemberAvatarButton() }
+            }
             // Tijdens typen geen knoppenbalk boven het toetsenbord: dan zie je het veld niet meer.
             .safeAreaInset(edge: .bottom) { if focus == nil { bottomBar } }
             .toolbar {
@@ -59,6 +91,11 @@ struct PlannenView: View {
                 guard week != nil else { return }
                 Task { await start() }
             }
+            .onChange(of: router.plannenRequest) { _, request in
+                guard request != nil else { return }
+                Task { await start() }
+            }
+            .onChange(of: model.week) { Task { await loadListStatus() } }
             .onChange(of: router.planVersion) {
                 guard model.step == .wishes else { return }
                 Task { await reload() }
@@ -156,13 +193,21 @@ struct PlannenView: View {
                 Text("Tik op een alternatief om te wisselen.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
+                if selection.plannedCount > 0 {
+                    Text(selection.weekCheck)
+                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                        .foregroundStyle(Color.misoBlue)
+                        .padding(.top, 4)
+                        .accessibilityLabel("Week-check: \(selection.weekCheck)")
+                }
             }
             if let outcome = model.applyOutcome {
                 ApplyResultCard(outcome: outcome, week: model.week, onOpenSettings: openSettings, onDone: finish)
             }
             ForEach(selection.days) { day in
                 ProposalDayCard(day: day, chosen: selection.chosen(for: day),
-                                alternatives: selection.alternatives(for: day)) { index in
+                                alternatives: selection.alternatives(for: day), fans: model.fans,
+                                replacing: selection.replacing.contains(day.date)) { index in
                     withAnimation(.snappy) { model.choose(index, for: day) }
                 }
                 .disabled(model.applying || model.applyOutcome?.success == true)
@@ -180,23 +225,38 @@ struct PlannenView: View {
                     Text(message).font(.callout).foregroundStyle(Color.misoBlue)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                if model.emptyOpenWeekdays > 0 && !model.collected.isEmpty {
-                    Button("Lege doordeweekse dagen: Geen idee", action: fillRest)
-                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
-                        .foregroundStyle(Color.misoBlue)
-                        .frame(minHeight: 44)
-                }
                 // Ma-vr staan erin en geen weekendwens: geen knop (de melding staat in de lijst).
                 if !(model.weekdaysDone && model.collected.isEmpty) {
-                    Button(action: propose) {
-                        if model.proposing {
-                            HStack(spacing: 8) { ProgressView(); Text("Miso zoekt recepten…") }
-                        } else {
-                            Text(proposeTitle)
+                    if model.emptyOpenWeekdays > 0 {
+                        // Eén duidelijke knop: lege doordeweekse dagen op "Geen idee", gekozen wensen blijven.
+                        Button(action: fillWeek) {
+                            if model.proposing {
+                                HStack(spacing: 8) { ProgressView(); Text("Miso zoekt recepten…") }
+                            } else {
+                                Text("Vul de week voor mij")
+                            }
                         }
+                        .buttonStyle(.misoPrimary)
+                        .disabled(model.proposing || model.days.isEmpty)
+                        .accessibilityHint("Miso kiest voor de open dagen van maandag tot en met vrijdag; jij wisselt wat je niet wilt")
+                        if !model.collected.isEmpty {
+                            Button("Alleen de gekozen dagen (\(model.collected.count))", action: propose)
+                                .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                .foregroundStyle(Color.misoBlue)
+                                .frame(minHeight: 44)
+                                .disabled(model.proposing)
+                        }
+                    } else {
+                        Button(action: propose) {
+                            if model.proposing {
+                                HStack(spacing: 8) { ProgressView(); Text("Miso zoekt recepten…") }
+                            } else {
+                                Text(proposeTitle)
+                            }
+                        }
+                        .buttonStyle(.misoPrimary)
+                        .disabled(model.proposing || model.days.isEmpty || model.openDays.isEmpty)
                     }
-                    .buttonStyle(.misoPrimary)
-                    .disabled(model.proposing || model.days.isEmpty || model.openDays.isEmpty)
                 }
             case .proposal:
                 if model.applyOutcome?.success != true {
@@ -204,7 +264,7 @@ struct PlannenView: View {
                         if model.applying {
                             HStack(spacing: 8) { ProgressView(); Text("Bezig…") }
                         } else {
-                            Text("Zet in weekmenu en op mijn AH-lijstje")
+                            Text(family.ahConnected == false ? "Zet in weekmenu" : "Zet in weekmenu en op mijn AH-lijstje")
                         }
                     }
                     .buttonStyle(.misoPrimary)
@@ -230,7 +290,8 @@ struct PlannenView: View {
         @Bindable var model = model
         return WishDayRow(day: day, wish: $model[wish: day.date], focus: $focus,
                           onChange: { change(day) }, onRemove: { askRemove(day) },
-                          clearing: model.clearingDate == day.date)
+                          clearing: model.clearingDate == day.date,
+                          listBadges: listStatus.status?.week == model.week ? listStatus.status?.entries(on: day.date) ?? [] : [])
     }
 
     private var removeTitle: String {
@@ -240,8 +301,7 @@ struct PlannenView: View {
     private var proposeTitle: String {
         let count = model.collected.count
         if !model.days.isEmpty && model.openDays.isEmpty { return "Alles is al gepland" }
-        // Niets gekozen: één tik = Miso kiest voor alle open doordeweekse dagen ("Geen idee").
-        if count == 0 { return model.emptyOpenWeekdays > 0 ? "Verras me: stel ma-vr voor" : "Stel recepten voor" }
+        if count == 0 { return "Stel recepten voor" }
         return "Stel recepten voor (\(plural(count, "dag", "dagen")))"
     }
 
@@ -249,14 +309,73 @@ struct PlannenView: View {
 
     private func start() async {
         guard let api = session.api else { return }
-        let requested = router.plannenWeek
-        router.plannenWeek = nil
-        await model.start(api: api, requested: requested)
+        if let request = router.plannenRequest {
+            router.plannenRequest = nil
+            router.plannenWeek = nil
+            await model.handle(request, api: api)
+        } else {
+            let requested = router.plannenWeek
+            router.plannenWeek = nil
+            await model.start(api: api, requested: requested)
+        }
+        await model.loadFamily(api: api)
+        await loadListStatus()
     }
 
     private func reload() async {
         guard let api = session.api else { return }
         await model.reload(api: api)
+        await model.loadFamily(api: api)
+        await loadListStatus()
+    }
+
+    private func loadListStatus() async {
+        guard let api = session.api, !model.week.isEmpty, family.ahConnected != false else { return }
+        await listStatus.load(api: api, week: model.week)
+    }
+
+    private func syncList() {
+        guard let api = session.api else { return }
+        Task {
+            await listStatus.sync(api: api)
+            router.planChanged()
+        }
+    }
+
+    private func checkList() {
+        guard let api = session.api else { return }
+        Task { await listStatus.check(api: api) }
+    }
+
+    private func fillWeek() {
+        guard let api = session.api else { return }
+        focus = nil
+        model.fillRestWithNoIdea()
+        Task { await model.propose(api: api) }
+    }
+
+    private func placeWish(_ wish: FamilyWish, _ date: String) {
+        guard let api = session.api else { return }
+        Task {
+            if await model.place(wish, on: date, api: api) {
+                router.planChanged()
+                await loadListStatus()
+            }
+            if let message = model.wishMessage { AccessibilityNotification.Announcement(message).post() }
+        }
+    }
+
+    private func wishToList(_ wish: FamilyWish) {
+        guard let api = session.api else { return }
+        Task {
+            if let url = await model.toList(wish, api: api) { openURL(url) }
+            await loadListStatus()
+        }
+    }
+
+    private func wishDone(_ wish: FamilyWish) {
+        guard let api = session.api else { return }
+        Task { await model.markDone(wish, api: api) }
     }
 
     private func previousWeek() {
@@ -275,10 +394,6 @@ struct PlannenView: View {
         Task { await model.readSentence(api: api) }
     }
 
-    private func fillRest() {
-        withAnimation { model.fillRestWithNoIdea() }
-    }
-
     private func propose() {
         guard let api = session.api else { return }
         focus = nil
@@ -293,8 +408,9 @@ struct PlannenView: View {
     private func apply() {
         guard let api = session.api else { return }
         Task {
-            if await model.apply(api: api) {
+            if await model.apply(api: api, syncList: family.ahConnected != false) {
                 router.planChanged()
+                await loadListStatus()
                 await OrderReminderScheduler.refresh(api: api)
             }
             if let message = model.applyOutcome?.message {
@@ -312,15 +428,14 @@ struct PlannenView: View {
         router.tab = .more
     }
 
-    /// Wijzig: dag leegmaken en het veld van die dag klaarzetten voor een nieuwe wens.
+    /// Wijzig: de dag opnieuw kiezen. Er wordt nog niets gewist; het oude gaat pas weg als je het nieuwe
+    /// bevestigt (replace bij voorstellen en inplannen). Nog eens tikken = "Toch houden".
     private func change(_ day: PlannenDay) {
-        guard let api = session.api else { return }
-        Task {
-            if await model.clear(day, api: api) {
-                router.planChanged()
-                AccessibilityNotification.Announcement("\(day.label) is leeg. Kies een nieuwe wens.").post()
-            }
-        }
+        let wasReplacing = day.replacing
+        withAnimation(.snappy) { model.toggleReplace(day) }
+        focus = wasReplacing ? nil : day.date
+        AccessibilityNotification.Announcement(wasReplacing ? "\(day.taken) blijft staan."
+                                               : "Kies een nieuwe wens voor \(day.label). \(day.taken) blijft tot je bevestigt.").post()
     }
 
     private func askRemove(_ day: PlannenDay) {

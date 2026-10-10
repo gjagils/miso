@@ -11,13 +11,21 @@ struct ProposalOption: Decodable, Hashable, Sendable {
     let allerhande: Bool
     /// AH-maaltijdpakket (de server stuurt de korte naam, zonder "AH verspakket").
     let pack: Bool
+    /// Profiel voor de week-check ("vega", "vis", "kip", "vlees"; "italiaans"; "rijst"). Mag leeg zijn.
+    let eiwit: String
+    let keuken: String
+    let basis: String
 
     enum CodingKeys: String, CodingKey {
-        case recipeId, ahRecipeId, name, imageUrl, totalTime, favorite, allerhande, pack
+        case recipeId, ahRecipeId, name, imageUrl, totalTime, favorite, allerhande, pack, eiwit, keuken, basis
     }
 
     init(recipeId: Int? = nil, ahRecipeId: Int? = nil, name: String, imageUrl: String = "", totalTime: String = "",
-         favorite: Bool = false, allerhande: Bool = false, pack: Bool = false) {
+         favorite: Bool = false, allerhande: Bool = false, pack: Bool = false,
+         eiwit: String = "", keuken: String = "", basis: String = "") {
+        self.eiwit = eiwit
+        self.keuken = keuken
+        self.basis = basis
         self.recipeId = recipeId
         self.ahRecipeId = ahRecipeId
         self.name = name
@@ -38,6 +46,9 @@ struct ProposalOption: Decodable, Hashable, Sendable {
         favorite = c.lenient(Bool.self, .favorite) ?? false
         allerhande = c.lenient(Bool.self, .allerhande) ?? (recipeId == nil && ahRecipeId != nil)
         pack = c.lenient(Bool.self, .pack) ?? false
+        eiwit = c.lenient(String.self, .eiwit) ?? ""
+        keuken = c.lenient(String.self, .keuken) ?? ""
+        basis = c.lenient(String.self, .basis) ?? ""
     }
 
     /// "25 min · Allerhande"

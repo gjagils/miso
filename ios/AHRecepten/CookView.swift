@@ -4,7 +4,12 @@ import SwiftUI
 struct CookView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(Session.self) private var session
+    @Environment(FamilyModel.self) private var family
     let recipe: RecipeDetail
+    /// Voor hoeveel personen er gekookt wordt (uit de planning). nil = zoek op of het vandaag gepland
+    /// staat, anders zoals het recept.
+    var persons: Int?
+    @State private var plannedPersons: Int?
     @State private var checked: Set<Int> = []
     @State private var done: Set<Int> = []
     /// "Gekookt" is al gemeld (na de helft van de stappen, of via Lekker?).
@@ -16,7 +21,11 @@ struct CookView: View {
                 Section {
                     HStack(spacing: 12) {
                         MascotView(pose: "chef", size: 72)
-                        Text("Veel kookplezier! Tik om af te vinken.").font(.misoHeadline).foregroundStyle(Color.misoBlue)
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(recipe.displayName).font(.misoTitle2).foregroundStyle(Color.misoBlue)
+                            if recipe.showsMealKitTag { MealKitBadge() }
+                            Text("Veel kookplezier! Tik om af te vinken.").font(.callout).foregroundStyle(.secondary)
+                        }
                     }
                     .listRowBackground(Color.clear)
                 }
@@ -27,6 +36,12 @@ struct CookView: View {
                     }
                 }
                 Section {
+                    if let note = scaleNote {
+                        Text(note)
+                            .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                            .foregroundStyle(Color.misoInk)
+                            .misoChip(.misoMint)
+                    }
                     ForEach(Array(recipe.ingredients.enumerated()), id: \.offset) { index, ingredient in
                         Button {
                             toggle(&checked, index)
@@ -36,7 +51,7 @@ struct CookView: View {
                                     .foregroundStyle(checked.contains(index) ? Color.misoOrange : Color.secondary)
                                     .accessibilityHidden(true)
                                 VStack(alignment: .leading) {
-                                    Text(ingredient.text)
+                                    Text(IngredientScaler.scaleLine(ingredient.text, factor: factor))
                                     if ingredient.gluten && recipe.gfMode.isActive && !ingredient.gfSearch.isEmpty {
                                         Text(recipe.gfMode == .replace ? "i.p.v. gluten: \(ingredient.gfSearch)" : "extra voor 1: \(ingredient.gfSearch)")
                                             .font(.callout).foregroundStyle(Color.misoBlue)
@@ -85,19 +100,41 @@ struct CookView: View {
                 } header: { Text("Bereiding").misoSectionHeader() }
                 .misoRow()
                 Section {
-                    TasteFeedbackSection(recipeID: recipe.id, favorite: recipe.isFavorite, onRated: rated)
+                    TasteFeedbackSection(recipeID: recipe.id,
+                                         favorite: family.isMine(fans: recipe.fans, fallback: recipe.isFavorite),
+                                         onRated: rated)
                 }
                 .misoRow()
             }
             .misoScreen()
-            .navigationTitle(recipe.name)
+            .navigationTitle("Koken")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) { Button("Klaar", action: close).font(.misoButton) }
             }
         }
+        .task { await findPlannedPersons() }
         .onAppear { setScreenAlwaysOn(true) }
         .onDisappear { setScreenAlwaysOn(false) }
+    }
+
+    private var effectivePersons: Int? { persons ?? plannedPersons }
+    private var factor: Double { IngredientScaler.factor(persons: effectivePersons, servings: recipe.servings) }
+
+    /// "Omgerekend voor 6 personen (recept is voor 4)"
+    private var scaleNote: String? {
+        guard let p = effectivePersons, IngredientScaler.needsScaling(factor) else { return nil }
+        return "Omgerekend voor \(p) personen (recept is voor \(IngredientScaler.servings(recipe.servings)))"
+    }
+
+    /// Geopend vanaf het recept: staat het vandaag gepland? Dan voor dat aantal personen (zoals de web-kookmodus).
+    private func findPlannedPersons() async {
+        guard persons == nil, let api = session.api,
+              let today = try? await api.planEntries(start: KiezenDates.today, days: 1) else { return }
+        if let item = today.entries.first(where: { $0.recipeId == recipe.id && $0.kind == .recipe }) {
+            let p = item.groceryPersons > 0 ? item.groceryPersons : item.persons
+            plannedPersons = p > 0 ? p : nil
+        }
     }
 
     private func close() {

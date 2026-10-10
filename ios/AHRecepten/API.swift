@@ -6,6 +6,9 @@ struct APIError: LocalizedError {
     var status: Int? = nil
     var errorDescription: String? { message }
 
+    /// 403: de server weigert dit voor een kind ("Vraag dit even aan papa of mama.").
+    var isForbidden: Bool { status == 403 }
+
     /// 409: de gegevens zijn op de server intussen gewijzigd (bijv. het recept is bewerkt).
     var isConflict: Bool { status == 409 }
 }
@@ -15,6 +18,12 @@ private struct ServerError: Decodable { let error: String? }
 struct API {
     let baseURL: URL
     let token: String
+    /// Gekozen gezinslid ("Wie ben jij?"); gaat mee als header `X-Miso-Member`, zodat favorieten,
+    /// "Lekker?" en wensen per persoon worden bewaard en de server de kinderrol kent.
+    var memberID: String? = nil
+
+    /// Header met het gekozen gezinslid.
+    static let memberHeader = "X-Miso-Member"
 
     /// Wordt verstuurd als de server een ingelogde aanvraag weigert (401): de sessie is verlopen of de
     /// pincode is gewijzigd. De app logt dan uit en toont het inlogscherm.
@@ -34,7 +43,8 @@ struct API {
         return URL(string: path)
     }
 
-    private func request(_ path: String, method: String, query: [URLQueryItem] = []) throws -> URLRequest {
+    /// Aanvraag met serveradres, token en gezinslid (intern, zodat de tests de headers kunnen controleren).
+    func request(_ path: String, method: String, query: [URLQueryItem] = []) throws -> URLRequest {
         var url = baseURL.appending(path: path)
         if !query.isEmpty { url.append(queryItems: query) }
         guard url.scheme != nil else { throw APIError(message: "Ongeldig serveradres") }
@@ -42,6 +52,7 @@ struct API {
         req.httpMethod = method
         req.timeoutInterval = 120 // Claude kan even bezig zijn
         if !token.isEmpty { req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
+        if let memberID, !memberID.isEmpty { req.setValue(memberID, forHTTPHeaderField: Self.memberHeader) }
         return req
     }
 
@@ -56,6 +67,7 @@ struct API {
                 throw APIError(message: "Je bent uitgelogd. Log opnieuw in met de pincode.", status: status)
             }
             let msg = (try? Self.decoder.decode(ServerError.self, from: data))?.error
+            if status == 403 { throw APIError(message: msg ?? "Vraag dit even aan papa of mama.", status: status) }
             if msg == nil && status == 422 { throw APIError(message: "Controleer de invoer.", status: status) }
             throw APIError(message: msg ?? "Serverfout (HTTP \(status))", status: status)
         }
@@ -72,6 +84,10 @@ struct API {
 
     func patch<T: Decodable>(_ path: String, json body: some Encodable) async throws -> T {
         try await send(path, method: "PATCH", json: body)
+    }
+
+    func put<T: Decodable>(_ path: String, json body: some Encodable) async throws -> T {
+        try await send(path, method: "PUT", json: body)
     }
 
     func delete<T: Decodable>(_ path: String) async throws -> T {

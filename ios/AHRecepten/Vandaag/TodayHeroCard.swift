@@ -7,9 +7,14 @@ struct TodayHeroCard: View {
     let recipe: RecipeDetail?
     /// Recept wordt opgehaald na een tik op "Start met koken".
     var starting = false
+    /// Eerlijke tijd en "zet eerst de oven aan" (uit de bereiding).
+    var hints: CookHints?
+    var moving = false
     let onCook: () -> Void
-    /// "Toch iets anders": naar Plannen voor deze week (daar kun je vandaag wijzigen).
-    let onSomethingElse: () -> Void
+    /// "Iets snellers": Plannen voor vandaag met de wens "snel" (vervangt pas bij bevestigen). nil = kind.
+    var onQuicker: (() -> Void)?
+    /// "Verplaats naar morgen". nil = kind of niet aan te passen.
+    var onMove: (() -> Void)?
 
     private var isRecipe: Bool { item.kind == .recipe && item.recipeId != nil }
     private var byHeart: Bool { recipe?.isByHeart ?? false }
@@ -28,7 +33,7 @@ struct TodayHeroCard: View {
                     PlanItemThumbnail(item: item, size: 72)
                 }
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(item.title)
+                    Text(RecipeDisplayName.short(item.title))
                         .font(.misoTitle2)
                         .foregroundStyle(Color.misoBlue)
                         .fixedSize(horizontal: false, vertical: true)
@@ -39,6 +44,14 @@ struct TodayHeroCard: View {
             }
             .accessibilityElement(children: .combine)
             .accessibilityAddTraits(.isHeader)
+            if isRecipe, let oven = hints?.ovenText {
+                Label(oven, systemImage: "flame")
+                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                    .foregroundStyle(Color.misoInk)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.misoOrange.opacity(0.35), in: Capsule())
+            }
             if isRecipe, let summary = item.recipe {
                 if byHeart {
                     Label("Je kent dit uit je hoofd", systemImage: "brain.head.profile")
@@ -65,11 +78,24 @@ struct TodayHeroCard: View {
                     .accessibilityHint("Opent het recept met ingrediënten en bereiding")
                 }
             }
-            Button("Toch iets anders", systemImage: "arrow.triangle.2.circlepath", action: onSomethingElse)
+            if onQuicker != nil || onMove != nil {
+                HStack(spacing: 8) {
+                    if let onQuicker {
+                        Button("Iets snellers", systemImage: "hare", action: onQuicker)
+                            .accessibilityHint("Miso stelt snelle recepten voor vandaag voor; dit gerecht blijft tot je kiest")
+                    }
+                    if let onMove {
+                        Button(action: onMove) {
+                            if moving { ProgressView() } else { Label("Naar morgen", systemImage: "arrow.turn.down.right") }
+                        }
+                        .disabled(moving)
+                        .accessibilityLabel("Verplaats naar morgen")
+                    }
+                }
                 .font(.system(.subheadline, design: .rounded).weight(.semibold))
                 .foregroundStyle(Color.misoBlue)
                 .frame(maxWidth: .infinity, minHeight: 44)
-                .accessibilityHint("Opent Plannen, daar kun je vandaag wijzigen")
+            }
         }
         .misoCard()
         .overlay {
@@ -80,7 +106,8 @@ struct TodayHeroCard: View {
     private var meta: String {
         switch item.kind {
         case .recipe, .other:
-            return [item.recipe?.totalTime ?? "", item.persons > 0 ? "voor \(item.persons)" : ""]
+            let time = hints?.timeText ?? item.recipe?.totalTime ?? ""
+            return [item.persons > 0 ? "voor \(item.persons)" : "", time]
                 .filter { !$0.isEmpty }.joined(separator: " · ")
         case .leftover:
             return "Restjes, niets te koken"

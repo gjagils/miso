@@ -3,6 +3,7 @@ import SwiftUI
 struct RecipeDetailView: View {
     @Environment(Session.self) private var session
     @Environment(AppRouter.self) private var router
+    @Environment(FamilyModel.self) private var family
     @Environment(\.dismiss) private var dismiss
     let recipeID: Int
     @State private var recipe: RecipeDetail?
@@ -19,6 +20,11 @@ struct RecipeDetailView: View {
     /// Melding boven het recept (bijv. koppelen mislukt of recept was intussen gewijzigd).
     @State private var bannerText: String?
     @State private var savingFlags = false
+    @State private var wishing = false
+    @State private var wishMessage: String?
+
+    private var isKid: Bool { family.isKid }
+    private var favoriteOn: Bool { recipe.map { family.isMine(fans: $0.fans, fallback: $0.isFavorite) } ?? false }
 
     var body: some View {
         List {
@@ -30,18 +36,28 @@ struct RecipeDetailView: View {
                 }
                 Section {
                     VStack(spacing: 12) {
+                        Text(recipe.displayName)
+                            .font(.misoTitle2)
+                            .foregroundStyle(Color.misoBlue)
+                            .multilineTextAlignment(.center)
+                            .accessibilityAddTraits(.isHeader)
                         RecipeImage(path: recipe.imageUrl, size: 200)
                         let meta = [recipe.servings, recipe.totalTime].filter { !$0.isEmpty }.joined(separator: " · ")
                         if !meta.isEmpty { Text(meta).font(.misoCaption).foregroundStyle(.secondary) }
-                        if recipe.isMealKit || recipe.isArchived {
+                        if recipe.showsMealKitTag || recipe.isArchived {
                             HStack(spacing: 6) {
-                                if recipe.isMealKit { MealKitBadge() }
+                                if recipe.showsMealKitTag { MealKitBadge() }
                                 if recipe.isArchived { Text("Opgeruimd").misoChip(.misoLilac) }
                             }
                         }
                         if !recipe.description.isEmpty { Text(recipe.description).font(.misoBody) }
-                        Button("Inplannen", systemImage: "calendar.badge.plus", action: startPlanning)
-                            .buttonStyle(.misoPrimary)
+                        if isKid {
+                            // Kinderen plannen niet: één tik en papa en mama zien de wens bij Plannen.
+                            wishButton.buttonStyle(.misoPrimary)
+                        } else {
+                            Button("Inplannen", systemImage: "calendar.badge.plus", action: startPlanning)
+                                .buttonStyle(.misoPrimary)
+                        }
                         // "Ken ik uit mijn hoofd": geen kookmodus, de ingrediënten staan hieronder.
                         if recipe.isByHeart {
                             Text("Je kent dit uit je hoofd. De ingrediënten staan hieronder, voor de boodschappen.")
@@ -52,8 +68,18 @@ struct RecipeDetailView: View {
                             Button("Kookmodus", systemImage: "flame", action: startCooking)
                                 .buttonStyle(.misoSecondary)
                         }
-                        RecipeFlagsBar(recipe: recipe, busy: savingFlags, onFavorite: toggleFavorite,
-                                       onByHeart: toggleByHeart, onArchive: toggleArchived)
+                        RecipeFlagsBar(recipe: recipe, busy: savingFlags, favoriteOn: favoriteOn, isKid: isKid,
+                                       onFavorite: toggleFavorite, onByHeart: toggleByHeart, onArchive: toggleArchived)
+                        if !isKid {
+                            wishButton
+                                .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                .foregroundStyle(Color.misoBlue)
+                                .frame(minHeight: 44)
+                        }
+                        if let wishMessage {
+                            Text(wishMessage).font(.callout).foregroundStyle(Color.misoBlue)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
                         if let plannedMessage {
                             HStack(spacing: 10) {
                                 MascotView(pose: "celebrate", size: 48)
@@ -70,48 +96,60 @@ struct RecipeDetailView: View {
                     .misoRow()
                 }
 
-                Section {
-                    switch recipe.gfMode {
-                    case .extra: Text("Extra glutenvrij product erbij (voor 1 persoon)")
-                    case .replace: Text("Ingrediënt voor iedereen vervangen")
-                    case .none: Text("Nog niet ingesteld").foregroundStyle(.secondary)
-                    }
-                    if !recipe.gfNote.isEmpty { Text(recipe.gfNote).font(.callout) }
-                    Button(action: startGlutenFreeSuggestion) {
-                        if busy { ProgressView() } else { Label("Voorstel van Claude", systemImage: "wand.and.stars") }
-                    }
-                    .buttonStyle(.misoSecondary)
-                    .disabled(busy)
-                    if let message { Text(message).font(.caption).foregroundStyle(.secondary) }
-                } header: { Text("Glutenvrij voor minstens 1 persoon").misoSectionHeader() }
-                .misoRow()
-
-                Section {
-                    ForEach(Array(recipe.ingredients.enumerated()), id: \.offset) { position, ingredient in
-                        let selection = IngredientSelection(position: position, ingredient: ingredient)
-                        Button {
-                            editingIngredient = selection
-                        } label: {
-                            IngredientRow(ingredient: ingredient)
+                if !isKid {
+                    Section {
+                        switch recipe.gfMode {
+                        case .extra: Text("Extra glutenvrij product erbij (voor 1 persoon)")
+                        case .replace: Text("Ingrediënt voor iedereen vervangen")
+                        case .none: Text("Nog niet ingesteld").foregroundStyle(.secondary)
                         }
-                        .buttonStyle(.plain)
-                        .accessibilityHint("Kies een AH-product, pas het aantal aan of zet op niet nodig")
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            if ingredient.skip {
-                                Button("Toch nodig", systemImage: "cart.badge.plus") { setSkip(false, selection) }
-                                    .tint(Color.misoBlue)
-                            } else {
-                                Button("Niet nodig", systemImage: "cart.badge.minus") { setSkip(true, selection) }
-                                    .tint(Color.misoBlue)
+                        if !recipe.gfNote.isEmpty { Text(recipe.gfNote).font(.callout) }
+                        Button(action: startGlutenFreeSuggestion) {
+                            if busy { ProgressView() } else { Label("Voorstel van Claude", systemImage: "wand.and.stars") }
+                        }
+                        .buttonStyle(.misoSecondary)
+                        .disabled(busy)
+                        if let message { Text(message).font(.caption).foregroundStyle(.secondary) }
+                    } header: { Text("Glutenvrij voor minstens 1 persoon").misoSectionHeader() }
+                    .misoRow()
+                }
+
+                if isKid {
+                    // Alleen lezen: geen AH-producten kiezen of uitvinken.
+                    Section {
+                        ForEach(Array(recipe.ingredients.enumerated()), id: \.offset) { _, ingredient in
+                            Text(ingredient.text)
+                        }
+                    } header: { Text("Ingrediënten").misoSectionHeader() }
+                    .misoRow()
+                } else {
+                    Section {
+                        ForEach(Array(recipe.ingredients.enumerated()), id: \.offset) { position, ingredient in
+                            let selection = IngredientSelection(position: position, ingredient: ingredient)
+                            Button {
+                                editingIngredient = selection
+                            } label: {
+                                IngredientRow(ingredient: ingredient)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityHint("Kies een AH-product, pas het aantal aan of zet op niet nodig")
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                if ingredient.skip {
+                                    Button("Toch nodig", systemImage: "cart.badge.plus") { setSkip(false, selection) }
+                                        .tint(Color.misoBlue)
+                                } else {
+                                    Button("Niet nodig", systemImage: "cart.badge.minus") { setSkip(true, selection) }
+                                        .tint(Color.misoBlue)
+                                }
                             }
                         }
+                    } header: {
+                        Text("Ingrediënten").misoSectionHeader()
+                    } footer: {
+                        Text("Tik op een ingrediënt om een AH-product te kiezen. Veeg naar links voor “Niet nodig”.")
                     }
-                } header: {
-                    Text("Ingrediënten").misoSectionHeader()
-                } footer: {
-                    Text("Tik op een ingrediënt om een AH-product te kiezen. Veeg naar links voor “Niet nodig”.")
+                    .misoRow()
                 }
-                .misoRow()
 
                 Section {
                     ForEach(Array(recipe.instructions.enumerated()), id: \.offset) { index, step in
@@ -144,23 +182,25 @@ struct RecipeDetailView: View {
             }
         }
         .misoScreen()
-        .navigationTitle(recipe?.name ?? "Recept")
+        .navigationTitle(recipe?.displayName ?? "Recept")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Menu {
-                    Button("Bewerken", systemImage: "pencil", action: startEditing)
-                    Button("Verwijderen", systemImage: "trash", role: .destructive, action: askDelete)
-                } label: {
-                    if deleting {
-                        ProgressView()
-                    } else {
-                        Label("Meer acties", systemImage: "ellipsis.circle")
-                            .frame(minWidth: 44, minHeight: 44)
-                            .contentShape(.rect)
+            if !isKid {
+                ToolbarItem(placement: .primaryAction) {
+                    Menu {
+                        Button("Bewerken", systemImage: "pencil", action: startEditing)
+                        Button("Verwijderen", systemImage: "trash", role: .destructive, action: askDelete)
+                    } label: {
+                        if deleting {
+                            ProgressView()
+                        } else {
+                            Label("Meer acties", systemImage: "ellipsis.circle")
+                                .frame(minWidth: 44, minHeight: 44)
+                                .contentShape(.rect)
+                        }
                     }
+                    .disabled(recipe == nil || deleting)
                 }
-                .disabled(recipe == nil || deleting)
             }
         }
         .confirmationDialog("“\(recipe?.name ?? "Recept")” verwijderen?", isPresented: $confirmDelete,
@@ -171,7 +211,7 @@ struct RecipeDetailView: View {
             Text("Het recept verdwijnt uit je recepten en van het weekmenu. Dit kun je niet ongedaan maken.")
         }
         .fullScreenCover(item: $cookRecipe) { recipe in
-            CookView(recipe: recipe)
+            CookView(recipe: recipe, persons: nil)
         }
         .sheet(item: $planRequest) { request in
             PlanSheet(request: request, onDone: planned)
@@ -196,7 +236,7 @@ struct RecipeDetailView: View {
 
     private func toggleFavorite() {
         guard let recipe else { return }
-        saveFlags(RecipeFlagsBody(favorite: !recipe.isFavorite))
+        saveFlags(RecipeFlagsBody(favorite: !family.isMine(fans: recipe.fans, fallback: recipe.isFavorite)))
     }
 
     private func toggleByHeart() {
@@ -221,6 +261,7 @@ struct RecipeDetailView: View {
                     recipe?.favorite = summary?.favorite ?? body.favorite ?? recipe?.favorite
                     recipe?.byHeart = summary?.byHeart ?? body.byHeart ?? recipe?.byHeart
                     recipe?.archived = summary?.archived ?? body.archived ?? recipe?.archived
+                    if let fans = summary?.fans { recipe?.fans = fans }
                 }
                 router.recipesChanged()
                 if let archived = body.archived {
@@ -229,6 +270,31 @@ struct RecipeDetailView: View {
             } catch {
                 withAnimation { bannerText = "Opslaan lukte niet. \(error.localizedDescription)" }
             }
+        }
+    }
+
+    /// "Ik wil dit graag": wens voor het gezin (ouders zien hem bovenaan Plannen).
+    private var wishButton: some View {
+        Button(action: sendWish) {
+            if wishing { ProgressView() } else { Label("Ik wil dit graag", systemImage: "hand.raised") }
+        }
+        .disabled(wishing || recipe == nil)
+    }
+
+    private func sendWish() {
+        guard let api = session.api else { return }
+        wishing = true
+        Task {
+            defer { wishing = false }
+            do {
+                let result = try await api.addWish(WishBody(recipeId: recipeID))
+                wishMessage = result.ok ? (isKid ? "Doorgegeven! Papa en mama zien je wens bij het plannen."
+                                                 : "Doorgegeven! Het staat bij Plannen onder Wensen van het gezin.")
+                                        : (result.error ?? "Dat lukte niet.")
+            } catch {
+                wishMessage = error.localizedDescription
+            }
+            if let wishMessage { AccessibilityNotification.Announcement(wishMessage).post() }
         }
     }
 

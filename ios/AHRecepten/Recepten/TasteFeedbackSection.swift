@@ -76,6 +76,7 @@ struct TasteFeedbackSection: View {
                 let result = try await api.sendFeedback(recipeID, rating: newRating)
                 guard result.ok else { throw APIError(message: "Opslaan mislukt.") }
                 rating = result.rating ?? newRating
+                RatedStore().mark(recipeID: recipeID, date: KiezenDates.today, member: session.memberID)
                 onRated()
                 message = rating == .up ? "Genoteerd: lekker! Miso stelt dit vaker voor."
                                         : "Genoteerd. Miso stelt dit minder vaak voor."
@@ -97,7 +98,7 @@ struct TasteFeedbackSection: View {
                 guard result.ok else { throw APIError(message: "Opslaan mislukt.") }
                 favorite = on
                 router.recipesChanged()
-                message = on ? "Bij je favorieten gezet." : "Uit je favorieten gehaald."
+                message = on ? "Bij jouw favorieten gezet." : "Uit jouw favorieten gehaald."
             } catch {
                 message = "Opslaan mislukt. \(error.localizedDescription)"
             }

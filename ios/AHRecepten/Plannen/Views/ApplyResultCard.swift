@@ -22,7 +22,7 @@ struct ApplyResultCard: View {
             if outcome.success {
                 if outcome.unmatched > 0 {
                     NavigationLink {
-                        MissingView()
+                        MissingView(week: week)
                     } label: {
                         Label("\(plural(outcome.unmatched, "ingrediënt heeft", "ingrediënten hebben")) nog geen AH-product: kies ze",
                               systemImage: "cart.badge.questionmark")

@@ -9,12 +9,16 @@ struct PlannenDay: Identifiable, Equatable, Sendable {
     let isPast: Bool
     /// Planregels op deze dag (voor Wijzig en Haal weg).
     var entryIDs: [Int] = []
+    /// "Wijzig": de dag staat weer open voor een wens; wat er staat gaat pas weg bij bevestigen.
+    var replacing = false
 
     var isWeekend: Bool { (KiezenDates.weekdayIndex(date) ?? 0) >= 5 }
-    var isOpen: Bool { taken.isEmpty && !isPast }
+    var isOpen: Bool { (taken.isEmpty || replacing) && !isPast }
     var label: String { KiezenDates.label(date) }
     /// Bezet en nog niet voorbij: Wijzig en Haal weg mogen (als de server entry-ids stuurt).
     var canClear: Bool { !taken.isEmpty && !isPast && !entryIDs.isEmpty }
+    /// Wijzig mag ook zonder entry-ids: er wordt niets gewist, alleen opnieuw gekozen.
+    var canChange: Bool { !taken.isEmpty && !isPast }
 
     /// Zeven dagen vanaf `monday`, met wat er al gepland is.
     static func week(monday: String, today: String, entries: [PlanItem]) -> [PlannenDay] {

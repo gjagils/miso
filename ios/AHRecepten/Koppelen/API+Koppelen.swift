@@ -21,8 +21,9 @@ extension API {
         return ingredient
     }
 
-    func missing() async throws -> MissingResponse {
-        try await get("api/missing")
+    /// Ontbrekend; met `week` alleen de recepten van die week.
+    func missing(week: String? = nil) async throws -> MissingResponse {
+        try await get("api/missing", query: week.map { [URLQueryItem(name: "week", value: $0)] } ?? [])
     }
 
     /// `product: nil` = niet nodig.

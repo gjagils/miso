@@ -20,9 +20,12 @@ final class MissingModel {
 
     var lineCount: Int { groups.reduce(0) { $0 + $1.lines.count } }
 
+    /// Alleen de recepten van deze week (maandag); nil = alle recepten.
+    var week: String?
+
     func load(api: API) async {
         do {
-            let result = try await api.missing()
+            let result = try await api.missing(week: week)
             groups = result.groups
             totals = result.totaal
             errorText = nil
