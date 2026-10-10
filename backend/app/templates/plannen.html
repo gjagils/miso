@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Plannen - Miso{% endblock %}
+{% block content %}
+<div class="page-head"><img src="/static/miso/miso-checklist.webp" alt="" width="76" height="76" loading="lazy"><h1>Plannen</h1></div>
+<nav class="week-nav" aria-label="Week">
+    <a class="btn btn-sm" href="/plannen?week={{ prev_week }}" aria-label="Vorige week">‹</a>
+    <strong>Week van {{ days[0].label }}</strong>
+    <a class="btn btn-sm" href="/plannen?week={{ next_week }}" aria-label="Volgende week">›</a>
+</nav>
+
+<section class="settings-section" id="wish-step">
+    <h2>Waar hebben jullie zin in?</h2>
+    {% if has_api_key %}
+    <form id="sentence" class="form-group">
+        <input class="form-input" name="text" style="flex:1;min-width:220px"
+               placeholder="Bijv. maandag rijst, dinsdag wraps, woensdag vriezer, donderdag lasagne, vrijdag geen idee">
+        <button class="btn" type="submit">Vul in</button>
+    </form>
+    <p class="muted" id="sentence-msg" role="status"></p>
+    {% endif %}
+
+    <div class="wish-days">
+    {% for d in days if not d.weekend %}{% include "_wish_day.html" %}{% endfor %}
+    </div>
+    <details class="wish-weekend">
+        <summary>Weekend ook plannen</summary>
+        <div class="wish-days">{% for d in days if d.weekend %}{% include "_wish_day.html" %}{% endfor %}</div>
+    </details>
+    <div class="nw-actions"><button class="btn btn-primary" id="propose-btn" type="button">Stel recepten voor</button>
+        <span class="muted" id="propose-msg" role="status"></span></div>
+    <p class="muted" style="margin-top:0.75rem">Liever zelf zoeken, ook in Allerhande en de bonus? <a href="/kiezen">Zelf recepten kiezen</a></p>
+</section>
+
+<section class="settings-section" id="proposal" hidden>
+    <h2>Voorstel</h2>
+    <p class="muted">Tik op een alternatief om te wisselen.</p>
+    <div id="proposal-days" class="proposal-days"></div>
+    <div class="nw-actions">
+        <button class="btn btn-primary" id="apply-btn" type="button">{{ "Zet in weekmenu en op mijn AH-lijstje" if has_token else "Zet in weekmenu" }}</button>
+        <button class="btn" id="again-btn" type="button">Andere wensen</button>
+    </div>
+    <div id="apply-result" class="kz-result" hidden role="status"></div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const WEEK = "{{ week }}", HAS_TOKEN = {{ "true" if has_token else "false" }};
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+const postJSON = (url, body) => fetch(url, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)})
+    .then(r => r.json()).catch(() => ({ok: false}));
+let proposal = [];          // [{date, label, kind, options, pick}]
+
+function setWish(row, value) {
+    row.querySelectorAll(".wchip").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.chip === value)));
+    if (value && !row.querySelector(`.wchip[data-chip="${CSS.escape(value)}"]`)) row.querySelector(".wtext").value = value;
+    else row.querySelector(".wtext").value = "";
+}
+document.querySelectorAll(".wish-day").forEach(row => {
+    row.querySelectorAll(".wchip").forEach(b => b.onclick = () => {
+        const on = b.getAttribute("aria-pressed") !== "true";
+        setWish(row, on ? b.dataset.chip : "");
+    });
+    row.querySelector(".wtext").addEventListener("input", () =>
+        row.querySelectorAll(".wchip").forEach(b => b.setAttribute("aria-pressed", "false")));
+});
+function collect() {
+    const out = {};
+    document.querySelectorAll(".wish-day:not(.taken)").forEach(row => {
+        const pressed = row.querySelector('.wchip[aria-pressed="true"]');
+        const text = row.querySelector(".wtext").value.trim();
+        if (pressed || text) out[row.dataset.date] = pressed ? pressed.dataset.chip : text;
+    });
+    return out;
+}
+$("sentence")?.addEventListener("submit", async e => {
+    e.preventDefault();
+    const text = e.target.text.value.trim();
+    if (!text) return;
+    $("sentence-msg").textContent = "Miso leest mee…";
+    const r = await postJSON("/api/plan/wishes-text", {week: WEEK, text});
+    if (!r.ok) { $("sentence-msg").textContent = r.error || "Dat lukte niet."; return; }
+    Object.entries(r.wishes).forEach(([d, w]) => {
+        const row = document.querySelector(`.wish-day[data-date="${d}"]:not(.taken)`);
+        if (row) { setWish(row, w); if (row.closest("details")) row.closest("details").open = true; }
+    });
+    $("sentence-msg").textContent = "Ingevuld. Pas aan waar nodig en kies 'Stel recepten voor'.";
+});
+
+function optionHTML(o, main) {
+    const img = o.image_url ? `<img src="${esc(o.image_url)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<span class="opt-ph"></span>`;
+    return `${img}<span class="opt-name">${o.favorite ? '<span class="fav">♥</span> ' : ""}${esc(o.name)}</span>
+        <span class="muted">${esc(o.total_time || "")}${o.allerhande ? (o.total_time ? " · " : "") + "Allerhande" : ""}</span>`;
+}
+function renderProposal() {
+    $("proposal-days").innerHTML = "";
+    proposal.forEach(day => {
+        const card = document.createElement("div");
+        card.className = "day-card proposal-day";
+        const title = `<h3>${esc(day.dayLabel)} <span class="muted">· ${esc(day.label)}</span></h3>`;
+        if (day.kind === "vriezer") card.innerHTML = title + `<p>🧊 Iets uit de vriezer (geen boodschappen)</p>`;
+        else if (day.kind === "overslaan") card.innerHTML = title + `<p class="muted">Niets gepland</p>`;
+        else if (day.kind === "taken") card.innerHTML = title + `<p class="muted">Staat al: ${esc(day.taken)}</p>`;
+        else if (day.kind === "none") card.innerHTML = title + `<p class="muted">Geen recept gevonden. Probeer een andere wens.</p>`;
+        else {
+            card.innerHTML = title + `<div class="opt-main">${optionHTML(day.options[day.pick], true)}</div>`;
+            const alts = document.createElement("div");
+            alts.className = "opt-alts";
+            day.options.forEach((o, i) => {
+                if (i === day.pick) return;
+                const b = document.createElement("button");
+                b.type = "button"; b.className = "opt-alt"; b.innerHTML = optionHTML(o, false);
+                b.setAttribute("aria-label", `Wissel naar ${o.name}`);
+                b.onclick = () => { day.pick = i; renderProposal(); };
+                alts.appendChild(b);
+            });
+            card.appendChild(alts);
+        }
+        $("proposal-days").appendChild(card);
+    });
+}
+$("propose-btn").onclick = async () => {
+    const w = collect();
+    if (!Object.keys(w).length) { $("propose-msg").textContent = "Kies voor minstens één dag een wens."; return; }
+    $("propose-msg").textContent = "Miso zoekt recepten…";
+    const r = await postJSON("/api/plan/propose", {week: WEEK, wishes: w});
+    $("propose-msg").textContent = "";
+    if (!r.ok) { $("propose-msg").textContent = "Voorstellen lukte niet."; return; }
+    proposal = r.days.map(d => ({...d, pick: 0,
+        dayLabel: document.querySelector(`.wish-day[data-date="${d.date}"] .wday`).textContent}));
+    $("wish-step").hidden = true; $("proposal").hidden = false; $("apply-result").hidden = true;
+    renderProposal();
+    window.scrollTo({top: 0, behavior: "smooth"});
+};
+$("again-btn").onclick = () => { $("proposal").hidden = true; $("wish-step").hidden = false; };
+$("apply-btn").onclick = async () => {
+    const btn = $("apply-btn");
+    btn.disabled = true; btn.textContent = "Bezig…";
+    const choices = [], swapped = [];
+    proposal.forEach(d => {
+        if (d.kind === "vriezer") choices.push({date: d.date, kind: "vriezer"});
+        if (d.kind === "recipe" && d.options.length) {
+            const o = d.options[d.pick];
+            choices.push({date: d.date, kind: "recipe", recipe_id: o.recipe_id || null, ah_recipe_id: o.ah_recipe_id || null});
+            if (d.pick !== 0 && d.options[0].recipe_id) swapped.push(d.options[0].recipe_id);
+        }
+    });
+    const a = await postJSON("/api/plan/apply", {week: WEEK, choices, swapped});
+    let text = a.ok ? `${a.added} ${a.added === 1 ? "dag" : "dagen"} ingepland.` : "Inplannen lukte niet.";
+    if (a.ok && HAS_TOKEN) {
+        const s = await postJSON("/api/plan/sync", {week: WEEK});
+        text += s.ok ? (s.added ? ` ${s.added} producten op je AH-lijstje gezet.` : " Alles stond al op je AH-lijstje.")
+                     : ` Lijstje bijwerken lukte niet: ${s.error || "onbekende fout"}.`;
+    }
+    const box = $("apply-result");
+    box.hidden = false; box.className = "kz-result " + (a.ok ? "msg-ok" : "msg-err");
+    box.innerHTML = `<img src="/static/miso/${a.ok ? "miso-celebrate" : "miso-surprised"}.webp" alt="" width="56" height="56"><span></span>`;
+    box.querySelector("span").textContent = text;
+    if (a.ok) box.querySelector("span").insertAdjacentHTML("beforeend", ` <a href="/weekmenu?week=${WEEK}">Bekijk het weekmenu</a>`);
+    btn.textContent = "Klaar";
+};
+</script>
+{% endblock %}

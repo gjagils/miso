@@ -13,6 +13,7 @@ from app.api.routes import router
 from app.api.shopping import router as shopping_router
 from app.api.health import router as health_router
 from app.api.plan import router as plan_router
+from app.api.wishes import router as wishes_router
 from app.config import settings
 from app.database import Base, engine
 from app.logging_config import setup_logging
@@ -81,4 +82,5 @@ app.include_router(json_router)
 app.include_router(shopping_router)
 app.include_router(health_router)
 app.include_router(plan_router)
+app.include_router(wishes_router)
 app.include_router(router)

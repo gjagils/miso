@@ -1,0 +1,11 @@
+<div class="wish-day{{ ' taken' if d.taken or d.past }}" data-date="{{ d.date }}">
+    <span class="wday">{{ d.label }}</span>
+    {% if d.taken %}<span class="muted">Staat al: {{ d.taken }}</span>
+    {% elif d.past %}<span class="muted">Voorbij</span>
+    {% else %}
+    <div class="wchips" role="group" aria-label="Wens voor {{ d.label }}">
+        {% for key, label in chips %}<button type="button" class="wchip" data-chip="{{ key }}" aria-pressed="false">{{ label }}</button>{% endfor %}
+    </div>
+    <input class="form-input wtext" placeholder="of typ een gerecht, bijv. lasagne" aria-label="Gerecht voor {{ d.label }}">
+    {% endif %}
+</div>

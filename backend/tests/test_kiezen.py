@@ -26,7 +26,7 @@ def test_kiezen_page_renders(db):
     resp = client.get("/kiezen")
     assert resp.status_code == 200
     assert "Wat eten we?" in resp.text and "Pasta pesto" in resp.text
-    assert 'href="/kiezen"' in resp.text  # in de tabbar
+    assert "/plannen" in resp.text  # in de tabbar
     assert "/kiezen?week=" in client.get("/weekmenu").text
 
 
