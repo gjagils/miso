@@ -38,9 +38,9 @@ final class TodayModel {
             errorText = error.localizedDescription
         }
         loaded = true
-        if let id = mainItem?.recipeId, mainItem?.kind == .recipe {
-            if todayRecipe?.id != id { todayRecipe = nil }
-            todayRecipe = (try? await api.recipe(id: id)) ?? todayRecipe
+        if mainItem?.kind == .recipe, mainItem?.recipeId != nil {
+            if todayRecipe?.id != mainItem?.recipeId { todayRecipe = nil }
+            _ = await loadTodayRecipe(api: api)
         } else {
             todayRecipe = nil
         }
@@ -49,6 +49,13 @@ final class TodayModel {
         } else {
             suggestions = []
         }
+    }
+
+    /// Volledig recept van vandaag ophalen (ook opnieuw als het eerder mislukte, bijv. bij "Start met koken").
+    func loadTodayRecipe(api: API) async -> RecipeDetail? {
+        guard let id = mainItem?.recipeId, mainItem?.kind == .recipe else { return nil }
+        if let fresh = try? await api.recipe(id: id) { todayRecipe = fresh }
+        return todayRecipe
     }
 
     private func loadSuggestions(api: API) async {
@@ -77,6 +84,10 @@ final class TodayModel {
             errorText = "Inplannen lukte niet. \(error.localizedDescription)"
             return false
         }
+    }
+
+    func report(_ message: String) {
+        errorText = message
     }
 
     func dismissError() {

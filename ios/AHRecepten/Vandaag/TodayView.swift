@@ -11,6 +11,7 @@ struct TodayView: View {
     /// Idee waar je op tikte; eerst bevestigen ("Dit koken we" / "Terug").
     @State private var pendingIdea: TodaySuggestion?
     @State private var confirmingIdea = false
+    @State private var startingCook = false
 
     var body: some View {
         NavigationStack {
@@ -62,7 +63,8 @@ struct TodayView: View {
 
     @ViewBuilder private var tonight: some View {
         if let main = model.mainItem {
-            TodayHeroCard(item: main, recipe: model.todayRecipe, onCook: startCooking, onSomethingElse: planToday)
+            TodayHeroCard(item: main, recipe: model.todayRecipe, starting: startingCook, onCook: startCooking,
+                          onSomethingElse: planToday)
             ForEach(model.otherTodayItems) { item in
                 UpcomingDayRow(title: "Ook vandaag", items: [item])
             }
@@ -98,8 +100,22 @@ struct TodayView: View {
 
     // MARK: Acties
 
+    /// Recept al binnen: meteen koken. Anders eerst ophalen (bijv. als dat bij het laden mislukte).
     private func startCooking() {
-        cookRecipe = model.todayRecipe
+        if let recipe = model.todayRecipe {
+            cookRecipe = recipe
+            return
+        }
+        guard let api = session.api else { return }
+        startingCook = true
+        Task {
+            defer { startingCook = false }
+            if let recipe = await model.loadTodayRecipe(api: api) {
+                cookRecipe = recipe
+            } else {
+                model.report("Het recept laden lukte niet. Probeer het nog eens.")
+            }
+        }
     }
 
     private func ask(_ idea: TodaySuggestion) {

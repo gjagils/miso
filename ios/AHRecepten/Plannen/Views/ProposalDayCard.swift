@@ -34,7 +34,23 @@ struct ProposalDayCard: View {
                     .foregroundStyle(.secondary)
             case .recipe:
                 if let chosen {
-                    ProposalOptionLabel(option: chosen, imageSize: 88)
+                    // Eigen recept: tik om het te bekijken (terug brengt je naar het voorstel).
+                    if let id = chosen.recipeId {
+                        NavigationLink(value: RecipeSummaryLink(id: id)) {
+                            HStack(spacing: 8) {
+                                ProposalOptionLabel(option: chosen, imageSize: 88)
+                                Image(systemName: "chevron.right")
+                                    .font(.footnote.weight(.semibold))
+                                    .foregroundStyle(.secondary)
+                                    .accessibilityHidden(true)
+                            }
+                            .contentShape(.rect)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityHint("Bekijk het recept")
+                    } else {
+                        ProposalOptionLabel(option: chosen, imageSize: 88)
+                    }
                 }
                 if !alternatives.isEmpty {
                     Text("Of wissel naar")

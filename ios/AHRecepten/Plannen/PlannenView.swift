@@ -39,11 +39,14 @@ struct PlannenView: View {
                     .padding(16)
                 }
                 .onChange(of: model.step) { scrollTop(proxy) }
+                // Uitslag staat bovenaan het voorstel: erheen scrollen, anders zie je hem niet.
+                .onChange(of: model.applyOutcome) { scrollTop(proxy) }
             }
             .scrollDismissesKeyboard(.interactively)
             .background(Color.misoCream)
             .navigationTitle("Plannen")
-            .safeAreaInset(edge: .bottom) { bottomBar }
+            // Tijdens typen geen knoppenbalk boven het toetsenbord: dan zie je het veld niet meer.
+            .safeAreaInset(edge: .bottom) { if focus == nil { bottomBar } }
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
@@ -61,6 +64,7 @@ struct PlannenView: View {
                 Task { await reload() }
             }
             .navigationDestination(for: WeekmenuRoute.self) { PlanView(initialWeek: $0.week) }
+            .navigationDestination(for: RecipeSummaryLink.self) { RecipeDetailView(recipeID: $0.id) }
             .sheet(isPresented: $showKiezen, onDismiss: kiezenClosed) {
                 KiezenView(onClose: closeKiezen)
             }
@@ -205,6 +209,12 @@ struct PlannenView: View {
                     }
                     .buttonStyle(.misoPrimary)
                     .disabled(model.applying || (model.selection?.plannedCount ?? 0) == 0)
+                    if (model.selection?.plannedCount ?? 0) == 0 {
+                        Text("Er is niets om in te plannen. Kies Andere wensen.")
+                            .font(.callout)
+                            .foregroundStyle(Color.misoBlue)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
                     Button("Andere wensen", action: backToWishes)
                         .buttonStyle(.misoSecondary)
                         .disabled(model.applying)
@@ -230,7 +240,9 @@ struct PlannenView: View {
     private var proposeTitle: String {
         let count = model.collected.count
         if !model.days.isEmpty && model.openDays.isEmpty { return "Alles is al gepland" }
-        return count == 0 ? "Stel recepten voor" : "Stel recepten voor (\(plural(count, "dag", "dagen")))"
+        // Niets gekozen: één tik = Miso kiest voor alle open doordeweekse dagen ("Geen idee").
+        if count == 0 { return model.emptyOpenWeekdays > 0 ? "Verras me: stel ma-vr voor" : "Stel recepten voor" }
+        return "Stel recepten voor (\(plural(count, "dag", "dagen")))"
     }
 
     // MARK: Acties
@@ -270,6 +282,7 @@ struct PlannenView: View {
     private func propose() {
         guard let api = session.api else { return }
         focus = nil
+        if model.collected.isEmpty { model.fillRestWithNoIdea() }
         Task { await model.propose(api: api) }
     }
 

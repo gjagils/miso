@@ -5,6 +5,8 @@ struct TodayHeroCard: View {
     let item: PlanItem
     /// Volledig recept (nil zolang het laadt, of bij restjes/voorraad).
     let recipe: RecipeDetail?
+    /// Recept wordt opgehaald na een tik op "Start met koken".
+    var starting = false
     let onCook: () -> Void
     /// "Toch iets anders": naar Plannen voor deze week (daar kun je vandaag wijzigen).
     let onSomethingElse: () -> Void
@@ -18,7 +20,7 @@ struct TodayHeroCard: View {
                 .font(.system(.subheadline, design: .rounded).weight(.semibold))
                 .foregroundStyle(.secondary)
             if isRecipe {
-                RecipeImage(path: item.recipe?.imageUrl ?? "", size: 220)
+                RecipeImage(path: item.recipe?.imageUrl ?? "", size: 180)
                     .frame(maxWidth: .infinity)
             }
             HStack(alignment: .top, spacing: 12) {
@@ -48,14 +50,14 @@ struct TodayHeroCard: View {
                     .buttonStyle(.misoPrimary)
                 } else {
                     Button(action: onCook) {
-                        if recipe == nil {
+                        if starting {
                             HStack(spacing: 8) { ProgressView(); Text("Start met koken") }
                         } else {
                             Label("Start met koken", systemImage: "flame")
                         }
                     }
                     .buttonStyle(.misoPrimary)
-                    .disabled(recipe == nil)
+                    .disabled(starting)
                     NavigationLink(value: summary) {
                         Text("Bekijk recept")
                     }

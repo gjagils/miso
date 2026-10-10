@@ -21,7 +21,9 @@ final class PlannenModel {
     /// Maandag van de week die je plant (leeg tot de standaardweek bekend is).
     private(set) var week = ""
     private(set) var days: [PlannenDay] = []
-    var wishes: [String: WishInput] = [:]
+    var wishes: [String: WishInput] = [:] {
+        didSet { if proposeMessage != nil && oldValue != wishes { proposeMessage = nil } }
+    }
     var sentence = ""
     var showWeekend = false
     private(set) var step: Step = .wishes
