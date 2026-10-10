@@ -296,37 +296,47 @@ async def api_list_link(payload: BasketPayload, db: Session = Depends(get_db)):
 # "Klaar" = op het AH-lijstje of al in de lopende bestelling. Extra dingen op het lijstje maken niet uit;
 # mist de helft of meer van de producten van een gerecht, dan moet het nog op het lijstje.
 
-_PRESENCE: dict = {"at": 0.0, "ids": set(), "connected": False}
-PRESENCE_TTL_S = 300
-MISSING_LIMIT = 0.5
+MISSING_LIMIT = 0.5  # mist de helft of meer van een gerecht: nog op het lijstje zetten
 
 
 def invalidate_presence() -> None:
-    _PRESENCE["at"] = 0.0
+    """Oude naam: na een actie wordt nu actief opnieuw gecontroleerd (zie check_list)."""
 
 
-async def presence(db: Session) -> tuple[set[int], bool]:
-    import time
+async def check_list(db: Session) -> dict | None:
+    """Lees één keer het AH-lijstje + de lopende bestelling en bewaar wat er klaarstaat. Alleen na een actie of
+    op de knop 'Controleer met AH', niet bij elke paginaweergave."""
+    import json
+    from datetime import datetime
 
     from app.clients.ah import get_shopping_list
 
-    if time.monotonic() - _PRESENCE["at"] < PRESENCE_TTL_S:
-        return _PRESENCE["ids"], _PRESENCE["connected"]
     if not _use_user_tokens(db):
-        _PRESENCE.update(at=time.monotonic(), ids=set(), connected=False)
-        return set(), False
+        return None
     ids: set[int] = set()
     try:
         ids |= set((await get_shopping_list(ah_client)).keys())
     except Exception as e:  # noqa: BLE001
-        logger.warning("AH-lijstje lezen voor status mislukt: %s", e)
+        logger.warning("AH-lijstje controleren mislukt: %s", e)
+        return None
     try:
         ids |= {int(i["product_id"]) for i in _summarize_order(await get_active_order(ah_client))["items"]
                 if i.get("product_id")}
     except Exception:  # noqa: BLE001 - geen lopende bestelling
         pass
-    _PRESENCE.update(at=time.monotonic(), ids=ids, connected=True)
-    return ids, True
+    snap = {"checked_at": datetime.now().isoformat(timespec="minutes"), "ids": sorted(ids)}
+    routes._set_setting(db, "list_check", json.dumps(snap))
+    return snap
+
+
+def last_check(db: Session) -> dict | None:
+    import json
+
+    raw = routes._get_setting(db, "list_check")
+    try:
+        return json.loads(raw) if raw else None
+    except ValueError:
+        return None
 
 
 def entry_list_status(db: Session, monday, present: set[int]) -> list[dict]:
@@ -353,7 +363,7 @@ def entry_list_status(db: Session, monday, present: set[int]) -> list[dict]:
 
 
 @router.get("/api/plan/list-status")
-async def api_list_status(week: str | None = None, db: Session = Depends(get_db)):
+async def api_list_status(week: str | None = None, check: bool = False, db: Session = Depends(get_db)):
     """Per gepland gerecht: staan de boodschappen al op het AH-lijstje (of in de bestelling)?
 
     Alleen voor weken die nog besteld moeten worden: de bestelling (bijv. zondag) is voor de week van maandag t/m
@@ -364,7 +374,11 @@ async def api_list_status(week: str | None = None, db: Session = Depends(get_db)
     if monday <= date.today():
         return {"ok": True, "connected": True, "week": str(monday), "entries": [], "todo_count": 0,
                 "already_ordered": True}
-    present, connected = await presence(db)
-    entries = entry_list_status(db, monday, present) if connected else []
-    return {"ok": True, "connected": connected, "week": str(monday), "entries": entries,
+    connected = bool(routes._get_setting(db, "ah_user_token") or routes._get_setting(db, "ah_refresh_token"))
+    snap = await check_list(db) if (check and connected) else last_check(db)
+    if not connected or not snap:
+        return {"ok": True, "connected": connected, "week": str(monday), "entries": [], "todo_count": 0,
+                "checked_at": None}
+    entries = entry_list_status(db, monday, set(snap["ids"]))
+    return {"ok": True, "connected": True, "week": str(monday), "entries": entries, "checked_at": snap["checked_at"],
             "todo_count": sum(1 for e in entries if e["status"] == "todo")}

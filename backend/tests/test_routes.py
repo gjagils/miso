@@ -551,8 +551,21 @@ def test_list_status_half_missing_needs_placing(db, monkeypatch):
 
     monkeypatch.setattr("app.clients.ah.get_shopping_list", fake_list)
     monkeypatch.setattr(shopping, "get_active_order", fake_order)
-    shopping.invalidate_presence()
-    r = TestClient(app).get(f"/api/plan/list-status?week={monday}").json()
+    client = TestClient(app)
+    calls = []
+    real = shopping.check_list
+
+    async def counting(db_):
+        calls.append(1)
+        return await real(db_)
+
+    monkeypatch.setattr(shopping, "check_list", counting)
+    before = client.get(f"/api/plan/list-status?week={monday}").json()
+    assert before["checked_at"] is None and calls == []  # openen = geen AH-aanroep
+    r = client.get(f"/api/plan/list-status?week={monday}&check=1").json()
+    assert calls == [1] and r["checked_at"]
+    again = client.get(f"/api/plan/list-status?week={monday}").json()
+    assert calls == [1] and again["todo_count"] == 1  # bewaarde uitkomst
     by = {e["name"]: e for e in r["entries"]}
     assert by["Lasagne"]["status"] == "ok" and by["Lasagne"]["present"] == 3
     assert by["Nasi"]["status"] == "todo"  # precies de helft mist: nog plaatsen

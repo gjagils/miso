@@ -4,16 +4,21 @@
     <p id="ls-summary"></p>
     <ul id="ls-todo" class="ls-todo"></ul>
     <button class="btn btn-primary" type="button" id="ls-sync" hidden>Zet ontbrekende op mijn AH-lijstje</button>
+    <button class="btn" type="button" id="ls-check">Controleer met AH</button>
     <span class="muted" id="ls-msg"></span>
 </section>
 <script>
 (() => {
     const box = document.getElementById("list-status"), week = box.dataset.week;
     const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
-    async function load() {
-        const r = await fetch(`/api/plan/list-status?week=${week}`).then(x => x.json()).catch(() => null);
-        if (!r || !r.connected || !r.entries.length) return;
+    async function load(check = false) {
+        const r = await fetch(`/api/plan/list-status?week=${week}${check ? "&check=1" : ""}`).then(x => x.json()).catch(() => null);
+        if (!r || !r.connected || r.already_ordered) return;
         box.hidden = false;
+        const when = r.checked_at ? new Date(r.checked_at).toLocaleString("nl-NL", {weekday: "short", hour: "2-digit", minute: "2-digit"}) : "";
+        document.getElementById("ls-msg").textContent = when ? `Laatst gecontroleerd: ${when}` : "";
+        if (!r.checked_at) { document.getElementById("ls-summary").textContent = "Nog niet gecontroleerd of de boodschappen op je AH-lijstje staan."; return; }
+        if (!r.entries.length) { document.getElementById("ls-summary").textContent = "Nog geen gerechten gepland deze week."; return; }
         const ok = r.entries.length - r.todo_count;
         document.getElementById("ls-summary").textContent = r.todo_count
             ? `${ok} van ${r.entries.length} gerechten staan klaar op je AH-lijstje of in je bestelling.`
@@ -30,9 +35,14 @@
         e.target.disabled = true; e.target.textContent = "Bezig…";
         const r = await fetch("/api/plan/sync", {method: "POST", headers: {"Content-Type": "application/json"},
             body: JSON.stringify({week})}).then(x => x.json()).catch(() => ({}));
-        document.getElementById("ls-msg").textContent = r.ok ? `${r.added || 0} producten toegevoegd.` : (r.error || "Dat lukte niet.");
         e.target.disabled = false; e.target.textContent = "Zet ontbrekende op mijn AH-lijstje";
-        load();
+        await load();  // de sync controleert zelf al één keer
+        if (!r.ok) document.getElementById("ls-msg").textContent = r.error || "Dat lukte niet.";
+    };
+    document.getElementById("ls-check").onclick = async e => {
+        e.target.disabled = true; e.target.textContent = "Controleren…";
+        await load(true);
+        e.target.disabled = false; e.target.textContent = "Controleer met AH";
     };
     load();
 })();

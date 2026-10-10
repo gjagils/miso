@@ -183,6 +183,9 @@ async def api_wish_to_list(wish_id: int, db: Session = Depends(get_db)):
             await ah_client.add_to_cart([item])
         except Exception as e:  # noqa: BLE001
             return JSONResponse({"ok": False, "error": str(e)}, status_code=502)
+        from app.api.shopping import check_list
+
+        await check_list(db)
         w.done_on = str(date.today())
         db.commit()
         return {"ok": True, "product": product.get("name", ""), "wishes": open_wishes(db)}
