@@ -7,11 +7,21 @@ struct ReminderSettingsSection: View {
     @Environment(Session.self) private var session
     @Environment(\.openURL) private var openURL
     @AppStorage(OrderReminderScheduler.enabledKey) private var enabled = false
+    @AppStorage(WishDayReminder.enabledKey) private var wishDay = true
     @State private var explaining = false
     @State private var denied = false
 
     var body: some View {
         Section {
+            Toggle("Boodschappendag om 12:00: wensen doorgeven", isOn: $wishDay)
+                .tint(Color.misoOrange)
+                .foregroundStyle(Color.misoBlue)
+                .frame(minHeight: 44)
+                .onChange(of: wishDay) { _, _ in
+                    Task {
+                        if !wishDay { WishDayReminder.cancel() } else { await WishDayReminder.askOnce(); await refresh() }
+                    }
+                }
             Toggle("Herinner me voor de besteldag", isOn: $enabled)
                 .tint(Color.misoOrange)
                 .foregroundStyle(Color.misoBlue)
@@ -30,14 +40,14 @@ struct ReminderSettingsSection: View {
         } header: {
             Text("Herinnering").misoSectionHeader()
         } footer: {
-            Text("De avond vóór de besteldag om 19:00 krijg je een melding als het weekmenu voor volgende week nog niet compleet is. Alleen op dit toestel; is de week compleet, dan komt er niets.")
+            Text("Op de besteldag om 12:00 vraagt Miso iedereen om wensen door te geven (ouders: bekijk ze en bestel). De avond vóór de besteldag om 19:00 krijg je een melding als het weekmenu voor volgende week nog niet compleet is. Alleen op dit toestel.")
         }
         .misoRow()
         .alert("Herinnering voor de besteldag", isPresented: $explaining) {
             Button("Ga verder", action: requestPermission)
             Button("Niet nu", role: .cancel, action: turnOff)
         } message: {
-            Text("Miso stuurt je de avond vóór de besteldag om 19:00 een melding als het weekmenu voor volgende week nog niet compleet is. Daarvoor vraagt iOS zo om toestemming voor meldingen. Miso stuurt geen andere meldingen.")
+            Text("Miso stuurt je de avond vóór de besteldag om 19:00 een melding als het weekmenu voor volgende week nog niet compleet is. Daarvoor vraagt iOS zo om toestemming voor meldingen. Verder stuurt Miso alleen de melding op de besteldag om 12:00 (wensen doorgeven).")
         }
     }
 

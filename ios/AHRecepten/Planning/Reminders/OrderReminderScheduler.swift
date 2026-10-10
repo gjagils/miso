@@ -14,7 +14,12 @@ enum OrderReminderScheduler {
 
     /// Status ophalen en de herinnering bijwerken. Fouten zijn niet erg: de volgende verversing probeert het opnieuw.
     static func refresh(api: API) async {
-        guard isEnabled, let status = try? await api.nextWeekStatus() else {
+        let status = try? await api.nextWeekStatus()
+        if let status {  // wekelijkse "geef je wensen door"-melding op de besteldag om 12:00
+            let isKid = Session.defaults.string(forKey: "memberRole") == MemberRole.kind.rawValue
+            await WishDayReminder.schedule(orderDay: status.orderDay, dayName: status.orderDayName, isKid: isKid)
+        }
+        guard isEnabled, let status else {
             if !isEnabled { cancel() }
             return
         }

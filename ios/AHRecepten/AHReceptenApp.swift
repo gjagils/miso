@@ -1,4 +1,5 @@
 import SwiftUI
+import UserNotifications
 
 @main
 struct AHReceptenApp: App {
@@ -8,6 +9,7 @@ struct AHReceptenApp: App {
     @AppStorage(Appearance.storageKey) private var appearance = Appearance.system
 
     init() {
+        UNUserNotificationCenter.current().delegate = NotificationRouter.shared  // tik op melding -> juiste tab
         let blue = UIColor(named: "MisoBlue") ?? .label
         let cream = UIColor(named: "MisoCream") ?? .systemBackground
         func rounded(_ style: UIFont.TextStyle, _ weight: UIFont.Weight) -> UIFont {
@@ -73,12 +75,23 @@ struct RootView: View {
             }
         }
         .task(id: session.token) { await loadFamily() }
+        .task(id: family.memberID) { await setUpWishDay() }
+        .onReceive(NotificationCenter.default.publisher(for: NotificationRouter.openTab)) { note in
+            if (note.object as? String) == "plannen" { router.tab = .plannen }
+        }
     }
 
     private func loadFamily() async {
         family.sync(memberID: session.memberID)
         guard let api = session.api else { return }
         await family.load(api: api)
+    }
+
+    /// Zodra iemand gekozen is: één keer om meldingen vragen en de boodschappendag-melding (12:00) inplannen.
+    private func setUpWishDay() async {
+        guard !family.memberID.isEmpty, let api = session.api else { return }
+        await WishDayReminder.askOnce()
+        await OrderReminderScheduler.refresh(api: api)
     }
 
     @ViewBuilder private var tabs: some View {
