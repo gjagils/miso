@@ -11,7 +11,10 @@ struct PickCard: View {
             VStack(alignment: .leading, spacing: 0) {
                 CardImage(path: item.imageUrl)
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(item.name)
+                    if item.mealKit {
+                        Text("Maaltijdpakket").misoChip(.misoOrange)
+                    }
+                    Text(item.favorite ? "♥ \(item.name)" : item.name)
                         .font(.system(.subheadline, design: .rounded).bold())
                         .foregroundStyle(Color.misoBlue)
                         .lineLimit(2)
@@ -46,8 +49,16 @@ struct PickCard: View {
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(item.meta.isEmpty ? item.name : "\(item.name), \(item.meta)")
+        .accessibilityLabel(accessibilityText)
         .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
         .accessibilityHint(selected ? "Tik om niet meer te kiezen" : "Tik om te kiezen")
+    }
+
+    private var accessibilityText: String {
+        var parts = [item.name]
+        if item.favorite { parts.append("favoriet") }
+        if item.mealKit { parts.append("maaltijdpakket") }
+        if !item.meta.isEmpty { parts.append(item.meta) }
+        return parts.joined(separator: ", ")
     }
 }

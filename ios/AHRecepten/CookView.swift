@@ -3,9 +3,12 @@ import SwiftUI
 /// Grote letters, scherm blijft aan; tik op een stap of ingrediënt om af te vinken.
 struct CookView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(Session.self) private var session
     let recipe: RecipeDetail
     @State private var checked: Set<Int> = []
     @State private var done: Set<Int> = []
+    /// "Gekookt" is al gemeld (na de helft van de stappen, of via Lekker?).
+    @State private var cookedSent = false
 
     var body: some View {
         NavigationStack {
@@ -53,6 +56,7 @@ struct CookView: View {
                     ForEach(Array(recipe.instructions.enumerated()), id: \.offset) { index, step in
                         Button {
                             toggle(&done, index)
+                            markCookedIfHalfway()
                         } label: {
                             let isDone = done.contains(index)
                             HStack(alignment: .top, spacing: 10) {
@@ -80,6 +84,10 @@ struct CookView: View {
                     }
                 } header: { Text("Bereiding").misoSectionHeader() }
                 .misoRow()
+                Section {
+                    TasteFeedbackSection(recipeID: recipe.id, favorite: recipe.isFavorite, onRated: rated)
+                }
+                .misoRow()
             }
             .misoScreen()
             .navigationTitle(recipe.name)
@@ -94,6 +102,20 @@ struct CookView: View {
 
     private func close() {
         dismiss()
+    }
+
+    /// Telt pas als gekookt als minstens de helft van de stappen is afgevinkt (zoals de web-kookmodus).
+    /// Eén keer per keer openen; de server telt bovendien één keer per dag. Mislukken is niet erg.
+    private func markCookedIfHalfway() {
+        guard !cookedSent, CookProgress.isHalfway(done: done.count, steps: recipe.instructions.count),
+              let api = session.api else { return }
+        cookedSent = true
+        Task { _ = try? await api.markCooked(recipe.id) }
+    }
+
+    /// Lekker? telt op de server ook als gekookt.
+    private func rated() {
+        cookedSent = true
     }
 
     private func setScreenAlwaysOn(_ on: Bool) {

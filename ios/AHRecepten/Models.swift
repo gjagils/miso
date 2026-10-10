@@ -25,6 +25,16 @@ struct RecipeSummary: Decodable, Identifiable, Hashable {
     let gfMode: GlutenFreeMode
     /// Planregel waar dit recept bij hoort (alleen in `GET /api/week`, nieuwere servers).
     var entryId: Int? = nil
+    /// Gebruik en voorkeur (`GET /api/recipes`, nieuwere servers; ontbreekt in planregels).
+    var favorite: Bool? = nil
+    var byHeart: Bool? = nil
+    var archived: Bool? = nil
+    /// "maaltijdpakket" voor AH-maaltijdpakketten, anders leeg.
+    var collection: String? = nil
+
+    var isFavorite: Bool { favorite ?? false }
+    var isByHeart: Bool { byHeart ?? false }
+    var isMealKit: Bool { collection == "maaltijdpakket" }
 }
 
 struct RecipesResponse: Decodable { let recipes: [RecipeSummary] }
@@ -107,6 +117,19 @@ struct RecipeDetail: Decodable, Identifiable {
     let instructions: [String]
     /// `var`: één regel wordt na koppelen of uitvinken vervangen zonder het hele recept te herladen.
     var ingredients: [Ingredient]
+    /// Voorkeur en gebruik (nieuwere servers). `var`: de knoppen op het recept passen ze direct aan.
+    var favorite: Bool? = nil
+    var byHeart: Bool? = nil
+    var archived: Bool? = nil
+    var collection: String? = nil
+    var cookedCount: Int? = nil
+    var thumbsUp: Int? = nil
+    var thumbsDown: Int? = nil
+
+    var isFavorite: Bool { favorite ?? false }
+    var isByHeart: Bool { byHeart ?? false }
+    var isArchived: Bool { archived ?? false }
+    var isMealKit: Bool { collection == "maaltijdpakket" }
 }
 
 struct MissingItem: Decodable, Identifiable {

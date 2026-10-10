@@ -18,6 +18,7 @@ struct RecipeDetailView: View {
     @State private var deleting = false
     /// Melding boven het recept (bijv. koppelen mislukt of recept was intussen gewijzigd).
     @State private var bannerText: String?
+    @State private var savingFlags = false
 
     var body: some View {
         List {
@@ -32,11 +33,27 @@ struct RecipeDetailView: View {
                         RecipeImage(path: recipe.imageUrl, size: 200)
                         let meta = [recipe.servings, recipe.totalTime].filter { !$0.isEmpty }.joined(separator: " · ")
                         if !meta.isEmpty { Text(meta).font(.misoCaption).foregroundStyle(.secondary) }
+                        if recipe.isMealKit || recipe.isArchived {
+                            HStack(spacing: 6) {
+                                if recipe.isMealKit { MealKitBadge() }
+                                if recipe.isArchived { Text("Opgeruimd").misoChip(.misoLilac) }
+                            }
+                        }
                         if !recipe.description.isEmpty { Text(recipe.description).font(.misoBody) }
                         Button("Inplannen", systemImage: "calendar.badge.plus", action: startPlanning)
                             .buttonStyle(.misoPrimary)
-                        Button("Kookmodus", systemImage: "flame", action: startCooking)
-                            .buttonStyle(.misoSecondary)
+                        // "Ken ik uit mijn hoofd": geen kookmodus, de ingrediënten staan hieronder.
+                        if recipe.isByHeart {
+                            Text("Je kent dit uit je hoofd. De ingrediënten staan hieronder, voor de boodschappen.")
+                                .font(.callout)
+                                .foregroundStyle(Color.misoBlue)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        } else {
+                            Button("Kookmodus", systemImage: "flame", action: startCooking)
+                                .buttonStyle(.misoSecondary)
+                        }
+                        RecipeFlagsBar(recipe: recipe, busy: savingFlags, onFavorite: toggleFavorite,
+                                       onByHeart: toggleByHeart, onArchive: toggleArchived)
                         if let plannedMessage {
                             HStack(spacing: 10) {
                                 MascotView(pose: "celebrate", size: 48)
@@ -173,6 +190,46 @@ struct RecipeDetailView: View {
 
     private func startCooking() {
         cookRecipe = recipe
+    }
+
+    // MARK: Favoriet, uit mijn hoofd, opruimen
+
+    private func toggleFavorite() {
+        guard let recipe else { return }
+        saveFlags(RecipeFlagsBody(favorite: !recipe.isFavorite))
+    }
+
+    private func toggleByHeart() {
+        guard let recipe else { return }
+        saveFlags(RecipeFlagsBody(byHeart: !recipe.isByHeart))
+    }
+
+    private func toggleArchived() {
+        guard let recipe else { return }
+        saveFlags(RecipeFlagsBody(archived: !recipe.isArchived))
+    }
+
+    private func saveFlags(_ body: RecipeFlagsBody) {
+        guard let api = session.api, !savingFlags else { return }
+        savingFlags = true
+        Task {
+            defer { savingFlags = false }
+            do {
+                let result = try await api.setRecipeFlags(recipeID, body)
+                let summary = result.recipe
+                withAnimation {
+                    recipe?.favorite = summary?.favorite ?? body.favorite ?? recipe?.favorite
+                    recipe?.byHeart = summary?.byHeart ?? body.byHeart ?? recipe?.byHeart
+                    recipe?.archived = summary?.archived ?? body.archived ?? recipe?.archived
+                }
+                router.recipesChanged()
+                if let archived = body.archived {
+                    AccessibilityNotification.Announcement(archived ? "Opgeruimd" : "Teruggezet").post()
+                }
+            } catch {
+                withAnimation { bannerText = "Opslaan lukte niet. \(error.localizedDescription)" }
+            }
+        }
     }
 
     private func startPlanning() {

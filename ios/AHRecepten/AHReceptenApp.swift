@@ -63,19 +63,16 @@ struct RootView: View {
         @Bindable var router = router
         // iOS 17 is het minimum, dus nog `tabItem` in plaats van de `Tab`-API (iOS 18+).
         TabView(selection: $router.tab) {
-            WeekOverviewView()
-                .tabItem { Label("Vandaag", systemImage: "calendar") }
+            TodayView()
+                .tabItem { Label("Vandaag", systemImage: "fork.knife") }
                 .tag(AppRouter.Tab.today)
-            // "Wat eten we?" vervangt het oude AH-tabblad: Allerhande zoeken en toevoegen zit nu in deze flow.
-            KiezenView()
-                .tabItem { Label("Wat eten we?", systemImage: "fork.knife") }
-                .tag(AppRouter.Tab.kiezen)
+            // Plannen vervangt "Wat eten we?"; zelf kiezen (ook Allerhande en bonus) zit daar achter een link.
+            PlannenView()
+                .tabItem { Label("Plannen", systemImage: "calendar.badge.plus") }
+                .tag(AppRouter.Tab.plannen)
             RecipesView()
                 .tabItem { Label("Recepten", systemImage: "book") }
                 .tag(AppRouter.Tab.recipes)
-            PlanView()
-                .tabItem { Label("Weekmenu", systemImage: "list.bullet.rectangle") }
-                .tag(AppRouter.Tab.plan)
             SettingsView()
                 .tabItem { Label("Meer", systemImage: "gearshape") }
                 .tag(AppRouter.Tab.more)

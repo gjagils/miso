@@ -19,6 +19,8 @@ struct KiezenView: View {
     @State private var importProgress: String?
     @State private var importError: String?
     @State private var showImportError = false
+    /// Gezet als Kiezen als blad vanuit Plannen opent: toont een Sluit-knop.
+    var onClose: (() -> Void)?
 
     /// Twee (of meer) kolommen; bij heel grote tekst één kolom zodat titels leesbaar blijven.
     private var columns: [GridItem] {
@@ -46,7 +48,14 @@ struct KiezenView: View {
             }
             .scrollDismissesKeyboard(.immediately)
             .background(Color.misoCream)
-            .navigationTitle("Wat eten we?")
+            .navigationTitle("Zelf kiezen")
+            .toolbar {
+                if let onClose {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Sluit", action: onClose)
+                    }
+                }
+            }
             .searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always),
                         prompt: "Zoek: pasta, curry, stamppot...")
             .task(id: query) { await search() }

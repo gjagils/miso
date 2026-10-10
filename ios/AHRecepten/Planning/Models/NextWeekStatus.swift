@@ -15,15 +15,18 @@ struct NextWeekStatus: Decodable, Equatable, Sendable {
     let prominent: Bool
     let message: String
     let listStatus: NextWeekListStatus?
+    /// Nieuwere servers: doordeweekse dagen (ma-vr) gepland, en of die alle vijf staan.
+    let weekdaysPlanned: Int?
+    let ready: Bool?
 
     enum CodingKeys: String, CodingKey {
         case orderDay, orderDayName, daysUntilOrder, week, plannedDays, totalDays, missingDates, prominent, message
-        case listStatus
+        case listStatus, weekdaysPlanned, ready
     }
 
     init(orderDay: Int = 6, orderDayName: String = "zondag", daysUntilOrder: Int, week: String, plannedDays: Int,
          totalDays: Int = 7, missingDates: [String] = [], prominent: Bool = false, message: String = "",
-         listStatus: NextWeekListStatus? = nil) {
+         listStatus: NextWeekListStatus? = nil, weekdaysPlanned: Int? = nil, ready: Bool? = nil) {
         self.orderDay = orderDay
         self.orderDayName = orderDayName
         self.daysUntilOrder = daysUntilOrder
@@ -34,6 +37,8 @@ struct NextWeekStatus: Decodable, Equatable, Sendable {
         self.prominent = prominent
         self.message = message
         self.listStatus = listStatus
+        self.weekdaysPlanned = weekdaysPlanned
+        self.ready = ready
     }
 
     init(from decoder: Decoder) throws {
@@ -48,7 +53,13 @@ struct NextWeekStatus: Decodable, Equatable, Sendable {
         prominent = c.lenient(Bool.self, .prominent) ?? (daysUntilOrder <= 2)
         message = c.lenient(String.self, .message) ?? ""
         listStatus = c.lenient(NextWeekListStatus.self, .listStatus)
+        weekdaysPlanned = c.lenientInt(.weekdaysPlanned)
+        ready = c.lenient(Bool.self, .ready)
     }
 
-    var isComplete: Bool { plannedDays >= totalDays }
+    /// Klaar: ma-vr staan erin (nieuwere servers), anders alle dagen van de week.
+    var isComplete: Bool { ready ?? (plannedDays >= totalDays) }
+    /// Voortgang voor de stipjes en de herinnering: doordeweeks als de server dat weet.
+    var progressPlanned: Int { weekdaysPlanned ?? plannedDays }
+    var progressTotal: Int { weekdaysPlanned == nil ? totalDays : 5 }
 }
