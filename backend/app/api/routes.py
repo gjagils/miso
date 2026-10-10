@@ -31,6 +31,15 @@ from app import planning
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
+
+def _short_name(name: str) -> str:
+    from app.wishes import display_name
+
+    return display_name(name)
+
+
+templates.env.filters["kort"] = _short_name  # "AH gesneden verspakket shakshuka" -> "Shakshuka" (+ label)
+
 IMAGE_DIR = os.path.join("data", "images")
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
 DAYS = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"]
@@ -665,6 +674,7 @@ async def weekmenu_page(request: Request, week: str | None = None, db: Session =
         request, "weekmenu.html",
         {
             "week": str(monday),
+            "week_label": day_label(monday)[:1].lower() + day_label(monday)[1:],
             "prev_week": str(monday - timedelta(days=7)),
             "next_week": str(monday + timedelta(days=7)),
             "has_recipes": has_recipes,

@@ -2,9 +2,10 @@
 {% block title %}Plannen - Miso{% endblock %}
 {% block content %}
 <div class="page-head"><img src="/static/miso/miso-checklist.webp" alt="" width="76" height="76" loading="lazy"><h1>Plannen</h1></div>
+<p class="muted"><a href="/weekmenu?week={{ week }}">Weekmenu, boodschappen en vriezer van deze week →</a></p>
 <nav class="week-nav" aria-label="Week">
     <a class="btn btn-sm" href="/plannen?week={{ prev_week }}" aria-label="Vorige week">‹</a>
-    <strong>Week van {{ days[0].label }}</strong>
+    <strong>Week van {{ week_label }}</strong>
     <a class="btn btn-sm" href="/plannen?week={{ next_week }}" aria-label="Volgende week">›</a>
 </nav>
 
@@ -26,13 +27,18 @@
         <summary>Weekend ook plannen</summary>
         <div class="wish-days">{% for d in days if d.weekend %}{% include "_wish_day.html" %}{% endfor %}</div>
     </details>
+    {% if open_days %}
     <div class="nw-actions"><button class="btn btn-primary" id="propose-btn" type="button">Stel recepten voor</button>
         <span class="muted" id="propose-msg" role="status"></span></div>
+    {% else %}
+    <p class="msg-ok">Maandag tot en met vrijdag staan erin. <a href="/weekmenu?week={{ week }}">Bekijk weekmenu en boodschappen</a></p>
+    {% endif %}
+    {% if not has_token %}<p class="muted">Tip: koppel AH bij <a href="/settings">Meer</a>, dan zet Miso alles meteen op je AH-lijstje.</p>{% endif %}
     <p class="muted" style="margin-top:0.75rem">Liever zelf zoeken, ook in Allerhande en de bonus? <a href="/kiezen">Zelf recepten kiezen</a></p>
 </section>
 
 <section class="settings-section" id="proposal" hidden>
-    <h2>Voorstel</h2>
+    <h2 id="proposal-h" tabindex="-1">Voorstel</h2>
     <p class="muted">Tik op een alternatief om te wisselen.</p>
     <div id="proposal-days" class="proposal-days"></div>
     <div class="nw-actions">
@@ -54,6 +60,8 @@ let proposal = [];          // [{date, label, kind, options, pick}]
 
 function setWish(row, value) {
     row.querySelectorAll(".wchip").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.chip === value)));
+    const hit = row.querySelector(`.wchips-more .wchip[data-chip="${CSS.escape(value || "-")}"]`);
+    if (hit) { hit.parentElement.hidden = false; row.querySelector(".wmore").textContent = "Minder"; }
     if (value && !row.querySelector(`.wchip[data-chip="${CSS.escape(value)}"]`)) row.querySelector(".wtext").value = value;
     else row.querySelector(".wtext").value = "";
 }
@@ -120,7 +128,17 @@ function renderProposal() {
         $("proposal-days").appendChild(card);
     });
 }
-$("propose-btn").onclick = async () => {
+document.querySelectorAll(".wmore").forEach(b => b.onclick = () => {
+    const more = b.nextElementSibling, open = more.hidden;
+    more.hidden = !open; b.setAttribute("aria-expanded", String(open)); b.textContent = open ? "Minder" : "Meer…";
+});
+document.querySelectorAll("[data-remove], [data-change]").forEach(b => b.onclick = async () => {
+    const id = b.dataset.remove || b.dataset.change;
+    if (b.dataset.remove && !confirm("Deze dag leegmaken?")) return;
+    const r = await fetch(`/api/plan/entries/${id}`, {method: "DELETE"}).then(x => x.json()).catch(() => ({}));
+    if (r.ok) location.href = `/plannen?week=${WEEK}` + (b.dataset.change ? `#d-${b.closest(".wish-day").dataset.date}` : "");
+});
+$("propose-btn") && ($("propose-btn").onclick = async () => {
     const w = collect();
     if (!Object.keys(w).length) { $("propose-msg").textContent = "Kies voor minstens één dag een wens."; return; }
     $("propose-msg").textContent = "Miso zoekt recepten…";
@@ -132,7 +150,8 @@ $("propose-btn").onclick = async () => {
     $("wish-step").hidden = true; $("proposal").hidden = false; $("apply-result").hidden = true;
     renderProposal();
     window.scrollTo({top: 0, behavior: "smooth"});
-};
+    $("proposal-h").focus();
+});
 $("again-btn").onclick = () => { $("proposal").hidden = true; $("wish-step").hidden = false; };
 $("apply-btn").onclick = async () => {
     const btn = $("apply-btn");
@@ -148,8 +167,11 @@ $("apply-btn").onclick = async () => {
     });
     const a = await postJSON("/api/plan/apply", {week: WEEK, choices, swapped});
     let text = a.ok ? `${a.added} ${a.added === 1 ? "dag" : "dagen"} ingepland.` : "Inplannen lukte niet.";
+    if (a.ok && a.skipped && a.skipped.length) text += ` Niet gelukt: ${a.skipped.map(d => document.querySelector(`.wish-day[data-date="${d}"] .wday`)?.textContent || d).join(", ")}.`;
+    let missing = a.status ? (a.status.unmatched || []).length : 0;
     if (a.ok && HAS_TOKEN) {
         const s = await postJSON("/api/plan/sync", {week: WEEK});
+        if (s.status) missing = (s.status.unmatched || []).length;
         text += s.ok ? (s.added ? ` ${s.added} producten op je AH-lijstje gezet.` : " Alles stond al op je AH-lijstje.")
                      : ` Lijstje bijwerken lukte niet: ${s.error || "onbekende fout"}.`;
     }
@@ -157,7 +179,8 @@ $("apply-btn").onclick = async () => {
     box.hidden = false; box.className = "kz-result " + (a.ok ? "msg-ok" : "msg-err");
     box.innerHTML = `<img src="/static/miso/${a.ok ? "miso-celebrate" : "miso-surprised"}.webp" alt="" width="56" height="56"><span></span>`;
     box.querySelector("span").textContent = text;
-    if (a.ok) box.querySelector("span").insertAdjacentHTML("beforeend", ` <a href="/weekmenu?week=${WEEK}">Bekijk het weekmenu</a>`);
+    if (a.ok && missing) box.querySelector("span").insertAdjacentHTML("beforeend", ` ${missing} ingrediënten hebben nog geen AH-product: <a href="/dekking/ontbrekend">kies ze</a>.`);
+    if (a.ok) box.querySelector("span").insertAdjacentHTML("beforeend", ` <a href="/plannen?week=${WEEK}">Terug naar de week</a>`);
     btn.textContent = "Klaar";
 };
 </script>

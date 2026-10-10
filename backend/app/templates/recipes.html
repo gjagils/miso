@@ -48,7 +48,7 @@
         {% if r.image_url %}<img src="{{ r.image_url }}" alt="" loading="lazy" referrerpolicy="no-referrer">
         {% else %}<div class="recipe-card-placeholder"><img src="/static/miso/miso-hungry.webp" alt="" width="80" height="80" loading="lazy"></div>{% endif %}
         <div class="recipe-card-body">
-            <h3>{% if r.favorite %}<span class="fav" aria-label="Favoriet">♥</span> {% endif %}{{ r.name }}</h3>
+            <h3>{% if r.favorite %}<span class="fav" aria-label="Favoriet">♥</span> {% endif %}{{ r.name|kort if r.collection == "maaltijdpakket" else r.name }}</h3>
             <p>{% if r.collection == "maaltijdpakket" %}<span class="chip chip-pack">Maaltijdpakket</span> {% endif %}{{ r.servings }}{% if r.servings and r.total_time %} · {% endif %}{{ r.total_time }}</p>
             {% if no_photo_filter %}<label class="btn btn-primary photo-pick" onclick="event.stopPropagation()">Kies foto
                 <input type="file" accept="image/*" hidden data-recipe="{{ r.id }}"></label>{% endif %}

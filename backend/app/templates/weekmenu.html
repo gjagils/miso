@@ -5,10 +5,10 @@
 {% include "_next_week.html" %}
 <div class="week-nav">
     <a class="btn btn-sm" href="/weekmenu?week={{ prev_week }}">&larr; Vorige</a>
-    <strong>Week van {{ week }}</strong>
+    <strong>Week van {{ week_label }}</strong>
     <a class="btn btn-sm" href="/weekmenu?week={{ next_week }}">Volgende &rarr;</a>
 </div>
-<a class="btn btn-primary kz-plan-cta" href="/kiezen?week={{ week }}">Recepten kiezen voor deze week</a>
+<a class="btn btn-primary kz-plan-cta" href="/plannen?week={{ week }}">Plan deze week</a>
 
 {% if not has_recipes %}
 <div class="empty-state"><img src="/static/miso/miso-confused.webp" alt="" width="140" height="140" loading="lazy"><p>Nog geen recepten om te plannen. <a href="/recepten">Voeg er eerst een toe.</a></p></div>

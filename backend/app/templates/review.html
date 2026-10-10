@@ -7,7 +7,10 @@
 Bewaar ze, zet ze op "uit mijn hoofd" (alleen voor de boodschappen), of ruim ze op. Opgeruimde recepten verdwijnen uit
 lijsten en voorstellen en zijn terug te halen bij Recepten → Opgeruimd.</p>
 
-{% if recipes %}
+{% if too_early %}
+<div class="empty-state"><img src="/static/miso/miso-chill.webp" alt="" width="140" height="140" loading="lazy"><h2>Nog te vroeg</h2>
+<p>Plan eerst een paar weken (nu {{ total_plans }} van de {{ min_plans }} keer). Dan ziet Miso welke recepten jullie echt nooit kiezen.</p></div>
+{% elif recipes %}
 <ul class="review-list">
 {% for r in recipes %}
 <li class="review-item" data-id="{{ r.id }}">
@@ -37,7 +40,16 @@ document.querySelectorAll(".review-item [data-act]").forEach(btn => btn.onclick 
     item.style.opacity = 0.5;
     const r = await fetch(`/api/recipes/${item.dataset.id}/flags`, {method: "PATCH", headers: {"Content-Type": "application/json"},
         body: JSON.stringify(BODY[btn.dataset.act])}).then(x => x.json()).catch(() => ({}));
-    if (r.ok) item.remove(); else item.style.opacity = 1;
+    if (!r.ok) { item.style.opacity = 1; return; }
+    const undoBody = {keep: {reviewed: false}, by_heart: {by_heart: false}, archive: {archived: false}}[btn.dataset.act];
+    const label = {keep: "Bewaard", by_heart: "Op 'uit mijn hoofd' gezet", archive: "Opgeruimd"}[btn.dataset.act];
+    item.innerHTML = `<span class="muted">${label}: ${item.querySelector("strong")?.textContent || ""}</span> <button class="btn btn-sm" type="button">Ongedaan maken</button>`;
+    item.style.opacity = 1;
+    item.querySelector("button").onclick = async () => {
+        await fetch(`/api/recipes/${item.dataset.id}/flags`, {method: "PATCH", headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(undoBody)});
+        location.reload();
+    };
 });
 </script>
 {% endblock %}

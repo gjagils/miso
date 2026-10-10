@@ -27,7 +27,7 @@ def test_kiezen_page_renders(db):
     assert resp.status_code == 200
     assert "Wat eten we?" in resp.text and "Pasta pesto" in resp.text
     assert "/plannen" in resp.text  # in de tabbar
-    assert "/kiezen?week=" in client.get("/weekmenu").text
+    assert "/plannen?week=" in client.get("/weekmenu").text
 
 
 def test_kiezen_flow_endpoints(db, monkeypatch):

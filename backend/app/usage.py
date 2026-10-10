@@ -39,12 +39,18 @@ def preference_score(recipe: Recipe, stats: dict | None, today: date | None = No
     return s
 
 
+MIN_PLANS = 30  # pas zinvol als het gezin al een paar weken plant
+MIN_AGE_DAYS = 60  # nieuw recept: eerst een kans geven
+
+
 def review_list(db: Session, today: date | None = None) -> dict:
     """Recepten om kritisch te bekijken: nooit of lang niet gekozen terwijl er wel veel gepland wordt."""
     today = today or date.today()
     stats = plan_stats(db)
     total_plans = sum(v["planned"] for v in stats.values())
     out = []
+    if total_plans < MIN_PLANS:
+        return {"total_plans": total_plans, "recipes": [], "too_early": True, "min_plans": MIN_PLANS}
     for r in db.execute(select(Recipe).where(Recipe.archived.is_(False))).scalars():
         st = stats.get(r.id, {})
         planned = st.get("planned", 0)
@@ -54,6 +60,8 @@ def review_list(db: Session, today: date | None = None) -> dict:
         idle_days = (today - date.fromisoformat(eaten)).days if eaten else age_days
         kept_recently = r.reviewed_on and (today - date.fromisoformat(r.reviewed_on)).days < 180
         reason = None
+        if age_days < MIN_AGE_DAYS and not (r.thumbs_down > r.thumbs_up):
+            continue
         if planned == 0 and r.cooked_count == 0:
             reason = "Nog nooit gekozen"
         elif idle_days > 180:
@@ -66,7 +74,7 @@ def review_list(db: Session, today: date | None = None) -> dict:
                         "thumbs_down": r.thumbs_down, "last_eaten": eaten, "age_days": age_days,
                         "by_heart": r.by_heart})
     out.sort(key=lambda x: (x["planned"] + x["cooked"], -x["age_days"]))
-    return {"total_plans": total_plans, "recipes": out}
+    return {"total_plans": total_plans, "recipes": out, "too_early": False, "min_plans": MIN_PLANS}
 
 
 def mark_cooked(recipe: Recipe, today: date | None = None) -> None:

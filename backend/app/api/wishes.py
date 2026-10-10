@@ -83,9 +83,10 @@ async def api_apply(payload: ApplyPayload, db: Session = Depends(get_db)):
     """Zet de gekozen voorstellen in het weekmenu (bezette dagen blijven staan)."""
     monday = routes.parse_week(payload.week)
     taken = {e.date for e in planning.week_entries(db, monday)}
-    added = 0
+    added, skipped = 0, []
     for c in payload.choices:
         if c.date in taken or not (str(monday) <= c.date <= str(monday + timedelta(days=6))):
+            skipped.append(c.date)
             continue
         if c.kind == "vriezer":
             db.add(PlanEntry(date=c.date, kind="stock", recipe_id=0, text="Iets uit de vriezer"))
@@ -98,12 +99,14 @@ async def api_apply(payload: ApplyPayload, db: Session = Depends(get_db)):
         if rid and db.get(Recipe, rid):
             db.add(PlanEntry(date=c.date, kind="recipe", recipe_id=rid))
             added += 1
+        else:
+            skipped.append(c.date)
     for rid in set(payload.swapped):
         r = db.get(Recipe, rid)
         if r:
             r.swapped_count = (r.swapped_count or 0) + 1
     db.commit()
-    return {"ok": True, "added": added, "status": routes.week_status(db, monday)}
+    return {"ok": True, "added": added, "skipped": skipped, "status": routes.week_status(db, monday)}
 
 
 def default_week(db: Session, today: date | None = None) -> date:
@@ -130,12 +133,15 @@ async def plan_page(request: Request, week: str | None = None, db: Session = Dep
         d = monday + timedelta(days=i)
         e = entries.get(str(d))
         days.append({"date": str(d), "label": routes.day_label(d), "weekend": i >= 5, "past": d < date.today(),
+                     "entry_id": e.id if e else None,
                      "taken": (e.text or (db.get(Recipe, e.recipe_id).name if e.recipe_id and db.get(Recipe, e.recipe_id)
                                           else "")) if e else ""})
-    chips = [(k, wishes.LABELS[k]) for k in ("rijst", "pasta", "aardappel", "wraps", "noedels", "vis", "vega", "kip",
-                                               "snel", "vriezer", "vrij", "overslaan")]
+    chips = [(k, wishes.LABELS[k]) for k in ("rijst", "pasta", "aardappel", "wraps", "vriezer", "vrij")]
+    more_chips = [(k, wishes.LABELS[k]) for k in ("noedels", "vis", "vega", "kip", "snel", "overslaan")]
     return routes.templates.TemplateResponse(request, "plannen.html", {
         "week": str(monday), "prev_week": str(monday - timedelta(days=7)), "next_week": str(monday + timedelta(days=7)),
-        "days": days, "chips": chips, "has_token": bool(routes._get_setting(db, "ah_user_token")
+        "days": days, "chips": chips, "more_chips": more_chips,
+        "open_days": sum(1 for d in days if not d["taken"] and not d["past"] and not d["weekend"]),
+        "week_label": days[0]["label"][:1].lower() + days[0]["label"][1:], "has_token": bool(routes._get_setting(db, "ah_user_token")
                                                         or routes._get_setting(db, "ah_refresh_token")),
         "has_api_key": bool(routes.settings.anthropic_api_key)})

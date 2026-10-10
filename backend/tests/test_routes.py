@@ -439,14 +439,18 @@ def test_tokens_encrypted_with_miso_secret(db, monkeypatch):
     assert routes._get_setting(db, "ah_user_token") == ""  # verkeerde sleutel: opnieuw koppelen
 
 
-def test_favorites_feedback_review_and_archive(db):
-    from datetime import date, timedelta
+def test_favorites_feedback_review_and_archive(db, monkeypatch):
+    from datetime import date, datetime, timedelta
 
+    from app import usage
     from app.models import PlanEntry
     from app.usage import plan_stats, preference_score
 
     fav = _recipe(db, "Lasagne", [])
     never = _recipe(db, "Vergeten soep", [])
+    never.created_at = datetime(2025, 1, 1)
+    assert TestClient(app).get("/api/recipes-review").json()["too_early"]  # nog geen 30 keer gepland
+    monkeypatch.setattr(usage, "MIN_PLANS", 3)
     for i in range(5):
         db.add(PlanEntry(date=str(date.today() - timedelta(days=30 + i)), kind="recipe", recipe_id=fav.id))
     db.commit()

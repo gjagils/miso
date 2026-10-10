@@ -1,10 +1,16 @@
-<div class="wish-day{{ ' taken' if d.taken or d.past }}" data-date="{{ d.date }}">
+<div id="d-{{ d.date }}" class="wish-day{{ ' taken' if d.taken or d.past }}" data-date="{{ d.date }}">
     <span class="wday">{{ d.label }}</span>
-    {% if d.taken %}<span class="muted">Staat al: {{ d.taken }}</span>
+    {% if d.taken %}
+    <span class="muted">Staat al: {{ d.taken }}</span>
+    {% if not d.past %}<span class="taken-actions">
+        <button type="button" class="btn btn-sm" data-change="{{ d.entry_id }}">Wijzig</button>
+        <button type="button" class="btn btn-sm" data-remove="{{ d.entry_id }}">Haal weg</button></span>{% endif %}
     {% elif d.past %}<span class="muted">Voorbij</span>
     {% else %}
     <div class="wchips" role="group" aria-label="Wens voor {{ d.label }}">
         {% for key, label in chips %}<button type="button" class="wchip" data-chip="{{ key }}" aria-pressed="false">{{ label }}</button>{% endfor %}
+        <button type="button" class="wchip wmore" aria-expanded="false">Meer…</button>
+        <span class="wchips-more" hidden>{% for key, label in more_chips %}<button type="button" class="wchip" data-chip="{{ key }}" aria-pressed="false">{{ label }}</button>{% endfor %}</span>
     </div>
     <input class="form-input wtext" placeholder="of typ een gerecht, bijv. lasagne" aria-label="Gerecht voor {{ d.label }}">
     {% endif %}

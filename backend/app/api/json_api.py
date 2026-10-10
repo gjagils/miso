@@ -76,8 +76,8 @@ async def api_recipe_flags(recipe_id: int, payload: RecipeFlags, db: Session = D
         value = getattr(payload, field)
         if value is not None:
             setattr(r, field, value)
-    if payload.reviewed:
-        r.reviewed_on = str(date.today())
+    if payload.reviewed is not None:
+        r.reviewed_on = str(date.today()) if payload.reviewed else None
     db.commit()
     return {"ok": True, "recipe": _summary(r)}
 
