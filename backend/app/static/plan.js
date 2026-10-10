@@ -164,6 +164,7 @@ async function renderDays() {
         if (st.entry && e.entry_id === st.entry.entry_id) return;
         (busy[e.date] = busy[e.date] || []).push(e.title);
     });
+    st.busy = busy;
     wrap.innerHTML = "";
     dates.forEach(d => {
         const b = document.createElement("button");
@@ -302,8 +303,13 @@ async function submit() {
             rec = {...rec, kind: "own", id: add.id};
             ownRecipes = null;
         }
+        let replace = false;
+        const busy = st.busy || {};
+        if (busy[st.date] && st.mode !== "move") {  // geen twee gerechten op één dag zonder te vragen
+            replace = confirm(`${dayLabel(st.date)} staat al: ${busy[st.date].join(", ")}.\nVervangen door ${rec.name || "dit recept"}? (Annuleren = allebei houden)`);
+        }
         r = await api("POST", "/api/plan/entries", {date: st.date, kind: "recipe", recipe_id: rec.id,
-            persons: st.persons === st.household ? null : st.persons, cook_double: double});
+            persons: st.persons === st.household ? null : st.persons, cook_double: double, replace});
     }
     btn.disabled = false; btn.textContent = st.submitLabel;
     if (!r.ok) return showError(r.error || "Opslaan mislukt.");

@@ -73,3 +73,18 @@ def test_propose_and_apply(db):
     assert again["added"] == 0  # bezette dagen blijven staan
     page = client.get(f"/plannen?week={monday}").text
     assert "Waar hebben jullie zin in?" in page and "Weekend ook plannen" in page and "Nasi goreng" in page
+
+
+def test_change_day_replaces_only_on_apply(db):
+    a = _recipe(db, "Nasi goreng", [])
+    b = _recipe(db, "Pasta pesto", [])
+    monday = routes.monday_of(date.today()) + timedelta(days=7)
+    day = str(monday)
+    client = TestClient(app)
+    client.post("/api/plan/apply", json={"week": str(monday), "choices": [{"date": day, "kind": "recipe", "recipe_id": a.id}]})
+    res = client.post("/api/plan/propose", json={"week": str(monday), "wishes": {day: "pasta"}, "replace": [day]}).json()
+    assert res["days"][0]["kind"] == "recipe"  # dag telt als open bij Wijzig
+    assert db.query(PlanEntry).count() == 1  # nog niets weggehaald
+    client.post("/api/plan/apply", json={"week": str(monday), "choices": [
+        {"date": day, "kind": "recipe", "recipe_id": b.id, "replace": True}]})
+    assert [e.recipe_id for e in db.query(PlanEntry).all()] == [b.id]

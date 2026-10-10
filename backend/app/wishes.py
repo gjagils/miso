@@ -153,12 +153,13 @@ def _health(profile: dict | None) -> float:
 
 
 def propose(db: Session, monday: date, wishes: dict[str, str], per_day: int = 3,
-            today: date | None = None) -> list[dict]:
+            today: date | None = None, replace: set[str] | None = None) -> list[dict]:
     """wishes: {"2026-10-12": "rijst", ...}. Geeft per dag {date, wish, kind, options} (niets opgeslagen)."""
     today = today or date.today()
     stats = plan_stats(db)
     taken = {e.date: e for e in db.execute(select(PlanEntry).where(
-        PlanEntry.date >= str(monday), PlanEntry.date <= str(monday + timedelta(days=6)))).scalars()}
+        PlanEntry.date >= str(monday), PlanEntry.date <= str(monday + timedelta(days=6)))).scalars()
+        if e.date not in (replace or set())}  # "Wijzig": die dag telt als open
     recipes = db.execute(select(Recipe).where(Recipe.archived.is_(False))).scalars().all()
     profiles = {r.id: get_profile(db, r.id) for r in recipes}
     week_ids = {e.recipe_id for e in taken.values() if e.kind == "recipe"}

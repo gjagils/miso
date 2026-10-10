@@ -23,13 +23,14 @@
     <div class="wish-days">
     {% for d in days if not d.weekend %}{% include "_wish_day.html" %}{% endfor %}
     </div>
-    <details class="wish-weekend">
+    <details class="wish-weekend"{{ " open" if weekend_open }}>
         <summary>Weekend ook plannen</summary>
         <div class="wish-days">{% for d in days if d.weekend %}{% include "_wish_day.html" %}{% endfor %}</div>
     </details>
-    {% if open_days %}
+    {% if open_any %}
     <div class="nw-actions"><button class="btn btn-primary" id="propose-btn" type="button">Stel recepten voor</button>
         <span class="muted" id="propose-msg" role="status"></span></div>
+    {% if not open_days %}<p class="msg-ok">Maandag tot en met vrijdag staan erin.</p>{% endif %}
     {% else %}
     <p class="msg-ok">Maandag tot en met vrijdag staan erin. <a href="/weekmenu?week={{ week }}">Bekijk weekmenu en boodschappen</a></p>
     {% endif %}
@@ -50,6 +51,14 @@
 {% endblock %}
 
 {% block scripts %}
+<template id="wish-editor">
+    <div class="wchips" role="group" aria-label="Nieuwe wens">
+        {% for key, label in chips %}<button type="button" class="wchip" data-chip="{{ key }}" aria-pressed="false">{{ label }}</button>{% endfor %}
+        <button type="button" class="wchip wmore" aria-expanded="false">Meer…</button>
+        <span class="wchips-more" hidden>{% for key, label in more_chips %}<button type="button" class="wchip" data-chip="{{ key }}" aria-pressed="false">{{ label }}</button>{% endfor %}</span>
+    </div>
+    <input class="form-input wtext" placeholder="of typ een gerecht, bijv. lasagne" aria-label="Nieuw gerecht">
+</template>
 <script>
 const WEEK = "{{ week }}", HAS_TOKEN = {{ "true" if has_token else "false" }};
 const $ = id => document.getElementById(id);
@@ -65,17 +74,24 @@ function setWish(row, value) {
     if (value && !row.querySelector(`.wchip[data-chip="${CSS.escape(value)}"]`)) row.querySelector(".wtext").value = value;
     else row.querySelector(".wtext").value = "";
 }
-document.querySelectorAll(".wish-day").forEach(row => {
-    row.querySelectorAll(".wchip").forEach(b => b.onclick = () => {
+function wireRow(row) {
+    row.querySelectorAll(".wchip[data-chip]").forEach(b => b.onclick = () => {
         const on = b.getAttribute("aria-pressed") !== "true";
         setWish(row, on ? b.dataset.chip : "");
     });
-    row.querySelector(".wtext").addEventListener("input", () =>
+    const more = row.querySelector(".wmore");
+    if (more) more.onclick = () => {
+        const box = more.nextElementSibling, open = box.hidden;
+        box.hidden = !open; more.setAttribute("aria-expanded", String(open)); more.textContent = open ? "Minder" : "Meer…";
+    };
+    row.querySelector(".wtext")?.addEventListener("input", () =>
         row.querySelectorAll(".wchip").forEach(b => b.setAttribute("aria-pressed", "false")));
-});
+}
+document.querySelectorAll(".wish-day:not(.taken)").forEach(wireRow);
 function collect() {
     const out = {};
     document.querySelectorAll(".wish-day:not(.taken)").forEach(row => {
+        if (!row.querySelector(".wchips")) return;
         const pressed = row.querySelector('.wchip[aria-pressed="true"]');
         const text = row.querySelector(".wtext").value.trim();
         if (pressed || text) out[row.dataset.date] = pressed ? pressed.dataset.chip : text;
@@ -115,8 +131,10 @@ function renderProposal() {
             card.innerHTML = title + `<div class="opt-main">${optionHTML(day.options[day.pick], true)}</div>`;
             const alts = document.createElement("div");
             alts.className = "opt-alts";
+            const pickedElsewhere = new Set(proposal.filter(x => x !== day && x.options && x.options[x.pick])
+                .map(x => (x.options[x.pick].name || "").toLowerCase()));
             day.options.forEach((o, i) => {
-                if (i === day.pick) return;
+                if (i === day.pick || pickedElsewhere.has((o.name || "").toLowerCase())) return;  // geen dubbel gerecht
                 const b = document.createElement("button");
                 b.type = "button"; b.className = "opt-alt"; b.innerHTML = optionHTML(o, false);
                 b.setAttribute("aria-label", `Wissel naar ${o.name}`);
@@ -128,21 +146,27 @@ function renderProposal() {
         $("proposal-days").appendChild(card);
     });
 }
-document.querySelectorAll(".wmore").forEach(b => b.onclick = () => {
-    const more = b.nextElementSibling, open = more.hidden;
-    more.hidden = !open; b.setAttribute("aria-expanded", String(open)); b.textContent = open ? "Minder" : "Meer…";
+document.querySelectorAll("[data-remove]").forEach(b => b.onclick = async () => {
+    if (!confirm("Deze dag leegmaken?")) return;
+    const r = await fetch(`/api/plan/entries/${b.dataset.remove}`, {method: "DELETE"}).then(x => x.json()).catch(() => ({}));
+    if (r.ok) location.reload();
 });
-document.querySelectorAll("[data-remove], [data-change]").forEach(b => b.onclick = async () => {
-    const id = b.dataset.remove || b.dataset.change;
-    if (b.dataset.remove && !confirm("Deze dag leegmaken?")) return;
-    const r = await fetch(`/api/plan/entries/${id}`, {method: "DELETE"}).then(x => x.json()).catch(() => ({}));
-    if (r.ok) location.href = `/plannen?week=${WEEK}` + (b.dataset.change ? `#d-${b.closest(".wish-day").dataset.date}` : "");
+// "Wijzig": de dag gaat open voor een nieuwe wens; het oude gerecht verdwijnt pas als je het nieuwe bevestigt
+document.querySelectorAll("[data-change]").forEach(b => b.onclick = () => {
+    const row = b.closest(".wish-day");
+    const tpl = document.getElementById("wish-editor");
+    row.classList.remove("taken"); row.classList.add("replacing");
+    row.querySelector(".taken-actions").remove();
+    row.appendChild(tpl.content.cloneNode(true));
+    wireRow(row);
+    const pb = $("propose-btn"); if (pb) pb.closest(".nw-actions").hidden = false;
 });
 $("propose-btn") && ($("propose-btn").onclick = async () => {
     const w = collect();
     if (!Object.keys(w).length) { $("propose-msg").textContent = "Kies voor minstens één dag een wens."; return; }
     $("propose-msg").textContent = "Miso zoekt recepten…";
-    const r = await postJSON("/api/plan/propose", {week: WEEK, wishes: w});
+    const replace = [...document.querySelectorAll(".wish-day.replacing")].map(r => r.dataset.date);
+    const r = await postJSON("/api/plan/propose", {week: WEEK, wishes: w, replace});
     $("propose-msg").textContent = "";
     if (!r.ok) { $("propose-msg").textContent = "Voorstellen lukte niet."; return; }
     proposal = r.days.map(d => ({...d, pick: 0,
@@ -158,10 +182,12 @@ $("apply-btn").onclick = async () => {
     btn.disabled = true; btn.textContent = "Bezig…";
     const choices = [], swapped = [];
     proposal.forEach(d => {
-        if (d.kind === "vriezer") choices.push({date: d.date, kind: "vriezer"});
+        if (d.kind === "vriezer") choices.push({date: d.date, kind: "vriezer",
+            replace: !!document.querySelector(`.wish-day.replacing[data-date="${d.date}"]`)});
         if (d.kind === "recipe" && d.options.length) {
             const o = d.options[d.pick];
-            choices.push({date: d.date, kind: "recipe", recipe_id: o.recipe_id || null, ah_recipe_id: o.ah_recipe_id || null});
+            choices.push({date: d.date, kind: "recipe", recipe_id: o.recipe_id || null, ah_recipe_id: o.ah_recipe_id || null,
+                          replace: !!document.querySelector(`.wish-day.replacing[data-date="${d.date}"]`)});
             if (d.pick !== 0 && d.options[0].recipe_id) swapped.push(d.options[0].recipe_id);
         }
     });

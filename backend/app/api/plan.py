@@ -119,6 +119,7 @@ class EntryCreate(BaseModel):
     extras: list = []  # ["pasta", ...] of [{"text": "pasta"}, ...]
     cook_double: Literal["tomorrow", "freezer"] | None = None
     freezer_item_id: int | None = None
+    replace: bool = False  # wat er die dag al stond (recept/voorraad) vervangen
 
 
 def _freezer_of(db: Session, entry: PlanEntry) -> FreezerItem | None:
@@ -135,6 +136,10 @@ async def create_entry(payload: EntryCreate, db: Session = Depends(get_db)):
     persons = _clean_persons(payload.persons)
     created: list[PlanEntry] = []
     freezer_json = None
+    if payload.replace:
+        for old in planning.week_entries(db, routes.monday_of(day)):
+            if old.date == str(day) and old.kind in ("recipe", "stock"):
+                db.delete(old)
 
     if payload.kind in ("recipe", "leftover"):
         recipe = db.get(Recipe, payload.recipe_id or 0)

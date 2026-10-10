@@ -8,9 +8,9 @@
     <div class="tonight-card">
         {% if e.recipe.image_url %}<img class="tonight-img" src="{{ e.recipe.image_url }}" alt="" referrerpolicy="no-referrer">{% endif %}
         <div class="tonight-body">
-            <h2>{{ e.title }}</h2>
+            <h2>{{ e.title|kort }}</h2>
             <p class="muted">voor {{ e.persons }}{% if e.recipe.total_time %} · {{ e.recipe.total_time }}{% endif %}{% if e.cook_double == "tomorrow" %} · kook dubbel, morgen de rest{% elif e.cook_double == "freezer" %} · kook dubbel, de helft naar de vriezer{% endif %}{% if e.recipe.gf_mode != "none" %} · glutenvrij voor 1{% endif %}</p>
-            <a class="btn btn-primary btn-lg" href="/recipe/{{ e.recipe.id }}/koken">Start met koken</a>
+            <a class="btn btn-primary btn-lg" href="/recipe/{{ e.recipe.id }}/koken?personen={{ e.grocery_persons or e.persons }}">Start met koken</a>
             <span><a class="btn" href="/recipe/{{ e.recipe.id }}">Recept</a>
             <a class="btn" href="/plannen?week={{ days[0].date_monday }}">Toch iets anders</a></span>
         </div>
@@ -30,7 +30,7 @@
         {% for idea in ideas %}
         <button type="button" class="idea" data-recipe="{{ idea.recipe.id }}">
             {% if idea.recipe.image_url %}<img src="{{ idea.recipe.image_url }}" alt="" loading="lazy" referrerpolicy="no-referrer">{% else %}<span class="opt-ph"></span>{% endif %}
-            <span><small class="muted">{{ idea.why }}</small><strong>{{ idea.recipe.name }}</strong>{% if idea.recipe.total_time %}<small class="muted">{{ idea.recipe.total_time }}</small>{% endif %}</span>
+            <span><small class="muted">{{ idea.why }}</small><strong>{{ idea.recipe.name|kort }}</strong>{% if idea.recipe.total_time %}<small class="muted">{{ idea.recipe.total_time }}</small>{% endif %}</span>
         </button>
         {% endfor %}
         <button type="button" class="idea" data-freezer="1"><img src="/static/miso/miso-box.webp" alt=""><span><small class="muted">Geen boodschappen nodig</small><strong>Iets uit de vriezer</strong></span></button>
@@ -58,7 +58,7 @@
     {% if e.kind == "recipe" and e.recipe %}
     <a class="day-recipe" href="/recipe/{{ e.recipe.id }}">
         {% if e.recipe.image_url %}<img src="{{ e.recipe.image_url }}" alt="" loading="lazy" referrerpolicy="no-referrer">{% else %}<div class="thumb"></div>{% endif %}
-        <span>{{ e.title }}<small class="pe-meta">voor {{ e.persons }}</small></span>
+        <span>{{ e.title|kort }}<small class="pe-meta">voor {{ e.persons }}</small></span>
     </a>
     {% else %}
     <div class="day-recipe"><div class="thumb pe-icon" aria-hidden="true"><img src="/static/miso/{{ 'miso-pasta-again' if e.kind == 'leftover' else 'miso-box' }}.webp" alt=""></div>

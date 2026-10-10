@@ -183,3 +183,38 @@ def next_week_overview(db: Session, today: date | None = None) -> dict:
         "prominent": days_until <= 2,
         "message": order_message(weekdays_planned, days_until, weekday),
     }
+
+
+_AMOUNT = re.compile(r"^\s*(\d+/\d+|\d+(?:[.,]\d+)?(?:\s*-\s*\d+(?:[.,]\d+)?)?|[½¼¾])")
+_FRACTIONS = {"½": 0.5, "¼": 0.25, "¾": 0.75}
+
+
+def scale_line(text: str, factor: float) -> str:
+    """'200 g kipfilet' x2 -> '400 g kipfilet'; '1/2 ui' x2 -> '1 ui'. Alleen het getal vooraan."""
+    if abs(factor - 1) < 0.01:
+        return text
+    m = _AMOUNT.match(text or "")
+    if not m:
+        return text
+
+    def num(s: str) -> float:
+        s = s.strip()
+        if s in _FRACTIONS:
+            return _FRACTIONS[s]
+        if "/" in s:
+            a, b = s.split("/")
+            return float(a) / float(b)
+        return float(s.replace(",", "."))
+
+    def fmt(x: float) -> str:
+        if abs(x - round(x)) < 0.05:
+            return str(int(round(x)))
+        for frac, sym in ((0.5, "½"), (0.25, "¼"), (0.75, "¾")):
+            if abs(x - int(x) - frac) < 0.05:
+                return f"{int(x) or ''}{sym}"
+        return f"{x:.1f}".replace(".", ",")
+
+    raw = m.group(1)
+    parts = [p for p in re.split(r"\s*-\s*", raw)] if "-" in raw else [raw]
+    scaled = "-".join(fmt(num(p) * factor) for p in parts)
+    return scaled + text[m.end():]

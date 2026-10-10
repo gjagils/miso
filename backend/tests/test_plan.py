@@ -469,3 +469,12 @@ def test_per_person_lines_are_not_scaled_twice(db):
     r = _recipe4(db, "Kip", [ing], servings="2 personen")
     cart, _ = routes.aggregate_cart([r], [planning.scale_factor(4, r)])
     assert _qty(cart)[7] == 2  # 4 personen = 4 stuks = 2 pakken, niet 4
+
+
+def test_scale_line():
+    assert planning.scale_line("200 g kipfilet", 2) == "400 g kipfilet"
+    assert planning.scale_line("½ ui", 2) == "1 ui"
+    assert planning.scale_line("1/2 tl zout", 3) == "1½ tl zout"
+    assert planning.scale_line("2-3 tenen knoflook", 2) == "4-6 tenen knoflook"
+    assert planning.scale_line("zout en peper", 2) == "zout en peper"
+    assert planning.scale_line("300 g rijst", 1) == "300 g rijst"

@@ -21,12 +21,13 @@ router = APIRouter()
 class ProposePayload(BaseModel):
     week: str | None = None
     wishes: dict[str, str]  # datum -> chip of tekst
+    replace: list[str] = []  # dagen die je via "Wijzig" opnieuw kiest
 
 
 @router.post("/api/plan/propose")
 async def api_propose(payload: ProposePayload, db: Session = Depends(get_db)):
     monday = routes.parse_week(payload.week)
-    days = wishes.propose(db, monday, payload.wishes)
+    days = wishes.propose(db, monday, payload.wishes, replace=set(payload.replace))
     own_ah = {rid for rid in db.execute(select(Recipe.ah_recipe_id).where(Recipe.ah_recipe_id.is_not(None))).scalars()}
     shown: set[int] = set()
     for day in days:  # minder dan 3 eigen keuzes: aanvullen uit Allerhande (snelle doordeweekse recepten eerst)
@@ -70,6 +71,7 @@ class Choice(BaseModel):
     kind: str  # "recipe" | "vriezer"
     recipe_id: int | None = None
     ah_recipe_id: int | None = None
+    replace: bool = False  # "Wijzig": wat er op die dag stond, gaat pas weg als het nieuwe erin komt
 
 
 class ApplyPayload(BaseModel):
@@ -85,6 +87,11 @@ async def api_apply(payload: ApplyPayload, db: Session = Depends(get_db)):
     taken = {e.date for e in planning.week_entries(db, monday)}
     added, skipped = 0, []
     for c in payload.choices:
+        if c.replace and c.date in taken:
+            for e in planning.week_entries(db, monday):
+                if e.date == c.date:
+                    db.delete(e)
+            taken.discard(c.date)
         if c.date in taken or not (str(monday) <= c.date <= str(monday + timedelta(days=6))):
             skipped.append(c.date)
             continue
@@ -142,6 +149,8 @@ async def plan_page(request: Request, week: str | None = None, db: Session = Dep
         "week": str(monday), "prev_week": str(monday - timedelta(days=7)), "next_week": str(monday + timedelta(days=7)),
         "days": days, "chips": chips, "more_chips": more_chips,
         "open_days": sum(1 for d in days if not d["taken"] and not d["past"] and not d["weekend"]),
+        "open_any": sum(1 for d in days if not d["taken"] and not d["past"]),
+        "weekend_open": any(d["weekend"] and d["date"] == str(date.today()) for d in days),
         "week_label": days[0]["label"][:1].lower() + days[0]["label"][1:], "has_token": bool(routes._get_setting(db, "ah_user_token")
                                                         or routes._get_setting(db, "ah_refresh_token")),
         "has_api_key": bool(routes.settings.anthropic_api_key)})

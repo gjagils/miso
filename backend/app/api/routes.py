@@ -222,9 +222,19 @@ async def recipe_detail(request: Request, recipe_id: int, db: Session = Depends(
 
 
 @router.get("/recipe/{recipe_id}/koken", response_class=HTMLResponse)
-async def cook_mode(request: Request, recipe_id: int, db: Session = Depends(get_db)):
+async def cook_mode(request: Request, recipe_id: int, personen: int | None = None, db: Session = Depends(get_db)):
     recipe = _get_recipe(db, recipe_id)
-    return templates.TemplateResponse(request, "cook.html", {"recipe": recipe, "today_iso": str(date.today())})
+    if not personen:  # vandaag ingepland? dan voor dat aantal personen
+        for e in planning.week_entries(db, monday_of(date.today())):
+            if e.date == str(date.today()) and e.recipe_id == recipe.id and e.kind == "recipe":
+                personen = (e.persons or planning.household_size(db)) * (2 if e.cook_double else 1)
+                break
+    base = planning.recipe_servings(recipe)
+    factor = (personen / base) if personen and base else 1.0
+    lines = [{**i, "text": planning.scale_line(i.get("text", ""), factor)} for i in recipe.ingredients]
+    return templates.TemplateResponse(request, "cook.html", {
+        "recipe": recipe, "today_iso": str(date.today()), "lines": lines,
+        "personen": personen if abs(factor - 1) > 0.01 else None, "base_servings": base})
 
 
 class GlutenPayload(BaseModel):

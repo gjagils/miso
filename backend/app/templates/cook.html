@@ -2,7 +2,7 @@
 {% block title %}{{ recipe.name }} - koken{% endblock %}
 {% block content %}
 <p class="breadcrumb"><a href="/recipe/{{ recipe.id }}">&larr; Recept</a></p>
-<div class="cook-head"><img src="/static/miso/miso-chef.webp" alt="" width="84" height="84" loading="lazy"><div><h1>{{ recipe.name }}</h1>
+<div class="cook-head"><img src="/static/miso/miso-chef.webp" alt="" width="84" height="84" loading="lazy"><div><h1>{{ recipe.name|kort if recipe.collection == "maaltijdpakket" else recipe.name }}</h1>
 <p class="muted">{{ recipe.servings }}{% if recipe.servings and recipe.total_time %} · {% endif %}{{ recipe.total_time }}</p></div></div>
 {% if recipe.gf_mode != "none" %}
 <div class="status-box"><span class="chip">glutenvrij voor 1 persoon</span>
@@ -10,8 +10,9 @@
 {% endif %}
 {% if recipe.by_heart %}<p class="muted">Je kent dit recept uit je hoofd. Hier staan de ingrediënten om af te vinken.</p>{% endif %}
 <h2>Ingrediënten</h2>
+{% if personen %}<p class="chip">Omgerekend voor {{ personen }} personen (recept is voor {{ base_servings }})</p>{% endif %}
 <ul class="cook-ingredients">
-    {% for ing in recipe.ingredients %}
+    {% for ing in lines %}
     <li><label><input type="checkbox"> {{ ing.text }}
         {% if ing.gluten and ing.gf_search and recipe.gf_mode != "none" %}
         <span class="chip chip-warn">{{ "i.p.v. gluten: " if recipe.gf_mode == "replace" else "extra voor 1: " }}{{ ing.gf_search }}</span>{% endif %}
