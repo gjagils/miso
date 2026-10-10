@@ -84,7 +84,8 @@ async def who_choose(member: str = Form(""), db: Session = Depends(get_db)):
 
 @router.get("/api/members")
 async def api_members(request: Request, db: Session = Depends(get_db)):
-    return {"members": members.all_members(db), "current": members.current(request, db)}
+    return {"members": members.all_members(db), "current": members.current(request, db),
+            "ah_connected": bool(routes._get_setting(db, "ah_user_token") or routes._get_setting(db, "ah_refresh_token"))}
 
 
 class MembersPayload(BaseModel):

@@ -280,11 +280,12 @@ async def api_delete_recipe(recipe_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/missing")
-async def api_missing(db: Session = Depends(get_db)):
-    """Ontbrekende AH-producten gegroepeerd (zoals de webpagina Ontbrekend); kiezen via POST /api/missing/assign."""
+async def api_missing(week: str | None = None, db: Session = Depends(get_db)):
+    """Ontbrekende AH-producten gegroepeerd (zoals de webpagina Ontbrekend); ?week= alleen de recepten van die week.
+    Kiezen via POST /api/missing/assign."""
     from app.api.shopping import coverage, missing_groups
 
-    return {"groups": missing_groups(db), "totaal": coverage(db)["totaal"]}
+    return {"groups": missing_groups(db, week), "totaal": coverage(db)["totaal"], "week": week}
 
 
 @router.get("/week")
