@@ -2,112 +2,115 @@ import SwiftUI
 
 /// Weekmenu: per dag wat er gepland is (recept, restje, "hebben we al"), plannen via "+", verplaatsen,
 /// personen aanpassen, en één knop om de nieuwe producten op het AH-lijstje te zetten.
+/// Geen eigen tabblad meer: wordt geopend vanuit Plannen en Vandaag (in hun NavigationStack).
 struct PlanView: View {
+    /// Week (maandag) om mee te beginnen; nil = deze week.
+    var initialWeek: String?
     @Environment(Session.self) private var session
     @Environment(AppRouter.self) private var router
     @State private var model = WeekPlanModel()
-    @State private var path: [PlanRoute] = []
+    @State private var recipeToOpen: Int?
     @State private var planRequest: PlanSheetRequest?
     @State private var pendingDelete: PlanItem?
     @State private var confirmingDelete = false
 
     var body: some View {
-        NavigationStack(path: $path) {
-            List {
-                if let week = model.week {
-                    if let errorText = model.errorText {
-                        ErrorBanner(message: errorText, onDismiss: dismissError)
-                            .listRowBackground(Color.clear)
-                            .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
-                    }
-
-                    Section {
-                        WeekNavigator(title: "Week van \(KiezenDates.short(week.week))",
-                                      onPrevious: previousWeek, onNext: nextWeek)
-                    }
-                    .misoRow()
-
-                    ForEach(week.days) { day in
-                        Section {
-                            let items = model.items(for: day)
-                            ForEach(items) { item in
-                                PlanItemRow(item: item,
-                                            persons: model.persons(for: item),
-                                            profile: model.profile(for: item),
-                                            onOpenRecipe: item.recipeId.map { id in { openRecipe(id) } },
-                                            onPersons: item.isEditable ? { setPersons($0, for: item) } : nil)
-                                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                        if item.isEditable {
-                                            Button("Verwijder", systemImage: "trash") { askDelete(item) }
-                                                .tint(.red)
-                                            Button("Verplaats naar…", systemImage: "calendar") { move(item) }
-                                                .tint(Color.misoBlue)
-                                        }
-                                    }
-                            }
-                            if items.isEmpty {
-                                Text("Nog niets gepland").font(.misoBody).foregroundStyle(.secondary)
-                            }
-                        } header: {
-                            PlanDayHeader(day: day) { add(on: day) }
-                        }
-                        .misoRow()
-                    }
-
-                    GroceriesSection(status: week.status, pushing: model.pushing, result: model.pushResult,
-                                     onPush: pushToList)
-
-                    if let health = model.health, health.dagen > 0 {
-                        HealthSection(health: health)
-                    }
-
-                    Section {
-                        NavigationLink(value: PlanRoute.freezer) {
-                            Label("Vriezer", systemImage: "snowflake")
-                                .font(.misoButton)
-                                .foregroundStyle(Color.misoBlue)
-                                .frame(minHeight: 44)
-                        }
-                    }
-                    .misoRow()
-                } else if let errorText = model.errorText {
-                    ErrorStateView(message: errorText).listRowBackground(Color.clear)
-                } else {
-                    ProgressView().frame(maxWidth: .infinity).listRowBackground(Color.clear)
+        List {
+            if let week = model.week {
+                if let errorText = model.errorText {
+                    ErrorBanner(message: errorText, onDismiss: dismissError)
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
                 }
-            }
-            .misoScreen()
-            .navigationTitle("Weekmenu")
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
+
+                Section {
+                    WeekNavigator(title: "Week van \(KiezenDates.short(week.week))",
+                                  onPrevious: previousWeek, onNext: nextWeek)
+                }
+                .misoRow()
+
+                ForEach(week.days) { day in
+                    Section {
+                        let items = model.items(for: day)
+                        ForEach(items) { item in
+                            PlanItemRow(item: item,
+                                        persons: model.persons(for: item),
+                                        profile: model.profile(for: item),
+                                        onOpenRecipe: item.recipeId.map { id in { openRecipe(id) } },
+                                        onPersons: item.isEditable ? { setPersons($0, for: item) } : nil)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                    if item.isEditable {
+                                        Button("Verwijder", systemImage: "trash") { askDelete(item) }
+                                            .tint(.red)
+                                        Button("Verplaats naar…", systemImage: "calendar") { move(item) }
+                                            .tint(Color.misoBlue)
+                                    }
+                                }
+                        }
+                        if items.isEmpty {
+                            Text("Nog niets gepland").font(.misoBody).foregroundStyle(.secondary)
+                        }
+                    } header: {
+                        PlanDayHeader(day: day) { add(on: day) }
+                    }
+                    .misoRow()
+                }
+
+                GroceriesSection(status: week.status, pushing: model.pushing, result: model.pushResult,
+                                 onPush: pushToList)
+
+                if let health = model.health, health.dagen > 0 {
+                    HealthSection(health: health)
+                }
+
+                Section {
                     NavigationLink(value: PlanRoute.freezer) {
                         Label("Vriezer", systemImage: "snowflake")
+                            .font(.misoButton)
+                            .foregroundStyle(Color.misoBlue)
+                            .frame(minHeight: 44)
                     }
                 }
+                .misoRow()
+            } else if let errorText = model.errorText {
+                ErrorStateView(message: errorText).listRowBackground(Color.clear)
+            } else {
+                ProgressView().frame(maxWidth: .infinity).listRowBackground(Color.clear)
             }
-            .navigationDestination(for: PlanRoute.self) { route in
-                switch route {
-                case .recipe(let id): RecipeDetailView(recipeID: id)
-                case .freezer: FreezerView(week: model.week?.week, firstFreeDay: model.firstFreeDay)
-                case .missing: MissingView()
+        }
+        .misoScreen()
+        .navigationTitle("Weekmenu")
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationDestination(item: $recipeToOpen) { RecipeDetailView(recipeID: $0) }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                NavigationLink(value: PlanRoute.freezer) {
+                    Label("Vriezer", systemImage: "snowflake")
                 }
             }
-            .refreshable { await reload() }
-            .task { await load() }
-            // Elders ingepland of een recept gekoppeld/bewerkt/verwijderd: weekmenu en boodschappen verversen.
-            .onChange(of: router.planVersion) { Task { await reload() } }
-            .onChange(of: router.recipesVersion) { Task { await load() } }
-            .sheet(item: $planRequest) { request in
-                PlanSheet(request: request, onDone: planned)
+        }
+        .navigationDestination(for: PlanRoute.self) { route in
+            switch route {
+            case .recipe(let id): RecipeDetailView(recipeID: id)
+            case .freezer: FreezerView(week: model.week?.week, firstFreeDay: model.firstFreeDay)
+            case .missing: MissingView()
             }
-            .confirmationDialog(deleteTitle, isPresented: $confirmingDelete, titleVisibility: .visible,
-                                presenting: pendingDelete) { item in
-                Button("Verwijder", role: .destructive) { delete(item) }
-                Button("Annuleer", role: .cancel) {}
-            } message: { item in
-                if !item.leftoverEntryIds.isEmpty {
-                    Text("De rest-dag gaat ook weg.")
-                }
+        }
+        .refreshable { await reload() }
+        .task { await load() }
+        // Elders ingepland of een recept gekoppeld/bewerkt/verwijderd: weekmenu en boodschappen verversen.
+        .onChange(of: router.planVersion) { Task { await reload() } }
+        .onChange(of: router.recipesVersion) { Task { await load() } }
+        .sheet(item: $planRequest) { request in
+            PlanSheet(request: request, onDone: planned)
+        }
+        .confirmationDialog(deleteTitle, isPresented: $confirmingDelete, titleVisibility: .visible,
+                            presenting: pendingDelete) { item in
+            Button("Verwijder", role: .destructive) { delete(item) }
+            Button("Annuleer", role: .cancel) {}
+        } message: { item in
+            if !item.leftoverEntryIds.isEmpty {
+                Text("De rest-dag gaat ook weg.")
             }
         }
     }
@@ -124,7 +127,7 @@ struct PlanView: View {
 
     private func load() async {
         guard let api = session.api else { return }
-        await model.load(api: api, week: model.week?.week)
+        await model.load(api: api, week: model.week?.week ?? initialWeek)
     }
 
     private func reload() async {
@@ -143,7 +146,7 @@ struct PlanView: View {
     }
 
     private func openRecipe(_ id: Int) {
-        path.append(.recipe(id))
+        recipeToOpen = id
     }
 
     private func add(on day: PlanDay) {

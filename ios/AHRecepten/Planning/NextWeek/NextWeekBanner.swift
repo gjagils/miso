@@ -1,13 +1,10 @@
 import SwiftUI
 
-/// "Volgende week: 4 van 7 dagen gepland · nog 2 dagen tot zondag (besteldag)".
-/// Groot met knoppen vanaf 2 dagen voor de besteldag; anders één compacte regel.
+/// "Volgende week: 3 van 5 doordeweekse dagen gepland · nog 2 dagen tot zondag (besteldag)".
+/// Groot vanaf 2 dagen voor de besteldag; anders één compacte regel. De knop opent Plannen voor die week.
 struct NextWeekBanner: View {
     let model: NextWeekModel
     let onPlan: () -> Void
-    let onSuggest: () -> Void
-    let onApply: () -> Void
-    let onDismissSuggestions: () -> Void
 
     var body: some View {
         if let status = model.status {
@@ -20,23 +17,11 @@ struct NextWeekBanner: View {
                                 .font(.misoHeadline).foregroundStyle(Color.misoBlue)
                                 .accessibilityAddTraits(.isHeader)
                             Text(status.message).font(.callout).foregroundStyle(Color.misoBlue)
-                            PlannedDots(planned: status.plannedDays, total: status.totalDays)
+                            PlannedDots(planned: status.progressPlanned, total: status.progressTotal)
                         }
                     }
                     Button("Plan volgende week", action: onPlan)
                         .buttonStyle(.misoPrimary)
-                    Button(action: onSuggest) {
-                        if model.suggesting { Text("Miso denkt na…") } else { Text("Laat Miso voorstellen") }
-                    }
-                    .buttonStyle(.misoSecondary)
-                    .disabled(model.suggesting || model.applying)
-                    if let suggestions = model.suggestions, !suggestions.isEmpty {
-                        SuggestionList(suggestions: suggestions, applying: model.applying,
-                                       onApply: onApply, onDismiss: onDismissSuggestions)
-                    }
-                    if let message = model.message {
-                        Text(message).font(.callout).foregroundStyle(.secondary)
-                    }
                 }
                 .misoCard()
                 .overlay {
@@ -45,11 +30,8 @@ struct NextWeekBanner: View {
             } else {
                 HStack(spacing: 10) {
                     VStack(alignment: .leading, spacing: 4) {
-                        PlannedDots(planned: status.plannedDays, total: status.totalDays)
+                        PlannedDots(planned: status.progressPlanned, total: status.progressTotal)
                         Text(status.message).font(.footnote).foregroundStyle(Color.misoBlue)
-                        if let message = model.message {
-                            Text(message).font(.footnote).foregroundStyle(.secondary)
-                        }
                     }
                     Spacer(minLength: 0)
                     if !status.isComplete {

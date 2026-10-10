@@ -46,12 +46,47 @@ struct ReviewRecipe: Decodable, Identifiable, Hashable, Sendable {
 struct RecipesReviewResponse: Decodable, Sendable {
     let totalPlans: Int
     let recipes: [ReviewRecipe]
+    /// Nog te weinig gepland om iets zinnigs te zeggen (minder dan `minPlans` keer).
+    let tooEarly: Bool
+    let minPlans: Int
 
-    enum CodingKeys: String, CodingKey { case totalPlans, recipes }
+    enum CodingKeys: String, CodingKey { case totalPlans, recipes, tooEarly, minPlans }
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         totalPlans = c.lenientInt(.totalPlans) ?? 0
         recipes = c.lenient([ReviewRecipe].self, .recipes) ?? []
+        tooEarly = c.lenient(Bool.self, .tooEarly) ?? false
+        minPlans = c.lenientInt(.minPlans) ?? 30
+    }
+}
+
+/// Keuze op de opruimlijst, met wat "ongedaan maken" terugzet.
+enum ReviewAction: Sendable {
+    case keep, byHeart, archive
+
+    var body: RecipeFlagsBody {
+        switch self {
+        case .keep: .keep
+        case .byHeart: .byHeartKeep
+        case .archive: .archive
+        }
+    }
+
+    var undoBody: RecipeFlagsBody {
+        switch self {
+        case .keep: RecipeFlagsBody(reviewed: false)
+        case .byHeart: RecipeFlagsBody(byHeart: false, reviewed: false)
+        case .archive: RecipeFlagsBody(archived: false)
+        }
+    }
+
+    /// "Quiche bewaard."
+    func done(_ name: String) -> String {
+        switch self {
+        case .keep: "\(name) bewaard."
+        case .byHeart: "\(name) staat op uit mijn hoofd."
+        case .archive: "\(name) opgeruimd."
+        }
     }
 }

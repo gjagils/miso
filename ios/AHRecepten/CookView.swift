@@ -7,6 +7,8 @@ struct CookView: View {
     let recipe: RecipeDetail
     @State private var checked: Set<Int> = []
     @State private var done: Set<Int> = []
+    /// "Gekookt" is al gemeld (na de helft van de stappen, of via Lekker?).
+    @State private var cookedSent = false
 
     var body: some View {
         NavigationStack {
@@ -54,6 +56,7 @@ struct CookView: View {
                     ForEach(Array(recipe.instructions.enumerated()), id: \.offset) { index, step in
                         Button {
                             toggle(&done, index)
+                            markCookedIfHalfway()
                         } label: {
                             let isDone = done.contains(index)
                             HStack(alignment: .top, spacing: 10) {
@@ -82,7 +85,7 @@ struct CookView: View {
                 } header: { Text("Bereiding").misoSectionHeader() }
                 .misoRow()
                 Section {
-                    TasteFeedbackSection(recipeID: recipe.id)
+                    TasteFeedbackSection(recipeID: recipe.id, favorite: recipe.isFavorite, onRated: rated)
                 }
                 .misoRow()
             }
@@ -94,7 +97,6 @@ struct CookView: View {
             }
         }
         .onAppear { setScreenAlwaysOn(true) }
-        .task { await markCooked() }
         .onDisappear { setScreenAlwaysOn(false) }
     }
 
@@ -102,10 +104,18 @@ struct CookView: View {
         dismiss()
     }
 
-    /// Kookmodus geopend telt als gekookt (de server telt één keer per dag). Mislukken is niet erg.
-    private func markCooked() async {
-        guard let api = session.api else { return }
-        _ = try? await api.markCooked(recipe.id)
+    /// Telt pas als gekookt als minstens de helft van de stappen is afgevinkt (zoals de web-kookmodus).
+    /// Eén keer per keer openen; de server telt bovendien één keer per dag. Mislukken is niet erg.
+    private func markCookedIfHalfway() {
+        guard !cookedSent, CookProgress.isHalfway(done: done.count, steps: recipe.instructions.count),
+              let api = session.api else { return }
+        cookedSent = true
+        Task { _ = try? await api.markCooked(recipe.id) }
+    }
+
+    /// Lekker? telt op de server ook als gekookt.
+    private func rated() {
+        cookedSent = true
     }
 
     private func setScreenAlwaysOn(_ on: Bool) {

@@ -11,6 +11,8 @@ struct RecipeFeedbackResponse: Decodable, Sendable {
     let ok: Bool
     let thumbsUp: Int?
     let thumbsDown: Int?
+    /// Je stem van vandaag (nieuwere servers): één per recept per dag, om te zetten.
+    let rating: TasteRating?
 }
 
 /// `POST /api/recipes/{id}/cooked`.
@@ -20,7 +22,7 @@ struct RecipeCookedResponse: Decodable, Sendable {
 }
 
 /// "Lekker?" na het koken.
-enum TasteRating: String, Encodable, Sendable {
+enum TasteRating: String, Codable, Sendable {
     case up, down
 }
 

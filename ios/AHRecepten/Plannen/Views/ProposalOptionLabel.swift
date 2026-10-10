@@ -19,11 +19,14 @@ struct ProposalOptionLabel: View {
                 }
                 .font(.system(prominent ? .headline : .subheadline, design: .rounded).weight(prominent ? .bold : .semibold))
                 .foregroundStyle(Color.misoBlue)
-                HStack(spacing: 6) {
+                FlowLayout(spacing: 6) {
                     if !option.totalTime.isEmpty {
                         Label(option.totalTime, systemImage: "clock")
                             .font(.misoCaption)
                             .foregroundStyle(.secondary)
+                    }
+                    if option.pack {
+                        Text("Maaltijdpakket").misoChip(.misoOrange)
                     }
                     if option.allerhande {
                         Text("Allerhande").misoChip(.misoLilac)
@@ -39,6 +42,7 @@ struct ProposalOptionLabel: View {
     private var accessibilityText: String {
         var parts = [option.name]
         if option.favorite { parts.append("favoriet") }
+        if option.pack { parts.append("maaltijdpakket") }
         if !option.totalTime.isEmpty { parts.append(option.totalTime) }
         if option.allerhande { parts.append("uit Allerhande") }
         return parts.joined(separator: ", ")

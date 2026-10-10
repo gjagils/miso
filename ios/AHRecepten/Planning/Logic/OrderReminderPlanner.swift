@@ -24,6 +24,6 @@ enum OrderReminderPlanner {
               let fireDate = calendar.date(bySettingHour: hour, minute: 0, second: 0, of: evening),
               fireDate > now
         else { return .cancel }
-        return .schedule(fireDate: fireDate, body: body(planned: status.plannedDays, total: status.totalDays))
+        return .schedule(fireDate: fireDate, body: body(planned: status.progressPlanned, total: status.progressTotal))
     }
 }

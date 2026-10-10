@@ -12,6 +12,10 @@ final class PlannenModel {
     struct ApplyOutcome: Equatable {
         let success: Bool
         let message: String
+        /// Ingrediënten zonder AH-product (`status.unmatched`): link naar Ontbrekend.
+        var unmatched = 0
+        /// Het AH-lijstje bijwerken lukte niet (vaak: AH nog niet gekoppeld).
+        var listFailed = false
     }
 
     /// Maandag van de week die je plant (leeg tot de standaardweek bekend is).
@@ -31,6 +35,8 @@ final class PlannenModel {
     private(set) var proposeMessage: String?
     private(set) var applying = false
     private(set) var applyOutcome: ApplyOutcome?
+    /// Dag die nu wordt leeggemaakt (Wijzig / Haal weg).
+    private(set) var clearingDate: String?
 
     var weekdays: [PlannenDay] { days.filter { !$0.isWeekend } }
     var weekendDays: [PlannenDay] { days.filter(\.isWeekend) }
@@ -40,6 +46,8 @@ final class PlannenModel {
     var emptyOpenWeekdays: Int {
         weekdays.filter { $0.isOpen && (wishes[$0.date]?.isEmpty ?? true) }.count
     }
+    /// Ma-vr staan er allemaal in (of zijn voorbij): niets meer voor te stellen doordeweeks.
+    var weekdaysDone: Bool { !days.isEmpty && !weekdays.contains(where: \.isOpen) }
     var weekTitle: String { week.isEmpty ? "" : "Week van \(KiezenDates.short(week))" }
 
     // MARK: Week
@@ -146,6 +154,23 @@ final class PlannenModel {
         }
     }
 
+    /// Wijzig / Haal weg: alle planregels van die dag weghalen, daarna is de dag weer open.
+    func clear(_ day: PlannenDay, api: API) async -> Bool {
+        clearingDate = day.date
+        defer { clearingDate = nil }
+        do {
+            for id in day.entryIDs {
+                _ = try await api.deletePlanEntry(id)
+            }
+            await load(api: api, week: week, keepWishes: true)
+            return true
+        } catch {
+            await load(api: api, week: week, keepWishes: true)
+            loadError = "Leegmaken lukte niet. \(error.localizedDescription)"
+            return false
+        }
+    }
+
     // MARK: Voorstel
 
     func propose(api: API) async {
@@ -200,19 +225,27 @@ final class PlannenModel {
             return false
         }
         var text = "\(plural(response.added, "dag", "dagen")) ingepland."
+        if !response.skipped.isEmpty {
+            text += " Niet gelukt: \(response.skipped.map(KiezenDates.label).joined(separator: ", "))."
+        }
+        var unmatched = response.status?.unmatched.count ?? 0
+        var listFailed = false
         do {
             let sync = try await api.pushWeekToList(week)
+            if let status = sync.status { unmatched = status.unmatched.count }
             if sync.ok {
                 let added = sync.added ?? 0
                 text += added > 0 ? " \(plural(added, "product", "producten")) op je AH-lijstje gezet."
                                   : " Alles stond al op je AH-lijstje."
             } else {
+                listFailed = true
                 text += " Lijstje bijwerken lukte niet: \(sync.error ?? "onbekende fout")."
             }
         } catch {
+            listFailed = true
             text += " Lijstje bijwerken lukte niet: \(error.localizedDescription)"
         }
-        applyOutcome = ApplyOutcome(success: true, message: text)
+        applyOutcome = ApplyOutcome(success: true, message: text, unmatched: unmatched, listFailed: listFailed)
         return response.added > 0
     }
 

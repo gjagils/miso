@@ -6,6 +6,8 @@ struct TodayHeroCard: View {
     /// Volledig recept (nil zolang het laadt, of bij restjes/voorraad).
     let recipe: RecipeDetail?
     let onCook: () -> Void
+    /// "Toch iets anders": naar Plannen voor deze week (daar kun je vandaag wijzigen).
+    let onSomethingElse: () -> Void
 
     private var isRecipe: Bool { item.kind == .recipe && item.recipeId != nil }
     private var byHeart: Bool { recipe?.isByHeart ?? false }
@@ -61,6 +63,11 @@ struct TodayHeroCard: View {
                     .accessibilityHint("Opent het recept met ingrediënten en bereiding")
                 }
             }
+            Button("Toch iets anders", systemImage: "arrow.triangle.2.circlepath", action: onSomethingElse)
+                .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                .foregroundStyle(Color.misoBlue)
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .accessibilityHint("Opent Plannen, daar kun je vandaag wijzigen")
         }
         .misoCard()
         .overlay {

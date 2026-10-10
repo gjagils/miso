@@ -23,6 +23,12 @@ enum WishChip: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
+    /// Altijd zichtbaar (zoals op /plannen); de rest zit achter "Meer…".
+    static let main: [WishChip] = [.rijst, .pasta, .aardappel, .wraps, .vriezer, .vrij]
+    static let more: [WishChip] = [.noedels, .vis, .vega, .kip, .snel, .overslaan]
+
+    var isMore: Bool { Self.more.contains(self) }
+
     /// Geen recept nodig (geen boodschappen voor deze dag).
     var isSpecial: Bool { self == .vriezer || self == .overslaan }
 }

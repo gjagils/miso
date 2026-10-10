@@ -7,10 +7,14 @@ struct PlannenDay: Identifiable, Equatable, Sendable {
     /// Wat er al staat (leeg = nog niets).
     let taken: String
     let isPast: Bool
+    /// Planregels op deze dag (voor Wijzig en Haal weg).
+    var entryIDs: [Int] = []
 
     var isWeekend: Bool { (KiezenDates.weekdayIndex(date) ?? 0) >= 5 }
     var isOpen: Bool { taken.isEmpty && !isPast }
     var label: String { KiezenDates.label(date) }
+    /// Bezet en nog niet voorbij: Wijzig en Haal weg mogen (als de server entry-ids stuurt).
+    var canClear: Bool { !taken.isEmpty && !isPast && !entryIDs.isEmpty }
 
     /// Zeven dagen vanaf `monday`, met wat er al gepland is.
     static func week(monday: String, today: String, entries: [PlanItem]) -> [PlannenDay] {
@@ -18,7 +22,8 @@ struct PlannenDay: Identifiable, Equatable, Sendable {
             let date = KiezenDates.add(monday, offset)
             let titles = entries.filter { $0.date == date }.map(\.title).filter { !$0.isEmpty }
             let taken = entries.contains { $0.date == date } ? (titles.first ?? "Gepland") : ""
-            return PlannenDay(date: date, taken: taken, isPast: date < today)
+            return PlannenDay(date: date, taken: taken, isPast: date < today,
+                              entryIDs: entries.filter { $0.date == date }.compactMap(\.entryId))
         }
     }
 }

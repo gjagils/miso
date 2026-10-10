@@ -1,12 +1,13 @@
 import Observation
 
 /// Tabblad-keuze en verzoeken tussen tabbladen (bijv. "Plan volgende week" vanaf Vandaag).
-/// Tabs volgen docs/plan-gebruiksgemak.md: Vandaag · Plannen · Recepten · Weekmenu · Meer.
+/// Tabs volgen docs/plan-gebruiksgemak.md: Vandaag · Plannen · Recepten · Meer. Het weekmenu zit achter
+/// Plannen en Vandaag (`WeekmenuRoute`).
 @MainActor
 @Observable
 final class AppRouter {
     enum Tab: Hashable {
-        case today, plannen, recipes, plan, more
+        case today, plannen, recipes, more
     }
 
     var tab: Tab = .today

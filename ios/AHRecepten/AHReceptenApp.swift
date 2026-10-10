@@ -73,9 +73,6 @@ struct RootView: View {
             RecipesView()
                 .tabItem { Label("Recepten", systemImage: "book") }
                 .tag(AppRouter.Tab.recipes)
-            PlanView()
-                .tabItem { Label("Weekmenu", systemImage: "list.bullet.rectangle") }
-                .tag(AppRouter.Tab.plan)
             SettingsView()
                 .tabItem { Label("Meer", systemImage: "gearshape") }
                 .tag(AppRouter.Tab.more)
