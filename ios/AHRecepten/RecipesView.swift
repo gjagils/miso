@@ -5,6 +5,7 @@ struct RecipesView: View {
     @Environment(AppRouter.self) private var router
     @State private var recipes: [RecipeSummary] = []
     @State private var search = ""
+    @State private var filter: RecipeFilter = .all
     @State private var showImport = false
     @State private var errorText: String?
     @State private var loaded = false
@@ -16,11 +17,15 @@ struct RecipesView: View {
     var body: some View {
         NavigationStack {
             List {
+                Section {
+                    RecipeFilterBar(selection: $filter)
+                        .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+                        .listRowBackground(Color.clear)
+                }
                 if let errorText {
                     ErrorStateView(message: errorText).listRowBackground(Color.clear)
                 } else if loaded && recipes.isEmpty {
-                    EmptyStateView(pose: "hungry", title: "Nog geen recepten",
-                                   message: "Tik op + om je eerste recept toe te voegen.")
+                    EmptyStateView(pose: "hungry", title: filter.emptyTitle, message: filter.emptyMessage)
                         .listRowBackground(Color.clear)
                 } else if loaded && filtered.isEmpty {
                     ContentUnavailableView.search(text: search)
@@ -35,7 +40,16 @@ struct RecipesView: View {
             .searchable(text: $search, prompt: "Zoek recept")
             .navigationTitle("Recepten")
             .navigationDestination(for: RecipeSummary.self) { RecipeDetailView(recipeID: $0.id) }
+            .navigationDestination(for: ReviewRoute.self) { _ in ReviewView() }
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    NavigationLink(value: ReviewRoute()) {
+                        Label("Opruimen", systemImage: "archivebox")
+                            .frame(minHeight: 44)
+                            .contentShape(.rect)
+                    }
+                    .accessibilityHint("Recepten die jullie nooit of al lang niet kiezen")
+                }
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: showImporter) {
                         Label("Recept toevoegen", systemImage: "plus")
@@ -47,8 +61,8 @@ struct RecipesView: View {
             }
             .sheet(isPresented: $showImport, onDismiss: reload) { ImportView() }
             .refreshable { await load() }
-            .task { await load() }
-            // Recept bewerkt of verwijderd: lijst verversen.
+            .task(id: filter) { await load() }
+            // Recept bewerkt, verwijderd, favoriet of opgeruimd: lijst verversen.
             .onChange(of: router.recipesVersion) { reload() }
         }
     }
@@ -63,13 +77,19 @@ struct RecipesView: View {
 
     private func load() async {
         guard let api = session.api else { return }
+        let current = filter
         do {
-            let result: RecipesResponse = try await api.get("api/recipes")
-            recipes = result.recipes
+            let result = try await api.recipes(filter: current)
+            guard current == filter else { return }
+            recipes = result
             loaded = true
             errorText = nil
         } catch {
+            if (error as? URLError)?.code == .cancelled || error is CancellationError { return }
             errorText = error.localizedDescription
         }
     }
 }
+
+/// Route naar het Opruimen-scherm.
+struct ReviewRoute: Hashable {}

@@ -15,12 +15,16 @@ struct PickItem: Identifiable, Hashable {
     let name: String
     let imageUrl: String
     let meta: String
+    var favorite = false
+    /// AH-maaltijdpakket (label op de kaart).
+    var mealKit = false
 
     var id: String { key }
 
     static func own(_ r: RecipeSummary) -> PickItem {
         PickItem(key: "own:\(r.id)", kind: .own, recipeID: r.id, name: r.name, imageUrl: r.imageUrl,
-                 meta: [r.servings, r.totalTime].filter { !$0.isEmpty }.joined(separator: " · "))
+                 meta: [r.servings, r.totalTime].filter { !$0.isEmpty }.joined(separator: " · "),
+                 favorite: r.isFavorite, mealKit: r.isMealKit)
     }
 
     static func allerhande(_ h: AHRecipeHit) -> PickItem {

@@ -3,6 +3,7 @@ import SwiftUI
 /// Grote letters, scherm blijft aan; tik op een stap of ingrediënt om af te vinken.
 struct CookView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(Session.self) private var session
     let recipe: RecipeDetail
     @State private var checked: Set<Int> = []
     @State private var done: Set<Int> = []
@@ -80,6 +81,10 @@ struct CookView: View {
                     }
                 } header: { Text("Bereiding").misoSectionHeader() }
                 .misoRow()
+                Section {
+                    TasteFeedbackSection(recipeID: recipe.id)
+                }
+                .misoRow()
             }
             .misoScreen()
             .navigationTitle(recipe.name)
@@ -89,11 +94,18 @@ struct CookView: View {
             }
         }
         .onAppear { setScreenAlwaysOn(true) }
+        .task { await markCooked() }
         .onDisappear { setScreenAlwaysOn(false) }
     }
 
     private func close() {
         dismiss()
+    }
+
+    /// Kookmodus geopend telt als gekookt (de server telt één keer per dag). Mislukken is niet erg.
+    private func markCooked() async {
+        guard let api = session.api else { return }
+        _ = try? await api.markCooked(recipe.id)
     }
 
     private func setScreenAlwaysOn(_ on: Bool) {

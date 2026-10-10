@@ -38,6 +38,15 @@ struct SettingsView: View {
                             .frame(minHeight: 44)
                     }
                     NavigationLink {
+                        ReviewView()
+                    } label: {
+                        Label("Recepten opruimen", systemImage: "archivebox")
+                            .font(.misoButton)
+                            .foregroundStyle(Color.misoBlue)
+                            .frame(minHeight: 44)
+                    }
+                    .accessibilityHint("Recepten die jullie nooit of al lang niet kiezen")
+                    NavigationLink {
                         MissingView()
                     } label: {
                         Label("Ontbrekend", systemImage: "cart.badge.questionmark")

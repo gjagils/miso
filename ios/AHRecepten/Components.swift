@@ -107,14 +107,25 @@ struct RecipeRow: View {
         HStack(spacing: 12) {
             RecipeImage(path: recipe.imageUrl, size: 64)
             VStack(alignment: .leading, spacing: 4) {
-                Text(recipe.name)
-                    .font(.system(.body, design: .rounded).weight(.semibold))
-                    .foregroundStyle(Color.misoBlue)
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    if recipe.isFavorite {
+                        Text("♥").foregroundStyle(Color.misoOrange).accessibilityLabel("Favoriet")
+                    }
+                    Text(recipe.name)
+                }
+                .font(.system(.body, design: .rounded).weight(.semibold))
+                .foregroundStyle(Color.misoBlue)
                 let meta = [recipe.servings, recipe.totalTime].filter { !$0.isEmpty }.joined(separator: " · ")
                 if !meta.isEmpty {
                     Text(meta).font(.misoCaption).foregroundStyle(.secondary)
                 }
-                if recipe.gfMode.isActive { GlutenFreeChip() }
+                if recipe.gfMode.isActive || recipe.isMealKit || recipe.isByHeart {
+                    HStack(spacing: 4) {
+                        if recipe.isMealKit { Text("Maaltijdpakket").misoChip(.misoOrange) }
+                        if recipe.isByHeart { Text("uit mijn hoofd").misoChip(.misoLilac) }
+                        if recipe.gfMode.isActive { GlutenFreeChip() }
+                    }
+                }
             }
             Spacer(minLength: 0)
         }
