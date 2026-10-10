@@ -1,5 +1,6 @@
 {% extends "base.html" %}
-{% block title %}Weekmenu - Miso{% endblock %}
+{% block title %}Weekmenu - Miso{% include "_list_status.html" %}
+{% endblock %}
 {% block content %}
 <div class="page-head"><img src="/static/miso/miso-idea.webp" alt="" width="76" height="76" loading="lazy"><h1>Weekmenu</h1></div>
 {% include "_next_week.html" %}

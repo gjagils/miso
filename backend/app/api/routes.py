@@ -854,6 +854,9 @@ async def sync_week(payload: WeekPayload, db: Session = Depends(get_db)):
             logger.error("Failed to fill AH list for week %s: %s", monday, e)
             return {"ok": False, "error": str(e)}
         added = len(delta)
+    from app.api.shopping import invalidate_presence
+
+    invalidate_presence()
     # Boekhouding = wat de week nodig heeft en nu op het lijstje staat (voor de status zonder AH-call)
     rows = {r.product_id: r for r in db.execute(select(CartPush).where(CartPush.week_start == str(monday))).scalars()}
     for item in cart:

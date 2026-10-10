@@ -1,7 +1,7 @@
 <div id="d-{{ d.date }}" class="wish-day{{ ' taken' if d.taken or d.past }}" data-date="{{ d.date }}">
     <span class="wday">{{ d.label }}</span>
     {% if d.taken %}
-    <span class="muted">Staat al: {{ d.taken }}</span>
+    <span class="muted">Staat al: {{ d.taken|kort }} <span class="list-badge" data-entry="{{ d.entry_id }}"></span></span>
     {% if not d.past %}<span class="taken-actions">
         <button type="button" class="btn btn-sm" data-change="{{ d.entry_id }}">Wijzig</button>
         <button type="button" class="btn btn-sm" data-remove="{{ d.entry_id }}">Haal weg</button></span>{% endif %}

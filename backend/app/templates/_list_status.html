@@ -1,0 +1,39 @@
+{# Staan de boodschappen van de geplande gerechten klaar? (AH-lijstje of lopende bestelling). Vereist: week. #}
+<section class="settings-section list-status" id="list-status" data-week="{{ week }}" hidden aria-live="polite">
+    <h2>Boodschappen</h2>
+    <p id="ls-summary"></p>
+    <ul id="ls-todo" class="ls-todo"></ul>
+    <button class="btn btn-primary" type="button" id="ls-sync" hidden>Zet ontbrekende op mijn AH-lijstje</button>
+    <span class="muted" id="ls-msg"></span>
+</section>
+<script>
+(() => {
+    const box = document.getElementById("list-status"), week = box.dataset.week;
+    const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+    async function load() {
+        const r = await fetch(`/api/plan/list-status?week=${week}`).then(x => x.json()).catch(() => null);
+        if (!r || !r.connected || !r.entries.length) return;
+        box.hidden = false;
+        const ok = r.entries.length - r.todo_count;
+        document.getElementById("ls-summary").textContent = r.todo_count
+            ? `${ok} van ${r.entries.length} gerechten staan klaar op je AH-lijstje of in je bestelling.`
+            : `Alle ${r.entries.length} gerechten staan klaar op je AH-lijstje of in je bestelling ✓`;
+        document.getElementById("ls-todo").innerHTML = r.entries.filter(e => e.status === "todo").map(e =>
+            `<li><strong>${esc(e.name)}</strong> <span class="muted">· ${e.total - e.present} van ${e.total} producten mist</span></li>`).join("");
+        document.getElementById("ls-sync").hidden = !r.todo_count;
+        r.entries.forEach(e => document.querySelectorAll(`.list-badge[data-entry="${e.entry_id}"]`).forEach(b => {
+            b.textContent = e.status === "ok" ? "Boodschappen ✓" : "Nog op lijstje zetten";
+            b.className = "list-badge " + (e.status === "ok" ? "ok" : "todo");
+        }));
+    }
+    document.getElementById("ls-sync").onclick = async e => {
+        e.target.disabled = true; e.target.textContent = "Bezig…";
+        const r = await fetch("/api/plan/sync", {method: "POST", headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({week})}).then(x => x.json()).catch(() => ({}));
+        document.getElementById("ls-msg").textContent = r.ok ? `${r.added || 0} producten toegevoegd.` : (r.error || "Dat lukte niet.");
+        e.target.disabled = false; e.target.textContent = "Zet ontbrekende op mijn AH-lijstje";
+        load();
+    };
+    load();
+})();
+</script>

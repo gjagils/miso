@@ -290,3 +290,73 @@ async def api_list_link(payload: BasketPayload, db: Session = Depends(get_db)):
     """Link naar ah.nl die de producten via je eigen AH-sessie op 'Mijn lijst' zet (geen token nodig)."""
     cart = _cart_for(db, payload)
     return {"ok": bool(cart), "url": build_add_multiple_url(cart) if cart else "", "count": len(cart)}
+
+
+# ── Staan de boodschappen van een gerecht al klaar? ────────────────────
+# "Klaar" = op het AH-lijstje of al in de lopende bestelling. Extra dingen op het lijstje maken niet uit;
+# mist de helft of meer van de producten van een gerecht, dan moet het nog op het lijstje.
+
+_PRESENCE: dict = {"at": 0.0, "ids": set(), "connected": False}
+PRESENCE_TTL_S = 300
+MISSING_LIMIT = 0.5
+
+
+def invalidate_presence() -> None:
+    _PRESENCE["at"] = 0.0
+
+
+async def presence(db: Session) -> tuple[set[int], bool]:
+    import time
+
+    from app.clients.ah import get_shopping_list
+
+    if time.monotonic() - _PRESENCE["at"] < PRESENCE_TTL_S:
+        return _PRESENCE["ids"], _PRESENCE["connected"]
+    if not _use_user_tokens(db):
+        _PRESENCE.update(at=time.monotonic(), ids=set(), connected=False)
+        return set(), False
+    ids: set[int] = set()
+    try:
+        ids |= set((await get_shopping_list(ah_client)).keys())
+    except Exception as e:  # noqa: BLE001
+        logger.warning("AH-lijstje lezen voor status mislukt: %s", e)
+    try:
+        ids |= {int(i["product_id"]) for i in _summarize_order(await get_active_order(ah_client))["items"]
+                if i.get("product_id")}
+    except Exception:  # noqa: BLE001 - geen lopende bestelling
+        pass
+    _PRESENCE.update(at=time.monotonic(), ids=ids, connected=True)
+    return ids, True
+
+
+def entry_list_status(db: Session, monday, present: set[int]) -> list[dict]:
+    from app import planning
+
+    household = planning.household_size(db)
+    out = []
+    for e in planning.week_entries(db, monday):
+        if e.kind != "recipe":
+            continue
+        recipe = db.get(Recipe, e.recipe_id)
+        if not recipe:
+            continue
+        factor = planning.scale_factor(planning.grocery_persons(e, household), recipe)
+        cart, _ = routes.aggregate_cart([recipe], [factor])
+        ids = {c["product_id"] for c in cart}
+        missing = [c["name"] for c in cart if c["product_id"] not in present]
+        total = len(ids)
+        todo = bool(total) and len(missing) / total >= MISSING_LIMIT
+        out.append({"entry_id": e.id, "date": e.date, "recipe_id": recipe.id, "name": routes._short_name(recipe.name),
+                    "total": total, "present": total - len(missing), "missing": missing[:8],
+                    "status": "todo" if todo else "ok"})
+    return out
+
+
+@router.get("/api/plan/list-status")
+async def api_list_status(week: str | None = None, db: Session = Depends(get_db)):
+    """Per gepland gerecht: staan de boodschappen al op het AH-lijstje (of in de bestelling)?"""
+    monday = routes.parse_week(week)
+    present, connected = await presence(db)
+    entries = entry_list_status(db, monday, present) if connected else []
+    return {"ok": True, "connected": connected, "week": str(monday), "entries": entries,
+            "todo_count": sum(1 for e in entries if e["status"] == "todo")}

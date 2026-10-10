@@ -527,3 +527,33 @@ def test_missing_page_for_one_week(db):
     db.commit()
     page = TestClient(app).get(f"/dekking/ontbrekend?week={monday}").text
     assert "gele paprika" in page and "venkel" not in page
+
+
+def test_list_status_half_missing_needs_placing(db, monkeypatch):
+    from datetime import date
+
+    from app.api import shopping
+    from app.models import AppSetting, PlanEntry
+
+    db.add(AppSetting(key="ah_user_token", value="t"))
+    a = _recipe(db, "Lasagne", [_ing("a", 1), _ing("b", 2), _ing("c", 3), _ing("d", 4)])
+    b = _recipe(db, "Nasi", [_ing("e", 5), _ing("f", 6)])
+    monday = routes.monday_of(date.today())
+    db.add_all([PlanEntry(date=str(monday), kind="recipe", recipe_id=a.id),
+                PlanEntry(date=str(monday + __import__("datetime").timedelta(days=1)), kind="recipe", recipe_id=b.id)])
+    db.commit()
+
+    async def fake_list(client_obj):
+        return {1: 1, 2: 1, 3: 1, 99: 2}  # lasagne: 3 van 4, plus iets extra's
+
+    async def fake_order(client_obj):
+        return {"orderedProducts": [{"productId": 5, "quantity": 1}]}  # nasi: 1 van 2 al besteld
+
+    monkeypatch.setattr("app.clients.ah.get_shopping_list", fake_list)
+    monkeypatch.setattr(shopping, "get_active_order", fake_order)
+    shopping.invalidate_presence()
+    r = TestClient(app).get(f"/api/plan/list-status?week={monday}").json()
+    by = {e["name"]: e for e in r["entries"]}
+    assert by["Lasagne"]["status"] == "ok" and by["Lasagne"]["present"] == 3
+    assert by["Nasi"]["status"] == "todo"  # precies de helft mist: nog plaatsen
+    assert r["todo_count"] == 1
