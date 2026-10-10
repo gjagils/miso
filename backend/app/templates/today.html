@@ -1,5 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
+{% for r in ask %}
+<div class="status-box yesterday" data-recipe="{{ r.id }}">
+    <span>Gisteren: <strong>{{ r.name|kort }}</strong>. Lekker?</span>
+    <span class="nw-actions"><button class="btn btn-sm" type="button" data-rate="up">👍</button>
+        <button class="btn btn-sm" type="button" data-rate="down">👎</button>
+        <button class="btn btn-sm" type="button" data-fav>♥</button></span>
+</div>
+{% endfor %}
 <section class="tonight" aria-labelledby="tonight-h">
     <h1 id="tonight-h">Vanavond</h1>
     {% if today and today.entries %}
@@ -9,10 +17,13 @@
         {% if e.recipe.image_url %}<img class="tonight-img" src="{{ e.recipe.image_url }}" alt="" referrerpolicy="no-referrer">{% endif %}
         <div class="tonight-body">
             <h2>{{ e.title|kort }}</h2>
-            <p class="muted">voor {{ e.persons }}{% if e.recipe.total_time %} · {{ e.recipe.total_time }}{% endif %}{% if e.cook_double == "tomorrow" %} · kook dubbel, morgen de rest{% elif e.cook_double == "freezer" %} · kook dubbel, de helft naar de vriezer{% endif %}{% if e.recipe.gf_mode != "none" %} · glutenvrij voor 1{% endif %}</p>
+            {% set h = hints.get(e.recipe.id, {}) %}
+            <p class="muted">voor {{ e.persons }}{% if h.minutes %} · ± {{ h.minutes }} min{% if h.oven_min %} (oven {{ h.oven_min }} min){% endif %}{% elif e.recipe.total_time %} · {{ e.recipe.total_time }}{% endif %}{% if e.cook_double == "tomorrow" %} · kook dubbel, morgen de rest{% elif e.cook_double == "freezer" %} · kook dubbel, de helft naar de vriezer{% endif %}{% if e.recipe.gf_mode != "none" %} · glutenvrij voor 1{% endif %}</p>
+            {% if h.oven_temp %}<p class="chip">Zet eerst de oven op {{ h.oven_temp }} °C</p>{% endif %}
             <a class="btn btn-primary btn-lg" href="/recipe/{{ e.recipe.id }}/koken?personen={{ e.grocery_persons or e.persons }}">Start met koken</a>
-            <span><a class="btn" href="/recipe/{{ e.recipe.id }}">Recept</a>
-            <a class="btn" href="/plannen?week={{ days[0].date_monday }}">Toch iets anders</a></span>
+            <span class="tonight-more"><a class="btn" href="/recipe/{{ e.recipe.id }}">Recept</a>
+            <a class="btn" href="/plannen?week={{ days[0].date_monday }}&dag={{ today_iso }}&wens=snel&wijzig=1">Iets snellers</a>
+            <button class="btn" type="button" data-move="{{ e.entry_id }}">Verplaats naar morgen</button></span>
         </div>
     </div>
     {% elif e.kind == "leftover" %}
@@ -74,6 +85,18 @@
 
 {% block scripts %}
 <script>
+document.querySelectorAll("[data-move]").forEach(b => b.onclick = async () => {
+    const r = await fetch(`/api/plan/entries/${b.dataset.move}`, {method: "PATCH", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({date: "{{ tomorrow_iso }}"})}).then(x => x.json()).catch(() => ({}));
+    if (r.ok) location.reload(); else alert(r.error || "Verplaatsen lukte niet.");
+});
+document.querySelectorAll(".yesterday").forEach(box => box.querySelectorAll("button").forEach(b => b.onclick = async () => {
+    const id = box.dataset.recipe;
+    const r = b.dataset.fav !== undefined
+        ? await fetch(`/api/recipes/${id}/flags`, {method: "PATCH", headers: {"Content-Type": "application/json"}, body: JSON.stringify({favorite: true})}).then(x => x.json())
+        : await fetch(`/api/recipes/${id}/feedback`, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({rating: b.dataset.rate})}).then(x => x.json());
+    if (r.ok) box.innerHTML = b.dataset.fav !== undefined ? "♥ Bij de favorieten gezet. Dank je!" : "Dank je! Miso onthoudt het.";
+}));
 let pending = null;
 const dlg = document.getElementById("idea-dialog");
 document.querySelectorAll(".idea[data-recipe], .idea[data-freezer]").forEach(b => b.onclick = () => {

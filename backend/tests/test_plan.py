@@ -478,3 +478,12 @@ def test_scale_line():
     assert planning.scale_line("2-3 tenen knoflook", 2) == "4-6 tenen knoflook"
     assert planning.scale_line("zout en peper", 2) == "zout en peper"
     assert planning.scale_line("300 g rijst", 1) == "300 g rijst"
+
+
+def test_cook_hints_oven_time():
+    from app.models import Recipe as R
+
+    r = R(name="Lasagne", total_time="25 minuten")
+    r.instructions = ["Snijd de groenten.", "Bak de lasagne in ca. 30 min. in de oven op 200 °C goudbruin."]
+    h = planning.cook_hints(r)
+    assert h["oven_min"] == 30 and h["oven_temp"] == "200" and h["minutes"] == 55 and h["longer"]

@@ -513,3 +513,17 @@ def test_login_lockout_after_ten_failures(monkeypatch):
     assert client.post("/api/login", json={"pin": "2580"}).status_code == 429  # ook de goede even niet
     guard._fails.clear()
     assert client.post("/api/login", json={"pin": "2580"}).json()["ok"]
+
+
+def test_missing_page_for_one_week(db):
+    from datetime import date
+
+    from app.models import PlanEntry
+
+    planned = _recipe(db, "Gepland", [_ing("2 gele paprika's")])
+    _recipe(db, "Niet gepland", [_ing("1 venkel")])
+    monday = routes.monday_of(date.today())
+    db.add(PlanEntry(date=str(monday), kind="recipe", recipe_id=planned.id))
+    db.commit()
+    page = TestClient(app).get(f"/dekking/ontbrekend?week={monday}").text
+    assert "gele paprika" in page and "venkel" not in page

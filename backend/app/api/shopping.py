@@ -61,10 +61,17 @@ def coverage(db: Session) -> dict:
     return {"totaal": tot, "recepten": rows, "refresh": REFRESH}
 
 
-def missing_groups(db: Session) -> list[dict]:
-    """Open ingrediënten over alle recepten, gegroepeerd op zoekterm ("2 gele paprika's" en "1 gele paprika" samen)."""
+def missing_groups(db: Session, week: str | None = None) -> list[dict]:
+    """Open ingrediënten over alle recepten (of alleen de recepten van één week), gegroepeerd op zoekterm."""
+    from app import planning
+
     groups: dict[str, dict] = {}
-    for recipe in db.execute(select(Recipe).order_by(Recipe.name)).scalars():
+    if week:
+        ids = {r.id for r in planning.week_grocery_input(db, routes.parse_week(week))[0]}
+        recipes = [r for r in db.execute(select(Recipe).where(Recipe.id.in_(ids)).order_by(Recipe.name)).scalars()]
+    else:
+        recipes = db.execute(select(Recipe).where(Recipe.archived.is_(False)).order_by(Recipe.name)).scalars().all()
+    for recipe in recipes:
         for idx, ing in enumerate(recipe.ingredients):
             if ing.get("skip") or ing.get("auto_skip") or (ing.get("product") or {}).get("id"):
                 continue
@@ -110,10 +117,11 @@ async def assign_missing(payload: AssignPayload, db: Session = Depends(get_db)):
 
 
 @router.get("/dekking/ontbrekend", response_class=HTMLResponse)
-async def missing_page(request: Request, db: Session = Depends(get_db)):
-    groups = missing_groups(db)
+async def missing_page(request: Request, week: str | None = None, db: Session = Depends(get_db)):
+    groups = missing_groups(db, week)
     return routes.templates.TemplateResponse(request, "missing.html", {
-        "groups": groups, "lines": sum(len(g["lines"]) for g in groups), "totaal": coverage(db)["totaal"]})
+        "groups": groups, "lines": sum(len(g["lines"]) for g in groups), "totaal": coverage(db)["totaal"],
+        "week": week, "week_label": routes.day_label(routes.parse_week(week)) if week else ""})
 
 
 REFRESH: dict = {"running": False, "done": 0, "total": 0, "started": None, "finished": None, "error": None}

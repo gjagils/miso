@@ -121,6 +121,20 @@ async def today_page(request: Request, db: Session = Depends(get_db)):
                      "today": d == date.today(), "past": d < date.today()})
     today = next((d for d in days if d["today"]), None)
     ideas = [] if today and today["entries"] else tonight_ideas(db)
+    hints = {}
+    for e in (today or {}).get("entries", []):
+        if e["kind"] == "recipe" and e.get("recipe"):
+            r = db.get(Recipe, e["recipe"]["id"])
+            if r:
+                hints[r.id] = planning.cook_hints(r)
+    # "Lekker?" over gisteren, als nog niemand iets zei
+    yday = date.today() - timedelta(days=1)
+    ask = []
+    for e in planning.week_entries(db, monday_of(yday)):
+        if e.date == str(yday) and e.kind == "recipe":
+            r = db.get(Recipe, e.recipe_id)
+            if r and r.last_rated not in (str(yday), str(date.today())):
+                ask.append(r)
     # morgen en overmorgen, ook over de weekgrens heen
     soon = []
     for n in (1, 2):
@@ -130,6 +144,8 @@ async def today_page(request: Request, db: Session = Depends(get_db)):
         soon.append({"label": "Morgen" if n == 1 else day_label(d), "entries": [e for e in es if e["date"] == str(d)],
                      "monday": str(dmon)})
     return templates.TemplateResponse(request, "today.html", {"days": days, "today": today, "ideas": ideas, "soon": soon,
+                                                              "hints": hints, "ask": ask,
+                                                              "tomorrow_iso": str(date.today() + timedelta(days=1)),
                                                               "nws": next_week_status(db), "today_iso": str(date.today())})
 
 

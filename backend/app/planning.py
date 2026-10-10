@@ -218,3 +218,22 @@ def scale_line(text: str, factor: float) -> str:
     parts = [p for p in re.split(r"\s*-\s*", raw)] if "-" in raw else [raw]
     scaled = "-".join(fmt(num(p) * factor) for p in parts)
     return scaled + text[m.end():]
+
+
+def cook_hints(recipe) -> dict:
+    """Eerlijke tijd en 'zet eerst de oven aan' uit de bereiding ("bak 30 min. in de oven op 200 °C")."""
+    raw = " ".join(recipe.instructions or [])
+    text = raw.lower()
+    temp = re.search(r"(\d{3})\s*(?:°|graden)", text)
+    oven_min = 0
+    for sentence in (x.lower() for x in re.split(r"(?<=[.!?])\s+(?=[A-Z])", raw)):  # "ca. 30 min." breekt niet
+        if "oven" in sentence:
+            mins = [int(m) for m in re.findall(r"(\d{1,3})\s*(?:-\s*\d+\s*)?min", sentence)]
+            oven_min = max([oven_min, *mins])
+    listed = re.search(r"\d+", recipe.total_time or "")
+    listed_min = int(listed.group(0)) if listed else 0
+    est = listed_min
+    if oven_min and listed_min < oven_min + 10:
+        est = listed_min + oven_min  # opgegeven tijd is vaak alleen het snijwerk
+    return {"minutes": est or None, "oven_min": oven_min or None, "oven_temp": temp.group(1) if temp else None,
+            "longer": bool(est and listed_min and est > listed_min + 5)}

@@ -2,7 +2,8 @@
 {% block title %}Ontbrekend - Miso{% endblock %}
 {% block content %}
 <p class="breadcrumb"><a href="/dekking">Koppeling met AH</a> / Ontbrekend</p>
-<h1>Ontbrekende producten</h1>
+<h1>Ontbrekende producten{% if week %} <small class="muted">· week van {{ week_label|lower }}</small>{% endif %}</h1>
+{% if week %}<p class="muted">Alleen de recepten van deze week. <a href="/dekking/ontbrekend">Alle recepten</a></p>{% endif %}
 <div class="status-box missing-score" aria-live="polite">
     <p><strong id="ms-pct">{{ totaal.pct|string|replace(".", ",") }}%</strong> van de ingrediënten is gekoppeld aan een AH-product ·
        <span id="ms-done">{{ totaal.volledig }}</span> van {{ totaal.recepten }} recepten compleet</p>
@@ -24,7 +25,7 @@ het geldt voor alle recepten in de groep en Miso onthoudt het voor de volgende k
     <form class="form-group missing-search">
         <input class="form-input" name="q" value="{{ g.term }}" aria-label="Zoeken bij AH">
         <button class="btn" type="submit">Zoek bij AH</button>
-        <button class="btn" type="button" data-skip>Niet nodig</button>
+        <button class="btn" type="button" data-skip>Heb ik al / niet nodig</button>
     </form>
     <div class="missing-results" aria-live="polite"></div>
 </section>

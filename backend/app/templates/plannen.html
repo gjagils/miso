@@ -20,6 +20,8 @@
     <p class="muted" id="sentence-msg" role="status"></p>
     {% endif %}
 
+    {% if open_days %}<p><button class="btn btn-primary" type="button" id="fill-btn">Vul de week voor mij</button>
+        <span class="muted">Miso kiest ma–vr; jij wisselt wat je niet wilt.</span></p>{% endif %}
     <div class="wish-days">
     {% for d in days if not d.weekend %}{% include "_wish_day.html" %}{% endfor %}
     </div>
@@ -41,6 +43,7 @@
 <section class="settings-section" id="proposal" hidden>
     <h2 id="proposal-h" tabindex="-1">Voorstel</h2>
     <p class="muted">Tik op een alternatief om te wisselen.</p>
+    <p class="week-check" id="week-check" aria-live="polite"></p>
     <div id="proposal-days" class="proposal-days"></div>
     <div class="nw-actions">
         <button class="btn btn-primary" id="apply-btn" type="button">{{ "Zet in weekmenu en op mijn AH-lijstje" if has_token else "Zet in weekmenu" }}</button>
@@ -117,7 +120,21 @@ function optionHTML(o, main) {
     return `${img}<span class="opt-name">${o.favorite ? '<span class="fav">♥</span> ' : ""}${esc(o.name)}</span>
         <span class="muted">${esc(o.total_time || "")}${o.allerhande ? (o.total_time ? " · " : "") + "Allerhande" : ""}</span>`;
 }
+function weekCheck() {
+    const picks = proposal.filter(d => d.kind === "recipe" && d.options.length).map(d => d.options[d.pick]);
+    const n = k => picks.filter(o => o.eiwit === k).length;
+    const kitchens = new Set(picks.map(o => o.keuken).filter(Boolean)).size;
+    const names = picks.map(o => (o.name || "").toLowerCase());
+    const dupes = names.length - new Set(names).size;
+    const freezer = proposal.filter(d => d.kind === "vriezer").length;
+    const parts = [`${n("vega")}× vega`, `${n("vis")}× vis`, `${n("vlees") + n("kip")}× vlees/kip`];
+    if (kitchens) parts.push(`${kitchens} ${kitchens === 1 ? "keuken" : "keukens"}`);
+    if (freezer) parts.push(`${freezer}× vriezer`);
+    parts.push(dupes ? `⚠️ ${dupes} dubbel` : "geen dubbelingen ✅");
+    $("week-check").textContent = parts.join(" · ");
+}
 function renderProposal() {
+    weekCheck();
     $("proposal-days").innerHTML = "";
     proposal.forEach(day => {
         const card = document.createElement("div");
@@ -160,6 +177,14 @@ document.querySelectorAll("[data-change]").forEach(b => b.onclick = () => {
     row.appendChild(tpl.content.cloneNode(true));
     wireRow(row);
     const pb = $("propose-btn"); if (pb) pb.closest(".nw-actions").hidden = false;
+});
+$("fill-btn") && ($("fill-btn").onclick = () => {
+    document.querySelectorAll(".wish-day:not(.taken)").forEach(row => {
+        if (row.closest("details") || !row.querySelector(".wchips")) return;  // alleen doordeweeks
+        const hasWish = row.querySelector('.wchip[aria-pressed="true"]') || row.querySelector(".wtext").value.trim();
+        if (!hasWish) setWish(row, "vrij");
+    });
+    $("propose-btn").click();
 });
 $("propose-btn") && ($("propose-btn").onclick = async () => {
     const w = collect();
@@ -205,9 +230,19 @@ $("apply-btn").onclick = async () => {
     box.hidden = false; box.className = "kz-result " + (a.ok ? "msg-ok" : "msg-err");
     box.innerHTML = `<img src="/static/miso/${a.ok ? "miso-celebrate" : "miso-surprised"}.webp" alt="" width="56" height="56"><span></span>`;
     box.querySelector("span").textContent = text;
-    if (a.ok && missing) box.querySelector("span").insertAdjacentHTML("beforeend", ` ${missing} ingrediënten hebben nog geen AH-product: <a href="/dekking/ontbrekend">kies ze</a>.`);
+    if (a.ok && missing) box.querySelector("span").insertAdjacentHTML("beforeend", ` ${missing} ingrediënten hebben nog geen AH-product: <a href="/dekking/ontbrekend">kies ze</a>.`.replace('/dekking/ontbrekend"', `/dekking/ontbrekend?week=${WEEK}"`));
     if (a.ok) box.querySelector("span").insertAdjacentHTML("beforeend", ` <a href="/plannen?week=${WEEK}">Terug naar de week</a>`);
     btn.textContent = "Klaar";
 };
+// Vanuit Vandaag: "Iets snellers" -> /plannen?dag=YYYY-MM-DD&wens=snel&wijzig=1
+(() => {
+    const q = new URLSearchParams(location.search), dag = q.get("dag");
+    if (!dag) return;
+    const row = document.querySelector(`.wish-day[data-date="${dag}"]`);
+    if (!row) return;
+    if (row.closest("details")) row.closest("details").open = true;
+    if (q.get("wijzig") && row.querySelector("[data-change]")) row.querySelector("[data-change]").click();
+    if (q.get("wens") && row.querySelector(".wchips")) { setWish(row, q.get("wens")); if ($("propose-btn")) $("propose-btn").click(); }
+})();
 </script>
 {% endblock %}

@@ -816,3 +816,6 @@ dialog.mp::backdrop { background: rgba(14, 42, 71, 0.5); }
 .wchips-more[hidden] { display: none; }
 .taken-actions { display: flex; gap: 0.4rem; }
 .wish-day:target { outline: 3px solid var(--miso-orange); }
+.week-check { font-weight: 600; margin: 0.25rem 0 0.5rem; }
+.yesterday { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.75rem; }
+.tonight-more { display: flex; flex-wrap: wrap; gap: 0.4rem; }
