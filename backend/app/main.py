@@ -49,7 +49,7 @@ async def lifespan(app_: FastAPI):
 
 app = FastAPI(title="Miso", version="1.1.0", lifespan=lifespan)
 
-PUBLIC_PREFIXES = ("/login", "/api/login", "/static", "/image", "/favicon.ico")
+PUBLIC_PREFIXES = ("/login", "/api/login", "/static", "/image", "/favicon.ico", "/hulp")
 
 
 def session_token() -> str:

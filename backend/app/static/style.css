@@ -846,3 +846,14 @@ dialog.mp::backdrop { background: rgba(14, 42, 71, 0.5); }
 .ls-todo { padding-left: 1.2rem; margin: 0.4rem 0 0.6rem; }
 .me-chip img { width: 40px; height: 40px; border-radius: 50%; display: block; }
 img.who-avatar { object-fit: cover; }
+.lead { font-size: 1.05rem; margin-bottom: 1rem; }
+.help-toc { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.25rem; }
+.help-toc a { padding: 0.35rem 0.75rem; border-radius: 999px; border: 2px solid var(--border); text-decoration: none; color: var(--text);
+    font-weight: 600; font-size: 0.9rem; min-height: 36px; display: inline-flex; align-items: center; }
+.help { background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 1rem 1.1rem; margin-bottom: 1rem;
+    scroll-margin-top: 1rem; }
+.help h2 { margin-bottom: 0.5rem; }
+.help ul, .help ol { padding-left: 1.25rem; display: grid; gap: 0.4rem; }
+.help .tip { margin-top: 0.6rem; font-size: 0.95rem; opacity: 0.85; }
+.faq dt { font-weight: 700; margin-top: 0.6rem; }
+.faq dd { margin: 0.2rem 0 0; }

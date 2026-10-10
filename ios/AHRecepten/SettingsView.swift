@@ -12,12 +12,26 @@ struct SettingsView: View {
         return base.appending(path: "settings")
     }
 
+    /// Handleiding op de server (openbaar, zonder inloggen): /hulp
+    private var helpURL: URL? {
+        guard let base = URL(string: session.serverURL.trimmingCharacters(in: .whitespaces)), base.scheme != nil else { return nil }
+        return base.appending(path: "hulp")
+    }
+
     var body: some View {
         NavigationStack {
             Form {
                 Section {
                     EmptyStateView(pose: "tech", title: "Miso", message: "Altijd iets lekkers op de planning.", size: 110)
                         .listRowBackground(Color.clear)
+                    if let helpURL {
+                        Link(destination: helpURL) {
+                            Label("Hoe werkt Miso?", systemImage: "book.closed")
+                                .font(.misoButton).foregroundStyle(Color.misoBlue)
+                                .frame(minHeight: 44)
+                        }
+                        .accessibilityHint("Opent de handleiding in Safari")
+                    }
                 }
                 if !family.unsupported {
                     Section {

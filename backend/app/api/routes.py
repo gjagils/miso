@@ -210,6 +210,12 @@ async def recipes_page(request: Request, foto: str = "", filter: str = "", db: S
     )
 
 
+@router.get("/hulp", response_class=HTMLResponse)
+async def help_page(request: Request):
+    """Handleiding voor de website en de app (openbaar: bevat geen gegevens)."""
+    return templates.TemplateResponse(request, "hulp.html", {})
+
+
 @router.get("/recepten/opruimen", response_class=HTMLResponse)
 async def review_page(request: Request, db: Session = Depends(get_db)):
     from app.usage import review_list

@@ -572,3 +572,11 @@ def test_list_status_half_missing_needs_placing(db, monkeypatch):
     assert r["todo_count"] == 1
     this_week = TestClient(app).get(f"/api/plan/list-status?week={routes.monday_of(date.today())}").json()
     assert this_week["already_ordered"] and this_week["entries"] == []  # lopende week is al besteld
+
+
+def test_help_page_is_public(monkeypatch):
+    from app.config import settings
+
+    monkeypatch.setattr(settings, "app_pin", "1234")
+    page = TestClient(app).get("/hulp")
+    assert page.status_code == 200 and "Hoe werkt Miso?" in page.text and "Voor de kinderen" in page.text
