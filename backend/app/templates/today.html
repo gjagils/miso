@@ -11,7 +11,8 @@
             <h2>{{ e.title }}</h2>
             <p class="muted">voor {{ e.persons }}{% if e.recipe.total_time %} · {{ e.recipe.total_time }}{% endif %}{% if e.cook_double == "tomorrow" %} · kook dubbel, morgen de rest{% elif e.cook_double == "freezer" %} · kook dubbel, de helft naar de vriezer{% endif %}{% if e.recipe.gf_mode != "none" %} · glutenvrij voor 1{% endif %}</p>
             <a class="btn btn-primary btn-lg" href="/recipe/{{ e.recipe.id }}/koken">Start met koken</a>
-            <a class="btn" href="/recipe/{{ e.recipe.id }}">Recept</a>
+            <span><a class="btn" href="/recipe/{{ e.recipe.id }}">Recept</a>
+            <a class="btn" href="/plannen?week={{ days[0].date_monday }}">Toch iets anders</a></span>
         </div>
     </div>
     {% elif e.kind == "leftover" %}
@@ -32,17 +33,25 @@
             <span><small class="muted">{{ idea.why }}</small><strong>{{ idea.recipe.name }}</strong>{% if idea.recipe.total_time %}<small class="muted">{{ idea.recipe.total_time }}</small>{% endif %}</span>
         </button>
         {% endfor %}
-        <button type="button" class="idea" data-freezer="1"><img src="/static/miso/miso-box.webp" alt=""><span><small class="muted">Geen boodschappen</small><strong>Iets uit de vriezer</strong></span></button>
+        <button type="button" class="idea" data-freezer="1"><img src="/static/miso/miso-box.webp" alt=""><span><small class="muted">Geen boodschappen nodig</small><strong>Iets uit de vriezer</strong></span></button>
         <a class="idea" href="/plannen"><img src="/static/miso/miso-checklist.webp" alt=""><span><small class="muted">Kies zelf</small><strong>Naar Plannen</strong></span></a>
     </div>
     <p id="idea-msg" class="msg-err" role="status" hidden></p>
+    <dialog id="idea-dialog" class="idea-dialog" aria-labelledby="idea-title">
+        <h2 id="idea-title"></h2>
+        <p class="muted" id="idea-sub"></p>
+        <div class="nw-actions">
+            <button class="btn btn-primary" type="button" id="idea-yes">Dit koken we</button>
+            <button class="btn" type="button" id="idea-no">Terug</button>
+        </div>
+    </dialog>
     {% endif %}
 </section>
 
 {% with compact_only = true %}{% include "_next_week.html" %}{% endwith %}
 
-<h2 class="week-h">Deze week</h2>
-{% for d in days if not d.today and not d.past %}
+<h2 class="week-h">Daarna</h2>
+{% for d in soon %}
 <div class="day-card compact">
     <h3>{{ d.label }}</h3>
     {% for e in d.entries %}
@@ -56,23 +65,33 @@
         <span>{{ e.title }}<small class="pe-meta">{{ "restjes" if e.kind == "leftover" else "hebben we al" }}</small></span></div>
     {% endif %}
     {% else %}
-    <p class="muted">Niets gepland · <a href="/plannen">plannen</a></p>
+    <p class="muted">Niets gepland · <a href="/plannen?week={{ d.monday }}">plannen</a></p>
     {% endfor %}
 </div>
 {% endfor %}
+<p><a href="/weekmenu">Hele week bekijken</a></p>
 {% endblock %}
 
 {% block scripts %}
 <script>
-document.querySelectorAll(".idea[data-recipe], .idea[data-freezer]").forEach(b => b.onclick = async () => {
-    b.disabled = true;
+let pending = null;
+const dlg = document.getElementById("idea-dialog");
+document.querySelectorAll(".idea[data-recipe], .idea[data-freezer]").forEach(b => b.onclick = () => {
+    pending = b;
+    document.getElementById("idea-title").textContent = b.dataset.freezer ? "Iets uit de vriezer?" : b.querySelector("strong").textContent;
+    document.getElementById("idea-sub").textContent = b.dataset.freezer ? "Miso zet vanavond op 'iets uit de vriezer'." : "Miso zet dit op vanavond en opent de kookmodus.";
+    dlg.showModal();
+});
+document.getElementById("idea-no").onclick = () => dlg.close();
+document.getElementById("idea-yes").onclick = async () => {
+    const b = pending;
     const body = b.dataset.freezer ? {date: "{{ today_iso }}", kind: "stock", text: "Iets uit de vriezer"}
                                    : {date: "{{ today_iso }}", kind: "recipe", recipe_id: Number(b.dataset.recipe)};
     const r = await fetch("/api/plan/entries", {method: "POST", headers: {"Content-Type": "application/json"},
         body: JSON.stringify(body)}).then(x => x.json()).catch(() => ({}));
+    dlg.close();
     if (r.ok) { location.href = b.dataset.recipe ? `/recipe/${b.dataset.recipe}/koken` : "/"; return; }
     const m = document.getElementById("idea-msg"); m.hidden = false; m.textContent = r.error || "Inplannen lukte niet.";
-    b.disabled = false;
-});
+};
 </script>
 {% endblock %}

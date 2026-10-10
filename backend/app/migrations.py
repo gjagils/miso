@@ -22,6 +22,8 @@ COLUMNS: dict[str, dict[str, str]] = {
         "swapped_count": "INTEGER NOT NULL DEFAULT 0",
         "reviewed_on": "VARCHAR(10)",
         "collection": "VARCHAR(30) NOT NULL DEFAULT ''",
+        "last_rated": "VARCHAR(10)",
+        "last_rating": "VARCHAR(4)",
     },
     "plan_entries": {
         "kind": "VARCHAR(10) NOT NULL DEFAULT 'recipe'",

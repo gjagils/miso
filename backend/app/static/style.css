@@ -370,8 +370,8 @@ a.day-recipe:hover span { text-decoration: underline; }
     font-family: var(--font-title); font-weight: 800; font-size: 1.2rem;
     display: flex; align-items: center; justify-content: center;
 }
-.cook-steps li.done { opacity: 0.45; }
-.cook-steps li.done::before { background: var(--miso-mint); content: "✓"; }
+.cook-steps li:has(.step[aria-pressed="true"]) { opacity: 0.45; }
+.cook-steps li:has(.step[aria-pressed="true"])::before { background: var(--miso-mint); content: "✓"; }
 
 /* ── Login ──────────────────────────────────────────────── */
 .login-wrap { max-width: 420px; margin: 0 auto; text-align: center; padding-top: 0.5rem; }
@@ -806,3 +806,9 @@ dialog.mp::backdrop { background: rgba(14, 42, 71, 0.5); }
 .idea span { display: flex; flex-direction: column; gap: 0.1rem; }
 .week-h { margin: 1.25rem 0 0.5rem; }
 .day-card.compact h3 { font-size: 1rem; }
+.cook-steps .step { all: unset; display: block; width: 100%; cursor: pointer; min-height: 44px; line-height: 1.5; }
+.cook-steps .step:focus-visible { outline: 3px solid var(--miso-orange); outline-offset: 3px; border-radius: 6px; }
+[data-rating][aria-pressed="true"], #fav-btn[aria-pressed="true"] { border-color: var(--miso-orange); background: rgba(255, 138, 0, 0.14); }
+.idea-dialog { border: none; border-radius: var(--radius-lg); padding: 1.25rem; max-width: 420px; width: calc(100% - 32px);
+    background: var(--surface); color: var(--text); box-shadow: var(--shadow-lift); }
+.idea-dialog::backdrop { background: rgba(0, 0, 0, 0.45); }

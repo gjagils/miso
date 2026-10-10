@@ -41,7 +41,9 @@ class Recipe(Base):
     last_cooked: Mapped[str | None] = mapped_column(String(10), nullable=True)
     swapped_count: Mapped[int] = mapped_column(Integer, default=0)  # voorstel weggewisseld
     reviewed_on: Mapped[str | None] = mapped_column(String(10), nullable=True)  # bewust bewaard bij opruimen
-    collection: Mapped[str] = mapped_column(String(30), default="")  # "maaltijdpakket" = AH-verspakket
+    collection: Mapped[str] = mapped_column(String(30), default="")
+    last_rated: Mapped[str | None] = mapped_column(String(10), nullable=True)  # één stem per dag
+    last_rating: Mapped[str | None] = mapped_column(String(4), nullable=True)  # "up" | "down"  # "maaltijdpakket" = AH-verspakket
 
     @property
     def ingredients(self) -> list[dict]:

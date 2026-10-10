@@ -480,3 +480,13 @@ def test_today_without_plan_shows_ideas(db):
     db.commit()
     page = TestClient(app).get("/").text
     assert "Nog niets voor vanavond" in page and "Snelle wraps" in page and "Iets uit de vriezer" in page
+
+
+def test_feedback_one_vote_per_day_can_switch(db):
+    r = _recipe(db, "Stamppot", [])
+    client = TestClient(app)
+    client.post(f"/api/recipes/{r.id}/feedback", json={"rating": "up"})
+    again = client.post(f"/api/recipes/{r.id}/feedback", json={"rating": "up"}).json()
+    assert again["thumbs_up"] == 1  # niet opnieuw tellen
+    switched = client.post(f"/api/recipes/{r.id}/feedback", json={"rating": "down"}).json()
+    assert switched["thumbs_up"] == 0 and switched["thumbs_down"] == 1 and switched["rating"] == "down"

@@ -96,13 +96,22 @@ async def api_recipe_feedback(recipe_id: int, payload: Feedback, db: Session = D
         raise HTTPException(404, "Recept niet gevonden")
     if payload.rating not in ("up", "down"):
         return JSONResponse({"ok": False, "error": "Kies 👍 of 👎."}, status_code=400)
+    today = str(date.today())
+    if r.last_rated == today and r.last_rating:  # vandaag al gestemd: omzetten in plaats van optellen
+        if r.last_rating == payload.rating:
+            return {"ok": True, "thumbs_up": r.thumbs_up, "thumbs_down": r.thumbs_down, "rating": r.last_rating}
+        if r.last_rating == "up":
+            r.thumbs_up = max(0, (r.thumbs_up or 0) - 1)
+        else:
+            r.thumbs_down = max(0, (r.thumbs_down or 0) - 1)
     if payload.rating == "up":
         r.thumbs_up = (r.thumbs_up or 0) + 1
     else:
         r.thumbs_down = (r.thumbs_down or 0) + 1
+    r.last_rated, r.last_rating = today, payload.rating
     mark_cooked(r)
     db.commit()
-    return {"ok": True, "thumbs_up": r.thumbs_up, "thumbs_down": r.thumbs_down}
+    return {"ok": True, "thumbs_up": r.thumbs_up, "thumbs_down": r.thumbs_down, "rating": payload.rating}
 
 
 @router.post("/recipes/{recipe_id}/cooked")

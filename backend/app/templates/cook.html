@@ -20,14 +20,15 @@
 </ul>
 <h2 style="margin-top: 1rem;">Bereiding</h2>
 <ol class="cook-steps" style="padding-left: 1.25rem;">
-    {% for step in recipe.instructions %}<li onclick="this.classList.toggle('done')">{{ step }}</li>{% endfor %}
+    {% for step in recipe.instructions %}<li><button type="button" class="step" aria-pressed="false">{{ step }}</button></li>{% endfor %}
 </ol>
 <section class="status-box tasty" aria-labelledby="tasty-h">
     <h2 id="tasty-h">Lekker?</h2>
     <p class="muted">Miso leert hiervan welke recepten jullie vaker willen.</p>
     <div class="nw-actions">
-        <button class="btn" type="button" data-rating="up">👍 Lekker</button>
-        <button class="btn" type="button" data-rating="down">👎 Niet nog eens</button>
+        <button class="btn" type="button" data-rating="up" aria-pressed="{{ 'true' if recipe.last_rated == today_iso and recipe.last_rating == 'up' else 'false' }}">👍 Lekker</button>
+        <button class="btn" type="button" data-rating="down" aria-pressed="{{ 'true' if recipe.last_rated == today_iso and recipe.last_rating == 'down' else 'false' }}">👎 Liever niet</button>
+        <button class="btn" type="button" id="fav-btn" aria-pressed="{{ 'true' if recipe.favorite else 'false' }}">♥ Vaker maken</button>
     </div>
     <p id="tasty-msg" class="msg-ok" role="status" hidden></p>
 </section>
@@ -36,14 +37,29 @@
 <script>
 // Scherm aan laten tijdens het koken (iOS 16.4+)
 if ("wakeLock" in navigator) navigator.wakeLock.request("screen").catch(() => {});
-fetch("/api/recipes/{{ recipe.id }}/cooked", {method: "POST"}).catch(() => {});  // telt als gekookt (1x per dag)
+let cookedSent = false;
+const markCooked = () => { if (!cookedSent) { cookedSent = true; fetch("/api/recipes/{{ recipe.id }}/cooked", {method: "POST"}).catch(() => {}); } };
+const steps = [...document.querySelectorAll(".step")];
+steps.forEach(b => b.onclick = () => {
+    b.setAttribute("aria-pressed", String(b.getAttribute("aria-pressed") !== "true"));
+    const done = steps.filter(x => x.getAttribute("aria-pressed") === "true").length;
+    if (done >= Math.ceil(steps.length / 2)) markCooked();  // pas na de helft van de stappen telt het als gekookt
+});
+const msg = document.getElementById("tasty-msg");
 document.querySelectorAll("[data-rating]").forEach(b => b.onclick = async () => {
     const r = await fetch("/api/recipes/{{ recipe.id }}/feedback", {method: "POST", headers: {"Content-Type": "application/json"},
         body: JSON.stringify({rating: b.dataset.rating})}).then(x => x.json()).catch(() => ({}));
-    const msg = document.getElementById("tasty-msg");
     msg.hidden = false;
-    msg.textContent = r.ok ? (b.dataset.rating === "up" ? "Genoteerd: lekker! Miso stelt dit vaker voor." : "Genoteerd. Miso stelt dit minder vaak voor.") : "Opslaan mislukt.";
-    document.querySelectorAll("[data-rating]").forEach(x => x.disabled = true);
+    if (!r.ok) { msg.textContent = "Opslaan mislukt."; return; }
+    cookedSent = true;
+    document.querySelectorAll("[data-rating]").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.rating === r.rating)));
+    msg.textContent = r.rating === "up" ? "Genoteerd: lekker! Miso stelt dit vaker voor." : "Genoteerd. Miso stelt dit minder vaak voor.";
 });
+document.getElementById("fav-btn").onclick = async e => {
+    const on = e.target.getAttribute("aria-pressed") !== "true";
+    const r = await fetch("/api/recipes/{{ recipe.id }}/flags", {method: "PATCH", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({favorite: on})}).then(x => x.json()).catch(() => ({}));
+    if (r.ok) { e.target.setAttribute("aria-pressed", String(on)); msg.hidden = false; msg.textContent = on ? "Bij je favorieten gezet." : "Uit je favorieten gehaald."; }
+};
 </script>
 {% endblock %}

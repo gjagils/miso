@@ -108,11 +108,19 @@ async def today_page(request: Request, db: Session = Depends(get_db)):
     days = []
     for i in range(7):
         d = monday + timedelta(days=i)
-        days.append({"label": day_label(d), "entries": [e for e in entries if e["date"] == str(d)],
+        days.append({"label": day_label(d), "entries": [e for e in entries if e["date"] == str(d)], "date_monday": str(monday),
                      "today": d == date.today(), "past": d < date.today()})
     today = next((d for d in days if d["today"]), None)
     ideas = [] if today and today["entries"] else tonight_ideas(db)
-    return templates.TemplateResponse(request, "today.html", {"days": days, "today": today, "ideas": ideas,
+    # morgen en overmorgen, ook over de weekgrens heen
+    soon = []
+    for n in (1, 2):
+        d = date.today() + timedelta(days=n)
+        dmon = monday_of(d)
+        es = entries if dmon == monday else entries_json(db, planning.week_entries(db, dmon))
+        soon.append({"label": "Morgen" if n == 1 else day_label(d), "entries": [e for e in es if e["date"] == str(d)],
+                     "monday": str(dmon)})
+    return templates.TemplateResponse(request, "today.html", {"days": days, "today": today, "ideas": ideas, "soon": soon,
                                                               "nws": next_week_status(db), "today_iso": str(date.today())})
 
 
@@ -127,7 +135,8 @@ def tonight_ideas(db: Session) -> list[dict]:
     ideas = []
     fav = next((r for r in ranked if r.favorite), ranked[0] if ranked else None)
     if fav:
-        ideas.append({"why": "Favoriet" if fav.favorite else "Vaak gekozen", "recipe": fav})
+        why = "Favoriet" if fav.favorite else ("Vaak gekozen" if stats.get(fav.id, {}).get("planned", 0) >= 2 else "Idee")
+        ideas.append({"why": why, "recipe": fav})
     quick = next((r for r in ranked if r is not fav and (minutes(r.total_time) or 99) <= 30), None)
     if quick:
         ideas.append({"why": "Snel klaar", "recipe": quick})
@@ -200,7 +209,7 @@ async def recipe_detail(request: Request, recipe_id: int, db: Session = Depends(
 @router.get("/recipe/{recipe_id}/koken", response_class=HTMLResponse)
 async def cook_mode(request: Request, recipe_id: int, db: Session = Depends(get_db)):
     recipe = _get_recipe(db, recipe_id)
-    return templates.TemplateResponse(request, "cook.html", {"recipe": recipe})
+    return templates.TemplateResponse(request, "cook.html", {"recipe": recipe, "today_iso": str(date.today())})
 
 
 class GlutenPayload(BaseModel):
