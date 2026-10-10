@@ -1,7 +1,7 @@
 """JSON endpoints used by the native iOS app."""
 from datetime import date, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -31,17 +31,21 @@ class LoginPayload(BaseModel):
 
 
 @router.post("/login")
-async def api_login(payload: LoginPayload):
+async def api_login(payload: LoginPayload, request: Request):
+    import asyncio
     import hmac
 
+    from app import guard
     from app.main import session_token
 
     if not settings.app_pin:
         return {"ok": True, "token": ""}
+    if guard.blocked(request):
+        return JSONResponse({"ok": False, "error": guard.BLOCKED_TEXT}, status_code=429)
     if hmac.compare_digest(payload.pin.strip(), settings.app_pin):
+        guard.succeeded(request)
         return {"ok": True, "token": session_token()}
-    import asyncio
-
+    guard.failed(request)
     await asyncio.sleep(1)  # raden vertragen, net als de webpagina
     return JSONResponse({"ok": False, "error": "Pincode klopt niet."}, status_code=401)
 

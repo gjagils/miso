@@ -192,13 +192,19 @@ async def login_page(request: Request):
 
 @router.post("/login")
 async def login(request: Request, pin: str = Form("")):
+    from app import guard
     from app.main import session_token
 
+    if guard.blocked(request):
+        return templates.TemplateResponse(request, "login.html", {"error": guard.BLOCKED_TEXT}, status_code=429)
     if settings.app_pin and hmac.compare_digest(pin.strip(), settings.app_pin):
+        guard.succeeded(request)
         resp = RedirectResponse("/", status_code=303)
+        https = request.headers.get("x-forwarded-proto") == "https" or request.url.scheme == "https"
         resp.set_cookie("session", session_token(), max_age=60 * 60 * 24 * 365,
-                        httponly=True, samesite="lax")
+                        httponly=True, samesite="lax", secure=https)
         return resp
+    guard.failed(request)
     await asyncio.sleep(1)  # slow down guessing
     return templates.TemplateResponse(request, "login.html", {"error": "Pincode klopt niet."}, status_code=401)
 

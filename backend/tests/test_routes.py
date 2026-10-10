@@ -494,3 +494,22 @@ def test_feedback_one_vote_per_day_can_switch(db):
     assert again["thumbs_up"] == 1  # niet opnieuw tellen
     switched = client.post(f"/api/recipes/{r.id}/feedback", json={"rating": "down"}).json()
     assert switched["thumbs_up"] == 0 and switched["thumbs_down"] == 1 and switched["rating"] == "down"
+
+
+def test_login_lockout_after_ten_failures(monkeypatch):
+    from app import guard
+    from app.config import settings
+
+    guard._fails.clear()
+    monkeypatch.setattr(settings, "app_pin", "2580")
+    real_sleep = routes.asyncio.sleep
+    monkeypatch.setattr(routes.asyncio, "sleep", lambda s: real_sleep(0))
+    import asyncio as _a
+
+    monkeypatch.setattr(_a, "sleep", lambda s: real_sleep(0))
+    client = TestClient(app)
+    for _ in range(10):
+        assert client.post("/api/login", json={"pin": "0000"}).status_code == 401
+    assert client.post("/api/login", json={"pin": "2580"}).status_code == 429  # ook de goede even niet
+    guard._fails.clear()
+    assert client.post("/api/login", json={"pin": "2580"}).json()["ok"]
