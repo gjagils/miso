@@ -13,7 +13,16 @@
 <section class="settings-section family-wishes" aria-labelledby="fw-h">
     <h2 id="fw-h">Wensen van het gezin</h2>
     <ul class="fw-list">
-    {% for w in wishes %}
+    {% for w in wishes if w.kind == "boodschap" %}
+        <li data-wish="{{ w.id }}" class="fw-shop">
+            <span>🛒 <strong>{{ w.member or "Iemand" }}</strong> wil graag mee met de boodschappen: {{ w.text }}</span>
+            <span class="fw-actions">
+                <button class="btn btn-sm btn-primary" type="button" data-tolist>Op AH-lijstje</button>
+                <button class="btn btn-sm" type="button" data-done aria-label="Niet deze week">✕</button>
+            </span>
+        </li>
+    {% endfor %}
+    {% for w in wishes if w.kind != "boodschap" %}
         <li data-wish="{{ w.id }}" data-recipe="{{ w.recipe_id or '' }}" data-text="{{ w.text }}">
             <span><strong>{{ w.member or "Iemand" }}</strong> wil graag: {{ w.recipe_name or w.text }}</span>
             <span class="fw-actions">
@@ -195,7 +204,16 @@ document.querySelectorAll("[data-change]").forEach(b => b.onclick = () => {
     wireRow(row);
     const pb = $("propose-btn"); if (pb) pb.closest(".nw-actions").hidden = false;
 });
-document.querySelectorAll(".fw-list li").forEach(li => {
+document.querySelectorAll(".fw-list li.fw-shop").forEach(li => {
+    li.querySelector("[data-done]").onclick = async () => { await postJSON(`/api/wishes/${li.dataset.wish}/done`, {}); li.remove(); };
+    li.querySelector("[data-tolist]").onclick = async e => {
+        e.target.disabled = true; e.target.textContent = "Bezig…";
+        const r = await postJSON(`/api/wishes/${li.dataset.wish}/to-list`, {});
+        if (r.ok && r.url) { window.open(r.url, "_blank", "noopener"); li.innerHTML = `<span>🛒 ${esc(r.product)} — open AH om toe te voegen.</span>`; return; }
+        li.innerHTML = r.ok ? `<span>🛒 ${esc(r.product)} staat op je AH-lijstje ✓</span>` : `<span class="msg-err">${esc(r.error || "Dat lukte niet.")}</span>`;
+    };
+});
+document.querySelectorAll(".fw-list li:not(.fw-shop)").forEach(li => {
     const done = () => postJSON(`/api/wishes/${li.dataset.wish}/done`, {});
     li.querySelector("[data-done]").onclick = async () => { await done(); li.remove(); };
     li.querySelector("[data-place]").onclick = async () => {

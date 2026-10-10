@@ -190,6 +190,7 @@ class Wish(Base):
     member_id: Mapped[str] = mapped_column(String(40), default="")
     recipe_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     text: Mapped[str] = mapped_column(String(200), default="")
+    kind: Mapped[str] = mapped_column(String(12), default="eten")  # "eten" (gerecht) | "boodschap" (voorraadkast)
     created_on: Mapped[str] = mapped_column(String(10), default="")
     done_on: Mapped[str | None] = mapped_column(String(10), nullable=True)
 

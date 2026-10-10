@@ -6,6 +6,10 @@
     <input class="form-input" name="text" style="flex:1;min-width:200px" placeholder="Bijv. pannenkoeken, iets met wraps" aria-label="Waar heb je zin in?">
     <button class="btn btn-primary" type="submit">Laat het weten</button>
 </form>
+<form id="shop-form" class="form-group">
+    <input class="form-input" name="text" style="flex:1;min-width:200px" placeholder="Voor de boodschappen: noodles, koekjes…" aria-label="Wat moet er mee met de boodschappen?">
+    <button class="btn" type="submit">Op het wensenlijstje</button>
+</form>
 <p class="msg-ok" id="wish-msg" role="status" hidden></p>
 
 {% if favorites %}
@@ -25,7 +29,7 @@
 
 {% if wishes %}
 <h2>Al doorgegeven</h2>
-<ul class="kid-ingredients">{% for w in wishes %}<li>{{ w.recipe_name or w.text }}</li>{% endfor %}</ul>
+<ul class="kid-ingredients">{% for w in wishes %}<li>{{ "🛒 " if w.kind == "boodschap" }}{{ w.recipe_name or w.text }}</li>{% endfor %}</ul>
 {% endif %}
 
 <h2>Op het menu</h2>
@@ -46,6 +50,11 @@ document.getElementById("wish-form").onsubmit = async e => {
     e.preventDefault();
     const text = e.target.text.value.trim();
     if (text && await say({text})) e.target.text.value = "";
+};
+document.getElementById("shop-form").onsubmit = async e => {
+    e.preventDefault();
+    const text = e.target.text.value.trim();
+    if (text && await say({text, kind: "boodschap"})) e.target.text.value = "";
 };
 document.querySelectorAll("[data-wish-recipe]").forEach(b => b.onclick = async () => {
     if (await say({recipe_id: Number(b.dataset.wishRecipe)})) b.querySelector("small").textContent = "✓ doorgegeven";

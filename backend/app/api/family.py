@@ -19,7 +19,7 @@ router = APIRouter()
 KID_BLOCKED = [("DELETE", "/api/recipes/"), ("POST", "/recipe/"), ("DELETE", "/api/plan/entries/"),
                ("PATCH", "/api/plan/entries/"), ("POST", "/api/plan/sync"), ("POST", "/api/plan/apply"),
                ("POST", "/api/basket/"), ("POST", "/api/cart/"), ("POST", "/api/packs/"), ("PUT", "/api/members"),
-               ("POST", "/api/missing/assign"), ("POST", "/api/recipes/") ]
+               ("POST", "/api/missing/assign"), ("POST", "/api/recipes/"), ("POST", "/api/wishes/") ]
 KID_ALLOWED = ("/feedback", "/cooked", "/photo")  # binnen POST /api/recipes/...
 
 
@@ -33,6 +33,8 @@ def kid_blocked(request: Request) -> bool:
                 return False
             if prefix == "/recipe/" and not path.endswith("/delete"):
                 return False
+            if prefix == "/api/wishes/" and not path.endswith("/to-list"):
+                return False  # eigen wens wegklikken mag; op het lijstje zetten doen ouders
             with SessionLocal() as db:
                 return members.is_kid(request, db)
     if method == "PATCH" and path.startswith("/api/recipes/") and path.endswith("/flags"):
@@ -103,11 +105,12 @@ async def api_save_members(payload: MembersPayload, db: Session = Depends(get_db
 class WishPayload(BaseModel):
     recipe_id: int | None = None
     text: str = ""
+    kind: str = "eten"  # "boodschap" = voor de voorraadkast (noodles, koekjes)
 
 
 def wish_json(db: Session, w: Wish, names: dict[str, str]) -> dict:
     r = db.get(Recipe, w.recipe_id) if w.recipe_id else None
-    return {"id": w.id, "member": names.get(w.member_id, ""), "member_id": w.member_id, "text": w.text,
+    return {"id": w.id, "member": names.get(w.member_id, ""), "member_id": w.member_id, "text": w.text, "kind": w.kind or "eten",
             "recipe_id": w.recipe_id, "recipe_name": routes._short_name(r.name) if r else "",
             "image_url": r.image_url if r else "", "created_on": w.created_on}
 
@@ -132,10 +135,11 @@ async def api_add_wish(payload: WishPayload, request: Request, db: Session = Dep
         return JSONResponse({"ok": False, "error": "Recept niet gevonden."}, status_code=404)
     member = members.current(request, db)
     mid = member["id"] if member else ""
+    kind = "boodschap" if payload.kind == "boodschap" and not payload.recipe_id else "eten"
     dup = db.execute(select(Wish).where(Wish.done_on.is_(None), Wish.member_id == mid,
                                         Wish.recipe_id == payload.recipe_id, Wish.text == text)).scalars().first()
     if not dup:
-        db.add(Wish(member_id=mid, recipe_id=payload.recipe_id, text=text, created_on=str(date.today())))
+        db.add(Wish(member_id=mid, recipe_id=payload.recipe_id, text=text, kind=kind, created_on=str(date.today())))
         db.commit()
     return {"ok": True, "wishes": open_wishes(db)}
 
@@ -156,3 +160,32 @@ async def api_wish_delete(wish_id: int, db: Session = Depends(get_db)):
         db.delete(w)
         db.commit()
     return {"ok": True, "wishes": open_wishes(db)}
+
+
+@router.post("/api/wishes/{wish_id}/to-list")
+async def api_wish_to_list(wish_id: int, db: Session = Depends(get_db)):
+    """Boodschappenwens ('koekjes') op het AH-lijstje: product zoeken zoals bij extra's, dan toevoegen.
+    Zonder AH-koppeling: een link die het product via je eigen AH-sessie op 'Mijn lijst' zet."""
+    from app.api.shopping import _use_user_tokens
+    from app.clients.ah import ah_client, build_add_multiple_url
+
+    w = db.get(Wish, wish_id)
+    if not w or w.done_on:
+        return JSONResponse({"ok": False, "error": "Deze wens is al afgehandeld."}, status_code=404)
+    match = (await routes.match_extras(db, [{"text": w.text}]))[0]
+    product = match.get("product")
+    if not product or not product.get("id"):
+        return JSONResponse({"ok": False, "error": f"Miso vond geen AH-product voor '{w.text}'. Zet het zelf op je lijstje."},
+                            status_code=404)
+    item = {"product_id": product["id"], "quantity": 1, "name": product.get("name", "")}
+    if _use_user_tokens(db):
+        try:
+            await ah_client.add_to_cart([item])
+        except Exception as e:  # noqa: BLE001
+            return JSONResponse({"ok": False, "error": str(e)}, status_code=502)
+        w.done_on = str(date.today())
+        db.commit()
+        return {"ok": True, "product": product.get("name", ""), "wishes": open_wishes(db)}
+    w.done_on = str(date.today())
+    db.commit()
+    return {"ok": True, "product": product.get("name", ""), "url": build_add_multiple_url([item]), "wishes": open_wishes(db)}

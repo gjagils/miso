@@ -54,3 +54,22 @@ def test_members_are_editable(fam):
     client = TestClient(app)
     out = client.put("/api/members", json={"members": [{"name": "Gerd-Jan", "role": "ouder"}, {"name": "Hannah", "role": "kind"}]}).json()
     assert [m["name"] for m in out["members"]] == ["Gerd-Jan", "Hannah"] and out["members"][1]["role"] == "kind"
+
+
+def test_grocery_wish_to_list(fam, monkeypatch):
+    from app.api import routes
+
+    client = TestClient(app)
+    client.cookies.set("miso_member", "hannah")
+    w = client.post("/api/wishes", json={"text": "koekjes", "kind": "boodschap"}).json()["wishes"][0]
+    assert w["kind"] == "boodschap"
+    assert client.post(f"/api/wishes/{w['id']}/to-list").status_code == 403  # kind zet niets op het lijstje
+
+    async def fake_extras(db, extras):
+        return [{"text": "koekjes", "product": {"id": 77, "name": "AH Stroopwafels"}}]
+
+    monkeypatch.setattr(routes, "match_extras", fake_extras)
+    client.cookies.set("miso_member", "nelleke")
+    assert "koekjes" in client.get("/plannen").text
+    out = client.post(f"/api/wishes/{w['id']}/to-list").json()
+    assert out["ok"] and out["product"] == "AH Stroopwafels" and "p=77" in out["url"] and out["wishes"] == []
