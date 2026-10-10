@@ -22,6 +22,7 @@ def _summary(r: Recipe) -> dict:
         "id": r.id, "name": r.name, "servings": r.servings, "total_time": r.total_time,
         "image_url": r.image_url, "gf_mode": r.gf_mode,
         "favorite": bool(r.favorite), "by_heart": bool(r.by_heart), "archived": bool(r.archived),
+        "collection": r.collection or "",
     }
 
 

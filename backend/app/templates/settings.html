@@ -63,6 +63,30 @@
     </table>
 </section>
 
+<section class="settings-section" id="packs">
+    <h2>Maaltijdpakketten van AH</h2>
+    <p class="muted">Miso haalt de verspakketten die AH nu verkoopt op als recepten, met het label Maaltijdpakket.
+    Elke maand gaat dat vanzelf, omdat AH het assortiment en de samenstelling wisselt.</p>
+    <p class="muted" id="packs-status">…</p>
+    <button class="btn" type="button" id="packs-btn">Nu bijwerken</button>
+</section>
+<script>
+(() => {
+    const st = document.getElementById("packs-status"), btn = document.getElementById("packs-btn");
+    const show = r => {
+        const s = r.status || {};
+        if (s.running) { st.textContent = `Bezig: ${s.done} van ${s.total || "?"} recepten bekeken…`; setTimeout(load, 2000); return; }
+        st.textContent = `${r.count} maaltijdpakketten in Miso` + (r.synced_on ? ` · laatst bijgewerkt ${r.synced_on}` : "")
+            + (s.finished ? ` · ${s.new} nieuw, ${s.updated} bijgewerkt, ${s.archived} niet meer te koop` : "")
+            + (s.error ? ` · fout: ${s.error}` : "");
+        btn.disabled = false;
+    };
+    const load = () => fetch("/api/packs/status").then(r => r.json()).then(show).catch(() => {});
+    btn.onclick = async () => { btn.disabled = true; await fetch("/api/packs/sync", {method: "POST"}); setTimeout(load, 800); };
+    load();
+})();
+</script>
+
 {% if ah_refresh_set or ah_token_set %}
 <section class="settings-section" id="ah-data">
     <h2>Je AH-lijsten</h2>

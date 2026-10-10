@@ -3,6 +3,7 @@
 {% block content %}
 <p class="breadcrumb"><a href="/recepten">Recepten</a> / {{ recipe.name }}</p>
 <h1>{{ recipe.name }}</h1>
+{% if recipe.collection == "maaltijdpakket" %}<p><span class="chip chip-pack">Maaltijdpakket van AH</span></p>{% endif %}
 {% if recipe.image_url %}<img class="recipe-hero" src="{{ recipe.image_url }}" alt="" referrerpolicy="no-referrer">{% endif %}
 <p class="muted">{{ recipe.servings }}{% if recipe.servings and recipe.total_time %} · {% endif %}{{ recipe.total_time }}
     {% if recipe.source_url %} · <a href="{{ recipe.source_url }}" target="_blank" rel="noopener">bron</a>{% endif %}</p>

@@ -84,6 +84,7 @@ async def daily_loop() -> None:
             n = await profile_missing()
             if n:
                 logger.info("Gezondheidsprofiel gemaakt voor %d recepten", n)
+            await monthly_packs()
             n = await localize_photos()
             if n:
                 logger.info("Foto lokaal bewaard voor %d recepten", n)
@@ -127,3 +128,19 @@ async def localize_photos() -> int:
                 done += 1
             await asyncio.sleep(0.5)
     return done
+
+
+async def monthly_packs() -> None:
+    """Maaltijdpakketten eens per ~maand bijwerken: AH wisselt het assortiment en de samenstelling."""
+    from datetime import date
+
+    from app import packs
+    from app.api.routes import _get_setting
+
+    with SessionLocal() as db:
+        last = _get_setting(db, "packs_synced_on")
+        if last and (date.today() - date.fromisoformat(last)).days < 28:
+            return
+        result = await packs.sync(db)
+    logger.info("Maaltijdpakketten bijgewerkt: %s nieuw, %s bijgewerkt, %s opgeruimd",
+                result["new"], result["updated"], result["archived"])

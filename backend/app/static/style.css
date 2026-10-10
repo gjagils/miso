@@ -789,3 +789,4 @@ dialog.mp::backdrop { background: rgba(14, 42, 71, 0.5); }
     color: var(--text); font: inherit; cursor: pointer; min-height: 44px; }
 .opt-alt img, .opt-alt .opt-ph { grid-row: span 2; width: 44px; height: 44px; border-radius: 8px; object-fit: cover; background: var(--border); }
 .opt-alt:hover { border-color: var(--miso-orange); }
+.chip-pack { background: rgba(0, 160, 226, 0.14); color: var(--text); border: 1px solid rgba(0, 160, 226, 0.5); }

@@ -127,10 +127,13 @@ async def recipes_page(request: Request, foto: str = "", filter: str = "", db: S
         shown = [r for r in recipes if r.by_heart]
     elif filter == "opgeruimd":
         shown = [r for r in every if r.archived]
+    elif filter == "maaltijdpakketten":
+        shown = [r for r in recipes if r.collection == "maaltijdpakket"]
     return templates.TemplateResponse(
         request, "recipes.html",
         {"recipes": without_photo if foto == "nee" else shown, "no_photo_filter": foto == "nee", "filter": filter,
          "counts": {"favorieten": sum(r.favorite for r in recipes), "uit-het-hoofd": sum(r.by_heart for r in recipes),
+                    "maaltijdpakketten": sum(r.collection == "maaltijdpakket" for r in recipes),
                     "opgeruimd": sum(r.archived for r in every)},
          "no_photo_count": len(without_photo), "missing_count": missing, "has_api_key": bool(settings.anthropic_api_key)},
     )

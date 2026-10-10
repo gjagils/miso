@@ -35,6 +35,7 @@
     <a class="fchip{{ ' on' if not filter }}" href="/recepten">Alle</a>
     <a class="fchip{{ ' on' if filter == 'favorieten' }}" href="/recepten?filter=favorieten">♥ Favorieten ({{ counts['favorieten'] }})</a>
     <a class="fchip{{ ' on' if filter == 'uit-het-hoofd' }}" href="/recepten?filter=uit-het-hoofd">Uit mijn hoofd ({{ counts['uit-het-hoofd'] }})</a>
+    {% if counts['maaltijdpakketten'] %}<a class="fchip{{ ' on' if filter == 'maaltijdpakketten' }}" href="/recepten?filter=maaltijdpakketten">Maaltijdpakketten ({{ counts['maaltijdpakketten'] }})</a>{% endif %}
     <a class="fchip" href="/recepten/opruimen">Opruimen</a>
     {% if counts['opgeruimd'] %}<a class="fchip{{ ' on' if filter == 'opgeruimd' }}" href="/recepten?filter=opgeruimd">Opgeruimd ({{ counts['opgeruimd'] }})</a>{% endif %}
 </nav>
@@ -48,7 +49,7 @@
         {% else %}<div class="recipe-card-placeholder"><img src="/static/miso/miso-hungry.webp" alt="" width="80" height="80" loading="lazy"></div>{% endif %}
         <div class="recipe-card-body">
             <h3>{% if r.favorite %}<span class="fav" aria-label="Favoriet">♥</span> {% endif %}{{ r.name }}</h3>
-            <p>{{ r.servings }}{% if r.servings and r.total_time %} · {% endif %}{{ r.total_time }}</p>
+            <p>{% if r.collection == "maaltijdpakket" %}<span class="chip chip-pack">Maaltijdpakket</span> {% endif %}{{ r.servings }}{% if r.servings and r.total_time %} · {% endif %}{{ r.total_time }}</p>
             {% if no_photo_filter %}<label class="btn btn-primary photo-pick" onclick="event.stopPropagation()">Kies foto
                 <input type="file" accept="image/*" hidden data-recipe="{{ r.id }}"></label>{% endif %}
         </div>

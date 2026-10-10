@@ -268,3 +268,29 @@ async def api_staples(week: str | None = None, refresh: bool = False, db: Sessio
     return {"ok": True, "week": str(monday), "staples": staples,
             "source_counts": {**counts, "ritten": len(history["trips"]), "basislijst": len(basis)}}
 
+
+
+@router.post("/packs/sync")
+async def packs_sync():
+    """AH-maaltijdpakketten (verspakketten) ophalen/bijwerken als recepten, op de achtergrond."""
+    import asyncio
+
+    from app import packs
+    from app.database import SessionLocal
+
+    async def run():
+        with SessionLocal() as db:
+            await packs.sync(db)
+
+    if not packs.STATUS["running"]:
+        packs.STATUS["running"] = True
+        asyncio.create_task(run())
+    return {"ok": True, "status": packs.STATUS}
+
+
+@router.get("/packs/status")
+async def packs_status(db: Session = Depends(get_db)):
+    from app import packs
+
+    return {"ok": True, "status": packs.STATUS, "synced_on": routes._get_setting(db, "packs_synced_on"),
+            "count": db.query(Recipe).filter(Recipe.collection == packs.COLLECTION, Recipe.archived.is_(False)).count()}
