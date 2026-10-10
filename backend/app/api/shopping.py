@@ -354,8 +354,16 @@ def entry_list_status(db: Session, monday, present: set[int]) -> list[dict]:
 
 @router.get("/api/plan/list-status")
 async def api_list_status(week: str | None = None, db: Session = Depends(get_db)):
-    """Per gepland gerecht: staan de boodschappen al op het AH-lijstje (of in de bestelling)?"""
+    """Per gepland gerecht: staan de boodschappen al op het AH-lijstje (of in de bestelling)?
+
+    Alleen voor weken die nog besteld moeten worden: de bestelling (bijv. zondag) is voor de week van maandag t/m
+    zondag erna. De lopende week is al besteld en geleverd, daar zegt het lijstje niets meer over."""
+    from datetime import date
+
     monday = routes.parse_week(week)
+    if monday <= date.today():
+        return {"ok": True, "connected": True, "week": str(monday), "entries": [], "todo_count": 0,
+                "already_ordered": True}
     present, connected = await presence(db)
     entries = entry_list_status(db, monday, present) if connected else []
     return {"ok": True, "connected": connected, "week": str(monday), "entries": entries,

@@ -538,7 +538,7 @@ def test_list_status_half_missing_needs_placing(db, monkeypatch):
     db.add(AppSetting(key="ah_user_token", value="t"))
     a = _recipe(db, "Lasagne", [_ing("a", 1), _ing("b", 2), _ing("c", 3), _ing("d", 4)])
     b = _recipe(db, "Nasi", [_ing("e", 5), _ing("f", 6)])
-    monday = routes.monday_of(date.today())
+    monday = routes.monday_of(date.today()) + __import__("datetime").timedelta(days=7)  # de week die je bestelt
     db.add_all([PlanEntry(date=str(monday), kind="recipe", recipe_id=a.id),
                 PlanEntry(date=str(monday + __import__("datetime").timedelta(days=1)), kind="recipe", recipe_id=b.id)])
     db.commit()
@@ -557,3 +557,5 @@ def test_list_status_half_missing_needs_placing(db, monkeypatch):
     assert by["Lasagne"]["status"] == "ok" and by["Lasagne"]["present"] == 3
     assert by["Nasi"]["status"] == "todo"  # precies de helft mist: nog plaatsen
     assert r["todo_count"] == 1
+    this_week = TestClient(app).get(f"/api/plan/list-status?week={routes.monday_of(date.today())}").json()
+    assert this_week["already_ordered"] and this_week["entries"] == []  # lopende week is al besteld
