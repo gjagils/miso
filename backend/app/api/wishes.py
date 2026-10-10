@@ -145,7 +145,18 @@ async def plan_page(request: Request, week: str | None = None, db: Session = Dep
                                           else "")) if e else ""})
     chips = [(k, wishes.LABELS[k]) for k in ("rijst", "pasta", "aardappel", "wraps", "vriezer", "vrij")]
     more_chips = [(k, wishes.LABELS[k]) for k in ("noedels", "vis", "vega", "kip", "snel", "overslaan")]
+    from app import members
+    from app.api.family import fans_map, open_wishes
+
+    me = members.current(request, db)
+    if me and me["role"] == "kind":  # kinderen plannen niet, ze geven wensen door
+        fans = fans_map(db)
+        favs = [r for r in db.execute(select(Recipe).where(Recipe.archived.is_(False))).scalars()
+                if me["initial"] in fans.get(r.id, [])]
+        return routes.templates.TemplateResponse(request, "plannen_kind.html", {
+            "me": me, "days": days, "favorites": favs, "wishes": [w for w in open_wishes(db) if w["member_id"] == me["id"]]})
     return routes.templates.TemplateResponse(request, "plannen.html", {
+        "wishes": open_wishes(db),
         "week": str(monday), "prev_week": str(monday - timedelta(days=7)), "next_week": str(monday + timedelta(days=7)),
         "days": days, "chips": chips, "more_chips": more_chips,
         "open_days": sum(1 for d in days if not d["taken"] and not d["past"] and not d["weekend"]),

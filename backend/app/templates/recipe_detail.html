@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{{ recipe.name }} - Miso{% endblock %}
 {% block content %}
+{% set me = who(request) %}{% set kid = me and me.role == "kind" %}
 <p class="breadcrumb"><a href="/recepten">Recepten</a> / {{ recipe.name }}</p>
 <h1>{{ recipe.name|kort if recipe.collection == "maaltijdpakket" else recipe.name }}</h1>
 {% if recipe.collection == "maaltijdpakket" %}<p><span class="chip chip-pack">Maaltijdpakket van AH</span></p>{% endif %}
@@ -12,15 +13,24 @@
 <p class="recipe-actions">
     <button class="btn btn-primary" type="button" id="plan-btn">Inplannen</button>
     {% if not recipe.by_heart %}<a class="btn" href="/recipe/{{ recipe.id }}/koken">Kookmodus</a>{% endif %}
-    <button class="btn flag-btn" type="button" data-flag="favorite" aria-pressed="{{ 'true' if recipe.favorite else 'false' }}">♥ Favoriet</button>
+    <button class="btn flag-btn" type="button" data-flag="favorite" aria-pressed="{{ 'true' if (me and me.initial in fans) or (not me and recipe.favorite) else 'false' }}">♥ Favoriet{% if fans %} <small class="fans">{{ fans|join(" ") }}</small>{% endif %}</button>
+    <button class="btn" type="button" id="wish-btn">Ik wil dit graag</button>
+    {% if not kid %}
     <button class="btn flag-btn" type="button" data-flag="by_heart" aria-pressed="{{ 'true' if recipe.by_heart else 'false' }}"
             title="Je kent de bereiding; Miso bewaart alleen de ingrediënten voor de boodschappen">Ken ik uit mijn hoofd</button>
     <button class="btn flag-btn" type="button" data-flag="archived" aria-pressed="{{ 'true' if recipe.archived else 'false' }}"
             title="Niet meer tonen in lijsten en voorstellen (terug te halen bij Recepten → Opgeruimd)">{{ 'Terugzetten' if recipe.archived else 'Opruimen' }}</button>
+    {% endif %}
 </p>
 <p class="muted usage-line">{% if recipe.cooked_count %}{{ recipe.cooked_count }}× gekookt{% else %}Nog niet gekookt met Miso{% endif %}
     {% if recipe.thumbs_up or recipe.thumbs_down %} · 👍 {{ recipe.thumbs_up }} · 👎 {{ recipe.thumbs_down }}{% endif %}</p>
 <p id="plan-msg" class="msg-ok" role="status" hidden></p>
+{% if kid %}
+<section class="settings-section">
+    <h2>Ingrediënten</h2>
+    <ul class="kid-ingredients">{% for ing in recipe.ingredients %}<li>{{ ing.text }}</li>{% endfor %}</ul>
+</section>
+{% else %}
 
 <details class="settings-section photo-edit">
     <summary>{% if recipe.image_url %}Andere foto{% else %}Foto toevoegen{% endif %}</summary>
@@ -59,6 +69,7 @@
     <table class="settings-table" id="ingredients"></table>
 </section>
 
+{% endif %}
 <section class="settings-section">
     <h2>Bereiding</h2>
     <ol style="padding-left: 1.25rem;">
@@ -66,14 +77,22 @@
     </ol>
 </section>
 
+{% if not kid %}
 <form method="post" action="/recipe/{{ recipe.id }}/delete" onsubmit="return confirm('Recept verwijderen?')">
     <button class="btn btn-danger btn-sm">Verwijderen</button>
 </form>
+{% endif %}
 {% endblock %}
 
 {% block scripts %}
 <script>
 const RECIPE_ID = {{ recipe.id }};
+document.getElementById("wish-btn").onclick = async e => {
+    const r = await fetch("/api/wishes", {method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({recipe_id: RECIPE_ID})}).then(x => x.json()).catch(() => ({}));
+    const m = document.getElementById("plan-msg"); m.hidden = false;
+    m.textContent = r.ok ? "Doorgegeven! Papa en mama zien je wens bij het plannen." : (r.error || "Dat lukte niet.");
+};
 document.querySelectorAll(".flag-btn").forEach(btn => btn.addEventListener("click", async () => {
     const on = btn.getAttribute("aria-pressed") !== "true";
     const r = await fetch(`/api/recipes/${RECIPE_ID}/flags`, {method: "PATCH", headers: {"Content-Type": "application/json"},

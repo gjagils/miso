@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Wie ben jij? - Miso{% endblock %}
+{% block content %}
+<div class="page-head"><img src="/static/miso/miso-classic.webp" alt="" width="76" height="76" loading="lazy"><h1>Wie ben jij?</h1></div>
+<p class="muted">Dan weet Miso van wie een favoriet of wens is. Dit onthoudt Miso op dit apparaat.</p>
+<form method="post" action="/wie" class="who-grid">
+    {% for m in members %}
+    <button class="who" name="member" value="{{ m.id }}" type="submit"{% if current and current.id == m.id %} aria-current="true"{% endif %}>
+        <span class="who-avatar" style="background: {{ m.color }}">{{ m.initial }}</span>
+        <span class="who-name">{{ m.name }}</span>
+    </button>
+    {% endfor %}
+</form>
+{% endblock %}

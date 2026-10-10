@@ -40,6 +40,20 @@ def _short_name(name: str) -> str:
 
 templates.env.filters["kort"] = _short_name  # "AH gesneden verspakket shakshuka" -> "Shakshuka" (+ label)
 
+
+def _who(request) -> dict | None:
+    """Wie tikt er? (cookie/header). Voor de templates: naam bovenin, kinderweergave."""
+    if not (request.headers.get("x-miso-member") or request.cookies.get("miso_member")):
+        return None
+    from app import members
+    from app.database import SessionLocal
+
+    with SessionLocal() as db:
+        return members.current(request, db)
+
+
+templates.env.globals["who"] = _who
+
 IMAGE_DIR = os.path.join("data", "images")
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
 DAYS = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"]
@@ -112,6 +126,8 @@ async def today_page(request: Request, db: Session = Depends(get_db)):
     """Gezinsweergave: wat staat er vandaag en deze week op het menu."""
     from app.api.plan import entries_json, next_week_status
 
+    if settings.app_pin and not request.cookies.get("miso_member"):
+        return RedirectResponse("/wie", status_code=303)  # eerst: wie ben jij?
     monday = monday_of(date.today())
     entries = entries_json(db, planning.week_entries(db, monday))
     days = []
@@ -229,8 +245,10 @@ async def login(request: Request, pin: str = Form("")):
 async def recipe_detail(request: Request, recipe_id: int, db: Session = Depends(get_db)):
     recipe = _get_recipe(db, recipe_id)
     await ensure_matched(db, recipe)
+    from app.api.family import fans_map
+
     return templates.TemplateResponse(
-        request, "recipe_detail.html", {"recipe": recipe,
+        request, "recipe_detail.html", {"recipe": recipe, "fans": fans_map(db).get(recipe.id, []),
             "ingredients": recipe.ingredients,
             "has_token": bool(_get_setting(db, "ah_refresh_token") or _get_setting(db, "ah_user_token")),
         },

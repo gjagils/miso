@@ -24,6 +24,18 @@ koken. Voor de gebruiker voelt dat als twee keer hetzelfde.
   Een familienaam betekent "het nieuwste model van die familie" (dagelijks opgezocht via de Models API). Een
   `claude-...` naam zet één model vast. Zie `backend/app/llm.py`.
 
+## Persona-test (10 oktober) en wat eruit kwam
+
+- **"Wie ben jij?"** na de pincode: Gerd-Jan en Nelleke (ouder), Hannah en Suze (kind); in te stellen bij Meer.
+  Cookie `miso_member` (web) of header `X-Miso-Member` (app).
+- **Per persoon:** favorieten (initialen bij het hartje), "Lekker?"-stemmen en wensen ("Ik wil dit graag",
+  "Zin in iets?"). Ouders zien de wensen bovenaan Plannen en zetten ze met één tik op een dag; gewenste
+  recepten krijgen voorrang in voorstellen. Favorieten mogen na 7 dagen alweer terugkomen.
+- **Kinderrol:** Plannen wordt "Wat wil jij graag eten?"; geen wissen, verplaatsen, opruimen, bestellen of
+  AH-lijstje (server weigert met 403).
+- **Ouder:** "Vul de week voor mij", "Iets snellers" / "Verplaats naar morgen", eerlijke kooktijd met oven,
+  week-check in het voorstel, ontbrekend per week, "Lekker?" over gisteren op Vandaag.
+
 ## Nieuwe indeling
 
 | Tab | Vraag | Wat je ziet |

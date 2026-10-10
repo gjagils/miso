@@ -18,6 +18,38 @@
     {% if plan_result %}<p class="msg-ok" role="status"><img src="/static/miso/miso-celebrate.webp" alt="" width="56" height="56" loading="lazy"><span>{{ plan_result }}</span></p>{% endif %}
 </section>
 
+<section class="settings-section" id="gezinsleden">
+    <h2>Gezinsleden</h2>
+    <p class="muted">Wie gebruikt Miso? Kinderen kunnen wensen doorgeven en favorieten zetten, maar niets wissen of bestellen.
+    <a href="/wie">Wisselen van persoon</a></p>
+    <div id="members-list" class="members-list"></div>
+    <div class="nw-actions"><button class="btn btn-sm" type="button" id="member-add">+ Persoon</button>
+        <button class="btn btn-primary btn-sm" type="button" id="members-save">Opslaan</button>
+        <span class="muted" id="members-msg" role="status"></span></div>
+</section>
+<script>
+(() => {
+    const list = document.getElementById("members-list");
+    const row = m => {
+        const d = document.createElement("div"); d.className = "member-row";
+        d.innerHTML = `<input class="form-input" aria-label="Naam" value="" maxlength="30">
+            <select aria-label="Rol"><option value="ouder">ouder</option><option value="kind">kind</option></select>
+            <button class="btn btn-sm" type="button" aria-label="Verwijderen">✕</button>`;
+        d.querySelector("input").value = m.name || ""; d.querySelector("select").value = m.role || "ouder";
+        d.dataset.id = m.id || "";
+        d.querySelector("button").onclick = () => d.remove();
+        list.appendChild(d);
+    };
+    fetch("/api/members").then(r => r.json()).then(r => (r.members || []).forEach(row));
+    document.getElementById("member-add").onclick = () => row({});
+    document.getElementById("members-save").onclick = async () => {
+        const members = [...list.querySelectorAll(".member-row")].map(d => ({id: d.dataset.id, name: d.querySelector("input").value, role: d.querySelector("select").value}));
+        const r = await fetch("/api/members", {method: "PUT", headers: {"Content-Type": "application/json"}, body: JSON.stringify({members})}).then(x => x.json()).catch(() => ({}));
+        document.getElementById("members-msg").textContent = r.ok ? "Opgeslagen." : (r.error || "Opslaan lukte niet.");
+    };
+})();
+</script>
+
 <section class="settings-section" id="weergave">
     <h2>Weergave</h2>
     <p class="muted">Licht of donker voor de webpagina's in deze browser. De app op je telefoon stel je in onder Meer.</p>

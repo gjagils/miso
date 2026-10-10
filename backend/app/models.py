@@ -169,3 +169,38 @@ class RecipeProfile(Base):
     recipe_id: Mapped[int] = mapped_column(Integer, unique=True, index=True)
     profile_json: Mapped[str] = mapped_column(Text, default="{}")
     version: Mapped[int] = mapped_column(Integer, default=1)
+
+
+class RecipeFavorite(Base):
+    """Wie vindt dit recept een favoriet (per gezinslid)."""
+
+    __tablename__ = "recipe_favorites"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    recipe_id: Mapped[int] = mapped_column(Integer, index=True)
+    member_id: Mapped[str] = mapped_column(String(40), index=True)
+
+
+class Wish(Base):
+    """'Ik wil graag': een recept of een paar woorden ("iets met wraps") van een gezinslid."""
+
+    __tablename__ = "wishes"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    member_id: Mapped[str] = mapped_column(String(40), default="")
+    recipe_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    text: Mapped[str] = mapped_column(String(200), default="")
+    created_on: Mapped[str] = mapped_column(String(10), default="")
+    done_on: Mapped[str | None] = mapped_column(String(10), nullable=True)
+
+
+class Rating(Base):
+    """Lekker? per gezinslid (de totalen staan ook op het recept)."""
+
+    __tablename__ = "ratings"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    recipe_id: Mapped[int] = mapped_column(Integer, index=True)
+    member_id: Mapped[str] = mapped_column(String(40), default="")
+    day: Mapped[str] = mapped_column(String(10), default="")
+    rating: Mapped[str] = mapped_column(String(4), default="")

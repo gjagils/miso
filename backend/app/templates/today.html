@@ -9,6 +9,10 @@
 </div>
 {% endfor %}
 <section class="tonight" aria-labelledby="tonight-h">
+    <form class="form-group quick-wish" id="quick-wish">
+        <input class="form-input" name="text" placeholder="Zin in iets deze week? Bijv. pannenkoeken" aria-label="Zin in iets deze week?">
+        <button class="btn btn-sm" type="submit">Laat het weten</button>
+    </form>
     <h1 id="tonight-h">Vanavond</h1>
     {% if today and today.entries %}
     {% for e in today.entries %}
@@ -85,6 +89,13 @@
 
 {% block scripts %}
 <script>
+document.getElementById("quick-wish").onsubmit = async e => {
+    e.preventDefault();
+    const text = e.target.text.value.trim();
+    if (!text) return;
+    const r = await fetch("/api/wishes", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({text})}).then(x => x.json()).catch(() => ({}));
+    e.target.text.value = ""; e.target.text.placeholder = r.ok ? "Doorgegeven! Het staat bij Plannen." : "Dat lukte niet.";
+};
 document.querySelectorAll("[data-move]").forEach(b => b.onclick = async () => {
     const r = await fetch(`/api/plan/entries/${b.dataset.move}`, {method: "PATCH", headers: {"Content-Type": "application/json"},
         body: JSON.stringify({date: "{{ tomorrow_iso }}"})}).then(x => x.json()).catch(() => ({}));

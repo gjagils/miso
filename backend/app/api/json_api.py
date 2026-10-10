@@ -17,8 +17,9 @@ from app.models import Recipe
 router = APIRouter(prefix="/api")
 
 
-def _summary(r: Recipe) -> dict:
+def _summary(r: Recipe, fans: dict | None = None) -> dict:
     return {
+        "fans": (fans or {}).get(r.id, []),
         "id": r.id, "name": r.name, "servings": r.servings, "total_time": r.total_time,
         "image_url": r.image_url, "gf_mode": r.gf_mode,
         "favorite": bool(r.favorite), "by_heart": bool(r.by_heart), "archived": bool(r.archived),
@@ -61,7 +62,10 @@ async def api_recipes(q: str = "", filter: str = "", db: Session = Depends(get_d
         query = query.where(Recipe.favorite.is_(True))
     elif filter == "by_heart":
         query = query.where(Recipe.by_heart.is_(True))
-    return {"recipes": [_summary(r) for r in db.execute(query).scalars()]}
+    from app.api.family import fans_map
+
+    fans = fans_map(db)
+    return {"recipes": [_summary(r, fans) for r in db.execute(query).scalars()]}
 
 
 class RecipeFlags(BaseModel):
@@ -72,18 +76,25 @@ class RecipeFlags(BaseModel):
 
 
 @router.patch("/recipes/{recipe_id}/flags")
-async def api_recipe_flags(recipe_id: int, payload: RecipeFlags, db: Session = Depends(get_db)):
+async def api_recipe_flags(recipe_id: int, payload: RecipeFlags, request: Request, db: Session = Depends(get_db)):
+    from app import members
+    from app.api.family import fans_map, set_favorite
+
     r = db.get(Recipe, recipe_id)
     if not r:
         raise HTTPException(404, "Recept niet gevonden")
-    for field in ("favorite", "archived", "by_heart"):
+    if members.is_kid(request, db) and (payload.archived is not None or payload.by_heart is not None):
+        return JSONResponse({"ok": False, "error": "Vraag dit even aan papa of mama."}, status_code=403)
+    if payload.favorite is not None:
+        set_favorite(db, r, members.current(request, db), payload.favorite)  # per persoon
+    for field in ("archived", "by_heart"):
         value = getattr(payload, field)
         if value is not None:
             setattr(r, field, value)
     if payload.reviewed is not None:
         r.reviewed_on = str(date.today()) if payload.reviewed else None
     db.commit()
-    return {"ok": True, "recipe": _summary(r)}
+    return {"ok": True, "recipe": _summary(r, fans_map(db))}
 
 
 class Feedback(BaseModel):
@@ -91,8 +102,10 @@ class Feedback(BaseModel):
 
 
 @router.post("/recipes/{recipe_id}/feedback")
-async def api_recipe_feedback(recipe_id: int, payload: Feedback, db: Session = Depends(get_db)):
-    """'Lekker?' na het koken. Telt ook als gekookt."""
+async def api_recipe_feedback(recipe_id: int, payload: Feedback, request: Request, db: Session = Depends(get_db)):
+    """'Lekker?' na het koken. Telt ook als gekookt. Per persoon bewaard als bekend is wie er tikt."""
+    from app import members
+    from app.models import Rating
     from app.usage import mark_cooked
 
     r = db.get(Recipe, recipe_id)
@@ -113,6 +126,12 @@ async def api_recipe_feedback(recipe_id: int, payload: Feedback, db: Session = D
     else:
         r.thumbs_down = (r.thumbs_down or 0) + 1
     r.last_rated, r.last_rating = today, payload.rating
+    member = members.current(request, db)
+    row = db.query(Rating).filter_by(recipe_id=r.id, member_id=member["id"] if member else "", day=today).first()
+    if row:
+        row.rating = payload.rating
+    else:
+        db.add(Rating(recipe_id=r.id, member_id=member["id"] if member else "", day=today, rating=payload.rating))
     mark_cooked(r)
     db.commit()
     return {"ok": True, "thumbs_up": r.thumbs_up, "thumbs_down": r.thumbs_down, "rating": payload.rating}
@@ -145,8 +164,10 @@ async def api_recipe(recipe_id: int, db: Session = Depends(get_db)):
     if not r:
         raise HTTPException(404, "Recept niet gevonden")
     await routes.ensure_matched(db, r)
+    from app.api.family import fans_map
+
     return {
-        **_summary(r),
+        **_summary(r, fans_map(db)),
         "description": r.description,
         "cooked_count": r.cooked_count, "thumbs_up": r.thumbs_up, "thumbs_down": r.thumbs_down,
         "source_url": r.source_url,

@@ -164,6 +164,10 @@ def propose(db: Session, monday: date, wishes: dict[str, str], per_day: int = 3,
     profiles = {r.id: get_profile(db, r.id) for r in recipes}
     week_ids = {e.recipe_id for e in taken.values() if e.kind == "recipe"}
     by_id = {r.id: r for r in recipes}
+    from app.models import Wish
+
+    wished = {w.recipe_id for w in db.execute(select(Wish).where(Wish.done_on.is_(None),
+                                                                 Wish.recipe_id.is_not(None))).scalars()}
     chosen_profiles = [profiles.get(rid) or (guessed_profile(by_id[rid]) if rid in by_id else {}) for rid in week_ids]
     used: set[int] = set(week_ids)
     used_dishes = {dish_key(by_id[rid].name) for rid in week_ids if rid in by_id}
@@ -197,6 +201,8 @@ def propose(db: Session, monday: date, wishes: dict[str, str], per_day: int = 3,
             s = preference_score(r, stats.get(r.id), today) + _health(profiles[r.id]) - _variety_penalty(p, chosen_profiles)
             if name_words and any(w.strip() and w.strip() in r.name.lower() for w in name_words):
                 s += 15  # wens staat in de naam ("nasi", "rijst"): beter dan alleen een ingrediënt
+            if r.id in wished:
+                s += 25  # iemand in het gezin wil dit graag
             if r.favorite and favorites_chosen >= 2:
                 s -= 30  # hooguit twee favorieten per week, anders steeds hetzelfde
             if prev_cuisine and p.get("keuken") == prev_cuisine and prev_cuisine != "overig":

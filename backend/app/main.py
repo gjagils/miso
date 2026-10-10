@@ -14,6 +14,7 @@ from app.api.shopping import router as shopping_router
 from app.api.health import router as health_router
 from app.api.plan import router as plan_router
 from app.api.wishes import router as wishes_router
+from app.api.family import router as family_router
 from app.config import settings
 from app.database import Base, engine
 from app.logging_config import setup_logging
@@ -68,6 +69,12 @@ async def require_pin(request: Request, call_next):
 
                 return JSONResponse({"ok": False, "error": "Niet ingelogd"}, status_code=401)
             return RedirectResponse("/login", status_code=303)
+    from app.api.family import kid_blocked
+
+    if kid_blocked(request):  # kinderen: wensen en favorieten ja, wissen/bestellen/beheer nee
+        from fastapi.responses import JSONResponse
+
+        return JSONResponse({"ok": False, "error": "Vraag dit even aan papa of mama."}, status_code=403)
     return await call_next(request)
 
 
@@ -83,4 +90,5 @@ app.include_router(shopping_router)
 app.include_router(health_router)
 app.include_router(plan_router)
 app.include_router(wishes_router)
+app.include_router(family_router)
 app.include_router(router)

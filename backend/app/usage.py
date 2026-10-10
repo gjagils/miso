@@ -34,8 +34,10 @@ def preference_score(recipe: Recipe, stats: dict | None, today: date | None = No
     s += min(10, 2 * ((stats or {}).get("planned", 0)))
     s -= min(15, 5 * (recipe.swapped_count or 0))
     eaten = last_eaten(recipe, stats, today)
-    if eaten and (today - date.fromisoformat(eaten)).days < 14:
-        s -= 20
+    if eaten:
+        days = (today - date.fromisoformat(eaten)).days
+        if days < (7 if recipe.favorite else 14):  # lievelingseten mag sneller terugkomen
+            s -= 20
     return s
 
 

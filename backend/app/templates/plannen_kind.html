@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Wensen - Miso{% endblock %}
+{% block content %}
+<div class="page-head"><img src="/static/miso/miso-heart-eyes.webp" alt="" width="76" height="76" loading="lazy"><h1>Wat wil jij graag eten, {{ me.name }}?</h1></div>
+<form id="wish-form" class="form-group">
+    <input class="form-input" name="text" style="flex:1;min-width:200px" placeholder="Bijv. pannenkoeken, iets met wraps" aria-label="Waar heb je zin in?">
+    <button class="btn btn-primary" type="submit">Laat het weten</button>
+</form>
+<p class="msg-ok" id="wish-msg" role="status" hidden></p>
+
+{% if favorites %}
+<h2>Jouw favorieten</h2>
+<p class="muted">Tik er een aan, dan zien papa en mama dat je die graag wilt.</p>
+<div class="tonight-ideas">
+    {% for r in favorites %}
+    <button type="button" class="idea" data-wish-recipe="{{ r.id }}">
+        {% if r.image_url %}<img src="{{ r.image_url }}" alt="" loading="lazy" referrerpolicy="no-referrer">{% else %}<span class="opt-ph"></span>{% endif %}
+        <span><strong>{{ r.name|kort }}</strong><small class="muted">♥ jouw favoriet</small></span>
+    </button>
+    {% endfor %}
+</div>
+{% else %}
+<p class="muted">Nog geen favorieten. Open een recept en tik ♥ Favoriet.</p>
+{% endif %}
+
+{% if wishes %}
+<h2>Al doorgegeven</h2>
+<ul class="kid-ingredients">{% for w in wishes %}<li>{{ w.recipe_name or w.text }}</li>{% endfor %}</ul>
+{% endif %}
+
+<h2>Op het menu</h2>
+{% for d in days if not d.past %}
+<p><strong>{{ d.label }}</strong>: {{ d.taken|kort if d.taken else "nog niks" }}</p>
+{% endfor %}
+{% endblock %}
+{% block scripts %}
+<script>
+const say = async body => {
+    const r = await fetch("/api/wishes", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)})
+        .then(x => x.json()).catch(() => ({}));
+    const m = document.getElementById("wish-msg"); m.hidden = false;
+    m.textContent = r.ok ? "Doorgegeven! 🎉" : (r.error || "Dat lukte niet.");
+    return r.ok;
+};
+document.getElementById("wish-form").onsubmit = async e => {
+    e.preventDefault();
+    const text = e.target.text.value.trim();
+    if (text && await say({text})) e.target.text.value = "";
+};
+document.querySelectorAll("[data-wish-recipe]").forEach(b => b.onclick = async () => {
+    if (await say({recipe_id: Number(b.dataset.wishRecipe)})) b.querySelector("small").textContent = "✓ doorgegeven";
+});
+</script>
+{% endblock %}

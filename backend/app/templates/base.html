@@ -30,12 +30,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/style.css?v=15">
+    <link rel="stylesheet" href="/static/style.css?v=16">
 </head>
 <body>
     <nav class="topbar">
         <a href="/" class="logo" aria-label="Miso, naar Vandaag"><img src="/static/miso/miso-classic.webp" alt="" width="40" height="40"><span>Mis<span class="o">o</span></span></a>
         <span class="tagline">Altijd iets lekkers op de planning.</span>
+        {% set me = who(request) %}
+        <a class="me-chip" href="/wie" title="Wie ben jij?" aria-label="{{ ('Ingelogd als ' ~ me.name ~ ', wisselen') if me else 'Kies wie je bent' }}"
+           style="background: {{ me.color if me else 'var(--border)' }}">{{ me.initial if me else "?" }}</a>
     </nav>
     <main>
         {% block content %}{% endblock %}

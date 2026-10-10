@@ -9,6 +9,23 @@
     <a class="btn btn-sm" href="/plannen?week={{ next_week }}" aria-label="Volgende week">›</a>
 </nav>
 
+{% if wishes %}
+<section class="settings-section family-wishes" aria-labelledby="fw-h">
+    <h2 id="fw-h">Wensen van het gezin</h2>
+    <ul class="fw-list">
+    {% for w in wishes %}
+        <li data-wish="{{ w.id }}" data-recipe="{{ w.recipe_id or '' }}" data-text="{{ w.text }}">
+            <span><strong>{{ w.member or "Iemand" }}</strong> wil graag: {{ w.recipe_name or w.text }}</span>
+            <span class="fw-actions">
+                <select aria-label="Op welke dag?">{% for d in days if not d.taken and not d.past %}<option value="{{ d.date }}">{{ d.label }}</option>{% endfor %}</select>
+                <button class="btn btn-sm btn-primary" type="button" data-place>Zet op deze dag</button>
+                <button class="btn btn-sm" type="button" data-done aria-label="Wens wegklikken">✕</button>
+            </span>
+        </li>
+    {% endfor %}
+    </ul>
+</section>
+{% endif %}
 <section class="settings-section" id="wish-step">
     <h2>Waar hebben jullie zin in?</h2>
     {% if has_api_key %}
@@ -177,6 +194,22 @@ document.querySelectorAll("[data-change]").forEach(b => b.onclick = () => {
     row.appendChild(tpl.content.cloneNode(true));
     wireRow(row);
     const pb = $("propose-btn"); if (pb) pb.closest(".nw-actions").hidden = false;
+});
+document.querySelectorAll(".fw-list li").forEach(li => {
+    const done = () => postJSON(`/api/wishes/${li.dataset.wish}/done`, {});
+    li.querySelector("[data-done]").onclick = async () => { await done(); li.remove(); };
+    li.querySelector("[data-place]").onclick = async () => {
+        const date = li.querySelector("select").value;
+        if (!date) return;
+        if (li.dataset.recipe) {  // recept: meteen inplannen
+            const r = await postJSON("/api/plan/apply", {week: WEEK, choices: [{date, kind: "recipe", recipe_id: Number(li.dataset.recipe)}]});
+            if (r.ok) { await done(); location.reload(); }
+        } else {  // "iets met wraps": als wens op die dag zetten
+            const row = document.querySelector(`.wish-day[data-date="${date}"]`);
+            if (row) { setWish(row, li.dataset.text); if (row.closest("details")) row.closest("details").open = true; row.scrollIntoView({behavior: "smooth", block: "center"}); }
+            await done(); li.remove();
+        }
+    };
 });
 $("fill-btn") && ($("fill-btn").onclick = () => {
     document.querySelectorAll(".wish-day:not(.taken)").forEach(row => {
