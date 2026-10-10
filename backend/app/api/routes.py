@@ -56,11 +56,16 @@ def day_label(d: date) -> str:
 
 
 def _get_setting(db: Session, key: str) -> str:
+    from app.secretbox import unseal
+
     row = db.execute(select(AppSetting).where(AppSetting.key == key)).scalar_one_or_none()
-    return row.value if row else ""
+    return unseal(key, row.value) if row else ""
 
 
 def _set_setting(db: Session, key: str, value: str) -> None:
+    from app.secretbox import seal
+
+    value = seal(key, value)  # AH-/Mealie-tokens versleuteld als MISO_SECRET gezet is
     row = db.execute(select(AppSetting).where(AppSetting.key == key)).scalar_one_or_none()
     if row:
         row.value = value

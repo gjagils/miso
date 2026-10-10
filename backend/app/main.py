@@ -22,6 +22,20 @@ setup_logging()
 Base.metadata.create_all(engine)
 migrate(engine)
 
+
+def _encrypt_tokens() -> None:
+    from app.database import SessionLocal
+    from app.logging_config import logger
+    from app.secretbox import encrypt_existing
+
+    with SessionLocal() as db:
+        n = encrypt_existing(db)
+    if n:
+        logger.info("%d geheime instellingen versleuteld", n)
+
+
+_encrypt_tokens()
+
 @asynccontextmanager
 async def lifespan(app_: FastAPI):
     from app.maintenance import daily_loop

@@ -412,3 +412,27 @@ def test_week_sync_reads_real_ah_list(db, monkeypatch):
     the_list.pop(2)  # weer weggehaald in de AH-app -> volgende sync zet hem terug
     client.post("/api/plan/sync", json={"week": day})
     assert sent[-1] == [{"product_id": 2, "quantity": 1, "name": "p2"}] or sent[-1][0]["product_id"] == 2
+
+
+def test_tokens_encrypted_with_miso_secret(db, monkeypatch):
+    from app.models import AppSetting
+    from app.secretbox import encrypt_existing
+
+    db.add(AppSetting(key="ah_refresh_token", value="oud-leesbaar"))
+    db.commit()
+    monkeypatch.delenv("MISO_SECRET", raising=False)
+    routes._set_setting(db, "ah_user_token", "plain")
+    assert db.query(AppSetting).filter_by(key="ah_user_token").one().value == "plain"  # zonder sleutel: zoals vroeger
+
+    monkeypatch.setenv("MISO_SECRET", "een-lang-geheim-van-de-familie")
+    routes._set_setting(db, "ah_user_token", "geheim-token")
+    stored = db.query(AppSetting).filter_by(key="ah_user_token").one().value
+    assert stored.startswith("enc:v1:") and "geheim-token" not in stored
+    assert routes._get_setting(db, "ah_user_token") == "geheim-token"
+    assert encrypt_existing(db) == 1  # de oude leesbare refresh-token
+    assert routes._get_setting(db, "ah_refresh_token") == "oud-leesbaar"
+    routes._set_setting(db, "household_size", "4")
+    assert db.query(AppSetting).filter_by(key="household_size").one().value == "4"  # gewone instelling blijft leesbaar
+
+    monkeypatch.setenv("MISO_SECRET", "andere-sleutel")
+    assert routes._get_setting(db, "ah_user_token") == ""  # verkeerde sleutel: opnieuw koppelen

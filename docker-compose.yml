@@ -10,6 +10,7 @@ services:
       TZ: Europe/Amsterdam
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       APP_PIN: ${APP_PIN:-}
+      MISO_SECRET: ${MISO_SECRET:-}  # versleutelt AH-/Mealie-tokens in de database
     volumes:
       - ${DATA_DIR:-./data}:/app/data
     restart: on-failure:5
@@ -25,6 +26,7 @@ services:
     environment:
       TZ: Europe/Amsterdam
       APP_PIN: ${APP_PIN:-}
+      MISO_SECRET: ${MISO_SECRET:-}
     volumes:
       - ${DATA_DIR:-./data}:/app/data
     restart: on-failure:5

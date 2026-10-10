@@ -57,6 +57,9 @@ def _origin(request: Request) -> str:
 
 
 def _set_setting(key: str, value: str) -> None:
+    from app.secretbox import seal
+
+    value = seal(key, value)  # versleuteld als MISO_SECRET gezet is
     with SessionLocal() as db:
         row = db.execute(select(AppSetting).where(AppSetting.key == key)).scalar_one_or_none()
         if row:
