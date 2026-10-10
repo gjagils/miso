@@ -109,8 +109,29 @@ async def today_page(request: Request, db: Session = Depends(get_db)):
     for i in range(7):
         d = monday + timedelta(days=i)
         days.append({"label": day_label(d), "entries": [e for e in entries if e["date"] == str(d)],
-                     "today": d == date.today()})
-    return templates.TemplateResponse(request, "today.html", {"days": days, "nws": next_week_status(db)})
+                     "today": d == date.today(), "past": d < date.today()})
+    today = next((d for d in days if d["today"]), None)
+    ideas = [] if today and today["entries"] else tonight_ideas(db)
+    return templates.TemplateResponse(request, "today.html", {"days": days, "today": today, "ideas": ideas,
+                                                              "nws": next_week_status(db), "today_iso": str(date.today())})
+
+
+def tonight_ideas(db: Session) -> list[dict]:
+    """Niets gepland vanavond: een favoriet en iets snels (vriezer biedt de pagina zelf aan)."""
+    from app.usage import plan_stats, preference_score, recently_planned_ids
+    from app.wishes import minutes
+
+    stats, recent = plan_stats(db), recently_planned_ids(db, 14)
+    pool = [r for r in db.execute(select(Recipe).where(Recipe.archived.is_(False))).scalars() if r.id not in recent]
+    ranked = sorted(pool, key=lambda r: -preference_score(r, stats.get(r.id)))
+    ideas = []
+    fav = next((r for r in ranked if r.favorite), ranked[0] if ranked else None)
+    if fav:
+        ideas.append({"why": "Favoriet" if fav.favorite else "Vaak gekozen", "recipe": fav})
+    quick = next((r for r in ranked if r is not fav and (minutes(r.total_time) or 99) <= 30), None)
+    if quick:
+        ideas.append({"why": "Snel klaar", "recipe": quick})
+    return ideas
 
 
 @router.get("/recepten", response_class=HTMLResponse)

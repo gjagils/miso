@@ -66,11 +66,12 @@ def test_plan_roundtrip_today_and_delete(db):
     r = _recipe(db, "Pasta", [_ing("pasta", 5)])
     client = TestClient(app)
     monday = routes.monday_of(date.today())
-    day = str(monday)
-    resp = client.post("/api/plan", json={"week": day, "days": {day: [r.id], "2000-01-01": [r.id]}}).json()
+    day = str(date.today())  # Vandaag toont vanavond + de rest van de week, geen voorbije dagen
+    resp = client.post("/api/plan", json={"week": str(monday), "days": {day: [r.id], "2000-01-01": [r.id]}}).json()
     assert resp["ok"] and resp["status"]["needed"] == 1  # date outside the week is ignored
-    assert client.get(f"/weekmenu?week={day}").status_code == 200
-    assert "Pasta" in client.get("/").text
+    assert client.get(f"/weekmenu?week={monday}").status_code == 200
+    home = client.get("/").text
+    assert "Pasta" in home and "Start met koken" in home
     assert client.post(f"/recipe/{r.id}/delete", follow_redirects=False).status_code == 303
     assert db.get(Recipe, r.id) is None
 
@@ -471,3 +472,11 @@ def test_favorites_feedback_review_and_archive(db):
     assert "Vergeten soep" in client.get("/recepten?filter=opgeruimd").text
     assert "Lasagne" in client.get("/recepten?filter=favorieten").text
     assert "Lekker?" in client.get(f"/recipe/{fav.id}/koken").text
+
+
+def test_today_without_plan_shows_ideas(db):
+    r = _recipe(db, "Snelle wraps", [])
+    r.total_time, r.favorite = "20 minuten", True
+    db.commit()
+    page = TestClient(app).get("/").text
+    assert "Nog niets voor vanavond" in page and "Snelle wraps" in page and "Iets uit de vriezer" in page

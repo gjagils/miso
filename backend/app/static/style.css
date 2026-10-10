@@ -790,3 +790,19 @@ dialog.mp::backdrop { background: rgba(14, 42, 71, 0.5); }
 .opt-alt img, .opt-alt .opt-ph { grid-row: span 2; width: 44px; height: 44px; border-radius: 8px; object-fit: cover; background: var(--border); }
 .opt-alt:hover { border-color: var(--miso-orange); }
 .chip-pack { background: rgba(0, 160, 226, 0.14); color: var(--text); border: 1px solid rgba(0, 160, 226, 0.5); }
+.tonight h1 { margin-bottom: 0.6rem; }
+.tonight-card { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; padding: 1rem; border-radius: var(--radius-lg);
+    background: var(--surface); box-shadow: var(--shadow); margin-bottom: 0.75rem; }
+.tonight-img { width: 100%; max-width: 360px; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 16px; }
+.tonight-body { flex: 1 1 16rem; display: flex; flex-direction: column; gap: 0.4rem; align-items: flex-start; }
+.tonight-body h2 { font-size: 1.5rem; }
+.tonight-simple img { flex: none; }
+.btn-lg { min-height: 52px; padding: 0 1.4rem; font-size: 1.1rem; }
+.tonight-ideas { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.6rem; }
+.idea { display: flex; gap: 0.6rem; align-items: center; text-align: left; padding: 0.6rem; border-radius: 14px; min-height: 72px;
+    border: 2px solid var(--border); background: var(--surface); color: var(--text); font: inherit; cursor: pointer; text-decoration: none; }
+.idea:hover { border-color: var(--miso-orange); }
+.idea img, .idea .opt-ph { width: 56px; height: 56px; border-radius: 10px; object-fit: cover; flex: none; background: var(--border); }
+.idea span { display: flex; flex-direction: column; gap: 0.1rem; }
+.week-h { margin: 1.25rem 0 0.5rem; }
+.day-card.compact h3 { font-size: 1rem; }

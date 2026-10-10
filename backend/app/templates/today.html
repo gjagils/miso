@@ -1,32 +1,78 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="page-head"><img src="/static/miso/miso-idea.webp" alt="" width="76" height="76" loading="lazy"><h1>Deze week</h1></div>
+<section class="tonight" aria-labelledby="tonight-h">
+    <h1 id="tonight-h">Vanavond</h1>
+    {% if today and today.entries %}
+    {% for e in today.entries %}
+    {% if e.kind == "recipe" and e.recipe %}
+    <div class="tonight-card">
+        {% if e.recipe.image_url %}<img class="tonight-img" src="{{ e.recipe.image_url }}" alt="" referrerpolicy="no-referrer">{% endif %}
+        <div class="tonight-body">
+            <h2>{{ e.title }}</h2>
+            <p class="muted">voor {{ e.persons }}{% if e.recipe.total_time %} · {{ e.recipe.total_time }}{% endif %}{% if e.cook_double == "tomorrow" %} · kook dubbel, morgen de rest{% elif e.cook_double == "freezer" %} · kook dubbel, de helft naar de vriezer{% endif %}{% if e.recipe.gf_mode != "none" %} · glutenvrij voor 1{% endif %}</p>
+            <a class="btn btn-primary btn-lg" href="/recipe/{{ e.recipe.id }}/koken">Start met koken</a>
+            <a class="btn" href="/recipe/{{ e.recipe.id }}">Recept</a>
+        </div>
+    </div>
+    {% elif e.kind == "leftover" %}
+    <div class="tonight-card tonight-simple"><img src="/static/miso/miso-pasta-again.webp" alt="" width="72" height="72">
+        <div class="tonight-body"><h2>{{ e.title }}</h2><p class="muted">Restjes opwarmen · voor {{ e.persons }}</p></div></div>
+    {% elif e.kind == "stock" %}
+    <div class="tonight-card tonight-simple"><img src="/static/miso/miso-box.webp" alt="" width="72" height="72">
+        <div class="tonight-body"><h2>{{ e.title }}</h2><p class="muted">Hebben we al{% if e.extras %} · plus {{ e.extras|map(attribute="text")|join(", ") }}{% endif %}</p></div></div>
+    {% endif %}
+    {% endfor %}
+    {% else %}
+    <div class="tonight-card tonight-simple"><img src="/static/miso/miso-hungry.webp" alt="" width="72" height="72">
+        <div class="tonight-body"><h2>Nog niets voor vanavond</h2><p class="muted">Kies snel iets, dan staat het meteen klaar om te koken.</p></div></div>
+    <div class="tonight-ideas">
+        {% for idea in ideas %}
+        <button type="button" class="idea" data-recipe="{{ idea.recipe.id }}">
+            {% if idea.recipe.image_url %}<img src="{{ idea.recipe.image_url }}" alt="" loading="lazy" referrerpolicy="no-referrer">{% else %}<span class="opt-ph"></span>{% endif %}
+            <span><small class="muted">{{ idea.why }}</small><strong>{{ idea.recipe.name }}</strong>{% if idea.recipe.total_time %}<small class="muted">{{ idea.recipe.total_time }}</small>{% endif %}</span>
+        </button>
+        {% endfor %}
+        <button type="button" class="idea" data-freezer="1"><img src="/static/miso/miso-box.webp" alt=""><span><small class="muted">Geen boodschappen</small><strong>Iets uit de vriezer</strong></span></button>
+        <a class="idea" href="/plannen"><img src="/static/miso/miso-checklist.webp" alt=""><span><small class="muted">Kies zelf</small><strong>Naar Plannen</strong></span></a>
+    </div>
+    <p id="idea-msg" class="msg-err" role="status" hidden></p>
+    {% endif %}
+</section>
+
 {% include "_next_week.html" %}
-{% for d in days %}
-<div class="day-card {% if d.today %}today{% endif %}">
-    <h3>{{ d.label }}{% if d.today %} <span class="today-pill">vandaag</span>{% endif %}</h3>
+
+<h2 class="week-h">Deze week</h2>
+{% for d in days if not d.today and not d.past %}
+<div class="day-card compact">
+    <h3>{{ d.label }}</h3>
     {% for e in d.entries %}
     {% if e.kind == "recipe" and e.recipe %}
-    <a class="day-recipe" href="/recipe/{{ e.recipe.id }}/koken">
+    <a class="day-recipe" href="/recipe/{{ e.recipe.id }}">
         {% if e.recipe.image_url %}<img src="{{ e.recipe.image_url }}" alt="" loading="lazy" referrerpolicy="no-referrer">{% else %}<div class="thumb"></div>{% endif %}
-        <span>{{ e.title }}<small class="pe-meta">voor {{ e.persons }}{% if e.cook_double == "tomorrow" %} · kook dubbel, morgen de rest{% elif e.cook_double == "freezer" %} · kook dubbel, de helft naar de vriezer{% endif %}</small></span>
-        {% if e.recipe.gf_mode != "none" %}<span class="chip" style="flex:none">glutenvrij</span>{% endif %}
+        <span>{{ e.title }}<small class="pe-meta">voor {{ e.persons }}</small></span>
     </a>
-    {% elif e.kind == "leftover" %}
-    <div class="day-recipe">
-        <div class="thumb pe-icon" aria-hidden="true"><img src="/static/miso/miso-pasta-again.webp" alt=""></div>
-        <span>{{ e.title }}<small class="pe-meta">restjes · voor {{ e.persons }}</small></span>
-    </div>
-    {% elif e.kind == "stock" %}
-    <div class="day-recipe">
-        <div class="thumb pe-icon" aria-hidden="true"><img src="/static/miso/miso-box.webp" alt=""></div>
-        <span>{{ e.title }}<small class="pe-meta">hebben we al{% if e.extras %} · plus {{ e.extras|map(attribute="text")|join(", ") }}{% endif %}</small></span>
-    </div>
+    {% else %}
+    <div class="day-recipe"><div class="thumb pe-icon" aria-hidden="true"><img src="/static/miso/{{ 'miso-pasta-again' if e.kind == 'leftover' else 'miso-box' }}.webp" alt=""></div>
+        <span>{{ e.title }}<small class="pe-meta">{{ "restjes" if e.kind == "leftover" else "hebben we al" }}</small></span></div>
     {% endif %}
     {% else %}
-    <p class="muted">Niets gepland</p>
+    <p class="muted">Niets gepland · <a href="/plannen">plannen</a></p>
     {% endfor %}
 </div>
 {% endfor %}
-<p class="muted">Zin in iets anders? Plan het in het <a href="/weekmenu">Weekmenu</a>.</p>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll(".idea[data-recipe], .idea[data-freezer]").forEach(b => b.onclick = async () => {
+    b.disabled = true;
+    const body = b.dataset.freezer ? {date: "{{ today_iso }}", kind: "stock", text: "Iets uit de vriezer"}
+                                   : {date: "{{ today_iso }}", kind: "recipe", recipe_id: Number(b.dataset.recipe)};
+    const r = await fetch("/api/plan/entries", {method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(body)}).then(x => x.json()).catch(() => ({}));
+    if (r.ok) { location.href = b.dataset.recipe ? `/recipe/${b.dataset.recipe}/koken` : "/"; return; }
+    const m = document.getElementById("idea-msg"); m.hidden = false; m.textContent = r.error || "Inplannen lukte niet.";
+    b.disabled = false;
+});
+</script>
 {% endblock %}
