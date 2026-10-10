@@ -53,3 +53,17 @@ def test_sync_adds_updates_and_archives(db, monkeypatch):
 
 async def _none():
     return []
+
+
+def test_dedupe_keeps_used_recipe(db):
+    from app.models import PlanEntry
+
+    mine = Recipe(name="AH verspakket Japanse teriyaki")
+    new = Recipe(name="AH verspakket 'Japanse' teriyaki", ah_recipe_id=55, collection="maaltijdpakket")
+    db.add_all([mine, new])
+    db.commit()
+    db.add(PlanEntry(date="2026-10-01", kind="recipe", recipe_id=mine.id))
+    db.commit()
+    assert packs.dedupe(db) == 1
+    left = db.query(Recipe).one()
+    assert left.id == mine.id and left.collection == "maaltijdpakket" and left.ah_recipe_id == 55

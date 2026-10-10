@@ -25,7 +25,7 @@ SEARCH_GQL = """query RecipeSearch($query: RecipeSearchParams!) {
   recipeSearch(query: $query) { page { total } result { id title } }
 }"""
 PRODUCT_QUERIES = ("verspakket", "gesneden verspakket", "vega verspakket", "ah verspakket", "biologisch verspakket")
-STATUS: dict = {"running": False, "done": 0, "total": 0, "new": 0, "updated": 0, "archived": 0, "error": None,
+STATUS: dict = {"running": False, "done": 0, "total": 0, "new": 0, "updated": 0, "archived": 0, "merged": 0, "error": None,
                 "finished": None}
 
 
@@ -82,6 +82,42 @@ def best_pack(text: str, packs: list[dict], title: str = "") -> dict | None:
     return best
 
 
+def name_key(name: str) -> str:
+    """'AH verspakket \'Japanse\' teriyaki' en 'AH verspakket Japanse teriyaki' -> zelfde sleutel."""
+    from app.wishes import display_name
+
+    return re.sub(r"[^a-z0-9]+", " ", display_name(name).lower()).strip()
+
+
+def dedupe(db: Session) -> int:
+    """Dubbele pakketrecepten (zelfde naam) samenvoegen: bewaar het recept met geschiedenis, verwijder lege kopieën."""
+    from app.api.routes import remove_recipe
+    from app.usage import plan_stats
+
+    stats = plan_stats(db)
+    groups: dict[str, list[Recipe]] = {}
+    for r in db.execute(select(Recipe)).scalars():
+        if "verspakket" in r.name.lower():
+            groups.setdefault(name_key(r.name), []).append(r)
+    removed = 0
+    for rs in groups.values():
+        if len(rs) < 2:
+            continue
+        # houden: gepland/gekookt/favoriet, dan het oudste (eigen import)
+        rs.sort(key=lambda r: (-(stats.get(r.id, {}).get("planned", 0) + (r.cooked_count or 0) + 10 * bool(r.favorite)), r.id))
+        keep = rs[0]
+        keep.collection = COLLECTION
+        for extra in rs[1:]:
+            if stats.get(extra.id, {}).get("planned", 0) or extra.cooked_count or extra.favorite:
+                continue  # zelf gebruikt: niet stilletjes weggooien
+            if not keep.ah_recipe_id and extra.ah_recipe_id:
+                keep.ah_recipe_id = extra.ah_recipe_id
+            remove_recipe(db, extra)
+            removed += 1
+    db.commit()
+    return removed
+
+
 def _merge_ingredients(old: list[dict], new: list[dict]) -> list[dict]:
     """Nieuwe samenstelling van AH; handmatige keuzes bij dezelfde regeltekst blijven staan."""
     manual = {i.get("text"): i for i in old if i.get("manual")}
@@ -89,12 +125,15 @@ def _merge_ingredients(old: list[dict], new: list[dict]) -> list[dict]:
 
 
 async def sync(db: Session) -> dict:
-    STATUS.update(running=True, done=0, total=0, new=0, updated=0, archived=0, error=None, finished=None)
+    STATUS.update(running=True, done=0, total=0, new=0, updated=0, archived=0, merged=0, error=None, finished=None)
     try:
         recipes = await pack_recipes()
         packs = await current_packs()
         STATUS["total"] = len(recipes)
-        existing = {r.ah_recipe_id: r for r in db.execute(select(Recipe).where(Recipe.ah_recipe_id.is_not(None))).scalars()}
+        all_recipes = db.execute(select(Recipe)).scalars().all()
+        existing = {r.ah_recipe_id: r for r in all_recipes if r.ah_recipe_id}
+        by_name = {name_key(r.name): r for r in all_recipes if "verspakket" in r.name.lower()}
+        seen_names: set[str] = set()
         for item in recipes:
             try:
                 data = convert_ah_recipe(await ah_client.get_recipe(item["id"]))
@@ -104,7 +143,11 @@ async def sync(db: Session) -> dict:
                 continue
             idx = pack_line(data["ingredients"])
             pack = best_pack(data["ingredients"][idx]["text"], packs, data["name"]) if idx is not None else None
-            recipe = existing.get(item["id"])
+            recipe = existing.get(item["id"]) or by_name.get(name_key(data["name"]))
+            if name_key(data["name"]) in seen_names:  # AH heeft hetzelfde recept soms twee keer
+                STATUS["done"] += 1
+                continue
+            seen_names.add(name_key(data["name"]))
             if not pack:  # niet (meer) leverbaar
                 if recipe and recipe.collection == COLLECTION and not recipe.archived:
                     recipe.archived = True
@@ -122,6 +165,7 @@ async def sync(db: Session) -> dict:
                 recipe.ingredients = ings
                 recipe.instructions = data["instructions"]
                 db.add(recipe)
+                by_name[name_key(data["name"])] = recipe
                 STATUS["new"] += 1
             else:
                 recipe.ingredients = _merge_ingredients(recipe.ingredients, ings)
@@ -131,6 +175,7 @@ async def sync(db: Session) -> dict:
                 STATUS["updated"] += 1
             db.commit()
             STATUS["done"] += 1
+        STATUS["merged"] = dedupe(db)
         from app.api.routes import _set_setting
 
         _set_setting(db, "packs_synced_on", str(date.today()))
