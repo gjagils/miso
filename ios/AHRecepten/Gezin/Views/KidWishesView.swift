@@ -64,9 +64,24 @@ struct KidWishesView: View {
                                 Text(day.date == KiezenDates.today ? "Vandaag" : KiezenDates.label(day.date))
                                     .font(.system(.body, design: .rounded).weight(.bold))
                                     .frame(width: 110, alignment: .leading)
-                                Text(day.text).foregroundStyle(day.text == "nog niks" ? .secondary : Color.misoBlue)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    if day.items.isEmpty {
+                                        Text("nog niks").foregroundStyle(.secondary)
+                                    }
+                                    ForEach(day.items) { item in
+                                        // Tik op een recept: ingrediënten en bereiding (alleen lezen).
+                                        if let recipe = item.recipe, item.kind == .recipe {
+                                            NavigationLink(value: recipe) {
+                                                Text(RecipeDisplayName.short(item.title)).underline()
+                                            }
+                                            .foregroundStyle(Color.misoBlue)
+                                        } else {
+                                            Text(RecipeDisplayName.short(item.title)).foregroundStyle(Color.misoBlue)
+                                        }
+                                    }
+                                }
                             }
-                            .accessibilityElement(children: .combine)
+                            .frame(minHeight: 32)
                         }
                     }
                     .misoCard(padding: 12)
@@ -91,40 +106,49 @@ struct KidWishesView: View {
         Text("Jouw favorieten").font(.misoHeadline).foregroundStyle(Color.misoBlue)
             .accessibilityAddTraits(.isHeader)
         if model.favorites.isEmpty && model.loaded {
-            Text("Nog geen favorieten. Open een recept bij Recepten en tik ♥ Favoriet.")
+            Text("Nog geen favorieten. Tik ♥ bij een recept, of kies hieronder iets wat het gezin lekker vindt.")
                 .font(.callout).foregroundStyle(.secondary)
         } else {
             Text("Tik er een aan, dan zien papa en mama dat je die graag wilt.")
                 .font(.callout).foregroundStyle(.secondary)
-            LazyVGrid(columns: columns, spacing: 12) {
-                ForEach(model.favorites) { recipe in
-                    let sent = model.sentRecipeIDs.contains(recipe.id)
-                    Button {
-                        send(WishBody(recipeId: recipe.id))
-                    } label: {
-                        VStack(alignment: .leading, spacing: 6) {
-                            RecipeImage(path: recipe.imageUrl, size: 140)
-                                .frame(maxWidth: .infinity)
-                            Text(recipe.displayName)
-                                .font(.system(.subheadline, design: .rounded).weight(.bold))
-                                .foregroundStyle(Color.misoBlue)
-                                .multilineTextAlignment(.leading)
-                                .lineLimit(2)
-                            Text(sent ? "✓ doorgegeven" : "♥ jouw favoriet")
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(sent ? Color.misoBlue : Color.misoOrange)
-                        }
-                        .padding(10)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(sent ? Color.misoMint : Color.misoCard, in: .rect(cornerRadius: 18))
-                        .contentShape(.rect(cornerRadius: 18))
+            cards(model.favorites, caption: "♥ jouw favoriet")
+        }
+        if !model.familyFavorites.isEmpty {
+            Text("Lekker volgens het gezin").font(.misoHeadline).foregroundStyle(Color.misoBlue)
+                .accessibilityAddTraits(.isHeader)
+            cards(model.familyFavorites, caption: nil)
+        }
+    }
+
+    private func cards(_ recipes: [RecipeSummary], caption: String?) -> some View {
+        LazyVGrid(columns: columns, spacing: 12) {
+            ForEach(recipes) { recipe in
+                let sent = model.sentRecipeIDs.contains(recipe.id)
+                Button {
+                    send(WishBody(recipeId: recipe.id))
+                } label: {
+                    VStack(alignment: .leading, spacing: 6) {
+                        RecipeImage(path: recipe.imageUrl, size: 140)
+                            .frame(maxWidth: .infinity)
+                        Text(recipe.displayName)
+                            .font(.system(.subheadline, design: .rounded).weight(.bold))
+                            .foregroundStyle(Color.misoBlue)
+                            .multilineTextAlignment(.leading)
+                            .lineLimit(2)
+                        Text(sent ? "✓ doorgegeven" : caption ?? "♥ \(recipe.fansText)")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(sent ? Color.misoBlue : Color.misoOrange)
                     }
-                    .buttonStyle(.plain)
-                    .disabled(model.sending || sent)
-                    .accessibilityLabel(recipe.displayName)
-                    .accessibilityValue(sent ? "doorgegeven" : "")
-                    .accessibilityHint(sent ? "" : "Geeft door dat je dit graag wilt eten")
+                    .padding(10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(sent ? Color.misoMint : Color.misoCard, in: .rect(cornerRadius: 18))
+                    .contentShape(.rect(cornerRadius: 18))
                 }
+                .buttonStyle(.plain)
+                .disabled(model.sending || sent)
+                .accessibilityLabel(recipe.displayName)
+                .accessibilityValue(sent ? "doorgegeven" : "")
+                .accessibilityHint(sent ? "" : "Geeft door dat je dit graag wilt eten")
             }
         }
     }

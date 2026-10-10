@@ -54,12 +54,6 @@ struct PlannenView: View {
                                                 onPlace: placeWish, onToList: wishToList, onDone: wishDone,
                                                 onDismissMessage: model.dismissWishMessage)
                         }
-                        if model.step == .wishes, let status = listStatus.status,
-                           status.week == model.week,
-                           status.showsCard(hasPlanned: model.days.contains { !$0.taken.isEmpty }) {
-                            ListStatusCard(status: status, syncing: listStatus.syncing, checking: listStatus.checking,
-                                           message: listStatus.message, onSync: syncList, onCheck: checkList)
-                        }
                         switch model.step {
                         case .wishes: wishesStep
                         case .proposal: proposalStep
@@ -171,6 +165,12 @@ struct PlannenView: View {
             }
             .padding(.horizontal, 4)
         }
+        // Na de dagen: hoe staat het met de boodschappen van wat er al gepland is?
+        if let status = listStatus.status, status.week == model.week,
+           status.showsCard(hasPlanned: model.days.contains { !$0.taken.isEmpty }) {
+            ListStatusCard(status: status, syncing: listStatus.syncing, checking: listStatus.checking,
+                           message: listStatus.message, onSync: syncList, onCheck: checkList)
+        }
         Button(action: openKiezen) {
             Label("Zelf recepten kiezen (ook Allerhande en bonus)", systemImage: "magnifyingglass")
                 .font(.system(.subheadline, design: .rounded).weight(.semibold))
@@ -202,7 +202,8 @@ struct PlannenView: View {
                 }
             }
             if let outcome = model.applyOutcome {
-                ApplyResultCard(outcome: outcome, week: model.week, onOpenSettings: openSettings, onDone: finish)
+                ApplyResultCard(outcome: outcome, week: model.week, onOpenSettings: openSettings, onDone: finish,
+                                onCookToday: selection.days.contains { $0.date == KiezenDates.today } ? cookToday : nil)
             }
             ForEach(selection.days) { day in
                 ProposalDayCard(day: day, chosen: selection.chosen(for: day),
@@ -422,6 +423,12 @@ struct PlannenView: View {
     private func finish() {
         guard let api = session.api else { return }
         Task { await model.finish(api: api) }
+    }
+
+    /// Vandaag opnieuw gekozen ("Iets snellers"): terug naar Vandaag om te koken.
+    private func cookToday() {
+        finish()
+        router.tab = .today
     }
 
     private func openSettings() {

@@ -14,6 +14,9 @@ struct TodayView: View {
     @State private var pendingIdea: TodaySuggestion?
     @State private var confirmingIdea = false
     @State private var startingCook = false
+    /// "Verplaats naar morgen" terwijl morgen al iets staat: eerst vragen.
+    @State private var pendingMove: PlanItem?
+    @State private var confirmingMove = false
 
     var body: some View {
         NavigationStack {
@@ -24,11 +27,11 @@ struct TodayView: View {
                     }
                     yesterday
                     tonight
-                    QuickWishCard(text: $wishText, sending: model.sendingWish, message: model.wishMessage,
-                                  onSend: sendWish)
                     if model.loaded {
                         upcoming
                     }
+                    QuickWishCard(text: $wishText, sending: model.sendingWish, message: model.wishMessage,
+                                  onSend: sendWish)
                     if family.isParent {
                         NextWeekBanner(model: nextWeek, onPlan: planNextWeek)
                     }
@@ -69,6 +72,13 @@ struct TodayView: View {
             .fullScreenCover(item: $cookRecipe) { recipe in
                 CookView(recipe: recipe, persons: cookPersons(for: recipe))
             }
+            .confirmationDialog(moveTitle, isPresented: $confirmingMove, titleVisibility: .visible,
+                                presenting: pendingMove) { item in
+                Button("Toch verplaatsen") { move(item) }
+                Button("Annuleer", role: .cancel) {}
+            } message: { _ in
+                Text("Dan staan er morgen twee gerechten. Haal er later eentje weg bij Plannen.")
+            }
             .confirmationDialog(ideaTitle, isPresented: $confirmingIdea, titleVisibility: .visible,
                                 presenting: pendingIdea) { idea in
                 Button("Dit koken we") { plan(idea) }
@@ -85,9 +95,9 @@ struct TodayView: View {
     @ViewBuilder private var tonight: some View {
         if let main = model.mainItem {
             TodayHeroCard(item: main, recipe: model.todayRecipe, starting: startingCook, hints: model.hints,
-                          moving: model.moving, onCook: startCooking,
+                          moving: model.moving, alwaysCook: family.isKid, onCook: startCooking,
                           onQuicker: family.isParent ? quicker : nil,
-                          onMove: family.isParent && main.isEditable ? { move(main) } : nil)
+                          onMove: family.isParent && main.isEditable ? { askMove(main) } : nil)
             ForEach(model.otherTodayItems) { item in
                 UpcomingDayRow(title: "Ook vandaag", items: [item])
             }
@@ -184,6 +194,20 @@ struct TodayView: View {
 
     private func quicker() {
         router.replanDay(model.today, wish: .snel)
+    }
+
+    private var moveTitle: String {
+        let tomorrow = model.upcoming.first?.items.map { RecipeDisplayName.short($0.title) } ?? []
+        return "Morgen staat al \(tomorrow.joined(separator: ", "))"
+    }
+
+    private func askMove(_ item: PlanItem) {
+        if model.upcoming.first?.items.contains(where: { $0.kind != .leftover || $0.sourceEntryId != item.entryId }) == true {
+            pendingMove = item
+            confirmingMove = true
+        } else {
+            move(item)
+        }
     }
 
     private func move(_ item: PlanItem) {

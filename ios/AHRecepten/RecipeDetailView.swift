@@ -22,6 +22,8 @@ struct RecipeDetailView: View {
     @State private var savingFlags = false
     @State private var wishing = false
     @State private var wishMessage: String?
+    /// Ik heb dit recept al als wens doorgegeven (nog open).
+    @State private var wishSent = false
 
     private var isKid: Bool { family.isKid }
     private var favoriteOn: Bool { recipe.map { family.isMine(fans: $0.fans, fallback: $0.isFavorite) } ?? false }
@@ -276,9 +278,15 @@ struct RecipeDetailView: View {
     /// "Ik wil dit graag": wens voor het gezin (ouders zien hem bovenaan Plannen).
     private var wishButton: some View {
         Button(action: sendWish) {
-            if wishing { ProgressView() } else { Label("Ik wil dit graag", systemImage: "hand.raised") }
+            if wishing {
+                ProgressView()
+            } else if wishSent {
+                Label("Al doorgegeven", systemImage: "checkmark")
+            } else {
+                Label("Ik wil dit graag", systemImage: "hand.raised")
+            }
         }
-        .disabled(wishing || recipe == nil)
+        .disabled(wishing || wishSent || recipe == nil)
     }
 
     private func sendWish() {
@@ -288,6 +296,7 @@ struct RecipeDetailView: View {
             defer { wishing = false }
             do {
                 let result = try await api.addWish(WishBody(recipeId: recipeID))
+                if result.ok { wishSent = true }
                 wishMessage = result.ok ? (isKid ? "Doorgegeven! Papa en mama zien je wens bij het plannen."
                                                  : "Doorgegeven! Het staat bij Plannen onder Wensen van het gezin.")
                                         : (result.error ?? "Dat lukte niet.")
@@ -392,6 +401,10 @@ struct RecipeDetailView: View {
             let result = try await api.recipe(id: recipeID)
             recipe = result
             errorText = nil
+            let me = session.memberID
+            if let wishes = try? await api.familyWishes() {
+                wishSent = wishes.contains { $0.recipeId == recipeID && $0.memberId == me && !me.isEmpty }
+            }
         } catch {
             errorText = error.localizedDescription
         }

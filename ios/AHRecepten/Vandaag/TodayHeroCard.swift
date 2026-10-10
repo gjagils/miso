@@ -10,6 +10,8 @@ struct TodayHeroCard: View {
     /// Eerlijke tijd en "zet eerst de oven aan" (uit de bereiding).
     var hints: CookHints?
     var moving = false
+    /// Kind: altijd de kookmodus (ook bij "uit mijn hoofd": dat weet papa of mama, niet per se jij).
+    var alwaysCook = false
     let onCook: () -> Void
     /// "Iets snellers": Plannen voor vandaag met de wens "snel" (vervangt pas bij bevestigen). nil = kind.
     var onQuicker: (() -> Void)?
@@ -17,7 +19,7 @@ struct TodayHeroCard: View {
     var onMove: (() -> Void)?
 
     private var isRecipe: Bool { item.kind == .recipe && item.recipeId != nil }
-    private var byHeart: Bool { recipe?.isByHeart ?? false }
+    private var byHeart: Bool { !alwaysCook && (recipe?.isByHeart ?? false) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -44,6 +46,11 @@ struct TodayHeroCard: View {
             }
             .accessibilityElement(children: .combine)
             .accessibilityAddTraits(.isHeader)
+            if isRecipe, let ready = hints?.readyText(startingAt: .now) {
+                Label(ready, systemImage: "clock")
+                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                    .foregroundStyle(Color.misoBlue)
+            }
             if isRecipe, let oven = hints?.ovenText {
                 Label(oven, systemImage: "flame")
                     .font(.system(.subheadline, design: .rounded).weight(.semibold))

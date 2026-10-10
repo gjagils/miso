@@ -163,4 +163,14 @@ struct FamilyTests {
         #expect(next.current == nil)
         #expect(next.isKid)
     }
+
+    @Test func familyFavoritesForKidWithoutOwn() {
+        func r(_ id: Int, _ fans: [String], archived: Bool = false) -> RecipeSummary {
+            RecipeSummary(id: id, name: "R\(id)", servings: "", totalTime: "", imageUrl: "", gfMode: .none,
+                          favorite: true, archived: archived, fans: fans)
+        }
+        let list = [r(1, ["G"]), r(2, ["G", "N", "S"]), r(3, ["H"]), r(4, ["N"], archived: true), r(5, [])]
+        #expect(KidWishesModel.others(list, initial: "H").map(\.id) == [2, 1])
+        #expect(KidWishesModel.others(list, initial: nil).isEmpty)
+    }
 }

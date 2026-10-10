@@ -7,6 +7,9 @@ import Observation
 @Observable
 final class KidWishesModel {
     private(set) var favorites: [RecipeSummary] = []
+    /// Favorieten van de rest van het gezin: ook met één tik door te geven (handig als je zelf nog geen
+    /// favorieten hebt).
+    private(set) var familyFavorites: [RecipeSummary] = []
     private(set) var myWishes: [FamilyWish] = []
     private(set) var menu: [PlanItem] = []
     private(set) var loaded = false
@@ -19,7 +22,9 @@ final class KidWishesModel {
         async let favs = try? api.recipes(filter: .favorites)
         async let wishes = try? api.familyWishes()
         async let plan = try? api.planEntries(start: KiezenDates.today, days: 7)
-        favorites = Self.mine(await favs ?? [], initial: me?.initial)
+        let allFavorites = await favs ?? []
+        favorites = Self.mine(allFavorites, initial: me?.initial)
+        familyFavorites = Self.others(allFavorites, initial: me?.initial)
         let all = await wishes ?? []
         myWishes = all.filter { $0.memberId == me?.id }
         sentRecipeIDs = Set(myWishes.compactMap(\.recipeId))
@@ -32,6 +37,15 @@ final class KidWishesModel {
         recipes.filter { r in
             !(r.archived ?? false) && (initial.map { (r.fans ?? []).contains($0) } ?? r.isFavorite)
         }
+    }
+
+    /// Favorieten van anderen in het gezin (meeste fans eerst), hooguit acht.
+    static func others(_ recipes: [RecipeSummary], initial: String?) -> [RecipeSummary] {
+        guard let initial else { return [] }
+        let list = recipes.filter { r in
+            !(r.archived ?? false) && !(r.fans ?? []).isEmpty && !(r.fans ?? []).contains(initial)
+        }
+        return Array(list.sorted { ($0.fans?.count ?? 0) > ($1.fans?.count ?? 0) }.prefix(8))
     }
 
     /// Geeft true als het doorgegeven is.
@@ -66,11 +80,10 @@ final class KidWishesModel {
     }
 
     /// Menu per dag, vandaag en de zes dagen erna.
-    var days: [(date: String, text: String)] {
+    var days: [(date: String, items: [PlanItem])] {
         (0..<7).map { offset in
             let date = KiezenDates.add(KiezenDates.today, offset)
-            let titles = menu.filter { $0.date == date }.map { RecipeDisplayName.short($0.title) }
-            return (date, titles.isEmpty ? "nog niks" : titles.joined(separator: ", "))
+            return (date, menu.filter { $0.date == date })
         }
     }
 }

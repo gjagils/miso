@@ -80,4 +80,14 @@ struct CookLogicTests {
         #expect(RecipeDisplayName.isPack("AH verspakket shakshuka"))
         #expect(!RecipeDisplayName.isPack("Lasagne"))
     }
+
+    @Test func readyTimeFromNow() {
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = TimeZone(identifier: "Europe/Amsterdam")!
+        let start = cal.date(from: DateComponents(year: 2026, month: 10, day: 12, hour: 17, minute: 45))!
+        let h = CookHints(minutes: 55, ovenMinutes: 30, ovenTemperature: "200", longer: true)
+        #expect(h.readyText(startingAt: start, calendar: cal) == "Klaar rond 18:40 als je nu begint")
+        #expect(CookHints(minutes: nil, ovenMinutes: nil, ovenTemperature: nil, longer: false)
+            .readyText(startingAt: start, calendar: cal) == nil)
+    }
 }

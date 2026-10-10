@@ -64,6 +64,13 @@ struct CookHints: Equatable, Sendable {
         return "± \(minutes) min" + (ovenMinutes.map { " (oven \($0) min)" } ?? "")
     }
 
+    /// "Klaar rond 18:40 als je nu begint" (nil als de tijd onbekend is).
+    func readyText(startingAt start: Date, calendar: Calendar = .current) -> String? {
+        guard let minutes, let end = calendar.date(byAdding: .minute, value: minutes, to: start) else { return nil }
+        let parts = calendar.dateComponents([.hour, .minute], from: end)
+        return String(format: "Klaar rond %d:%02d als je nu begint", parts.hour ?? 0, parts.minute ?? 0)
+    }
+
     /// "Zet eerst de oven op 200 °C"
     var ovenText: String? {
         ovenTemperature.map { "Zet eerst de oven op \($0) °C" }
