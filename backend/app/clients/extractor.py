@@ -242,7 +242,7 @@ async def suggest_gluten_free(name: str, ingredient_texts: list[str]) -> dict:
     listing = "\n".join(f"{i}: {t}" for i, t in enumerate(ingredient_texts))
     client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
     message = await client.messages.create(
-        model=settings.anthropic_model,
+        model=settings.anthropic_model_fast,  # glutenvrij-voorstel: snel/goedkoop niveau
         max_tokens=2000,
         system=GF_PROMPT,
         messages=[{"role": "user", "content": f"Recept: {name}\n\nIngrediënten:\n{listing}"}],

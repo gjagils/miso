@@ -21,6 +21,7 @@ def _summary(r: Recipe) -> dict:
     return {
         "id": r.id, "name": r.name, "servings": r.servings, "total_time": r.total_time,
         "image_url": r.image_url, "gf_mode": r.gf_mode,
+        "favorite": bool(r.favorite), "by_heart": bool(r.by_heart), "archived": bool(r.archived),
     }
 
 
@@ -45,11 +46,83 @@ async def api_login(payload: LoginPayload):
 
 
 @router.get("/recipes")
-async def api_recipes(q: str = "", db: Session = Depends(get_db)):
+async def api_recipes(q: str = "", filter: str = "", db: Session = Depends(get_db)):
+    """filter: "" (alles behalve opgeruimd), "favorites", "by_heart", "archived"."""
     query = select(Recipe).order_by(Recipe.name)
     if q.strip():
         query = query.where(Recipe.name.ilike(f"%{q.strip()}%"))
+    query = query.where(Recipe.archived.is_(filter == "archived"))
+    if filter == "favorites":
+        query = query.where(Recipe.favorite.is_(True))
+    elif filter == "by_heart":
+        query = query.where(Recipe.by_heart.is_(True))
     return {"recipes": [_summary(r) for r in db.execute(query).scalars()]}
+
+
+class RecipeFlags(BaseModel):
+    favorite: bool | None = None
+    archived: bool | None = None
+    by_heart: bool | None = None
+    reviewed: bool | None = None  # "bewaren" in de opruimlijst: een half jaar niet meer vragen
+
+
+@router.patch("/recipes/{recipe_id}/flags")
+async def api_recipe_flags(recipe_id: int, payload: RecipeFlags, db: Session = Depends(get_db)):
+    r = db.get(Recipe, recipe_id)
+    if not r:
+        raise HTTPException(404, "Recept niet gevonden")
+    for field in ("favorite", "archived", "by_heart"):
+        value = getattr(payload, field)
+        if value is not None:
+            setattr(r, field, value)
+    if payload.reviewed:
+        r.reviewed_on = str(date.today())
+    db.commit()
+    return {"ok": True, "recipe": _summary(r)}
+
+
+class Feedback(BaseModel):
+    rating: str  # "up" | "down"
+
+
+@router.post("/recipes/{recipe_id}/feedback")
+async def api_recipe_feedback(recipe_id: int, payload: Feedback, db: Session = Depends(get_db)):
+    """'Lekker?' na het koken. Telt ook als gekookt."""
+    from app.usage import mark_cooked
+
+    r = db.get(Recipe, recipe_id)
+    if not r:
+        raise HTTPException(404, "Recept niet gevonden")
+    if payload.rating not in ("up", "down"):
+        return JSONResponse({"ok": False, "error": "Kies 👍 of 👎."}, status_code=400)
+    if payload.rating == "up":
+        r.thumbs_up = (r.thumbs_up or 0) + 1
+    else:
+        r.thumbs_down = (r.thumbs_down or 0) + 1
+    mark_cooked(r)
+    db.commit()
+    return {"ok": True, "thumbs_up": r.thumbs_up, "thumbs_down": r.thumbs_down}
+
+
+@router.post("/recipes/{recipe_id}/cooked")
+async def api_recipe_cooked(recipe_id: int, db: Session = Depends(get_db)):
+    """Kookmodus gestart: telt als gekookt (één keer per dag)."""
+    from app.usage import mark_cooked
+
+    r = db.get(Recipe, recipe_id)
+    if not r:
+        raise HTTPException(404, "Recept niet gevonden")
+    mark_cooked(r)
+    db.commit()
+    return {"ok": True, "cooked": r.cooked_count}
+
+
+@router.get("/recipes-review")
+async def api_recipes_review(db: Session = Depends(get_db)):
+    """Opruimlijst: nooit/lang niet gekozen recepten, met reden en gebruik."""
+    from app.usage import review_list
+
+    return review_list(db)
 
 
 @router.get("/recipes/{recipe_id}")
@@ -61,6 +134,7 @@ async def api_recipe(recipe_id: int, db: Session = Depends(get_db)):
     return {
         **_summary(r),
         "description": r.description,
+        "cooked_count": r.cooked_count, "thumbs_up": r.thumbs_up, "thumbs_down": r.thumbs_down,
         "source_url": r.source_url,
         "gf_note": r.gf_note,
         "instructions": r.instructions,

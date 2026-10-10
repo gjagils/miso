@@ -11,6 +11,17 @@ from app.logging_config import logger
 
 # tabel -> {kolom: SQL-definitie voor ALTER TABLE ... ADD COLUMN}
 COLUMNS: dict[str, dict[str, str]] = {
+    "recipes": {
+        "favorite": "BOOLEAN NOT NULL DEFAULT 0",
+        "archived": "BOOLEAN NOT NULL DEFAULT 0",
+        "by_heart": "BOOLEAN NOT NULL DEFAULT 0",
+        "thumbs_up": "INTEGER NOT NULL DEFAULT 0",
+        "thumbs_down": "INTEGER NOT NULL DEFAULT 0",
+        "cooked_count": "INTEGER NOT NULL DEFAULT 0",
+        "last_cooked": "VARCHAR(10)",
+        "swapped_count": "INTEGER NOT NULL DEFAULT 0",
+        "reviewed_on": "VARCHAR(10)",
+    },
     "plan_entries": {
         "kind": "VARCHAR(10) NOT NULL DEFAULT 'recipe'",
         "persons": "INTEGER",

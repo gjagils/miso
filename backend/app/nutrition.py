@@ -66,7 +66,7 @@ async def estimate_profile(recipe: Recipe) -> dict:
     lines = "\n".join(f"- {i.get('text', '')}" for i in recipe.ingredients if i.get("text"))
     client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
     message = await client.messages.create(
-        model=settings.anthropic_model,
+        model=settings.anthropic_model_fast,  # korte JSON-taak: snel/goedkoop niveau
         max_tokens=2000,
         system=PROFILE_PROMPT,
         messages=[{"role": "user", "content": f"Recept: {recipe.name}\nPersonen: {recipe.servings or 'onbekend'}\n"
@@ -151,7 +151,7 @@ def analyze_week(planned: list[tuple[str, dict | None]], leftover_days: int = 0)
 
 
 def suggest_week(planned: list[dict], candidates: list[tuple[Recipe, dict]], empty_days: list[str],
-                 recent_ids: set[int] | None = None) -> list[dict]:
+                 recent_ids: set[int] | None = None, prefs: dict[int, float] | None = None) -> list[dict]:
     """Vul lege dagen met recepten die de week gevarieerd en gezond maken (greedy)."""
     chosen: list[dict] = []
     used = {p.get("recipe_id") for p in planned} | (recent_ids or set())
@@ -162,6 +162,7 @@ def suggest_week(planned: list[dict], candidates: list[tuple[Recipe, dict]], emp
             if recipe.id in used:
                 continue
             s = prof["score"] * 10 + min(prof["groente_g"], 250) / 10
+            s += 0.6 * (prefs or {}).get(recipe.id, 0)  # favorieten, 👍, vaak gekozen (app/usage.py)
             s -= abs(prof["kcal"] - 600) / 25  # rond 600 kcal per persoon
             same = lambda key: sum(1 for p in profs if p[key] == prof[key])
             s -= 12 * same("basis") + 10 * same("eiwit") + 6 * same("keuken")

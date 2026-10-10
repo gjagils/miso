@@ -114,16 +114,33 @@ async def today_page(request: Request, db: Session = Depends(get_db)):
 
 
 @router.get("/recepten", response_class=HTMLResponse)
-async def recipes_page(request: Request, foto: str = "", db: Session = Depends(get_db)):
-    recipes = db.execute(select(Recipe).order_by(Recipe.name)).scalars().all()
+async def recipes_page(request: Request, foto: str = "", filter: str = "", db: Session = Depends(get_db)):
+    every = db.execute(select(Recipe).order_by(Recipe.name)).scalars().all()
+    recipes = [r for r in every if not r.archived]
     without_photo = [r for r in recipes if not r.image_url]
     missing = sum(1 for r in recipes for i in r.ingredients
                   if not (i.get("skip") or i.get("auto_skip") or (i.get("product") or {}).get("id")))
+    shown = recipes
+    if filter == "favorieten":
+        shown = [r for r in recipes if r.favorite]
+    elif filter == "uit-het-hoofd":
+        shown = [r for r in recipes if r.by_heart]
+    elif filter == "opgeruimd":
+        shown = [r for r in every if r.archived]
     return templates.TemplateResponse(
         request, "recipes.html",
-        {"recipes": without_photo if foto == "nee" else recipes, "no_photo_filter": foto == "nee",
+        {"recipes": without_photo if foto == "nee" else shown, "no_photo_filter": foto == "nee", "filter": filter,
+         "counts": {"favorieten": sum(r.favorite for r in recipes), "uit-het-hoofd": sum(r.by_heart for r in recipes),
+                    "opgeruimd": sum(r.archived for r in every)},
          "no_photo_count": len(without_photo), "missing_count": missing, "has_api_key": bool(settings.anthropic_api_key)},
     )
+
+
+@router.get("/recepten/opruimen", response_class=HTMLResponse)
+async def review_page(request: Request, db: Session = Depends(get_db)):
+    from app.usage import review_list
+
+    return templates.TemplateResponse(request, "review.html", review_list(db))
 
 
 @router.get("/login", response_class=HTMLResponse)

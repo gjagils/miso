@@ -11,6 +11,18 @@ Nu zit dat verspreid over Vandaag, Wat eten we?, Weekmenu en Recepten. "Wat eten
 kiezen, in te plannen en de boodschappen te doen. "Recepten" is je bibliotheek: bladeren, importeren, bewerken en
 koken. Voor de gebruiker voelt dat als twee keer hetzelfde.
 
+## Besluiten (10 oktober)
+
+- **Doordeweeks (ma-vr) is de focus van Plannen.** Het weekend kan wel, maar staat ingeklapt: dan hebben we vaak
+  restjes of halen we iets bij de supermarkt.
+- **Kritisch opruimen:** de pagina Recepten → Opruimen toont recepten die nooit (of al een half jaar niet) gekozen
+  zijn terwijl er wel veel gepland wordt. Per recept: Bewaren (een half jaar niet meer vragen), Uit mijn hoofd, of
+  Opruimen (verdwijnt uit lijsten en voorstellen, terug te halen bij Opgeruimd).
+- **"Ken ik uit mijn hoofd":** het recept blijft voor de ingrediënten en boodschappen, zonder kookmodus.
+- **Claude:** twee niveaus in plaats van vaste modellen. "Slim" (`ANTHROPIC_MODEL`, nu Sonnet 5.5) voor het uitlezen
+  van recepten. "Snel" (`ANTHROPIC_MODEL_FAST`, nu Haiku 4.5) voor korte JSON-taken: gezondheidsprofiel,
+  glutenvrij en wensen per dag.
+
 ## Nieuwe indeling
 
 | Tab | Vraag | Wat je ziet |
@@ -95,7 +107,7 @@ De voorstellen sorteren hierop, en Recepten krijgt de filters "Favorieten" en "A
 
 | Stap | Wat | Omvang |
 |---|---|---|
-| 1 | Favorieten en gebruik bijhouden (hartje, gekookt, 👍/👎) op web en iOS | klein |
+| 1 | Favorieten en gebruik bijhouden (hartje, gekookt, 👍/👎), Opruimen, Uit mijn hoofd: web klaar, iOS volgt | klein |
 | 2 | Plannen met wensen per dag (chips + voorstel + wisselen + één knop), web | middel |
 | 3 | Hetzelfde in iOS, plus de zin-invoer met Claude | middel |
 | 4 | Tabs herindelen: Vandaag · Plannen · Recepten · Meer; "Wat eten we?" en "Weekmenu" gaan op in Plannen | middel |

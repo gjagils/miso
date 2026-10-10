@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Opruimen - Miso{% endblock %}
+{% block content %}
+<p class="breadcrumb"><a href="/recepten">Recepten</a> / Opruimen</p>
+<h1>Recepten opruimen</h1>
+<p class="muted">Jullie hebben {{ total_plans }} keer een recept gepland. Deze recepten kiezen jullie nooit of al lang niet.
+Bewaar ze, zet ze op "uit mijn hoofd" (alleen voor de boodschappen), of ruim ze op. Opgeruimde recepten verdwijnen uit
+lijsten en voorstellen en zijn terug te halen bij Recepten → Opgeruimd.</p>
+
+{% if recipes %}
+<ul class="review-list">
+{% for r in recipes %}
+<li class="review-item" data-id="{{ r.id }}">
+    {% if r.image_url %}<img src="{{ r.image_url }}" alt="" width="64" height="64" loading="lazy" referrerpolicy="no-referrer">{% else %}<span class="review-ph"></span>{% endif %}
+    <div class="review-main">
+        <a href="/recipe/{{ r.id }}"><strong>{{ r.name }}</strong></a>
+        <span class="muted">{{ r.reason }} · {{ r.planned }}× gepland · {{ r.cooked }}× gekookt{% if r.thumbs_up or r.thumbs_down %} · 👍 {{ r.thumbs_up }} 👎 {{ r.thumbs_down }}{% endif %}{% if r.last_eaten %} · laatst {{ r.last_eaten }}{% endif %}</span>
+    </div>
+    <div class="review-actions">
+        <button class="btn btn-sm" type="button" data-act="keep">Bewaren</button>
+        {% if not r.by_heart %}<button class="btn btn-sm" type="button" data-act="by_heart">Uit mijn hoofd</button>{% endif %}
+        <button class="btn btn-sm" type="button" data-act="archive">Opruimen</button>
+    </div>
+</li>
+{% endfor %}
+</ul>
+{% else %}
+<div class="empty-state"><img src="/static/miso/miso-celebrate.webp" alt="" width="140" height="140" loading="lazy"><h2>Alles netjes</h2><p>Er zijn geen recepten om op te ruimen.</p></div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+const BODY = {keep: {reviewed: true}, by_heart: {by_heart: true, reviewed: true}, archive: {archived: true}};
+document.querySelectorAll(".review-item [data-act]").forEach(btn => btn.onclick = async () => {
+    const item = btn.closest(".review-item");
+    item.style.opacity = 0.5;
+    const r = await fetch(`/api/recipes/${item.dataset.id}/flags`, {method: "PATCH", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(BODY[btn.dataset.act])}).then(x => x.json()).catch(() => ({}));
+    if (r.ok) item.remove(); else item.style.opacity = 1;
+});
+</script>
+{% endblock %}

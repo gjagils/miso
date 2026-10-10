@@ -10,8 +10,15 @@
 
 <p class="recipe-actions">
     <button class="btn btn-primary" type="button" id="plan-btn">Inplannen</button>
-    <a class="btn" href="/recipe/{{ recipe.id }}/koken">Kookmodus</a>
+    {% if not recipe.by_heart %}<a class="btn" href="/recipe/{{ recipe.id }}/koken">Kookmodus</a>{% endif %}
+    <button class="btn flag-btn" type="button" data-flag="favorite" aria-pressed="{{ 'true' if recipe.favorite else 'false' }}">♥ Favoriet</button>
+    <button class="btn flag-btn" type="button" data-flag="by_heart" aria-pressed="{{ 'true' if recipe.by_heart else 'false' }}"
+            title="Je kent de bereiding; Miso bewaart alleen de ingrediënten voor de boodschappen">Ken ik uit mijn hoofd</button>
+    <button class="btn flag-btn" type="button" data-flag="archived" aria-pressed="{{ 'true' if recipe.archived else 'false' }}"
+            title="Niet meer tonen in lijsten en voorstellen (terug te halen bij Recepten → Opgeruimd)">{{ 'Terugzetten' if recipe.archived else 'Opruimen' }}</button>
 </p>
+<p class="muted usage-line">{% if recipe.cooked_count %}{{ recipe.cooked_count }}× gekookt{% else %}Nog niet gekookt met Miso{% endif %}
+    {% if recipe.thumbs_up or recipe.thumbs_down %} · 👍 {{ recipe.thumbs_up }} · 👎 {{ recipe.thumbs_down }}{% endif %}</p>
 <p id="plan-msg" class="msg-ok" role="status" hidden></p>
 
 <details class="settings-section photo-edit">
@@ -66,6 +73,14 @@
 {% block scripts %}
 <script>
 const RECIPE_ID = {{ recipe.id }};
+document.querySelectorAll(".flag-btn").forEach(btn => btn.addEventListener("click", async () => {
+    const on = btn.getAttribute("aria-pressed") !== "true";
+    const r = await fetch(`/api/recipes/${RECIPE_ID}/flags`, {method: "PATCH", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({[btn.dataset.flag]: on})}).then(x => x.json()).catch(() => ({}));
+    if (!r.ok) return;
+    if (btn.dataset.flag === "favorite") btn.setAttribute("aria-pressed", String(on));
+    else location.reload();  // uit mijn hoofd / opruimen veranderen de pagina
+}));
 document.getElementById("photo-save").addEventListener("click", async () => {
     const status = document.getElementById("photo-status");
     const file = document.getElementById("photo-file").files[0];

@@ -60,9 +60,14 @@ async def week_suggest(payload: SuggestPayload, db: Session = Depends(get_db)):
     last_weeks = db.execute(select(PlanEntry.recipe_id).where(PlanEntry.date >= str(monday - timedelta(days=14)),
                                                               PlanEntry.date < str(monday),
                                                               PlanEntry.kind == "recipe")).scalars().all()
-    candidates = [(r, p) for r in db.execute(select(Recipe)).scalars() if (p := get_profile(db, r.id))]
+    from app.usage import plan_stats, preference_score
+
+    stats = plan_stats(db)
+    candidates = [(r, p) for r in db.execute(select(Recipe).where(Recipe.archived.is_(False))).scalars()
+                  if (p := get_profile(db, r.id))]
+    prefs = {r.id: preference_score(r, stats.get(r.id)) for r, _ in candidates}
     plan = [{"recipe_id": r.id, "profiel": get_profile(db, r.id)} for _, r in planned]
-    chosen = suggest_week(plan, candidates, empty, set(last_weeks))
+    chosen = suggest_week(plan, candidates, empty, set(last_weeks), prefs)
     missing = db.query(Recipe).count() - len(candidates)
     return {"ok": True, "voorstel": chosen, "zonder_profiel": missing,
             "analyse": analyze_week([(e.date, get_profile(db, r.id)) for e, r in planned] +

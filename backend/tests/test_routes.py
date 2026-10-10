@@ -436,3 +436,38 @@ def test_tokens_encrypted_with_miso_secret(db, monkeypatch):
 
     monkeypatch.setenv("MISO_SECRET", "andere-sleutel")
     assert routes._get_setting(db, "ah_user_token") == ""  # verkeerde sleutel: opnieuw koppelen
+
+
+def test_favorites_feedback_review_and_archive(db):
+    from datetime import date, timedelta
+
+    from app.models import PlanEntry
+    from app.usage import plan_stats, preference_score
+
+    fav = _recipe(db, "Lasagne", [])
+    never = _recipe(db, "Vergeten soep", [])
+    for i in range(5):
+        db.add(PlanEntry(date=str(date.today() - timedelta(days=30 + i)), kind="recipe", recipe_id=fav.id))
+    db.commit()
+    client = TestClient(app)
+    assert client.patch(f"/api/recipes/{fav.id}/flags", json={"favorite": True}).json()["recipe"]["favorite"]
+    assert client.post(f"/api/recipes/{fav.id}/feedback", json={"rating": "up"}).json()["thumbs_up"] == 1
+    assert client.post(f"/api/recipes/{fav.id}/cooked").json()["cooked"] == 1  # zelfde dag: niet dubbel
+    stats = plan_stats(db)
+    db.refresh(fav)
+    assert preference_score(fav, stats.get(fav.id)) > preference_score(never, stats.get(never.id))
+
+    review = client.get("/api/recipes-review").json()
+    assert review["total_plans"] == 5 and [r["name"] for r in review["recipes"]] == ["Vergeten soep"]
+    assert "Vergeten soep" in client.get("/recepten/opruimen").text
+    client.patch(f"/api/recipes/{never.id}/flags", json={"reviewed": True})
+    assert client.get("/api/recipes-review").json()["recipes"] == []  # bewaard: een half jaar niet vragen
+
+    client.patch(f"/api/recipes/{never.id}/flags", json={"archived": True})
+    names = [r["name"] for r in client.get("/api/recipes").json()["recipes"]]
+    assert names == ["Lasagne"]
+    assert [r["name"] for r in client.get("/api/recipes?filter=archived").json()["recipes"]] == ["Vergeten soep"]
+    assert "Vergeten soep" not in client.get("/recepten").text
+    assert "Vergeten soep" in client.get("/recepten?filter=opgeruimd").text
+    assert "Lasagne" in client.get("/recepten?filter=favorieten").text
+    assert "Lekker?" in client.get(f"/recipe/{fav.id}/koken").text
