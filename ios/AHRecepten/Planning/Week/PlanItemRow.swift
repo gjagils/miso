@@ -10,6 +10,8 @@ struct PlanItemRow: View {
     var onOpenRecipe: (() -> Void)?
     /// Personen aanpassen (alleen als de regel een `entry_id` heeft).
     var onPersons: ((Int) -> Void)?
+    /// Staan de boodschappen al op het AH-lijstje of in de bestelling?
+    var listBadge: ListStatusEntry?
 
     private var meta: String {
         var parts: [String] = []
@@ -32,7 +34,7 @@ struct PlanItemRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 if let onOpenRecipe {
                     Button(action: onOpenRecipe) {
-                        Text(item.title)
+                        Text(RecipeDisplayName.short(item.title))
                             .font(.system(.body, design: .rounded).weight(.semibold))
                             .foregroundStyle(Color.misoBlue)
                             .multilineTextAlignment(.leading)
@@ -47,6 +49,7 @@ struct PlanItemRow: View {
                 if !meta.isEmpty {
                     Text(meta).font(.misoCaption).foregroundStyle(.secondary)
                 }
+                if let listBadge { ListStatusBadge(entry: listBadge) }
                 if !item.extras.isEmpty {
                     PlanExtrasList(extras: item.extras)
                 }

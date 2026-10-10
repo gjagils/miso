@@ -31,7 +31,7 @@ struct UpcomingDayRow: View {
     private func row(_ item: PlanItem) -> some View {
         HStack(spacing: 10) {
             PlanItemThumbnail(item: item, size: 44)
-            Text(item.title)
+            Text(RecipeDisplayName.short(item.title))
                 .font(.system(.body, design: .rounded).weight(.semibold))
                 .foregroundStyle(Color.misoBlue)
                 .multilineTextAlignment(.leading)

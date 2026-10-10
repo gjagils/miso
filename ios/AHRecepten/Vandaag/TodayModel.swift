@@ -13,6 +13,28 @@ final class TodayModel {
     private(set) var loaded = false
     private(set) var errorText: String?
     private(set) var planningSuggestion: String?
+    /// Vandaag naar morgen verplaatsen is bezig.
+    private(set) var moving = false
+    private(set) var sendingWish = false
+    private(set) var wishMessage: String?
+    /// "Gisteren: … Lekker?" is beantwoord of weggeklikt (deze sessie).
+    private(set) var yesterdayDone = false
+    private(set) var yesterdayBusy = false
+    private(set) var yesterdayThanks: String?
+
+    var yesterday: String { KiezenDates.add(today, -1) }
+    var tomorrow: String { KiezenDates.add(today, 1) }
+
+    /// Recept van gisteren (voor "Lekker?").
+    var yesterdayItem: PlanItem? {
+        entries.first { $0.date == yesterday && $0.kind == .recipe && $0.recipeId != nil }
+    }
+
+    /// Eerlijke tijd en oven-hint uit de bereiding van vandaag.
+    var hints: CookHints? {
+        guard let recipe = todayRecipe, recipe.id == mainItem?.recipeId else { return nil }
+        return CookHints(instructions: recipe.instructions, totalTime: recipe.totalTime)
+    }
 
     var todayItems: [PlanItem] { entries.filter { $0.date == today } }
     /// Eerste recept van vandaag (koken), anders nil.
@@ -30,7 +52,8 @@ final class TodayModel {
     func load(api: API) async {
         today = KiezenDates.today
         do {
-            let result = try await api.planEntries(start: today, days: 3)
+            // Gisteren erbij voor "Lekker?" over gisteren.
+            let result = try await api.planEntries(start: KiezenDates.add(today, -1), days: 4)
             entries = result.entries
             errorText = nil
         } catch {
@@ -84,6 +107,70 @@ final class TodayModel {
             errorText = "Inplannen lukte niet. \(error.localizedDescription)"
             return false
         }
+    }
+
+    /// "Verplaats naar morgen". Geeft true als het gelukt is.
+    func moveToTomorrow(_ item: PlanItem, api: API) async -> Bool {
+        guard let id = item.entryId else { return false }
+        moving = true
+        defer { moving = false }
+        do {
+            let result = try await api.updatePlanEntry(id, PlanEntryPatchBody(date: tomorrow))
+            _ = result
+            await load(api: api)
+            return true
+        } catch {
+            errorText = "Verplaatsen lukte niet. \(error.localizedDescription)"
+            return false
+        }
+    }
+
+    /// "Zin in iets?": wens voor het gezin. Geeft true als het doorgegeven is.
+    func sendWish(_ text: String, api: API, isKid: Bool = false) async -> Bool {
+        let value = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !value.isEmpty else { return false }
+        sendingWish = true
+        defer { sendingWish = false }
+        do {
+            let result = try await api.addWish(WishBody(text: value))
+            let done = isKid ? "Doorgegeven! Papa en mama zien het bij het plannen." : "Doorgegeven! Het staat bij Plannen."
+            wishMessage = result.ok ? done : (result.error ?? "Dat lukte niet.")
+            return result.ok
+        } catch {
+            wishMessage = error.localizedDescription
+            return false
+        }
+    }
+
+    /// "Lekker?" over gisteren (per gezinslid; de header zegt wie).
+    func rateYesterday(_ rating: TasteRating?, favorite: Bool, member: String, api: API) async {
+        guard let item = yesterdayItem, let id = item.recipeId else { return }
+        yesterdayBusy = true
+        defer { yesterdayBusy = false }
+        do {
+            if let rating {
+                _ = try await api.sendFeedback(id, rating: rating)
+                yesterdayThanks = "Dank je! Miso onthoudt het."
+            }
+            if favorite {
+                _ = try await api.setRecipeFlags(id, RecipeFlagsBody(favorite: true))
+                yesterdayThanks = "♥ Bij je favorieten gezet. Dank je!"
+            }
+            RatedStore().mark(recipeID: id, date: yesterday, member: member)
+            yesterdayDone = true
+        } catch {
+            errorText = "Opslaan lukte niet. \(error.localizedDescription)"
+        }
+    }
+
+    func dismissYesterday(member: String) {
+        if let id = yesterdayItem?.recipeId { RatedStore().mark(recipeID: id, date: yesterday, member: member) }
+        yesterdayDone = true
+    }
+
+    func shouldAskYesterday(member: String) -> Bool {
+        guard !yesterdayDone, let id = yesterdayItem?.recipeId else { return false }
+        return RatedStore().shouldAsk(recipeID: id, yesterday: yesterday, today: today, member: member)
     }
 
     func report(_ message: String) {

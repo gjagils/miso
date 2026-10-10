@@ -22,7 +22,7 @@ struct TodaySuggestion: Identifiable, Equatable, Sendable {
         if !favs.isEmpty {
             favorite = favs[abs(dayNumber) % favs.count]
             if let favorite {
-                out.append(TodaySuggestion(id: "fav/\(favorite.id)", title: favorite.name,
+                out.append(TodaySuggestion(id: "fav/\(favorite.id)", title: favorite.displayName,
                                            subtitle: ["♥ Favoriet", favorite.totalTime].filter { !$0.isEmpty }
                                                .joined(separator: " · "),
                                            kind: .recipe(favorite)))
@@ -34,7 +34,7 @@ struct TodaySuggestion: Identifiable, Equatable, Sendable {
             .filter { (PlannenLogic.minutes($0.totalTime) ?? 999) <= 30 }
         if !quick.isEmpty {
             let pick = quick[abs(dayNumber) % quick.count]
-            out.append(TodaySuggestion(id: "quick/\(pick.id)", title: pick.name,
+            out.append(TodaySuggestion(id: "quick/\(pick.id)", title: pick.displayName,
                                        subtitle: ["Iets snels", pick.totalTime].filter { !$0.isEmpty }
                                            .joined(separator: " · "),
                                        kind: .recipe(pick)))

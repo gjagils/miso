@@ -4,6 +4,7 @@ import SwiftUI
 struct AHReceptenApp: App {
     @State private var session = Session()
     @State private var router = AppRouter()
+    @State private var family = FamilyModel(memberID: Session.defaults.string(forKey: Session.memberKey) ?? "")
     @AppStorage(Appearance.storageKey) private var appearance = Appearance.system
 
     init() {
@@ -38,6 +39,7 @@ struct AHReceptenApp: App {
             }
             .environment(session)
             .environment(router)
+            .environment(family)
             .tint(Color.misoOrange)
             .background(Color.misoCream)
             .preferredColorScheme(appearance.colorScheme)
@@ -58,8 +60,28 @@ extension AHReceptenApp {
 
 struct RootView: View {
     @Environment(AppRouter.self) private var router
+    @Environment(Session.self) private var session
+    @Environment(FamilyModel.self) private var family
 
     var body: some View {
+        Group {
+            if family.needsPick {
+                // Na het inloggen eerst: wie ben jij? (favorieten, wensen en de kinderweergave horen bij een persoon)
+                WhoView()
+            } else {
+                tabs
+            }
+        }
+        .task(id: session.token) { await loadFamily() }
+    }
+
+    private func loadFamily() async {
+        family.sync(memberID: session.memberID)
+        guard let api = session.api else { return }
+        await family.load(api: api)
+    }
+
+    @ViewBuilder private var tabs: some View {
         @Bindable var router = router
         // iOS 17 is het minimum, dus nog `tabItem` in plaats van de `Tab`-API (iOS 18+).
         TabView(selection: $router.tab) {
@@ -67,9 +89,22 @@ struct RootView: View {
                 .tabItem { Label("Vandaag", systemImage: "fork.knife") }
                 .tag(AppRouter.Tab.today)
             // Plannen vervangt "Wat eten we?"; zelf kiezen (ook Allerhande en bonus) zit daar achter een link.
-            PlannenView()
-                .tabItem { Label("Plannen", systemImage: "calendar.badge.plus") }
-                .tag(AppRouter.Tab.plannen)
+            // Kinderen plannen niet; ze geven door wat ze graag willen eten (zoals /plannen voor een kind).
+            Group {
+                if family.isKid {
+                    KidWishesView()
+                } else {
+                    PlannenView()
+                }
+            }
+            .tabItem {
+                if family.isKid {
+                    Label("Wensen", systemImage: "heart.text.square")
+                } else {
+                    Label("Plannen", systemImage: "calendar.badge.plus")
+                }
+            }
+            .tag(AppRouter.Tab.plannen)
             RecipesView()
                 .tabItem { Label("Recepten", systemImage: "book") }
                 .tag(AppRouter.Tab.recipes)

@@ -15,6 +15,8 @@ final class AppRouter {
     var kiezenWeek: String?
     /// Week die Plannen moet openen; leeg zodra Plannen hem oppakt.
     var plannenWeek: String?
+    /// Eén dag opnieuw kiezen met een wens (Vandaag → "Iets snellers"); leeg zodra Plannen hem oppakt.
+    var plannenRequest: PlannenRequest?
     /// Telt op als een recept is bewerkt, gekoppeld of verwijderd; lijsten die recepten tonen laden dan opnieuw.
     private(set) var recipesVersion = 0
     /// Telt op als er buiten het weekmenu iets is ingepland (receptdetail, vriezer).
@@ -26,6 +28,13 @@ final class AppRouter {
 
     func planChanged() {
         planVersion += 1
+    }
+
+    /// Opent Plannen voor `date` met `wish` en stelt meteen voor; wat er die dag staat, wordt pas
+    /// vervangen als je het nieuwe bevestigt.
+    func replanDay(_ date: String, wish: WishChip) {
+        plannenRequest = PlannenRequest(date: date, wish: wish)
+        tab = .plannen
     }
 
     /// Opent Plannen voor een bepaalde week (een datum in die week mag ook).

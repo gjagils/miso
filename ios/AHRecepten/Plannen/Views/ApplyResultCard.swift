@@ -7,6 +7,8 @@ struct ApplyResultCard: View {
     let week: String
     let onOpenSettings: () -> Void
     let onDone: () -> Void
+    /// Vandaag zit erbij: knop terug naar Vandaag om te koken.
+    var onCookToday: (() -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -22,7 +24,7 @@ struct ApplyResultCard: View {
             if outcome.success {
                 if outcome.unmatched > 0 {
                     NavigationLink {
-                        MissingView()
+                        MissingView(week: week)
                     } label: {
                         Label("\(plural(outcome.unmatched, "ingrediënt heeft", "ingrediënten hebben")) nog geen AH-product: kies ze",
                               systemImage: "cart.badge.questionmark")
@@ -44,6 +46,10 @@ struct ApplyResultCard: View {
                             .contentShape(.rect)
                     }
                     .buttonStyle(.plain)
+                }
+                if let onCookToday {
+                    Button("Naar Vandaag: start met koken", systemImage: "flame", action: onCookToday)
+                        .buttonStyle(.misoPrimary)
                 }
                 NavigationLink(value: WeekmenuRoute(week: week)) {
                     Label("Bekijk het weekmenu", systemImage: "list.bullet.rectangle")

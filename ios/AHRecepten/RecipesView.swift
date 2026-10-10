@@ -3,6 +3,7 @@ import SwiftUI
 struct RecipesView: View {
     @Environment(Session.self) private var session
     @Environment(AppRouter.self) private var router
+    @Environment(FamilyModel.self) private var family
     @State private var recipes: [RecipeSummary] = []
     @State private var search = ""
     @State private var filter: RecipeFilter = .all
@@ -42,13 +43,15 @@ struct RecipesView: View {
             .navigationDestination(for: RecipeSummary.self) { RecipeDetailView(recipeID: $0.id) }
             .navigationDestination(for: ReviewRoute.self) { _ in ReviewView() }
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    NavigationLink(value: ReviewRoute()) {
-                        Label("Opruimen", systemImage: "archivebox")
-                            .frame(minHeight: 44)
-                            .contentShape(.rect)
+                if family.isParent {
+                    ToolbarItem(placement: .topBarLeading) {
+                        NavigationLink(value: ReviewRoute()) {
+                            Label("Opruimen", systemImage: "archivebox")
+                                .frame(minHeight: 44)
+                                .contentShape(.rect)
+                        }
+                        .accessibilityHint("Recepten die jullie nooit of al lang niet kiezen")
                     }
-                    .accessibilityHint("Recepten die jullie nooit of al lang niet kiezen")
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: showImporter) {

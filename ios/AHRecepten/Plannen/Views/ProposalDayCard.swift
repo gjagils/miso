@@ -5,6 +5,12 @@ struct ProposalDayCard: View {
     let day: ProposalDay
     let chosen: ProposalOption?
     let alternatives: [(index: Int, option: ProposalOption)]
+    /// recept-id → initialen van wie het een favoriet vindt.
+    var fans: [Int: [String]] = [:]
+    /// "Wijzig": dit vervangt wat er stond.
+    var replacing = false
+    /// Wat er nu staat en vervangen wordt.
+    var replacingTitle: String?
     let onChoose: (Int) -> Void
 
     var body: some View {
@@ -19,6 +25,10 @@ struct ProposalDayCard: View {
             }
             .accessibilityElement(children: .combine)
             .accessibilityAddTraits(.isHeader)
+            if replacing {
+                Text(replacingTitle.map { "Vervangt: \(RecipeDisplayName.short($0))" } ?? "Vervangt wat er stond")
+                    .misoChip(.misoLilac)
+            }
 
             switch day.kind {
             case .vriezer:
@@ -38,7 +48,7 @@ struct ProposalDayCard: View {
                     if let id = chosen.recipeId {
                         NavigationLink(value: RecipeSummaryLink(id: id)) {
                             HStack(spacing: 8) {
-                                ProposalOptionLabel(option: chosen, imageSize: 88)
+                                ProposalOptionLabel(option: chosen, imageSize: 88, fans: fansOf(chosen))
                                 Image(systemName: "chevron.right")
                                     .font(.footnote.weight(.semibold))
                                     .foregroundStyle(.secondary)
@@ -49,7 +59,7 @@ struct ProposalDayCard: View {
                         .buttonStyle(.plain)
                         .accessibilityHint("Bekijk het recept")
                     } else {
-                        ProposalOptionLabel(option: chosen, imageSize: 88)
+                        ProposalOptionLabel(option: chosen, imageSize: 88, fans: fansOf(chosen))
                     }
                 }
                 if !alternatives.isEmpty {
@@ -61,7 +71,7 @@ struct ProposalDayCard: View {
                             onChoose(alt.index)
                         } label: {
                             HStack(spacing: 8) {
-                                ProposalOptionLabel(option: alt.option, imageSize: 48, prominent: false)
+                                ProposalOptionLabel(option: alt.option, imageSize: 48, prominent: false, fans: fansOf(alt.option))
                                 Image(systemName: "arrow.left.arrow.right")
                                     .font(.footnote.weight(.semibold))
                                     .foregroundStyle(Color.misoOrange)
@@ -80,5 +90,9 @@ struct ProposalDayCard: View {
             }
         }
         .misoCard()
+    }
+
+    private func fansOf(_ option: ProposalOption) -> [String] {
+        option.recipeId.flatMap { fans[$0] } ?? []
     }
 }

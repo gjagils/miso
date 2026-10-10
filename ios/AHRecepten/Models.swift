@@ -31,6 +31,8 @@ struct RecipeSummary: Decodable, Identifiable, Hashable {
     var archived: Bool? = nil
     /// "maaltijdpakket" voor AH-maaltijdpakketten, anders leeg.
     var collection: String? = nil
+    /// Initialen van de gezinsleden die dit een favoriet vinden (nieuwere servers).
+    var fans: [String]? = nil
 
     var isFavorite: Bool { favorite ?? false }
     var isByHeart: Bool { byHeart ?? false }
@@ -125,6 +127,8 @@ struct RecipeDetail: Decodable, Identifiable {
     var cookedCount: Int? = nil
     var thumbsUp: Int? = nil
     var thumbsDown: Int? = nil
+    /// Initialen van de gezinsleden die dit een favoriet vinden. `var`: het hartje past het direct aan.
+    var fans: [String]? = nil
 
     var isFavorite: Bool { favorite ?? false }
     var isByHeart: Bool { byHeart ?? false }

@@ -26,6 +26,9 @@ final class Session {
     var serverURL: String { didSet { Self.defaults.set(serverURL, forKey: "serverURL") } }
     var token: String { didSet { Self.storeToken(token) } }
     var connected: Bool { didSet { Self.defaults.set(connected, forKey: "connected") } }
+    /// Gekozen gezinslid ("Wie ben jij?"), in de App Group zodat "Deel naar Miso" het ook meestuurt.
+    var memberID: String { didSet { Self.defaults.set(memberID, forKey: Self.memberKey) } }
+    static let memberKey = "memberID"
     /// Waarom de app uitlogde (bijv. verlopen sessie); het inlogscherm toont dit.
     var logoutReason: String?
 
@@ -34,6 +37,7 @@ final class Session {
         serverURL = defaults.string(forKey: "serverURL") ?? ""
         token = Self.loadToken()
         connected = defaults.bool(forKey: "connected")
+        memberID = defaults.string(forKey: Self.memberKey) ?? ""
     }
 
     /// Token uit de keychain. Eenmalige migratie: oudere versies bewaarden het in de App Group-defaults;
@@ -61,7 +65,7 @@ final class Session {
 
     var api: API? {
         guard let url = URL(string: serverURL.trimmingCharacters(in: .whitespaces)), url.scheme != nil else { return nil }
-        return API(baseURL: url, token: token)
+        return API(baseURL: url, token: token, memberID: memberID.isEmpty ? nil : memberID)
     }
 
     func logout() {

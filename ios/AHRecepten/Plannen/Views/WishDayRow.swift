@@ -11,6 +11,8 @@ struct WishDayRow: View {
     /// Bezette dag leegmaken (de ouder vraagt eerst om bevestiging).
     var onRemove: (() -> Void)?
     var clearing = false
+    /// Staan de boodschappen van wat er gepland is al op het AH-lijstje? (leeg = onbekend)
+    var listBadges: [ListStatusEntry] = []
     @State private var showMore = false
 
     /// "Meer…" staat open als je erom vroeg, of als de gekozen knop daar zit (bijv. via de zin).
@@ -32,17 +34,18 @@ struct WishDayRow: View {
                         .accessibilityLabel("Wens: \(wish.chip?.label ?? value)")
                 }
             }
-            if !day.taken.isEmpty {
-                Label("Staat al: \(day.taken)", systemImage: "checkmark.circle")
+            if !day.taken.isEmpty && !day.replacing {
+                Label("Staat al: \(RecipeDisplayName.short(day.taken))", systemImage: "checkmark.circle")
                     .font(.callout)
                     .foregroundStyle(.secondary)
-                if day.canClear, onChange != nil || onRemove != nil {
+                ForEach(listBadges) { ListStatusBadge(entry: $0) }
+                if day.canChange, onChange != nil || onRemove != nil {
                     HStack(spacing: 8) {
                         if let onChange {
                             smallButton("Wijzig", systemImage: "arrow.triangle.2.circlepath", action: onChange,
-                                        hint: "Haalt \(day.taken) weg zodat je een nieuwe wens kiest")
+                                        hint: "Kies een nieuwe wens; \(day.taken) blijft staan tot je het nieuwe bevestigt")
                         }
-                        if let onRemove {
+                        if let onRemove, day.canClear {
                             smallButton("Haal weg", systemImage: "trash", action: onRemove,
                                         hint: "Maakt \(day.label) leeg")
                         }
@@ -53,6 +56,21 @@ struct WishDayRow: View {
             } else if day.isPast {
                 Text("Voorbij").font(.callout).foregroundStyle(.secondary)
             } else {
+                if day.replacing {
+                    HStack(alignment: .firstTextBaseline) {
+                        Label("Wordt vervangen: \(RecipeDisplayName.short(day.taken))", systemImage: "arrow.triangle.2.circlepath")
+                            .font(.callout)
+                            .foregroundStyle(Color.misoBlue)
+                        Spacer(minLength: 8)
+                        if let onChange {
+                            Button("Toch houden", action: onChange)
+                                .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                .foregroundStyle(Color.misoBlue)
+                                .frame(minHeight: 44)
+                                .buttonStyle(.borderless)
+                        }
+                    }
+                }
                 FlowLayout(spacing: 8) {
                     ForEach(WishChip.main) { chip($0) }
                     if moreVisible {

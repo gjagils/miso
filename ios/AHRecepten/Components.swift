@@ -111,7 +111,14 @@ struct RecipeRow: View {
                     if recipe.isFavorite {
                         Text("♥").foregroundStyle(Color.misoOrange).accessibilityLabel("Favoriet")
                     }
-                    Text(recipe.name)
+                    Text(recipe.displayName)
+                    if !recipe.fansText.isEmpty {
+                        // Wie het een favoriet vindt ("H S").
+                        Text(recipe.fansText)
+                            .font(.caption.weight(.heavy))
+                            .foregroundStyle(Color.misoOrange)
+                            .accessibilityLabel("favoriet van \(recipe.fansText)")
+                    }
                 }
                 .font(.system(.body, design: .rounded).weight(.semibold))
                 .foregroundStyle(Color.misoBlue)
@@ -119,9 +126,9 @@ struct RecipeRow: View {
                 if !meta.isEmpty {
                     Text(meta).font(.misoCaption).foregroundStyle(.secondary)
                 }
-                if recipe.gfMode.isActive || recipe.isMealKit || recipe.isByHeart {
+                if recipe.gfMode.isActive || recipe.showsMealKitTag || recipe.isByHeart {
                     HStack(spacing: 4) {
-                        if recipe.isMealKit { Text("Maaltijdpakket").misoChip(.misoOrange) }
+                        if recipe.showsMealKitTag { Text("Maaltijdpakket").misoChip(.misoOrange) }
                         if recipe.isByHeart { Text("uit mijn hoofd").misoChip(.misoLilac) }
                         if recipe.gfMode.isActive { GlutenFreeChip() }
                     }

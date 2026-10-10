@@ -3,13 +3,15 @@ import SwiftUI
 /// Kop van een dag in het weekmenu, met "+" om iets te plannen.
 struct PlanDayHeader: View {
     let day: PlanDay
-    let onAdd: () -> Void
+    /// nil = geen "+" (kind).
+    var onAdd: (() -> Void)?
 
     var body: some View {
         HStack {
             Text(day.label).misoSectionHeader()
             if day.today { Text("vandaag").misoChip(.misoOrange) }
             Spacer()
+            if let onAdd {
             Button(action: onAdd) {
                 Image(systemName: "plus")
                     .font(.body.weight(.bold))
@@ -21,6 +23,7 @@ struct PlanDayHeader: View {
             }
             .buttonStyle(.borderless)
             .accessibilityLabel("Iets plannen op \(day.label)")
+            }
         }
     }
 }
