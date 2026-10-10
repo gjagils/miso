@@ -99,15 +99,44 @@ def display_name(name: str) -> str:
     return (short[:1].upper() + short[1:]) if short else name
 
 
+PROTEIN_WORDS = {"vis": ("vis", "zalm", "kabeljauw", "garnal", "tonijn", "heek", "makreel", "scampi", "ansjovis"),
+                 "kip": ("kip", "chicken", "kalkoen"),
+                 "vlees": ("gehakt", "rund", "beef", "varken", "spek", "worst", "chorizo", "lam", "biefstuk", "ham"),
+                 "vega": ("vega", "tofu", "halloumi", "linzen", "kikkererwt", "bonen", "falafel", "paneer", "ei ")}
+CUISINE_WORDS = {"aziatisch": ("japans", "chinees", "thais", "teriyaki", "noedel", "bami", "nasi", "yakisoba", "wok",
+                               "gado", "sate", "satay", "pad thai", "ramen", "korma", "indonesisch", "oosters"),
+                 "indiaas": ("indiaas", "curry", "tikka", "masala", "tandoori", "madras", "butter chicken", "dahl"),
+                 "italiaans": ("italiaans", "pasta", "lasagne", "spaghetti", "risotto", "pizza", "gnocchi", "pesto"),
+                 "mexicaans": ("mexicaans", "taco", "burrito", "enchilada", "nacho", "tortilla", "chili con", "fajita"),
+                 "midden-oosters": ("shoarma", "gyros", "pita", "shakshuka", "falafel", "couscous", "baharat", "grieks"),
+                 "hollands": ("stamppot", "zuurkool", "hutspot", "boerenkool", "erwtensoep", "draadjesvlees")}
+
+
 def guessed_profile(recipe: Recipe) -> dict:
-    """Zonder gezondheidsprofiel: basis raden uit de naam, zodat variatie toch werkt."""
-    low = recipe.name.lower()
+    """Zonder gezondheidsprofiel: basis, eiwit en keuken raden uit de naam, zodat variatie toch werkt."""
+    low = f" {recipe.name.lower()} "
+    out: dict = {}
     for chip in ("rijst", "pasta", "aardappel", "wraps", "noedels"):
         if chip in low or any(w in low for w in CHIPS[chip]["words"]):
-            return {"basis": chip}
-    if "soep" in low:
-        return {"basis": "soep"}
-    return {}
+            out["basis"] = chip
+            break
+    else:
+        if "soep" in low:
+            out["basis"] = "soep"
+    for eiwit, words in PROTEIN_WORDS.items():
+        if any(w in low for w in words):
+            out["eiwit"] = eiwit
+            break
+    for keuken, words in CUISINE_WORDS.items():
+        if any(w in low for w in words):
+            out["keuken"] = keuken
+            break
+    return out
+
+
+def dish_key(name: str) -> str:
+    """Zelfde gerecht, ander recept ('AH verspakket gado gado' en 'AH gesneden verspakket gado gado')."""
+    return re.sub(r"[^a-z0-9]+", " ", display_name(name).lower()).strip()
 
 
 def _variety_penalty(profile: dict | None, chosen: list[dict]) -> float:
@@ -136,6 +165,9 @@ def propose(db: Session, monday: date, wishes: dict[str, str], per_day: int = 3,
     by_id = {r.id: r for r in recipes}
     chosen_profiles = [profiles.get(rid) or (guessed_profile(by_id[rid]) if rid in by_id else {}) for rid in week_ids]
     used: set[int] = set(week_ids)
+    used_dishes = {dish_key(by_id[rid].name) for rid in week_ids if rid in by_id}
+    favorites_chosen = sum(1 for rid in week_ids if rid in by_id and by_id[rid].favorite)
+    prev_cuisine: str | None = None
     out = []
     for day in sorted(wishes):
         wish = normalize(wishes[day])
@@ -151,10 +183,12 @@ def propose(db: Session, monday: date, wishes: dict[str, str], per_day: int = 3,
             item["kind"] = wish
             out.append(item)
             continue
+        free = lambda r: r.id not in used and dish_key(r.name) not in used_dishes
         if wish == "vrij":  # "geen idee" = een volwaardige avondmaaltijd, geen soep of salade
-            pool = [r for r in recipes if r.id not in used and not LIGHT.search(r.name.lower())]
+            pool = [r for r in recipes if free(r) and not LIGHT.search(r.name.lower())
+                    and not re.search(r"tapas|hapje|borrel|gilda|bruschetta", r.name.lower())]
         else:
-            pool = [r for r in recipes if r.id not in used and matches(r, profiles[r.id], wish)]
+            pool = [r for r in recipes if free(r) and matches(r, profiles[r.id], wish)]
         name_words = CHIPS.get(wish, {}).get("words", ()) + ((wish,) if wish in CHIPS else ())
         scored = []
         for r in pool:
@@ -162,18 +196,36 @@ def propose(db: Session, monday: date, wishes: dict[str, str], per_day: int = 3,
             s = preference_score(r, stats.get(r.id), today) + _health(profiles[r.id]) - _variety_penalty(p, chosen_profiles)
             if name_words and any(w.strip() and w.strip() in r.name.lower() for w in name_words):
                 s += 15  # wens staat in de naam ("nasi", "rijst"): beter dan alleen een ingrediënt
+            if r.favorite and favorites_chosen >= 2:
+                s -= 30  # hooguit twee favorieten per week, anders steeds hetzelfde
+            if prev_cuisine and p.get("keuken") == prev_cuisine and prev_cuisine != "overig":
+                s -= 15  # niet twee avonden achter elkaar dezelfde keuken
             quick = (minutes(r.total_time) or 99) <= 30
             tiebreak = hashlib.md5(f"{monday}-{r.id}".encode()).hexdigest()  # per week anders, niet alfabetisch
             scored.append((s, not quick, tiebreak, r))
         scored.sort(key=lambda x: (-x[0], x[1], x[2]))
         item["kind"] = "recipe" if scored else "none"
-        item["options"] = [{"recipe_id": r.id, "name": display_name(r.name), "image_url": r.image_url,
+        options, seen_dish = [], set()
+        for *_, r in scored:  # alternatieven: geen twee keer hetzelfde gerecht
+            if dish_key(r.name) in seen_dish:
+                continue
+            seen_dish.add(dish_key(r.name))
+            p = profiles[r.id] or guessed_profile(r)
+            options.append({"recipe_id": r.id, "name": display_name(r.name), "image_url": r.image_url,
                             "total_time": r.total_time, "favorite": bool(r.favorite),
-                            "pack": r.collection == "maaltijdpakket"} for *_, r in scored[:per_day]]
+                            "pack": r.collection == "maaltijdpakket", "eiwit": p.get("eiwit", ""),
+                            "keuken": p.get("keuken", ""), "basis": p.get("basis", "")})
+            if len(options) == per_day:
+                break
+        item["options"] = options
         if scored:
             top = scored[0][-1]
             used.add(top.id)
-            chosen_profiles.append(profiles[top.id] or guessed_profile(top))
+            used_dishes.add(dish_key(top.name))
+            favorites_chosen += bool(top.favorite)
+            tp = profiles[top.id] or guessed_profile(top)
+            chosen_profiles.append(tp)
+            prev_cuisine = tp.get("keuken")
         out.append(item)
     return out
 
