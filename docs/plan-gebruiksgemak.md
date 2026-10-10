@@ -19,9 +19,10 @@ koken. Voor de gebruiker voelt dat als twee keer hetzelfde.
   zijn terwijl er wel veel gepland wordt. Per recept: Bewaren (een half jaar niet meer vragen), Uit mijn hoofd, of
   Opruimen (verdwijnt uit lijsten en voorstellen, terug te halen bij Opgeruimd).
 - **"Ken ik uit mijn hoofd":** het recept blijft voor de ingrediënten en boodschappen, zonder kookmodus.
-- **Claude:** twee niveaus in plaats van vaste modellen. "Slim" (`ANTHROPIC_MODEL`, nu Sonnet 5.5) voor het uitlezen
-  van recepten. "Snel" (`ANTHROPIC_MODEL_FAST`, nu Haiku 4.5) voor korte JSON-taken: gezondheidsprofiel,
-  glutenvrij en wensen per dag.
+- **Claude:** twee niveaus, relatief ingesteld. "Slim" (`ANTHROPIC_MODEL=sonnet`) voor het uitlezen van recepten.
+  "Snel" (`ANTHROPIC_MODEL_FAST=haiku`) voor korte JSON-taken: gezondheidsprofiel, glutenvrij en wensen per dag.
+  Een familienaam betekent "het nieuwste model van die familie" (dagelijks opgezocht via de Models API). Een
+  `claude-...` naam zet één model vast. Zie `backend/app/llm.py`.
 
 ## Nieuwe indeling
 

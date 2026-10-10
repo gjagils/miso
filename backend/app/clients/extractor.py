@@ -11,6 +11,7 @@ import httpx
 from bs4 import BeautifulSoup
 from PIL import Image, ImageOps
 
+from app import llm
 from app.config import settings
 from app.logging_config import logger
 
@@ -199,7 +200,7 @@ async def extract_recipe(
     logger.info("Extracting recipe (%d image(s), text=%s)", len(images or []), bool(text))
     client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
     message = await client.messages.create(
-        model=settings.anthropic_model,
+        model=await llm.model("slim"),  # recepten uitlezen: slim niveau
         max_tokens=4000,
         system=SYSTEM_PROMPT,
         messages=[{"role": "user", "content": content}],
@@ -242,7 +243,7 @@ async def suggest_gluten_free(name: str, ingredient_texts: list[str]) -> dict:
     listing = "\n".join(f"{i}: {t}" for i, t in enumerate(ingredient_texts))
     client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
     message = await client.messages.create(
-        model=settings.anthropic_model_fast,  # glutenvrij-voorstel: snel/goedkoop niveau
+        model=await llm.model("snel"),  # glutenvrij-voorstel: snel/goedkoop niveau
         max_tokens=2000,
         system=GF_PROMPT,
         messages=[{"role": "user", "content": f"Recept: {name}\n\nIngrediënten:\n{listing}"}],

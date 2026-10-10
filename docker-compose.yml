@@ -9,6 +9,9 @@ services:
     environment:
       TZ: Europe/Amsterdam
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      # Familie (nieuwste model daarvan) of een vast model "claude-...": zie backend/app/llm.py
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-sonnet}
+      ANTHROPIC_MODEL_FAST: ${ANTHROPIC_MODEL_FAST:-haiku}
       APP_PIN: ${APP_PIN:-}
       MISO_SECRET: ${MISO_SECRET:-}  # versleutelt AH-/Mealie-tokens in de database
     volumes:

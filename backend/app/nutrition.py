@@ -14,6 +14,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.clients.extractor import _parse_json
+from app import llm
 from app.config import settings
 from app.logging_config import logger
 from app.models import PlanEntry, Recipe, RecipeProfile
@@ -66,7 +67,7 @@ async def estimate_profile(recipe: Recipe) -> dict:
     lines = "\n".join(f"- {i.get('text', '')}" for i in recipe.ingredients if i.get("text"))
     client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
     message = await client.messages.create(
-        model=settings.anthropic_model_fast,  # korte JSON-taak: snel/goedkoop niveau
+        model=await llm.model("snel"),  # korte JSON-taak: snel/goedkoop niveau
         max_tokens=2000,
         system=PROFILE_PROMPT,
         messages=[{"role": "user", "content": f"Recept: {recipe.name}\nPersonen: {recipe.servings or 'onbekend'}\n"
