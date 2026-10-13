@@ -129,6 +129,41 @@ class WeekTemplate(Base):
         self.items_json = json.dumps(value, ensure_ascii=False)
 
 
+class VotePoll(Base):
+    """Eén stemronde per week (D7): ouders zetten kandidaten klaar, iedereen stemt, de uitslag vult lege dagen."""
+
+    __tablename__ = "vote_polls"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    week: Mapped[str] = mapped_column(String(10), unique=True)  # maandag, JJJJ-MM-DD
+    candidates_json: Mapped[str] = mapped_column(Text, default="[]")  # [recipe_id, ...]
+    created_on: Mapped[str] = mapped_column(String(10), default="")
+
+    @property
+    def candidates(self) -> list[int]:
+        try:
+            value = json.loads(self.candidates_json or "[]")
+        except ValueError:
+            return []
+        return [int(x) for x in value] if isinstance(value, list) else []
+
+    @candidates.setter
+    def candidates(self, value: list[int]) -> None:
+        self.candidates_json = json.dumps([int(x) for x in value])
+
+
+class Vote(Base):
+    """Een stem van een gezinslid (`app.members`-id) op een kandidaat van de stemronde van die week."""
+
+    __tablename__ = "votes"
+    __table_args__ = (UniqueConstraint("week", "recipe_id", "member_id", name="uq_vote_week_recipe_member"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    week: Mapped[str] = mapped_column(String(10), index=True)
+    recipe_id: Mapped[int] = mapped_column(Integer)
+    member_id: Mapped[str] = mapped_column(String(40))
+
+
 class FreezerItem(Base):
     """Wat er in de vriezer ligt (simpel: naam + porties)."""
 

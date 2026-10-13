@@ -2,6 +2,7 @@
 {% block title %}Weekmenu - Miso{% include "_list_status.html" %}
 {% endblock %}
 {% block content %}
+{% set me = who(request) %}{% set kid = me and me.role == "kind" %}
 <div class="page-head"><img src="/static/miso/miso-idea.webp" alt="" width="76" height="76" loading="lazy"><h1>Weekmenu</h1></div>
 {% include "_next_week.html" %}
 <div class="week-nav">
@@ -24,6 +25,15 @@
     {% endfor %}
 </div>
 
+<section class="status-box wm-vote" id="vote" aria-labelledby="vt-title" hidden>
+    <h2 id="vt-title">Stemronde</h2>
+    <p class="muted" id="vt-intro"></p>
+    <ul class="vt-list" id="vt-list"></ul>
+    <div class="vt-actions" id="vt-actions"></div>
+    <p class="muted" id="vt-msg" role="status"></p>
+</section>
+
+{% if not kid %}
 <details class="status-box wm-templates" id="templates">
     <summary>Week als sjabloon</summary>
     <p class="muted">Bewaar deze week en zet hem met één tik op een andere week terug, bijvoorbeeld een standaardweek of een schoolvakantieweek. Bezette dagen blijven staan.</p>
@@ -35,6 +45,7 @@
     </form>
     <p class="muted" id="tpl-msg" role="status"></p>
 </details>
+{% endif %}
 
 <section class="status-box wm-groceries" id="groceries" aria-labelledby="gr-title">
     <h2 id="gr-title">Boodschappen</h2>
@@ -83,6 +94,7 @@
 {% endblock %}
 
 {% block scripts %}
+{% set me = who(request) %}{% set kid = me and me.role == "kind" %}
 <script src="/static/plan.js?v=2"></script>
 <script>
 (() => {
@@ -102,7 +114,7 @@ async function reload() {
     if (!w.ok) return;
     entries = w.days.flatMap(d => d.entries);
     status = w.status;
-    renderDays(); renderGroceries(); loadHealth(); loadFreezer(); loadCost(); loadReplenish(); loadCookWith();
+    renderDays(); renderGroceries(); loadHealth(); loadFreezer(); loadCost(); loadReplenish(); loadCookWith(); loadVote();
 }
 
 // ── Kosten (schatting uit gekoppelde AH-producten) ───────
@@ -268,9 +280,68 @@ async function loadCookWith() {
     });
 }
 
+// ── Stemronde ───────────────────────────────────────────
+const IS_KID = {{ 'true' if kid else 'false' }};
+async function loadVote() {
+    const box = $("vote");
+    if (!box) return;
+    const v = await api("GET", `/api/vote-poll?week=${WEEK}`);
+    renderVote(v);
+}
+function renderVote(v) {
+    const box = $("vote");
+    if (!v.ok) return;
+    box.hidden = !v.open && IS_KID;
+    const ul = $("vt-list"), actions = $("vt-actions");
+    ul.innerHTML = ""; actions.innerHTML = "";
+    $("vt-intro").textContent = v.open
+        ? `Stem op maximaal ${v.max_votes} recepten die je graag wilt eten. ${v.voted_count} van ${v.members_total} hebben gestemd; jij gaf ${v.my_votes} van ${v.max_votes} stemmen.`
+        : "Laat het gezin kiezen: Miso zet een paar recepten klaar, iedereen stemt, en de uitslag vult de lege dagen.";
+    v.candidates.forEach(c => {
+        const li = document.createElement("li");
+        li.innerHTML = `<div class="vt-main"><a href="/recipe/${c.recipe_id}">${esc(c.name)}</a>
+            <span class="muted">${esc(c.total_time || "")}${c.total_time ? " · " : ""}${plural(c.votes, "stem", "stemmen")}${c.voters.length ? " (" + esc(c.voters.join(" ")) + ")" : ""}</span></div>
+            <button type="button" class="btn btn-sm flag-btn" aria-pressed="${c.mine}">${c.mine ? "✓ Mijn stem" : "Stem"}</button>`;
+        li.querySelector("button").onclick = async () => {
+            const r = await api("POST", "/api/votes", {week: WEEK, recipe_id: c.recipe_id, on: !c.mine});
+            if (!r.ok) { $("vt-msg").textContent = r.error || "Stemmen mislukt."; return; }
+            $("vt-msg").textContent = "";
+            renderVote(r);
+        };
+        ul.appendChild(li);
+    });
+    if (IS_KID) return;
+    const add = (label, cls, fn) => { const b = document.createElement("button"); b.type = "button"; b.className = cls; b.textContent = label; b.onclick = fn; actions.appendChild(b); };
+    if (!v.open) {
+        add("Start een stemronde", "btn", async () => {
+            const r = await api("POST", "/api/vote-poll", {week: WEEK});
+            if (!r.ok) { $("vt-msg").textContent = r.error || "Starten mislukt."; return; }
+            $("vt-msg").textContent = "";
+            renderVote(r);
+        });
+    } else {
+        add("Sluit en vul de week", "btn btn-primary", async () => {
+            const r = await api("POST", "/api/vote-poll/close", {week: WEEK});
+            if (!r.ok) { $("vt-msg").textContent = r.error || "Sluiten mislukt."; return; }
+            const bits = [`${plural(r.placed, "dag", "dagen")} gevuld`];
+            if (r.no_room) bits.push(`${plural(r.no_room, "recept", "recepten")} kon er niet meer bij`);
+            if (r.no_votes) bits.push(`${plural(r.no_votes, "recept", "recepten")} zonder stem overgeslagen`);
+            $("vt-msg").textContent = bits.join(", ") + ".";
+            await reload();
+            loadVote();
+        });
+        add("Stop de stemronde", "btn btn-muted", async () => {
+            if (!confirm("De stemmen gaan verloren. Doorgaan?")) return;
+            await api("DELETE", `/api/vote-poll?week=${WEEK}`);
+            loadVote();
+        });
+    }
+}
+
 // ── Weeksjablonen ───────────────────────────────────────
 const SHORT = ["ma", "di", "wo", "do", "vr", "za", "zo"];
 async function loadTemplates() {
+    if (!$("tpl-list")) return;  // kinderen zien de sjablonen niet
     const r = await api("GET", "/api/plan/templates");
     const ul = $("tpl-list");
     ul.innerHTML = "";
@@ -302,7 +373,7 @@ async function loadTemplates() {
         ul.appendChild(li);
     });
 }
-$("tpl-add").onsubmit = async ev => {
+if ($("tpl-add")) $("tpl-add").onsubmit = async ev => {
     ev.preventDefault();
     const f = ev.target;
     const name = f.name.value.trim();
@@ -385,7 +456,7 @@ if (sb) sb.onclick = async () => {
     };
 };
 
-renderDays(); renderGroceries(); loadFreezer(); loadHealth(); loadCost(); loadReplenish(); loadCookWith(); loadTemplates();
+renderDays(); renderGroceries(); loadFreezer(); loadHealth(); loadCost(); loadReplenish(); loadCookWith(); loadVote(); loadTemplates();
 })();
 </script>
 {% endblock %}

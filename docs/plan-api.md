@@ -121,6 +121,26 @@ kookdag terug op `null` (niet meer dubbel inkopen).
 {"ok": true, "deleted": [12, 13], "status": {…}}
 ```
 
+## Stemmen op kandidaten (D7)
+
+Een stemronde per week. Ouders zetten kandidaten klaar, iedereen in het gezin stemt (maximaal 3 stemmen per persoon, per
+gezinslid via `x-miso-member` of de cookie `miso_member`), en de uitslag vult de lege dagen. Tabellen `vote_polls` en
+`votes`. Kinderen mogen stemmen en lezen; starten, sluiten en stoppen zijn ouders (`POST /api/vote-poll…` en
+`DELETE /api/vote-poll` staan in `KID_BLOCKED`). Code: `backend/app/voting.py`, `backend/app/api/votes.py`.
+
+- `GET /api/vote-poll?week=` → `{ok, week, open, max_votes, candidates: [{recipe_id, name, image_url, total_time, votes,
+  voters: ["G","N"], mine}], my_votes, voted_count, members_total}`. `open` is false zonder ronde; kandidaten staan
+  gesorteerd op stemmen.
+- `POST /api/vote-poll` `{week?, recipe_ids?}` start een ronde (een bestaande voor die week wordt vervangen, stemmen gaan weg).
+  Zonder `recipe_ids` kiest Miso de vijf gewildste recepten die die week nog niet op het menu staan. Minder dan twee
+  kandidaten: `{ok:false, error}`.
+- `POST /api/votes` `{week?, recipe_id, on}` zet of haalt een stem weg. Fouten (`ok:false`): geen ronde, geen kandidaat,
+  al 3 stemmen, of nog niet gekozen wie je bent. Geeft de nieuwe stand terug (zelfde vorm als GET).
+- `POST /api/vote-poll/close` `{week?}` → `{ok, placed, no_room, no_votes, week, entries, status}`. Winnaars (meeste stemmen,
+  daarna voorkeursscore) komen op lege dagen vanaf vandaag, doordeweeks eerst. Een dag met een recept, voorraadregel of
+  restje is bezet. Recepten zonder stem komen er niet in. De ronde is daarna weg. 404 zonder ronde.
+- `DELETE /api/vote-poll?week=` stopt de ronde zonder iets te plannen; 404 zonder ronde.
+
 ## Koken met wat er is (F11)
 
 `GET /api/cook-with` → `{ok, suggestions, inventory}`. Leest alleen lokale gegevens: de vriezerlijst en de
@@ -145,7 +165,7 @@ personen en "morgen opeten" (`rest`); vriezer-effecten niet. Kinderen kunnen all
   overschrijft. Lege week: `{ok:false, error}`. Maximaal 30 sjablonen.
 - `POST /api/plan/templates/{id}/apply` `{week?, replace?}` (`week`: ISO-datum of `"next"`) →
   `{ok, placed, skipped_busy, skipped_gone, week, entries, status}`. Bezette dagen (recept of voorraad) blijven staan
-  tenzij `replace`. Een restje dat buiten de week zou vallen wordt weggelaten.
+  tenzij `replace`; een dag met een restje blijft altijd staan. Een restje dat buiten de week zou vallen wordt weggelaten.
 - `DELETE /api/plan/templates/{id}` → `{ok}`; onbekend id geeft 404.
 
 ## Week (bestaand, uitgebreid)

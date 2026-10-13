@@ -89,6 +89,12 @@ struct PlanView: View {
                             .foregroundStyle(Color.misoBlue)
                             .frame(minHeight: 44)
                     }
+                    NavigationLink(value: PlanRoute.vote) {
+                        Label("Stemronde", systemImage: "hand.thumbsup")
+                            .font(.misoButton)
+                            .foregroundStyle(Color.misoBlue)
+                            .frame(minHeight: 44)
+                    }
                     NavigationLink(value: PlanRoute.templates) {
                         Label("Week als sjabloon", systemImage: "square.on.square")
                             .font(.misoButton)
@@ -118,6 +124,7 @@ struct PlanView: View {
             switch route {
             case .recipe(let id): RecipeDetailView(recipeID: id)
             case .freezer: FreezerView(week: model.week?.week, firstFreeDay: model.firstFreeDay)
+            case .vote: VoteView(week: model.week?.week ?? "")
             case .templates:
                 TemplatesView(week: model.week?.week ?? "",
                               weekHasEntries: model.week.map { w in w.days.contains { !model.items(for: $0).isEmpty } } ?? false)

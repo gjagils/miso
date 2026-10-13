@@ -261,7 +261,7 @@ testen zonder AH.
 | D4 | Afkeer afleiden uit beoordelingen met bevestigingsvraag | M | ja | 3 | ✅ web + iOS |
 | D5 | Kindertoken met alleen lees- en wensrechten | S | ja | 2 | vervalt (main: rol kind) |
 | D6 | Wensenlijst-scherm voor kinderen; wensen bij Kiezen en in het voorstel | M | ja | 2 | vervalt (main: wensen) |
-| D7 | Stemmen op kandidaten; uitslag vult lege dagen | M | ja | 3 | open |
+| D7 | Stemmen op kandidaten; uitslag vult lege dagen | M | ja | 3 | ✅ web + iOS |
 | D8 | Tag "makkelijk met kinderen" en vaste kids-kookavond | S | ja | 3 | ✅ web + iOS |
 
 ### E. Aanbevelen
@@ -324,14 +324,14 @@ en een bonusgroep in Zelf kiezen. De Definition of Done (app én website) is daa
 behalve de onderdelen die op AH wachten.
 
 **Daarna ook gebouwd:** vriezer-houdbaarheid (C6), timers in de kookmodus (F10), weeksjablonen (F9), koken met wat er
-is (F11), kids-kookavond (D8) en het vrijdagbericht over de bonus (A5), allemaal website én iOS, met tests, API-doc en
+is (F11), kids-kookavond (D8), stemmen op kandidaten (D7) en het vrijdagbericht over de bonus (A5), allemaal website én iOS, met tests, API-doc en
 handleiding.
 
 **Nog open:**
 
 - **Wacht op AH:** F6 live-sessie (daarna A4 "koop er één bij", A6 persoonlijke bonus, B6 Premium-besparing, C5
   AH-vergeetsignalen, en E5 compleet).
-- **Bewust niet gedaan:** D7 stemmen op kandidaten (groot; vraagt een eigen ontwerp voor wie wanneer stemt), F7 de laatste
+- **Bewust niet gedaan:** F7 de laatste
   schermen met directe AH-calls (kan pas goed met de live-sessie erbij), koelkast-houdbaarheid (C6, vraagt een voorraadmodel
   voor de koelkast dat er niet is).
 - **Uit de analyse:** matching rekent voor "per persoon"-regels met 4 personen en markeert dat met `for_persons`, zodat

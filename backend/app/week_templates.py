@@ -61,11 +61,16 @@ def describe(db: Session, tpl: WeekTemplate) -> dict:
 
 def apply(db: Session, tpl: WeekTemplate, monday: date, replace: bool = False) -> dict:
     """Zet het sjabloon op de week van `monday`. Bezette dagen blijven staan, tenzij `replace`."""
-    busy = {e.date: e for e in planning.week_entries(db, monday) if e.kind in ("recipe", "stock")}
+    entries = planning.week_entries(db, monday)
+    busy = {e.date: e for e in entries if e.kind in ("recipe", "stock")}
+    rest_days = {e.date for e in entries if e.kind == "leftover"}  # een restje bezet de avond en blijft altijd staan
     placed = skipped_busy = skipped_gone = 0
     created: list[PlanEntry] = []
     for item in tpl.items:
         day = monday + timedelta(days=int(item.get("weekday", 0)))
+        if str(day) in rest_days:
+            skipped_busy += 1
+            continue
         if str(day) in busy:
             if not replace:
                 skipped_busy += 1

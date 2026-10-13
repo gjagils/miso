@@ -932,3 +932,10 @@ img.who-avatar { object-fit: cover; }
 .rp-main .muted { font-size: 0.85rem; }
 .chip-kids { background: var(--miso-mint, #b9e4c9); color: var(--miso-blue); margin-left: 0.4rem; font-size: 0.7rem; vertical-align: middle; }
 .nw-bonus { margin: -0.5rem 0 1rem; font-size: 0.85rem; }
+
+/* Stemronde */
+.vt-list { list-style: none; margin: 0.6rem 0; padding: 0; display: grid; gap: 0.5rem; }
+.vt-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.vt-main { flex: 1 1 14rem; display: grid; gap: 0.15rem; min-width: 0; }
+.vt-main .muted { font-size: 0.85rem; }
+.vt-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }

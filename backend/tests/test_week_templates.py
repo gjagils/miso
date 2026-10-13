@@ -109,3 +109,20 @@ def test_kids_cannot_save_apply_or_delete_templates(db, monkeypatch):
 def test_weekmenu_page_has_template_section(db):
     html = TestClient(app).get("/weekmenu").text
     assert "Week als sjabloon" in html and 'id="tpl-add"' in html
+
+
+def test_leftover_day_is_never_overwritten(db):  # noqa: F811
+    r1 = _recipe4(db, "Lasagne", [_g("500 g gehakt", 2, 500, 500)])
+    r2 = _recipe4(db, "Pasta", [_g("500 g pasta", 1, 500, 500)])
+    monday = _future_monday()
+    client = TestClient(app)
+    client.post("/api/plan/entries", json={"date": str(monday + timedelta(days=1)), "recipe_id": r2.id})
+    tid = client.post("/api/plan/templates", json={"name": "A", "week": str(monday)}).json()["template"]["id"]
+    target = monday + timedelta(days=7)
+    # in de doelweek staat maandag een kookdag met restje op dinsdag
+    client.post("/api/plan/entries", json={"date": str(target), "recipe_id": r1.id, "cook_double": "tomorrow"})
+    for replace in (False, True):
+        out = client.post(f"/api/plan/templates/{tid}/apply", json={"week": str(target), "replace": replace}).json()
+        assert out["placed"] == 0 and out["skipped_busy"] == 1  # dinsdag heeft een restje
+        kinds = sorted((e.date, e.kind) for e in planning.week_entries(db, target))
+        assert kinds == [(str(target), "recipe"), (str(target + timedelta(days=1)), "leftover")]
