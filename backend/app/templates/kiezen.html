@@ -27,7 +27,7 @@
         <div class="kz-bonus-head">
             <img src="/static/miso/miso-shopping-cart.webp" alt="" width="56" height="56" loading="lazy">
             <div>
-                <h2>Deze week in de bonus</h2>
+                <h2 id="bonus-title">Deze week in de bonus</h2>
                 <p class="muted" id="bonus-sub"></p>
             </div>
         </div>
@@ -258,7 +258,7 @@ async function searchAh(q) {
 let bonusLoaded = false;
 async function loadBonus() {
     let data;
-    try { data = await (await fetch("/api/bonus/recipes?limit=6")).json(); } catch (e) { return; }
+    try { data = await (await fetch(`/api/bonus/recipes?limit=6&week=${WEEK}`)).json(); } catch (e) { return; }
     const recipes = (data && data.ok && data.recipes) || [];
     if (!recipes.length) return;
     const grid = $("bonus-grid");
@@ -268,8 +268,10 @@ async function loadBonus() {
         const meta = r.saving ? `± € ${r.saving.toFixed(2).replace(".", ",")} voordeel` : base.meta;
         grid.appendChild(card({...base, meta, chip: `${r.bonus_count} in de bonus`}));
     });
-    const end = data.period && data.period.end;
-    $("bonus-sub").textContent = end ? `Aanbiedingen t/m ${dayLabel(end).toLowerCase()}` : "Recepten met aanbiedingen van deze week";
+    const end = data.period && data.period.end, start = data.period && data.period.start;
+    const nextWeek = start && start > TODAY;
+    $("bonus-title").textContent = nextWeek ? "Volgende week in de bonus" : "Deze week in de bonus";
+    $("bonus-sub").textContent = end ? `Aanbiedingen ${nextWeek ? "van " + dayLabel(start).toLowerCase() + " " : ""}t/m ${dayLabel(end).toLowerCase()}` : "Recepten met aanbiedingen van deze week";
     bonusLoaded = true;
     $("bonus-group").hidden = !!$("q").value.trim();
 }
@@ -523,7 +525,8 @@ async function loadExtras() {
     $("lists-box").hidden = !ls.length;
     const st = staples.ok && staples.staples || [];
     st.forEach(s => {
-        const sub = s.in_basislijst && !s.times ? "op je Basislijst"
+        const sub = s.source === "ritme" ? `${s.status === "op" ? "waarschijnlijk op" : "binnenkort op"} · elke ${s.interval_days} dagen${s.in_basislijst ? " · op je Basislijst" : ""}`
+            : s.in_basislijst && !s.times ? "op je Basislijst"
             : `${s.times}× gekocht${s.in_basislijst ? " · op je Basislijst" : ""}`;
         $("staples").appendChild(checkRow(s.product_id, s.name || `Product ${s.product_id}`, sub, {name: s.name || ""}));
     });

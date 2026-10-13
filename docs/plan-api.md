@@ -221,3 +221,34 @@ Een vriezer-item inplannen = `POST /api/plan/entries {"kind": "stock", "date", "
 Nieuwe kolommen op `plan_entries` (idempotent toegevoegd bij opstarten door `app/migrations.py`):
 `kind` (default `'recipe'`), `persons`, `text`, `extras_json`, `source_entry_id`, `cook_double`.
 `recipe_id` blijft NOT NULL; `0` = geen recept (stock). Nieuwe tabel `freezer_items`.
+
+## Voorstel: uitlegbare score
+
+`POST /api/week/suggest` geeft per suggestie ook `score`, `redenen` (lijst) en `uitleg` (één regel), bijv.
+"favoriet van Hannah, in de bonus (−€2,80), 4 weken niet gegeten, ongeveer €3,20 p.p.". Termen en gewichten
+staan in `nutrition.WEIGHTS`: gezondheid en variatie, de voorkeursscore uit `app/usage.py` (favorieten, 👍/👎, vaak
+gekozen, recent gegeten), bonus van de week waarvoor gepland wordt, lang niet gekookt / nog nooit, kosten per
+persoon, open wensen (`wishes` met een recept). De context wordt gebouwd in `api/health.suggest_context`.
+
+## AH-datalaag en inzichten
+
+Lokale kopie van AH-gegevens (`backend/app/ah_sync.py`, tabellen `ah_trips`, `ah_prices`, `ah_bonus_periods`).
+Schermen lezen hieruit; alleen de sync en de bonus-ophaling praten met AH. Dagelijks via `maintenance.daily_loop`
+(`ah_sync.run_daily_once`). Nooit bestellen.
+
+| | |
+|---|---|
+| `POST /api/ah/sync` | nieuwe bestellingen en kassabonnen (met bedragen) ophalen; alleen wat we nog niet hebben → `{"ok", "added", "orders", "receipts", "known", "errors", "status"}` |
+| `GET /api/ah/sync/status` | `{"ok", "linked", "last_run", "trips_total", "prices_total", "bonus_periods", ...}` |
+| `GET /api/bonus?period=next` | bonus van volgende week zodra AH die toont |
+| `GET /api/bonus/recipes?week=` | recepten in de bonus van de periode waarin die week valt (volgende week zodra AH die toont); anders `period=current\|next` |
+| `GET /api/staples` | bevat nu ook "waarschijnlijk op" (`source: "ritme"`, met `status`, `due_on`, `interval_days`) vooraan; de rest heeft `source: "vaak"`; `source_counts.waarschijnlijk_op` |
+| `GET /api/week/cost?week=` | geschatte kosten van het weekmenu: `{"total", "bonus_saving", "per_meal", "meals", "unknown", "known_count", "lines", "bonus_period"}` |
+| `GET /api/recipes/{id}/cost?persons=` | idem per recept, met `per_person` en `complete` |
+| `GET /api/spend?weeks=12&detail=YYYY-MM-DD` | uitgaven per week uit `ah_trips`: `{"weeks": [{"week", "total", "discount", "trips", "unknown"}], "average_week", "average_per_person_day"}`; met `detail` ook `{"detail": {"week", "trips", "top": [10 grootste regels], "categories"}}`. Web: `/uitgaven` |
+| `GET /api/replenish?week=` | "waarschijnlijk op": producten die volgens het koopritme aan de beurt zijn (≥3 keer gekocht, mediaan interval ≤120 dagen), minus de boodschappen van de week → `{"due": [{"product_id", "name", "status": "op"\|"binnenkort", "interval_days", "last_bought", "due_on", "days_left", "avg_quantity"}], "later": [...]}` |
+| `POST /api/replenish/snooze` | `{"product_id", "days": 14}` = "hebben we nog": pas weer tonen na `days` dagen |
+
+Prijzen: bij elke zoekopdracht en elke koppeling wordt een prijssnapshot per product per dag bewaard; de kosten
+gebruiken de prijs van de koppeling, anders het laatste snapshot, en de bonusprijs als het product in de bonus
+van die week zit.

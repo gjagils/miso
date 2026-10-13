@@ -64,14 +64,31 @@ async def _http(method: str, url: str, *, params: dict | None = None, body: dict
     return resp
 
 
+RETRY_STATUSES = (429, 502, 503, 504)
+RETRY_DELAYS = (1, 2, 4)
+
+
+async def _call(method: str, url: str, what: str, *, params: dict | None = None, body: dict | None = None,
+                user: bool = True) -> httpx.Response:
+    """`_http` met terughoudendheid: bij 429/5xx-overbelasting even wachten en nog eens (max 3x)."""
+    for attempt, delay in enumerate((*RETRY_DELAYS, None)):
+        try:
+            resp = await _http(method, url, params=params, body=body, user=user)
+        except AHDataError:
+            raise
+        except Exception as e:  # noqa: BLE001  (netwerk)
+            logger.warning("AH %s mislukt: %s", what, type(e).__name__)
+            raise AHDataError(f"AH was niet bereikbaar ({what}).") from e
+        if resp.status_code in RETRY_STATUSES and delay is not None:
+            logger.info("AH %s: HTTP %s, opnieuw over %ss", what, resp.status_code, delay)
+            await asyncio.sleep(delay)
+            continue
+        return resp
+    return resp
+
+
 async def get_json(url: str, what: str, *, params: dict | None = None, user: bool = True):
-    try:
-        resp = await _http("GET", url, params=params, user=user)
-    except AHDataError:
-        raise
-    except Exception as e:  # noqa: BLE001  (netwerk)
-        logger.warning("AH %s mislukt: %s", what, type(e).__name__)
-        raise AHDataError(f"AH was niet bereikbaar ({what}).") from e
+    resp = await _call("GET", url, what, params=params, user=user)
     if resp.is_error:
         _log_bad(what, resp)
         raise AHDataError(f"AH gaf een fout bij {what} ({resp.status_code}).")
@@ -84,13 +101,7 @@ async def get_json(url: str, what: str, *, params: dict | None = None, user: boo
 
 async def gql(query: str, variables: dict | None, what: str, *, user: bool = True) -> dict:
     """GraphQL op api.ah.nl/graphql. Geeft `data` terug; bij `errors` zonder data een AHDataError."""
-    try:
-        resp = await _http("POST", AH_GRAPHQL_URL, body={"query": query, "variables": variables or {}}, user=user)
-    except AHDataError:
-        raise
-    except Exception as e:  # noqa: BLE001
-        logger.warning("AH %s mislukt: %s", what, type(e).__name__)
-        raise AHDataError(f"AH was niet bereikbaar ({what}).") from e
+    resp = await _call("POST", AH_GRAPHQL_URL, what, body={"query": query, "variables": variables or {}}, user=user)
     if resp.is_error:
         _log_bad(what, resp)
         raise AHDataError(f"AH gaf een fout bij {what} ({resp.status_code}).")
@@ -206,9 +217,12 @@ def parse_bonus_section(section: dict) -> tuple[list[dict], list[dict]]:
     return products, groups
 
 
-def parse_bonus_metadata(meta: dict) -> dict:
-    periods = _first(meta, "periods", default=[]) or []
-    period = periods[0] if periods and isinstance(periods[0], dict) else {}
+def parse_bonus_metadata(meta: dict, index: int = 0) -> dict:
+    """Periode `index` (0 = huidige, 1 = volgende; die is enkele dagen vooraf zichtbaar). Bestaat hij niet,
+    dan is `start` leeg."""
+    periods = [p for p in (_first(meta, "periods", default=[]) or []) if isinstance(p, dict)]
+    periods.sort(key=lambda p: str(_first(p, "bonusStartDate", "startDate", default="") or ""))
+    period = periods[index] if len(periods) > index else {}
     cats: list[str] = []
     for tab in period.get("tabs") or []:
         for item in (tab or {}).get("urlMetadataList") or []:
@@ -231,9 +245,13 @@ BONUS_GROUP_QUERY = """query FetchBonusPromotionWithProducts($id: String, $perio
 MAX_GROUPS = 150
 
 
-async def fetch_bonus(user: bool) -> dict:
-    """Alle bonusproducten van de huidige periode, op webshopId. Persoonlijke bonus erbij als `user`."""
-    meta = parse_bonus_metadata(await get_json(BONUS_METADATA_URL, "bonus-metadata", user=user))
+async def fetch_bonus(user: bool, period: str = "current") -> dict:
+    """Alle bonusproducten van een periode, op webshopId. Persoonlijke bonus erbij als `user`.
+    `period` "next" = de volgende week (AH toont die een paar dagen vooraf); nog niet zichtbaar -> AHDataError."""
+    raw = await get_json(BONUS_METADATA_URL, "bonus-metadata", user=user)
+    meta = parse_bonus_metadata(raw, 1 if period == "next" else 0)
+    if period == "next" and not meta["start"]:
+        raise AHDataError("De bonus van volgende week is nog niet bekend.")
     day = meta["start"] or str(date.today())
     sem = asyncio.Semaphore(4)
     products: dict[int, dict] = {}
@@ -509,15 +527,30 @@ async def recipe_titles(ids: list[int]) -> dict[int, str]:
     return out
 
 
-# ── 4. Standaardboodschappen (kassabonnen + online bestellingen) ───────
+# ── 4. Boodschappenrondes: kassabonnen + online bestellingen (met bedragen) ────
+# Vorm van een "trip" (zoals `AHTrip` hem opslaat):
+# {"source": "kassabon"|"bestelling", "external_id", "date", "store", "total", "discount",
+#  "lines": [{"product_id", "name", "quantity", "unit_price", "amount", "bonus", "category"}],
+#  "products": {webshop_id: naam}}   (products = afgeleid, voor compute_staples)
 
 POS_RECEIPTS_QUERY = """query FetchPosReceipts($offset: Int!, $limit: Int!) {
+  posReceiptsPage(pagination: {offset: $offset, limit: $limit}) { posReceipts { id dateTime totalAmount { amount } } }
+}"""
+POS_RECEIPTS_QUERY_MIN = """query FetchPosReceipts($offset: Int!, $limit: Int!) {
   posReceiptsPage(pagination: {offset: $offset, limit: $limit}) { posReceipts { id dateTime } }
 }"""
 POS_RECEIPT_QUERY = """query FetchReceipt($id: String!) {
+  posReceiptDetails(id: $id) { id products { id quantity name price { amount } amount { amount } }
+    discounts { name amount { amount } } payments { method amount { amount } } }
+}"""
+POS_RECEIPT_QUERY_MIN = """query FetchReceipt($id: String!) {
   posReceiptDetails(id: $id) { id products { id quantity name } }
 }"""
 CLOSED_ORDERS_QUERY = """query OrderFulfillmentsClosed {
+  orderFulfillments(status: CLOSED) { result { orderId delivery { slot { date } }
+    totalPrice { beforeDiscount afterDiscount discount totalPrice } } }
+}"""
+CLOSED_ORDERS_QUERY_MIN = """query OrderFulfillmentsClosed {
   orderFulfillments(status: CLOSED) { result { orderId delivery { slot { date } } } }
 }"""
 
@@ -527,6 +560,27 @@ SKIP_NAMES = re.compile(r"DRAAGTAS|TASJE|KOOPZEGEL|SPARZEGEL|STATIEGELD|EMBALLAG
 
 def _day(s) -> str:
     return str(s or "")[:10]
+
+
+def _money(v) -> float | None:
+    """{"amount": 1.5} | 1.5 | "1,50" | -0.5 (korting) -> bedrag; None als het geen bedrag is."""
+    if isinstance(v, dict):
+        v = _first(v, "amount", "value")
+    try:
+        return round(float(str(v).replace(",", ".")), 2)
+    except (TypeError, ValueError):
+        return None
+
+
+async def _gql_fallback(rich: str, minimal: str, variables: dict | None, what: str) -> dict:
+    """Probeer de query met bedragen; kent AH die velden niet (schema-onzekerheid), dan de minimale."""
+    try:
+        return await gql(rich, variables, what)
+    except AHDataError as e:
+        if "begreep de vraag niet" not in str(e):
+            raise
+        logger.info("AH %s: rijke query niet begrepen, terug naar minimale", what)
+        return await gql(minimal, variables, what)
 
 
 async def convert_pos_ids(ids: list[int]) -> dict[int, int]:
@@ -542,73 +596,173 @@ async def convert_pos_ids(ids: list[int]) -> dict[int, int]:
         except AHDataError:
             continue
         for i, pid in enumerate(chunk):
-            if wid := _int(data.get(f"p{i}")):
+            if (wid := _int(data.get(f"p{i}"))) and wid > 0:
                 out[pid] = wid
     return out
 
 
-async def receipt_trips(since: date, limit: int) -> list[dict]:
-    data = await gql(POS_RECEIPTS_QUERY, {"offset": 0, "limit": 50}, "kassabonnen")
+def _nice(name: str) -> str:
+    return name.title() if name.isupper() else name
+
+
+def _finish(trip: dict) -> dict:
+    trip["products"] = {ln["product_id"]: ln["name"] for ln in trip["lines"] if ln.get("product_id")}
+    return trip
+
+
+# Kassabonnen
+
+
+async def receipt_headers(since: date, limit: int = 50) -> list[dict]:
+    """Bonnen sinds `since`, nieuwste eerst: [{"id", "date", "total"}]."""
+    data = await _gql_fallback(POS_RECEIPTS_QUERY, POS_RECEIPTS_QUERY_MIN, {"offset": 0, "limit": max(limit, 50)},
+                               "kassabonnen")
     page = _first(data, "posReceiptsPage", default={}) or {}
-    rows = [r for r in (page.get("posReceipts") or []) if isinstance(r, dict) and r.get("id")]
-    rows = [r for r in rows if _day(_first(r, "dateTime", "transactionMoment", "date")) >= str(since)]
-    rows.sort(key=lambda r: _day(_first(r, "dateTime", "transactionMoment", "date")), reverse=True)
-    rows = rows[:limit]
-    sem = asyncio.Semaphore(4)
+    rows = []
+    for r in page.get("posReceipts") or []:
+        if not isinstance(r, dict) or not r.get("id"):
+            continue
+        day = _day(_first(r, "dateTime", "transactionMoment", "date"))
+        if day >= str(since):
+            rows.append({"id": str(r["id"]), "date": day, "total": _money(r.get("totalAmount"))})
+    rows.sort(key=lambda r: r["date"], reverse=True)
+    return rows[:limit]
 
-    async def detail(r: dict) -> dict | None:
-        async with sem:
-            try:
-                d = await gql(POS_RECEIPT_QUERY, {"id": str(r["id"])}, "kassabon")
-            except AHDataError:
-                return None
-        det = _first(d, "posReceiptDetails", "posReceipt", default={}) or {}
-        prods = [(p.get("id"), str(p.get("name") or "")) for p in det.get("products") or [] if isinstance(p, dict)]
-        return {"date": _day(_first(r, "dateTime", "transactionMoment", "date")), "source": "kassabon",
-                "pos": [(pid, name) for pid, name in prods if _int(pid) and not SKIP_NAMES.search(name)]}
 
-    trips = [t for t in await asyncio.gather(*(detail(r) for r in rows)) if t]
-    mapping = await convert_pos_ids([pid for t in trips for pid, _ in t["pos"]])
+def parse_receipt(header: dict, detail: dict, pos_to_web: dict[int, int] | None = None) -> dict:
+    """posReceiptDetails -> trip. Kassabon-ids worden via `pos_to_web` webshop-ids (0 als onbekend)."""
+    det = _first(detail, "posReceiptDetails", "posReceipt", default={}) or {}
+    lines, discount = [], 0.0
+    for p in det.get("products") or []:
+        if not isinstance(p, dict):
+            continue
+        name = str(p.get("name") or "")
+        pos_id = _int(p.get("id"))
+        if not pos_id or SKIP_NAMES.search(name):
+            continue
+        qty = _amount(p.get("quantity")) or 1
+        amount = _money(p.get("amount"))
+        unit = _money(p.get("price"))
+        if unit is None and amount is not None and qty:
+            unit = round(amount / qty, 2)
+        lines.append({"product_id": (pos_to_web or {}).get(pos_id, 0), "pos_id": pos_id, "name": _nice(name),
+                      "quantity": qty, "unit_price": unit, "amount": amount, "bonus": False, "category": ""})
+    for d in det.get("discounts") or []:
+        if isinstance(d, dict) and (amt := _money(d.get("amount"))) is not None:
+            discount += abs(amt)
+    total = header.get("total")
+    if total is None:
+        paid = [m for pm in det.get("payments") or [] if isinstance(pm, dict) and (m := _money(pm.get("amount")))]
+        total = round(sum(paid), 2) if paid else None
+    return _finish({"source": "kassabon", "external_id": str(header["id"]), "date": header["date"], "store": "",
+                    "total": total, "discount": round(discount, 2) if discount else None, "lines": lines})
+
+
+async def receipt_detail(header: dict) -> dict:
+    """Bon met regels; de kassabon-ids (`pos_id`) zijn nog niet omgezet: doe dat in één keer met
+    `resolve_receipts` voor alle bonnen samen."""
+    data = await _gql_fallback(POS_RECEIPT_QUERY, POS_RECEIPT_QUERY_MIN, {"id": str(header["id"])}, "kassabon")
+    return parse_receipt(header, data)
+
+
+async def resolve_receipts(trips: list[dict]) -> list[dict]:
+    """Kassabon-ids -> webshop-ids voor alle bonnen in één GraphQL-call (0 als AH ze niet kent)."""
+    mapping = await convert_pos_ids([ln["pos_id"] for t in trips for ln in t["lines"] if ln.get("pos_id")])
     for t in trips:
-        t["products"] = {}
-        for pos_id, name in t.pop("pos"):
-            if wid := mapping.get(_int(pos_id)):
-                t["products"][wid] = name.title() if name.isupper() else name
+        for ln in t["lines"]:
+            if "pos_id" in ln:
+                ln["product_id"] = mapping.get(ln.pop("pos_id"), 0)
+        _finish(t)
     return trips
 
 
-async def order_trips(since: date, limit: int) -> list[dict]:
-    data = await gql(CLOSED_ORDERS_QUERY, None, "eerdere bestellingen")
+async def receipt_trips(since: date, limit: int) -> list[dict]:
+    headers = await receipt_headers(since, limit)
+    sem = asyncio.Semaphore(4)
+
+    async def one(h: dict) -> dict | None:
+        async with sem:
+            try:
+                return await receipt_detail(h)
+            except AHDataError:
+                return None
+
+    trips = [t for t in await asyncio.gather(*(one(h) for h in headers)) if t]
+    return await resolve_receipts(trips)
+
+
+# Online bestellingen
+
+
+async def order_headers(since: date) -> list[dict]:
+    """Afgeronde bestellingen sinds `since`, nieuwste eerst: [{"id", "date", "total", "discount"}]."""
+    data = await _gql_fallback(CLOSED_ORDERS_QUERY, CLOSED_ORDERS_QUERY_MIN, None, "eerdere bestellingen")
     res = (_first(data, "orderFulfillments", default={}) or {}).get("result") or []
     rows = []
     for f in res:
+        if not isinstance(f, dict):
+            continue
         oid = _int(_first(f, "orderId", "id"))
         day = _day(_first(((f or {}).get("delivery") or {}).get("slot"), "date") or _first(f, "deliveryDate"))
-        if oid and day >= str(since):
-            rows.append((day, oid))
-    rows.sort(reverse=True)
+        if not oid or day < str(since):
+            continue
+        price = f.get("totalPrice") if isinstance(f.get("totalPrice"), dict) else {}
+        rows.append({"id": oid, "date": day, "total": _amount(_first(price, "totalPrice", "afterDiscount")),
+                     "discount": _amount(price.get("discount"))})
+    rows.sort(key=lambda r: (r["date"], r["id"]), reverse=True)
+    return rows
+
+
+def parse_order(header: dict, detail: dict) -> dict:
+    """order/v1/{id}/details-grouped-by-taxonomy -> trip. Regelprijs = prijs vóór bonus (currentPrice is
+    null bij groepsacties); `bonus` markeert regels in de aanbieding."""
+    lines = []
+
+    def add(op: dict, category: str) -> None:
+        prod = (op or {}).get("product") or {}
+        pid = _int(_first(prod, "webshopId", "id") or (op or {}).get("productId"))
+        qty = int(_first(op, "quantity", "amount", default=1) or 0)
+        if not pid or qty <= 0:
+            return
+        unit = _amount(_first(prod, "priceBeforeBonus", "currentPrice"))
+        now = _amount(prod.get("currentPrice"))
+        paid = now if now is not None else unit
+        lines.append({"product_id": pid, "name": str(_first(prod, "title", "description", default="") or ""),
+                      "quantity": qty, "unit_price": unit, "amount": round(paid * qty, 2) if paid is not None else None,
+                      "bonus": bool(prod.get("isBonus")) or bool(prod.get("bonusMechanism")),
+                      "category": str(prod.get("mainCategory") or category or "")})
+
+    for group in _first(detail, "groupedProductsInTaxonomy", default=[]) or []:
+        for op in (group or {}).get("orderedProducts") or []:
+            add(op, str((group or {}).get("taxonomyName") or ""))
+    if not lines:
+        for op in _first(detail, "orderedProducts", default=[]) or []:  # platte variant
+            add(op, "")
+    total = header.get("total")
+    if total is None:
+        amounts = [ln["amount"] for ln in lines if ln["amount"] is not None]
+        total = round(sum(amounts), 2) if amounts and len(amounts) == len(lines) else None
+    return _finish({"source": "bestelling", "external_id": str(header["id"]), "date": header["date"],
+                    "store": "bezorgd", "total": total, "discount": header.get("discount"), "lines": lines})
+
+
+async def order_detail(header: dict) -> dict:
+    data = await get_json(ORDER_DETAILS_URL.format(order_id=header["id"]), "bestelling")
+    return parse_order(header, data)
+
+
+async def order_trips(since: date, limit: int) -> list[dict]:
+    headers = (await order_headers(since))[:limit]
     sem = asyncio.Semaphore(4)
 
-    async def detail(day: str, oid: int) -> dict | None:
+    async def one(h: dict) -> dict | None:
         async with sem:
             try:
-                d = await get_json(ORDER_DETAILS_URL.format(order_id=oid), "bestelling")
+                return await order_detail(h)
             except AHDataError:
                 return None
-        products = {}
-        for group in _first(d, "groupedProductsInTaxonomy", default=[]) or []:
-            for op in (group or {}).get("orderedProducts") or []:
-                prod = (op or {}).get("product") or {}
-                pid = _int(_first(prod, "webshopId", "id") or (op or {}).get("productId"))
-                if pid and int(_first(op, "quantity", "amount", default=1) or 0) > 0:
-                    products[pid] = str(_first(prod, "title", "description", default="") or "")
-        for op in _first(d, "orderedProducts", default=[]) or []:  # platte variant
-            prod = (op or {}).get("product") or {}
-            if pid := _int(_first(prod, "webshopId", "id")):
-                products[pid] = str(_first(prod, "title", default="") or "")
-        return {"date": day, "source": "bestelling", "products": products}
 
-    return [t for t in await asyncio.gather(*(detail(d, o) for d, o in rows[:limit])) if t]
+    return [t for t in await asyncio.gather(*(one(h) for h in headers)) if t]
 
 
 def compute_staples(trips: list[dict], exclude: set[int], basislijst: list[dict] | None = None,

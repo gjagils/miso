@@ -73,14 +73,16 @@ RECEIPT_PRODUCTS = {  # kassabon-productids (POS) -> per bon
 }
 POS_TO_WEBSHOP = {901: 10, 902: 20, 903: 1, 904: 30, 905: -1}
 ORDERS = {"orderFulfillments": {"result": [
-    {"orderId": 7001, "delivery": {"slot": {"date": D(3)}}},
+    {"orderId": 7001, "delivery": {"slot": {"date": D(3)}},
+     "totalPrice": {"beforeDiscount": 61.0, "afterDiscount": 55.5, "discount": 5.5, "totalPrice": 55.5}},
     {"orderId": 7002, "delivery": {"slot": {"date": D(10)}}},
     {"orderId": 7999, "delivery": {"slot": {"date": D(300)}}},
 ]}}
-ORDER_DETAILS = {
-    7001: [(20, "AH Bananen tros"), (30, "Venco drop")],
-    7002: [(20, "AH Bananen tros"), (10, "AH Halfvolle melk")],
+ORDER_DETAILS = {  # (webshopId, titel, prijs vóór bonus, huidige prijs, bonus?)
+    7001: [(20, "AH Bananen tros", 1.99, 1.99, False), (30, "Venco drop", 2.5, None, True)],
+    7002: [(20, "AH Bananen tros", 1.99, 1.99, False), (10, "AH Halfvolle melk", 1.25, 1.25, False)],
 }
+RECEIPT_AMOUNTS = {"r0": 12.34, "r1": 8.0}  # totalAmount op de bon; andere bonnen zonder
 
 FAV_RECIPES = {"recipeCollectionCategories": [
     {"id": 1, "name": "Alle favorieten", "isDefault": True,
@@ -120,8 +122,11 @@ class FakeAH:
         if m:
             prods = ORDER_DETAILS.get(int(m.group(1)), [])
             return self._resp(method, url, 200, {"orderId": int(m.group(1)), "groupedProductsInTaxonomy": [
-                {"taxonomyName": "x", "orderedProducts": [
-                    {"amount": 1, "quantity": 1, "product": {"webshopId": pid, "title": t}} for pid, t in prods]}]})
+                {"taxonomyName": "Zuivel", "orderedProducts": [
+                    {"amount": 1, "quantity": 2 if pid == 20 else 1,
+                     "product": {"webshopId": pid, "title": t, "priceBeforeBonus": was, "currentPrice": now,
+                                 "isBonus": bonus, "mainCategory": "Fruit" if pid == 20 else ""}}
+                    for pid, t, was, now, bonus in prods]}]})
         if name.startswith("gql:"):
             return self._resp(method, url, 200, {"data": self._gql(name[4:], body)})
         return self._resp(method, url, 404, {"message": "onbekend"})
@@ -140,15 +145,24 @@ class FakeAH:
             return FAV_RECIPES
         if op == "RecipeTitles":
             return {a: {"id": int(i), "title": f"Recept {i}"} for a, i in aliases}
-        if op == "FetchPosReceipts":
-            return {"posReceiptsPage": {"posReceipts": RECEIPTS}}
+        if op == "FetchPosReceipts":  # alleen bedragen als de query erom vraagt (zoals echte GraphQL)
+            return {"posReceiptsPage": {"posReceipts": [
+                {**r, **({"totalAmount": {"amount": RECEIPT_AMOUNTS[r["id"]]}}
+                         if r["id"] in RECEIPT_AMOUNTS and "totalAmount" in q else {})}
+                for r in RECEIPTS]}}
         if op == "FetchReceipt":
             return {"posReceiptDetails": {"id": v["id"], "products": [
-                {"id": pid, "quantity": 1, "name": n} for pid, n in RECEIPT_PRODUCTS[v["id"]]]}}
+                {"id": pid, "quantity": 1, "name": n, "price": {"amount": 1.5}, "amount": {"amount": 1.5}}
+                for pid, n in RECEIPT_PRODUCTS[v["id"]]],
+                "discounts": [{"name": "BONUS", "amount": {"amount": -0.5}}] if v["id"] == "r0" else [],
+                "payments": [{"method": "PIN", "amount": {"amount": 4.0}}]}}
         if op == "Convert":
             return {a: POS_TO_WEBSHOP.get(int(i)) for a, i in aliases}
         if op == "OrderFulfillmentsClosed":
-            return ORDERS
+            if "totalPrice" in q:
+                return ORDERS
+            return {"orderFulfillments": {"result": [{k: v for k, v in r.items() if k != "totalPrice"}
+                                                     for r in ORDERS["orderFulfillments"]["result"]]}}
         raise AssertionError(f"onverwachte GraphQL {op}")
 
 
@@ -217,9 +231,12 @@ def test_bonus_recipes_sorted_by_coverage_and_cached(linked, ah):
     assert len(ah.calls) == n
 
     # Verlopen periode -> opnieuw ophalen
-    cache = json.loads(routes._get_setting(linked, api.BONUS_CACHE))
-    cache["end"] = D(1)
-    routes._set_setting(linked, api.BONUS_CACHE, json.dumps(cache))
+    from app.models import AHBonusPeriod, AHPrice
+    row = linked.query(AHBonusPeriod).one()
+    assert row.products[1]["title"] == "AH Kipfilet"
+    assert linked.query(AHPrice).filter_by(product_id=1).one().bonus_price == 4.5  # bonus is ook een prijssnapshot
+    row.end = D(1)
+    linked.commit()
     client.get("/api/bonus")
     assert len(ah.calls) > n
 
@@ -334,7 +351,8 @@ def test_staples_endpoint(linked, ah):
     assert resp["ok"], resp
     by = {s["product_id"]: s for s in resp["staples"]}
     # Ritten: 5 kassabonnen (oude valt buiten 12 weken) + 2 bestellingen = 7 -> drempel 3
-    assert resp["source_counts"] == {"kassabonnen": 5, "bestellingen": 2, "ritten": 7, "basislijst": 3}
+    assert resp["source_counts"] == {"kassabonnen": 5, "bestellingen": 2, "ritten": 7, "basislijst": 3, "waarschijnlijk_op": 0}
+    assert all(s["source"] == "vaak" for s in resp["staples"])
     assert by[10]["times"] == 4 and by[10]["in_basislijst"] and by[10]["name"] == "AH Halfvolle melk"
     assert by[20]["times"] == 4 and by[20]["name"] == "AH Bananen tros" and not by[20]["in_basislijst"]
     assert 30 not in by  # drop: 2 keer, onder de drempel
@@ -448,3 +466,85 @@ def test_polite_retries_on_429(monkeypatch):
         return answers.pop(0)
 
     assert asyncio.run(ah_mod._polite(send)).status_code == 200
+
+
+# ── 5. AH-datalaag: sync van ritten met bedragen, waarschijnlijk op, bonus per week ─────
+
+
+def test_sync_trips_stores_amounts_and_only_fetches_new(linked, ah):
+    from app import ah_sync
+    from app.models import AHTrip
+
+    client = TestClient(app)
+    resp = client.post("/api/ah/sync").json()
+    assert resp["ok"], resp
+    # 6 kassabonnen + 3 bestellingen binnen 52 weken (de 'old'-bon van 200 dagen ook)
+    assert resp["added"] == 9 and resp["orders"] == 3 and resp["receipts"] == 6 and resp["errors"] == []
+    assert ah.calls.count("gql:Convert") == 1  # kassabon-ids in één keer omgezet
+    trips = {(t.source, t.external_id): t for t in linked.query(AHTrip).all()}
+    order = trips[("bestelling", "7001")]
+    assert order.total == 55.5 and order.discount == 5.5 and order.date == D(3)
+    by = {ln["product_id"]: ln for ln in order.lines}
+    assert by[20] == {"product_id": 20, "name": "AH Bananen tros", "quantity": 2, "unit_price": 1.99,
+                      "amount": 3.98, "bonus": False, "category": "Fruit"}
+    assert by[30]["bonus"] and by[30]["unit_price"] == 2.5 and by[30]["amount"] == 2.5  # currentPrice null -> was-prijs
+    assert trips[("bestelling", "7002")].total == 5.23  # geen totaal van AH: som van de regels (2x1,99 + 1,25)
+    bon = trips[("kassabon", "r0")]
+    assert bon.total == 12.34 and bon.discount == 0.5
+    assert {ln["product_id"] for ln in bon.lines} == {10, 20}  # draagtas overgeslagen, POS-ids omgezet
+    assert all(ln["unit_price"] == 1.5 and ln["amount"] == 1.5 for ln in bon.lines)
+    assert trips[("kassabon", "r1")].total == 8.0
+    assert trips[("kassabon", "r2")].total == 4.0  # geen totalAmount: betaald bedrag
+    unknown = trips[("kassabon", "r4")].lines
+    assert unknown[0]["product_id"] == 0 and unknown[0]["name"] == "Onbekend"  # -1 bij AH: naam blijft
+
+    n = len(ah.calls)
+    resp = client.post("/api/ah/sync").json()
+    assert resp["added"] == 0 and resp["known"] == 9
+    assert all(c in ("gql:FetchPosReceipts", "gql:OrderFulfillmentsClosed") for c in ah.calls[n:])  # alleen koppen
+    status = client.get("/api/ah/sync/status").json()
+    assert status["ok"] and status["linked"] and status["trips_total"] == 9 and status["last_run"]
+    assert ah_sync.trips_as_dicts(ah_sync.trips_since(linked, TODAY - timedelta(days=30)))[0]["products"]
+
+
+def test_sync_falls_back_to_minimal_queries(linked, ah, monkeypatch):
+    """Kent AH de velden met bedragen niet (schema-onzekerheid), dan de minimale query."""
+    orig = ahd.gql
+
+    async def strict(query, variables, what, *, user=True):
+        if "totalPrice" in query or "payments" in query or "totalAmount" in query:
+            raise ahd.AHDataError(f"AH begreep de vraag niet ({what}).")
+        return await orig(query, variables, what, user=user)
+    monkeypatch.setattr(ahd, "gql", strict)
+    resp = TestClient(app).post("/api/ah/sync").json()
+    assert resp["ok"] and resp["added"] == 9 and resp["errors"] == []
+    from app.models import AHTrip
+    assert linked.query(AHTrip).filter_by(external_id="7001").one().total == 6.48  # som van regels i.p.v. AH-totaal
+
+
+def test_staples_include_replenishment_due_and_bonus_for_week(linked, ah):
+    from app.models import AHTrip
+
+    for n in (21, 14, 7):  # wekelijks pindakaas (11): nu aan de beurt
+        t = AHTrip(source="kassabon", external_id=f"p{n}", date=D(n))
+        t.lines = [{"product_id": 11, "name": "AH Pindakaas", "quantity": 1, "unit_price": 2.0, "amount": 2.0, "bonus": False, "category": ""}]
+        linked.add(t)
+    linked.commit()
+    client = TestClient(app)
+    resp = client.get("/api/staples").json()
+    first = resp["staples"][0]
+    assert first["product_id"] == 11 and first["source"] == "ritme" and first["status"] == "op" and first["in_basislijst"]
+    assert resp["source_counts"]["waarschijnlijk_op"] == 1
+    assert resp["staples"][1]["source"] == "vaak"
+
+    # Bonus voor de week waarvoor gepland wordt: volgende week -> periode 'next' als AH die al toont
+    monday = routes.monday_of(TODAY)
+    next_start = str(monday + timedelta(days=7))
+    METADATA["periods"].append({"bonusStartDate": next_start, "bonusEndDate": str(monday + timedelta(days=13)), "tabs": [
+        {"description": "Alle bonus", "urlMetadataList": [{"url": "x", "count": 1, "bonusType": "NATIONAL", "description": "Vlees, kip, vis, vega"}]}]})
+    try:
+        r = client.get(f"/api/bonus/recipes?week={next_start}").json()
+        assert r["ok"] and r["period"]["start"] == next_start
+        assert client.get(f"/api/bonus/recipes?week={monday}").json()["period"]["start"] == METADATA["periods"][0]["bonusStartDate"]
+    finally:
+        METADATA["periods"].pop()

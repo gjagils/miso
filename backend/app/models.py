@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Integer, String, Text, func
+from sqlalchemy import Boolean, DateTime, Float, Integer, String, Text, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -205,3 +205,83 @@ class Rating(Base):
     member_id: Mapped[str] = mapped_column(String(40), default="")
     day: Mapped[str] = mapped_column(String(10), default="")
     rating: Mapped[str] = mapped_column(String(4), default="")
+
+
+# ── AH-datalaag ────────────────────────────────────────────────────────
+# Lokale kopie van wat AH over ons weet, zodat schermen nooit rechtstreeks AH hoeven te vragen.
+# Gevuld door `app.ah_sync`. Nooit code hier die iets bij AH bestelt.
+
+
+class AHTrip(Base):
+    """Eén boodschappenronde: een online bestelling of een kassabon, met regels en bedragen.
+
+    `lines_json`: [{"product_id", "name", "quantity", "unit_price", "amount", "bonus", "category"}]
+    (`product_id` = webshop-id, 0 als onbekend; bedragen in euro's, None als AH ze niet gaf)."""
+
+    __tablename__ = "ah_trips"
+    __table_args__ = (UniqueConstraint("source", "external_id", name="uq_ah_trip_source_external"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    source: Mapped[str] = mapped_column(String(12))  # "bestelling" | "kassabon"
+    external_id: Mapped[str] = mapped_column(String(64))
+    date: Mapped[str] = mapped_column(String(10), index=True)  # YYYY-MM-DD
+    store: Mapped[str] = mapped_column(String(200), default="")
+    total: Mapped[float | None] = mapped_column(Float, nullable=True)  # betaald
+    discount: Mapped[float | None] = mapped_column(Float, nullable=True)  # bonus + persoonlijke korting
+    lines_json: Mapped[str] = mapped_column(Text, default="[]")
+    fetched_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+
+    @property
+    def lines(self) -> list[dict]:
+        try:
+            value = json.loads(self.lines_json or "[]")
+        except ValueError:
+            return []
+        return value if isinstance(value, list) else []
+
+    @lines.setter
+    def lines(self, value: list[dict]) -> None:
+        self.lines_json = json.dumps(value, ensure_ascii=False)
+
+
+class AHPrice(Base):
+    """Prijssnapshot per product per dag (AH heeft geen prijshistorie; die bouwen we zelf op)."""
+
+    __tablename__ = "ah_prices"
+    __table_args__ = (UniqueConstraint("product_id", "date", name="uq_ah_price_product_date"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    product_id: Mapped[int] = mapped_column(Integer, index=True)
+    date: Mapped[str] = mapped_column(String(10), index=True)
+    name: Mapped[str] = mapped_column(String(500), default="")
+    price: Mapped[float | None] = mapped_column(Float, nullable=True)  # prijs zonder bonus
+    bonus_price: Mapped[float | None] = mapped_column(Float, nullable=True)  # prijs met bonus (als in de bonus)
+    mechanism: Mapped[str] = mapped_column(String(100), default="")
+    unit_size: Mapped[str] = mapped_column(String(100), default="")
+
+
+class AHBonusPeriod(Base):
+    """Bonus van één periode (ma t/m zo), inclusief persoonlijke bonus als het account gekoppeld is."""
+
+    __tablename__ = "ah_bonus_periods"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    start: Mapped[str] = mapped_column(String(10), unique=True, index=True)
+    end: Mapped[str] = mapped_column(String(10), default="")
+    user: Mapped[bool] = mapped_column(Boolean, default=False)
+    personal: Mapped[int] = mapped_column(Integer, default=0)
+    groups: Mapped[int] = mapped_column(Integer, default=0)
+    products_json: Mapped[str] = mapped_column(Text, default="{}")  # {webshopId: bonusproduct}
+    fetched_at: Mapped[str] = mapped_column(String(32), default="")
+
+    @property
+    def products(self) -> dict[int, dict]:
+        try:
+            value = json.loads(self.products_json or "{}")
+        except ValueError:
+            return {}
+        return {int(k): v for k, v in value.items()} if isinstance(value, dict) else {}
+
+    @products.setter
+    def products(self, value: dict) -> None:
+        self.products_json = json.dumps({str(k): v for k, v in value.items()}, ensure_ascii=False)

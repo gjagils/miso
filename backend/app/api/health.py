@@ -67,12 +67,54 @@ async def week_suggest(payload: SuggestPayload, db: Session = Depends(get_db)):
                   if (p := get_profile(db, r.id))]
     prefs = {r.id: preference_score(r, stats.get(r.id)) for r, _ in candidates}
     plan = [{"recipe_id": r.id, "profiel": get_profile(db, r.id)} for _, r in planned]
-    chosen = suggest_week(plan, candidates, empty, set(last_weeks), prefs)
+    chosen = suggest_week(plan, candidates, empty, set(last_weeks), prefs,
+                          suggest_context(db, [r for r, _ in candidates], monday, stats))
     missing = db.query(Recipe).count() - len(candidates)
     return {"ok": True, "voorstel": chosen, "zonder_profiel": missing,
             "analyse": analyze_week([(e.date, get_profile(db, r.id)) for e, r in planned] +
                                     [(c["date"], c["profiel"]) for c in chosen],
                                     leftover_days=_leftover_count(db, monday))}
+
+
+def suggest_context(db: Session, recipes: list[Recipe], monday: date, stats: dict | None = None) -> dict[int, dict]:
+    """Wat het voorstel per recept nog meer weet, voor de uitleg en de extra termen: fans en duimpjes
+    (app/family, usage), wensen, bonus van die week (ah_sync), laatst gegeten, kosten per persoon."""
+    from app import ah_sync, costs, members, planning
+    from app.api.family import fans_map
+    from app.clients.ah_data import score_recipes
+    from app.models import Wish
+    from app.usage import last_eaten, plan_stats
+
+    stats = stats if stats is not None else plan_stats(db)
+    today = date.today()
+    ctx: dict[int, dict] = {r.id: {} for r in recipes}
+    initials = fans_map(db)
+    names = {m["initial"]: m["name"] for m in members.all_members(db)}
+    member_names = {m["id"]: m["name"] for m in members.all_members(db)}
+    for r in recipes:
+        c = ctx[r.id]
+        c["fans"] = [names.get(i, i) for i in initials.get(r.id, [])]
+        c["thumbs_up"], c["thumbs_down"] = r.thumbs_up or 0, r.thumbs_down or 0
+        eaten = last_eaten(r, stats.get(r.id), today)
+        c["last_cooked"] = eaten
+        c["never_cooked"] = not eaten and not (stats.get(r.id) or {}).get("planned") and not r.cooked_count
+    for w in db.execute(select(Wish).where(Wish.done_on.is_(None), Wish.recipe_id.is_not(None))).scalars():
+        if w.recipe_id in ctx:
+            ctx[w.recipe_id].setdefault("wishes", []).append(member_names.get(w.member_id, w.member_id or "iemand"))
+    bonus = ah_sync.bonus_for_week(db, monday)
+    if bonus and bonus.products:
+        for row in score_recipes([{"id": r.id, "ingredients": r.ingredients} for r in recipes], bonus.products):
+            ctx[row["id"]].update(bonus_saving=row.get("saving") or 0, bonus_count=row["bonus_count"])
+    household = planning.household_size(db)
+    for r in recipes:
+        try:
+            cost = costs.recipe_cost(db, r, household, bonus, monday)
+        except Exception as e:  # noqa: BLE001 - kosten zijn een extra, geen voorwaarde
+            logger.warning("Kosten voor recept %s mislukt: %s", r.id, e)
+            continue
+        if cost["per_person"] is not None and cost["known_count"] >= 3:
+            ctx[r.id]["cost_pp"] = cost["per_person"]
+    return ctx
 
 
 async def _profile_all(force: bool) -> None:

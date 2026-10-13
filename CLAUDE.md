@@ -10,6 +10,28 @@ Gezins-app voor weekmenu, recepten en Albert Heijn-boodschappen. Mascotte: Miso 
 - `docs/plan-api.md` contract van de plannings-API (planregels recept/restje/voorraad, personen, vriezer,
   besteldag); schemawijzigingen aan bestaande tabellen via `backend/app/migrations.py`
 - `docs/functionele-analyse.md` wat af is, wat beter kan en in welke volgorde (stand 9 okt 2026)
+- `docs/plan-gebruiksgemak.md` besluiten over Plannen, gezin ("Wie ben jij?"), wensen en opruimen
+- `docs/plan-ah-slim.md` plan en backlog: AH-data (bonus, bestellingen, bonnen, prijzen) als grondstof voor eigen
+  logica: bonus-slim koken, uitgaven, waarschijnlijk op, uitlegbaar voorstel
+- AH-datalaag: `backend/app/ah_sync.py` (ritten met bedragen, prijssnapshots, bonusperiodes; dagelijks via
+  `maintenance.daily_loop`). Schermen lezen uit de tabellen, niet rechtstreeks van AH. Logica erbovenop:
+  `costs.py` (kosten), `replenish.py` (waarschijnlijk op), `api/insights.py`, `nutrition.suggest_week` (uitleg)
+- Handleiding voor gebruikers: `backend/app/templates/hulp.html` (openbaar op `/hulp`, website en app)
+
+## Definition of Done
+
+Een feature of sprint is pas af als dit allemaal klopt:
+
+1. **App en website samen bij.** Wat op de website kan, kan ook in de iOS-app, of staat expliciet als
+   "(website)" in de handleiding `/hulp`. Beide gebouwd en gecontroleerd; iOS via `cd ios && xcodegen` plus
+   `xcodebuild test` op een simulator.
+2. **Tests groen.** De offline backend-tests (zie Testen) en de iOS-tests. Nieuwe logica krijgt tests.
+3. **Backlog bijgewerkt.** `docs/plan-ah-slim.md` (en `docs/plan-gebruiksgemak.md` voor gebruiksgemak): gedane
+   items afgevinkt met waar het zit, nieuwe inzichten als nieuwe items.
+4. **Documentatie bijgewerkt.** `docs/plan-api.md` bij elke API-wijziging, en dit bestand bij nieuwe modules of
+   spelregels.
+5. **Handleiding bijgewerkt.** `hulp.html` beschrijft wat de gebruiker ziet en doet; elke zichtbare verandering
+   staat erin.
 
 ## AH-koppeling: spelregels
 

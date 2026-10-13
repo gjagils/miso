@@ -26,7 +26,7 @@ from app.config import settings
 from app.database import get_db
 from app.logging_config import logger
 from app.models import AppSetting, CartPush, PlanEntry, ProductPreference, Recipe
-from app import planning
+from app import ah_sync, planning
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -497,12 +497,27 @@ async def delete_recipe(recipe_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/api/ah/search")
-async def ah_search(q: str = Query(..., min_length=1)):
+async def ah_search(q: str = Query(..., min_length=1), db: Session = Depends(get_db)):
     try:
-        return {"products": await ah_client.search_products(q, size=8)}
+        products = await ah_client.search_products(q, size=8)
     except Exception as e:
         logger.error("AH search failed: %s", e)
         return {"products": [], "error": str(e)}
+    snapshot_prices(db, products)
+    return {"products": products}
+
+
+def snapshot_prices(db: Session, products: list[dict]) -> None:
+    """Prijzen van zoekresultaten/koppelingen vastleggen in `ah_prices` (AH heeft geen prijshistorie)."""
+    try:
+        ah_sync.record_prices(db, [p for p in products if p])
+    except Exception as e:  # noqa: BLE001 - een snapshot mag nooit een pagina breken
+        logger.warning("Prijssnapshot mislukt: %s", e)
+        db.rollback()
+
+
+def ingredient_products(ingredients: list[dict]) -> list[dict]:
+    return [p for i in ingredients for p in (i.get("product"), i.get("gf_product")) if p and p.get("id")]
 
 
 class IngredientsPayload(BaseModel):
@@ -524,6 +539,7 @@ async def save_ingredients(recipe_id: int, payload: IngredientsPayload, db: Sess
             ing["quantity"] = packs_for(need, pack) or ing.get("quantity") or 1
     recipe.ingredients = new
     db.commit()
+    snapshot_prices(db, ingredient_products(new))
     return {"ok": True}
 
 
@@ -669,6 +685,7 @@ async def ensure_matched(db: Session, recipe: Recipe) -> None:
         return
     recipe.ingredients = ingredients
     db.commit()
+    snapshot_prices(db, ingredient_products(ingredients))
 
 
 @router.post("/api/recipe/{recipe_id}/automatch")
@@ -678,6 +695,7 @@ async def automatch(recipe_id: int, force: bool = False, db: Session = Depends(g
     matched = await _automatch(ingredients, recipe.gf_mode != "none", force=force, prefs=load_prefs(db))
     recipe.ingredients = ingredients
     db.commit()
+    snapshot_prices(db, ingredient_products(ingredients))
     return {"ok": True, "matched": matched, "ingredients": ingredients}
 
 
@@ -743,6 +761,13 @@ async def weekmenu_page(request: Request, week: str | None = None, db: Session =
             "has_token": bool(_get_setting(db, "ah_refresh_token") or _get_setting(db, "ah_user_token")),
         },
     )
+
+
+@router.get("/uitgaven", response_class=HTMLResponse)
+async def spend_page(request: Request, db: Session = Depends(get_db)):
+    """Uitgaven per week uit de AH-datalaag (bestellingen + kassabonnen)."""
+    return templates.TemplateResponse(request, "spend.html", {
+        "has_token": bool(_get_setting(db, "ah_refresh_token") or _get_setting(db, "ah_user_token"))})
 
 
 @router.get("/kiezen", response_class=HTMLResponse)

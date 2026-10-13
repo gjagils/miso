@@ -151,33 +151,103 @@ def analyze_week(planned: list[tuple[str, dict | None]], leftover_days: int = 0)
             "eiwit": eiwit, "basis": basis, "keuken": keuken, "schijf_pct": schijf_pct, "signalen": signals}
 
 
+# Gewichten van de voorstelscore. Elke term is uitlegbaar; de uitleg per suggestie staat in `redenen`.
+# Favorieten, 👍/👎 en vaak gekozen zitten in `prefs` (app/usage.py, uitlegbare optelsom, factor 0,6).
+WEIGHTS = {
+    "schijf": 10,        # score 1-5 van het profiel
+    "groente": 0.1,      # per gram groente (tot 250 g)
+    "kcal": 1 / 25,      # straf per kcal afstand tot 600
+    "basis": 12, "eiwit": 10, "keuken": 6,  # straf per herhaling in de week
+    "vis": 15, "vega": 10,                  # eerste vis; vega zolang er minder dan 2 zijn
+    "voorkeur": 0.6,     # x usage.preference_score (favoriet, 👍/👎, vaak gekozen, recent gegeten)
+    "bonus": 3,          # per euro besparing, tot 15
+    "lang_niet": 1.5,    # per week sinds de laatste keer, tot 12
+    "nooit": 6,          # nog nooit gekookt: ook eens proberen
+    "kosten": 2,         # straf per euro per persoon boven 4 euro
+    "wens": 10,          # per persoon die dit wenst, tot 20
+}
+VEGA = ("vega", "vegan", "peulvruchten")
+
+
+def _ctx_terms(ctx: dict, today: date) -> tuple[float, list[str]]:
+    """Score en redenen uit de context van één recept (fans, duimpjes, bonus, laatst gekookt, kosten, wensen)."""
+    s, why = 0.0, []
+    fans = ctx.get("fans") or []
+    if fans:
+        why.append(f"favoriet van {', '.join(fans[:3])}")
+    up, down = ctx.get("thumbs_up") or 0, ctx.get("thumbs_down") or 0
+    if down > up:
+        why.append("vaker 👎 dan 👍")
+    elif up and not fans:
+        why.append("vonden jullie lekker")
+    saving = ctx.get("bonus_saving") or 0
+    if saving > 0:
+        s += min(15, WEIGHTS["bonus"] * saving)
+        why.append(f"in de bonus (−€{saving:.2f})".replace(".", ","))
+    elif ctx.get("bonus_count"):
+        s += 2
+        why.append("in de bonus")
+    last = ctx.get("last_cooked")
+    if last:
+        weeks = max(0, (today - date.fromisoformat(last)).days) / 7
+        s += min(12, WEIGHTS["lang_niet"] * weeks)
+        if weeks >= 3:
+            why.append(f"{int(weeks)} weken niet gegeten")
+    elif ctx.get("never_cooked", True):
+        s += WEIGHTS["nooit"]
+        why.append("nog nooit gekookt")
+    cost = ctx.get("cost_pp")
+    if cost is not None:
+        s -= WEIGHTS["kosten"] * max(0.0, cost - 4)
+        why.append(f"ongeveer €{cost:.2f}".replace(".", ",") + " p.p.")
+    wishes = ctx.get("wishes") or []
+    if wishes:
+        s += min(20, WEIGHTS["wens"] * len(wishes))
+        why.append(f"wens van {', '.join(wishes[:3])}")
+    return s, why
+
+
 def suggest_week(planned: list[dict], candidates: list[tuple[Recipe, dict]], empty_days: list[str],
-                 recent_ids: set[int] | None = None, prefs: dict[int, float] | None = None) -> list[dict]:
-    """Vul lege dagen met recepten die de week gevarieerd en gezond maken (greedy)."""
+                 recent_ids: set[int] | None = None, prefs: dict[int, float] | None = None,
+                 context: dict[int, dict] | None = None, today: date | None = None) -> list[dict]:
+    """Vul lege dagen met recepten die de week gevarieerd, gezond, lekker en voordelig maken (greedy).
+
+    `prefs[recipe_id]`: usage.preference_score (favorieten, 👍/👎, vaak gekozen, recent gegeten).
+    `context[recipe_id]` (optioneel): {"fans", "thumbs_up", "thumbs_down", "bonus_saving", "bonus_count",
+    "last_cooked", "never_cooked", "cost_pp", "wishes"}. Elke suggestie krijgt `score`, `redenen` en `uitleg`."""
+    today = today or date.today()
+    context = context or {}
     chosen: list[dict] = []
     used = {p.get("recipe_id") for p in planned} | (recent_ids or set())
     profs = [p["profiel"] for p in planned if p.get("profiel")]
     for day in empty_days:
-        best, best_score = None, -1e9
+        best, best_score, best_why = None, -1e9, []
         for recipe, prof in candidates:
             if recipe.id in used:
                 continue
-            s = prof["score"] * 10 + min(prof["groente_g"], 250) / 10
-            s += 0.6 * (prefs or {}).get(recipe.id, 0)  # favorieten, 👍, vaak gekozen (app/usage.py)
-            s -= abs(prof["kcal"] - 600) / 25  # rond 600 kcal per persoon
-            same = lambda key: sum(1 for p in profs if p[key] == prof[key])
-            s -= 12 * same("basis") + 10 * same("eiwit") + 6 * same("keuken")
+            why = []
+            s = prof["score"] * WEIGHTS["schijf"] + min(prof["groente_g"], 250) * WEIGHTS["groente"]
+            s += WEIGHTS["voorkeur"] * (prefs or {}).get(recipe.id, 0)
+            s -= abs(prof["kcal"] - 600) * WEIGHTS["kcal"]  # rond 600 kcal per persoon
+            same = lambda key: sum(1 for p in profs if p[key] == prof[key])  # noqa: E731
+            s -= WEIGHTS["basis"] * same("basis") + WEIGHTS["eiwit"] * same("eiwit") + WEIGHTS["keuken"] * same("keuken")
             if prof["eiwit"] == "vis" and not any(p["eiwit"] == "vis" for p in profs):
-                s += 15
-            if prof["eiwit"] in ("vega", "vegan", "peulvruchten") and \
-                    sum(p["eiwit"] in ("vega", "vegan", "peulvruchten") for p in profs) < 2:
-                s += 10
+                s += WEIGHTS["vis"]
+                why.append("vis deze week")
+            if prof["eiwit"] in VEGA and sum(p["eiwit"] in VEGA for p in profs) < 2:
+                s += WEIGHTS["vega"]
+                why.append("vegetarisch")
+            if prof["groente_g"] >= 200:
+                why.append("veel groente")
+            extra, extra_why = _ctx_terms(context.get(recipe.id) or {}, today) if recipe.id in context else (0.0, [])
+            s += extra
             if s > best_score:
-                best, best_score = (recipe, prof), s
+                best, best_score, best_why = (recipe, prof), s, why + extra_why
         if not best:
             break
         recipe, prof = best
         used.add(recipe.id)
         profs.append(prof)
-        chosen.append({"date": day, "recipe_id": recipe.id, "name": recipe.name, "profiel": prof})
+        chosen.append({"date": day, "recipe_id": recipe.id, "name": recipe.name, "profiel": prof,
+                       "score": round(best_score, 1), "redenen": best_why, "uitleg": ", ".join(best_why)})
     return chosen

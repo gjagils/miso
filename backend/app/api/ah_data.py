@@ -12,6 +12,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app import ah_sync
 from app.api import routes
 from app.api.shopping import _use_user_tokens
 from app.clients import ah_data as ahd
@@ -23,7 +24,6 @@ from app.models import Recipe
 router = APIRouter(prefix="/api")
 
 NOT_LINKED = "AH niet gekoppeld. Ga naar Instellingen."
-BONUS_CACHE = "ah_bonus_cache"
 STAPLES_CACHE = "ah_staples_cache"
 STAPLES_WEEKS = 12
 STAPLES_MAX_TRIPS = 20
@@ -48,35 +48,55 @@ def _save(db: Session, key: str, data: dict) -> None:
 # ── 1. Bonus ───────────────────────────────────────────────────────────
 
 
-def _bonus_cache_valid(cache: dict | None, user: bool) -> bool:
-    if not cache or not cache.get("products"):
-        return False
-    if user and not cache.get("user"):
-        return False  # nu wel gekoppeld: opnieuw, mét persoonlijke bonus
-    if cache.get("end"):
-        return str(date.today()) <= cache["end"]
-    return ahd.is_fresh(cache.get("fetched_at", ""), 24)
+def _period_dict(row) -> dict:
+    return {"start": row.start, "end": row.end, "user": row.user, "fetched_at": row.fetched_at,
+            "personal": row.personal, "groups": row.groups, "products": row.products}
 
 
-async def get_bonus(db: Session, refresh: bool = False) -> dict:
-    """Bonus van deze periode uit de cache (per bonusperiode), anders vers bij AH."""
+async def bonus_for_week(db: Session, monday: date) -> dict:
+    """Bonus voor de week waarvoor gepland wordt: deze periode, of die van volgende week zodra AH die toont.
+    Valt terug op de huidige periode als de volgende nog niet bekend is."""
+    today = date.today()
+    current = ah_sync.bonus_period(db, today)
+    if current and str(monday) > current.end:
+        try:
+            return await get_bonus(db, False, "next")
+        except Exception as e:  # noqa: BLE001
+            logger.info("Bonus van volgende week nog niet beschikbaar: %s", e)
+    elif not current and monday > routes.monday_of(today):
+        try:
+            cur = await get_bonus(db, False, "current")
+            if str(monday) <= cur["end"]:
+                return cur
+            return await get_bonus(db, False, "next")
+        except Exception as e:  # noqa: BLE001
+            logger.info("Bonus van volgende week nog niet beschikbaar: %s", e)
+    return await get_bonus(db, False, "current")
+
+
+async def get_bonus(db: Session, refresh: bool = False, period: str = "current") -> dict:
+    """Bonus van deze ("current") of volgende ("next") periode uit `ah_bonus_periods`, anders vers bij AH.
+    Vorm: {"start", "end", "user", "personal", "groups", "products": {webshopId: product}}."""
     user = _use_user_tokens(db)
-    cache = _load(db, BONUS_CACHE)
-    if not refresh and _bonus_cache_valid(cache, user):
-        return cache
-    fresh = await ahd.fetch_bonus(user)
-    cache = {"start": fresh["start"], "end": fresh["end"], "user": user, "fetched_at": ahd.now_iso(),
-             "personal": fresh["personal"], "groups": fresh["groups"],
-             "products": {str(pid): p for pid, p in fresh["products"].items()}}
-    _save(db, BONUS_CACHE, cache)
-    logger.info("AH bonus opgehaald: %d producten (%s t/m %s)", len(cache["products"]), cache["start"], cache["end"])
-    return cache
+    today = date.today()
+    row = ah_sync.bonus_period(db, today) if period == "current" else None
+    if period == "next":
+        current = ah_sync.bonus_period(db, today)
+        if current and current.end:
+            row = ah_sync.bonus_period(db, date.fromisoformat(current.end) + timedelta(days=1))
+    if row and not refresh and row.products and (row.user or not user):
+        return _period_dict(row)
+    fresh = await ahd.fetch_bonus(user, period)
+    row = ah_sync.record_bonus(db, fresh, user)
+    logger.info("AH bonus opgehaald: %d producten (%s t/m %s)", len(row.products), row.start, row.end)
+    return _period_dict(row)
 
 
 @router.get("/bonus")
-async def api_bonus(refresh: bool = False, db: Session = Depends(get_db)):
+async def api_bonus(refresh: bool = False, period: str = "current", db: Session = Depends(get_db)):
+    """`period=next`: de bonus van volgende week, zodra AH die toont (handig vóór de besteldag)."""
     try:
-        cache = await get_bonus(db, refresh)
+        cache = await get_bonus(db, refresh, "next" if period == "next" else "current")
     except Exception as e:  # noqa: BLE001
         logger.warning("Bonus ophalen mislukt: %s", e)
         return _fail(e)
@@ -88,16 +108,22 @@ async def api_bonus(refresh: bool = False, db: Session = Depends(get_db)):
 
 
 @router.get("/bonus/recipes")
-async def api_bonus_recipes(limit: int = 30, refresh: bool = False, db: Session = Depends(get_db)):
+async def api_bonus_recipes(limit: int = 30, refresh: bool = False, period: str = "current",
+                            week: str | None = None, db: Session = Depends(get_db)):
+    """Eigen recepten met ingrediënten in de bonus. `week=` kiest de bonusperiode van die week (volgende
+    week zodra AH die toont); anders `period` (current | next)."""
     try:
-        cache = await get_bonus(db, refresh)
+        if week:
+            cache = await bonus_for_week(db, routes.parse_week(week))
+        else:
+            cache = await get_bonus(db, refresh, "next" if period == "next" else "current")
     except Exception as e:  # noqa: BLE001
         logger.warning("Bonus ophalen mislukt: %s", e)
         return _fail(e)
     recipes = [{"id": r.id, "name": r.name, "image_url": r.image_url or "", "servings": r.servings or "",
                 "total_time": r.total_time or "", "ah_recipe_id": r.ah_recipe_id, "ingredients": r.ingredients}
                for r in db.execute(select(Recipe)).scalars()]
-    scored = ahd.score_recipes(recipes, {int(k): v for k, v in cache["products"].items()})
+    scored = ahd.score_recipes(recipes, cache["products"])
     return {"ok": True, "period": {"start": cache.get("start", ""), "end": cache.get("end", "")},
             "bonus_count": len(cache["products"]), "recipes": scored[:max(1, limit)]}
 
@@ -264,9 +290,53 @@ async def api_staples(week: str | None = None, refresh: bool = False, db: Sessio
     cart, _ = routes.week_cart(db, monday)
     exclude = {int(c["product_id"]) for c in cart if c.get("product_id")}
     staples = ahd.compute_staples(history["trips"], exclude, basis, max_trips=STAPLES_MAX_TRIPS)
+    for s in staples:
+        s["source"] = "vaak"
+    # "Waarschijnlijk op" uit het koopritme (ah_trips) erbij, vóór de rest: dat is het meest urgent.
+    due = [r for r in replenish_due(db, monday) if r["product_id"] not in exclude]
+    have = {s["product_id"] for s in staples}
+    merged = [{"product_id": r["product_id"], "name": r["name"], "times": r["times"], "in_basislijst": False,
+               "last_bought": r["last_bought"], "source": "ritme", "status": r["status"], "due_on": r["due_on"],
+               "interval_days": r["interval_days"]} for r in due if r["product_id"] not in have]
+    for s in staples:
+        hit = next((r for r in due if r["product_id"] == s["product_id"]), None)
+        if hit:
+            s.update(source="ritme", status=hit["status"], due_on=hit["due_on"], interval_days=hit["interval_days"])
+    staples = merged + staples
+    staples.sort(key=lambda s: (s.get("source") != "ritme", s.get("status") != "op"))  # stabiel: ritme eerst
     counts = history.get("counts") or {}
     return {"ok": True, "week": str(monday), "staples": staples,
-            "source_counts": {**counts, "ritten": len(history["trips"]), "basislijst": len(basis)}}
+            "source_counts": {**counts, "ritten": len(history["trips"]), "basislijst": len(basis),
+                              "waarschijnlijk_op": len(due)}}
+
+
+def replenish_due(db: Session, monday: date) -> list[dict]:
+    from app import replenish
+
+    trips = ah_sync.trips_as_dicts(ah_sync.trips_since(db, date.today() - timedelta(weeks=52)))
+    rows = replenish.predict(trips, snooze=replenish.load_snooze(db))
+    return [r for r in rows if r["status"] in ("op", "binnenkort")]
+
+
+# ── 5. AH-datalaag (sync) ──────────────────────────────────────────────
+
+
+@router.post("/ah/sync")
+async def api_ah_sync(db: Session = Depends(get_db)):
+    """Nieuwe bestellingen en kassabonnen ophalen naar `ah_trips` (alleen wat we nog niet hebben)."""
+    if not _use_user_tokens(db):
+        return _fail(NOT_LINKED)
+    try:
+        result = await ah_sync.sync_trips(db)
+    except Exception as e:  # noqa: BLE001
+        logger.warning("AH-sync mislukt: %s", e)
+        return _fail(e)
+    return {"ok": True, **result, "status": ah_sync.sync_status(db)}
+
+
+@router.get("/ah/sync/status")
+async def api_ah_sync_status(db: Session = Depends(get_db)):
+    return {"ok": True, "linked": _use_user_tokens(db), **ah_sync.sync_status(db)}
 
 
 

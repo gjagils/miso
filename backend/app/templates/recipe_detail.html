@@ -25,6 +25,17 @@
 <p class="muted usage-line">{% if recipe.cooked_count %}{{ recipe.cooked_count }}× gekookt{% else %}Nog niet gekookt met Miso{% endif %}
     {% if recipe.thumbs_up or recipe.thumbs_down %} · 👍 {{ recipe.thumbs_up }} · 👎 {{ recipe.thumbs_down }}{% endif %}</p>
 <p id="plan-msg" class="msg-ok" role="status" hidden></p>
+<p id="recipe-cost" class="muted recipe-facts"></p>
+<script>
+(() => {
+    const el = document.getElementById("recipe-cost");
+    const euro = n => "€" + Number(n).toFixed(2).replace(".", ",");
+    fetch("/api/recipes/{{ recipe.id }}/cost").then(r => r.json()).then(c => {
+        if (!c.ok || !c.known_count) return;
+        el.textContent = `Ongeveer ${euro(c.total)} voor ${c.persons}${c.per_person != null ? ` (${euro(c.per_person)} p.p.)` : ""}${c.bonus_saving ? `, ${euro(c.bonus_saving)} bonusvoordeel` : ""}${c.complete ? "" : ", niet alles heeft een prijs"}`;
+    }).catch(() => {});
+})();
+</script>
 {% if kid %}
 <section class="settings-section">
     <h2>Ingrediënten</h2>

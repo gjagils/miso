@@ -857,3 +857,25 @@ img.who-avatar { object-fit: cover; }
 .help .tip { margin-top: 0.6rem; font-size: 0.95rem; opacity: 0.85; }
 .faq dt { font-weight: 700; margin-top: 0.6rem; }
 .faq dd { margin: 0.2rem 0 0; }
+
+
+/* Uitgaven */
+.spend-bars { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 4px; align-items: end; height: 190px; margin: 0.5rem 0; }
+.spend-bar { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 2px; height: 100%; background: none; border: 0; padding: 0; cursor: pointer; color: var(--text); border-radius: 8px; }
+.spend-bar:hover, .spend-bar.on { background: var(--surface-2); }
+.spend-amt { font-size: 0.62rem; color: var(--muted); white-space: nowrap; min-height: 1em; }
+.spend-col { width: 100%; height: 130px; display: flex; align-items: flex-end; }
+.spend-fill { display: block; width: 100%; background: var(--miso-orange); border-radius: 6px 6px 2px 2px; min-height: 0; }
+.spend-bar.on .spend-fill { background: var(--ah-blue); }
+.spend-lbl { font-size: 0.62rem; color: var(--muted); white-space: nowrap; transform: rotate(-35deg); transform-origin: top center; margin-top: 4px; height: 1.6em; }
+.spend-summary p:first-child { font-size: 1.1rem; }
+
+/* Waarschijnlijk op */
+.rp-list { list-style: none; padding: 0; margin: 0.5rem 0; }
+.rp-list li { display: flex; align-items: center; gap: 0.5rem; padding: 0.45rem 0; border-top: 1px solid var(--border); flex-wrap: wrap; }
+.rp-list li:first-child { border-top: 0; }
+
+.suggest-why { color: var(--muted); }
+.recipe-facts { margin: 0 0 0.75rem; }
+.recipe-facts:empty { display: none; }
+.chip-bonus { background: var(--miso-orange); color: var(--miso-blue); margin-left: 0.4rem; font-size: 0.7rem; vertical-align: middle; }

@@ -152,6 +152,19 @@ def _health(profile: dict | None) -> float:
     return profile["score"] * 8 + min(profile["groente_g"], 250) / 12 - abs(profile["kcal"] - 600) / 30
 
 
+def _bonus_savings(db: Session, recipes: list[Recipe], monday: date) -> dict[int, float]:
+    """Per recept de geschatte besparing in de bonus van de week waarvoor gepland wordt (uit de AH-datalaag;
+    leeg als er nog geen bonus is opgehaald). Nooit een AH-call vanuit het voorstel."""
+    from app import ah_sync
+    from app.clients.ah_data import score_recipes
+
+    period = ah_sync.bonus_for_week(db, monday)
+    if not period or not period.products:
+        return {}
+    rows = score_recipes([{"id": r.id, "ingredients": r.ingredients} for r in recipes], period.products)
+    return {row["id"]: float(row.get("saving") or 0) for row in rows}
+
+
 def propose(db: Session, monday: date, wishes: dict[str, str], per_day: int = 3,
             today: date | None = None, replace: set[str] | None = None) -> list[dict]:
     """wishes: {"2026-10-12": "rijst", ...}. Geeft per dag {date, wish, kind, options} (niets opgeslagen)."""
@@ -168,6 +181,7 @@ def propose(db: Session, monday: date, wishes: dict[str, str], per_day: int = 3,
 
     wished = {w.recipe_id for w in db.execute(select(Wish).where(Wish.done_on.is_(None),
                                                                  Wish.recipe_id.is_not(None))).scalars()}
+    bonus = _bonus_savings(db, recipes, monday)  # recipe_id -> geschatte besparing in de bonus van die week
     chosen_profiles = [profiles.get(rid) or (guessed_profile(by_id[rid]) if rid in by_id else {}) for rid in week_ids]
     used: set[int] = set(week_ids)
     used_dishes = {dish_key(by_id[rid].name) for rid in week_ids if rid in by_id}
@@ -203,6 +217,8 @@ def propose(db: Session, monday: date, wishes: dict[str, str], per_day: int = 3,
                 s += 15  # wens staat in de naam ("nasi", "rijst"): beter dan alleen een ingrediënt
             if r.id in wished:
                 s += 25  # iemand in het gezin wil dit graag
+            if bonus.get(r.id):
+                s += min(15, 3 * bonus[r.id])  # in de bonus deze week: per euro voordeel, tot 15
             if r.favorite and favorites_chosen >= 2:
                 s -= 30  # hooguit twee favorieten per week, anders steeds hetzelfde
             if prev_cuisine and p.get("keuken") == prev_cuisine and prev_cuisine != "overig":
@@ -221,7 +237,8 @@ def propose(db: Session, monday: date, wishes: dict[str, str], per_day: int = 3,
             options.append({"recipe_id": r.id, "name": display_name(r.name), "image_url": r.image_url,
                             "total_time": r.total_time, "favorite": bool(r.favorite),
                             "pack": r.collection == "maaltijdpakket", "eiwit": p.get("eiwit", ""),
-                            "keuken": p.get("keuken", ""), "basis": p.get("basis", "")})
+                            "keuken": p.get("keuken", ""), "basis": p.get("basis", ""),
+                            "bonus_saving": bonus.get(r.id) or 0, "wished": r.id in wished})
             if len(options) == per_day:
                 break
         item["options"] = options

@@ -88,6 +88,9 @@ async def daily_loop() -> None:
             n = await localize_photos()
             if n:
                 logger.info("Foto lokaal bewaard voor %d recepten", n)
+            from app.ah_sync import run_daily_once
+
+            await run_daily_once()  # bestellingen/bonnen en bonus naar de AH-datalaag
         except Exception as e:  # noqa: BLE001 - onderhoud mag de app nooit laten vallen
             logger.warning("Dagelijks onderhoud mislukt: %s", e)
         await asyncio.sleep(24 * 3600)

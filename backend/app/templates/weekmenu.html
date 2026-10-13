@@ -27,10 +27,18 @@
 <section class="status-box wm-groceries" id="groceries" aria-labelledby="gr-title">
     <h2 id="gr-title">Boodschappen</h2>
     <p id="gr-line" class="gr-line" role="status"></p>
+    <p id="gr-cost" class="muted" hidden></p>
     <button class="btn btn-primary gr-btn" id="push-btn" type="button" hidden></button>
     <p id="gr-msg" class="muted" role="status"></p>
     <details id="gr-missing" hidden><summary>Wat moet er nog op?</summary><ul></ul></details>
     <details id="gr-unmatched" class="kz-unmatched" hidden><summary></summary><ul></ul><p class="muted">Koppel die in het recept, of vink ze uit.</p></details>
+</section>
+
+<section class="status-box wm-replenish" id="replenish" aria-labelledby="rp-title" hidden>
+    <h2 id="rp-title">Waarschijnlijk op</h2>
+    <p class="muted">Op basis van hoe vaak jullie dit kopen. Zet het op je lijstje, of zeg dat je het nog hebt.</p>
+    <ul class="rp-list" id="rp-list"></ul>
+    <p class="muted" id="rp-msg" role="status"></p>
 </section>
 
 <section class="settings-section wm-freezer" id="freezer" aria-labelledby="fz-title">
@@ -76,7 +84,51 @@ async function reload() {
     if (!w.ok) return;
     entries = w.days.flatMap(d => d.entries);
     status = w.status;
-    renderDays(); renderGroceries(); loadHealth(); loadFreezer();
+    renderDays(); renderGroceries(); loadHealth(); loadFreezer(); loadCost(); loadReplenish();
+}
+
+// ── Kosten (schatting uit gekoppelde AH-producten) ───────
+const euro = n => "€" + Number(n).toFixed(2).replace(".", ",");
+async function loadCost() {
+    const el = $("gr-cost");
+    if (!el) return;
+    const c = await api("GET", `/api/week/cost?week=${WEEK}`);
+    if (!c.ok || !c.known_count) { el.hidden = true; return; }
+    const parts = [`Geschat ${euro(c.total)} voor deze week`];
+    if (c.per_meal) parts.push(`${euro(c.per_meal)} per bord`);
+    if (c.bonus_saving) parts.push(`waarvan ${euro(c.bonus_saving)} bonusvoordeel`);
+    if (c.unknown.length) parts.push(`${plural(c.unknown.length, "product", "producten")} zonder prijs`);
+    el.innerHTML = esc(parts.join(" · ")) + (HAS_TOKEN ? ` · <a href="/uitgaven">uitgaven</a>` : "");
+    el.hidden = false;
+}
+
+// ── Waarschijnlijk op (koopritme uit bestellingen en bonnen) ──
+async function loadReplenish() {
+    const box = $("replenish");
+    if (!box || !HAS_TOKEN) return;
+    const r = await api("GET", `/api/replenish?week=${WEEK}`);
+    const due = (r.ok && r.due) || [];
+    box.hidden = !due.length;
+    const ul = $("rp-list");
+    ul.innerHTML = "";
+    due.forEach(p => {
+        const li = document.createElement("li");
+        const when = p.status === "op" ? "waarschijnlijk op" : `over ${p.days_left} ${p.days_left === 1 ? "dag" : "dagen"} op`;
+        li.innerHTML = `<div class="fz-main"><span class="fz-name">${esc(p.name || "Product " + p.product_id)}</span>
+            <span class="muted">${when} · elke ${p.interval_days} dagen · laatst ${esc(MisoPlan.dayLabel(p.last_bought).replace(/^\S+ /, ""))}</span></div>
+            <button type="button" class="btn btn-sm" data-add>Op het lijstje</button>
+            <button type="button" class="btn btn-sm btn-muted" data-have>Hebben we nog</button>`;
+        li.querySelector("[data-add]").onclick = async () => {
+            const res = await api("POST", "/api/ah-extras/to-list", {list_ids: [], products: [{product_id: p.product_id, name: p.name, quantity: Math.max(1, Math.round(p.avg_quantity || 1))}]});
+            $("rp-msg").textContent = res.ok ? `${p.name} staat op je AH-lijstje.` : (res.error || "Op het lijstje zetten is mislukt.");
+            if (res.ok) { await api("POST", "/api/replenish/snooze", {product_id: p.product_id, days: p.interval_days || 14}); loadReplenish(); }
+        };
+        li.querySelector("[data-have]").onclick = async () => {
+            await api("POST", "/api/replenish/snooze", {product_id: p.product_id, days: Math.max(7, Math.round((p.interval_days || 14) / 2))});
+            loadReplenish();
+        };
+        ul.appendChild(li);
+    });
 }
 
 // ── Dagen ───────────────────────────────────────────────
@@ -231,7 +283,7 @@ if (sb) sb.onclick = async () => {
         return;
     }
     out.innerHTML = `<ul class="suggest-list">${r.voorstel.map(v => `<li><strong>${esc(MisoPlan.dayLabel(v.date))}</strong>: ${esc(v.name)}
-        <span class="muted">(${esc(v.profiel.eiwit)}, ${esc(v.profiel.basis)}, ~${v.profiel.kcal} kcal)</span></li>`).join("")}</ul>
+        <span class="muted">(${esc(v.profiel.eiwit)}, ${esc(v.profiel.basis)}, ~${v.profiel.kcal} kcal)</span>${v.uitleg ? `<br><small class="suggest-why">${esc(v.uitleg)}</small>` : ""}</li>`).join("")}</ul>
         <button class="btn btn-primary" type="button" id="apply-suggest">Zet deze in het weekmenu</button>`;
     $("apply-suggest").onclick = async () => {
         for (const v of r.voorstel) await api("POST", "/api/plan/entries", {date: v.date, kind: "recipe", recipe_id: v.recipe_id});
@@ -240,7 +292,7 @@ if (sb) sb.onclick = async () => {
     };
 };
 
-renderDays(); renderGroceries(); loadFreezer(); loadHealth();
+renderDays(); renderGroceries(); loadFreezer(); loadHealth(); loadCost(); loadReplenish();
 })();
 </script>
 {% endblock %}

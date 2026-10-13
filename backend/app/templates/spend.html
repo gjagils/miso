@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Uitgaven - Miso{% endblock %}
+{% block content %}
+<div class="page-head"><img src="/static/miso/miso-shopping-cart.webp" alt="" width="76" height="76" loading="lazy"><h1>Uitgaven</h1></div>
+<p class="muted">Wat jullie bij AH uitgeven, uit je bestellingen en kassabonnen. Alleen lezen; Miso bestelt nooit.</p>
+
+{% if not has_token %}
+<div class="empty-state"><img src="/static/miso/miso-confused.webp" alt="" width="140" height="140" loading="lazy">
+    <p>AH is nog niet gekoppeld. <a href="/settings">Koppel AH in Instellingen</a>, dan haalt Miso je bestellingen en bonnen op.</p></div>
+{% else %}
+<section class="status-box spend-summary" id="spend-summary" aria-live="polite">
+    <p class="muted">Uitgaven ophalen…</p>
+</section>
+
+<section class="settings-section">
+    <h2>Per week <span class="kz-count" id="spend-range"></span></h2>
+    <div class="spend-bars" id="spend-bars" role="list"></div>
+    <p class="muted">Tik op een week voor de grootste posten.</p>
+</section>
+
+<section class="settings-section" id="spend-detail" hidden>
+    <h2 id="spend-detail-title">Week</h2>
+    <p class="muted" id="spend-detail-sub"></p>
+    <h3>Grootste posten</h3>
+    <table class="settings-table" id="spend-top"></table>
+    <h3 style="margin-top:1rem;">Per categorie</h3>
+    <table class="settings-table" id="spend-cats"></table>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if has_token %}
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+const euro = n => "€" + Number(n || 0).toFixed(2).replace(".", ",");
+const day = d => new Date(d + "T12:00").toLocaleDateString("nl-NL", {day: "numeric", month: "short"});
+const WEEKS = 12;
+let data = null;
+
+async function load(detail) {
+    const url = `/api/spend?weeks=${WEEKS}` + (detail ? `&detail=${detail}` : "");
+    try { data = await (await fetch(url)).json(); } catch (e) { data = {ok: false}; }
+    if (!data.ok) { $("spend-summary").innerHTML = `<p class="muted">Uitgaven niet beschikbaar.</p>`; return; }
+    renderSummary(); renderBars();
+    if (data.detail) renderDetail(data.detail);
+}
+
+function renderSummary() {
+    const s = $("spend-summary");
+    if (!data.trips_total) {
+        s.innerHTML = `<p>Nog geen bestellingen of bonnen opgehaald. Ga naar <a href="/settings#ah-sync">Instellingen</a> en kies "Nu bijwerken".</p>`;
+        return;
+    }
+    const withData = data.weeks.filter(w => w.trips);
+    const disc = withData.reduce((a, w) => a + w.discount, 0);
+    s.innerHTML = `<p><strong>${data.average_week != null ? euro(data.average_week) : "–"}</strong> per week gemiddeld
+        ${data.average_per_person_day != null ? `· ${euro(data.average_per_person_day)} per persoon per dag (${data.household_size} personen)` : ""}</p>
+        <p class="muted">${data.trips_total} ${data.trips_total === 1 ? "rit" : "ritten"} in de laatste ${WEEKS} weken · ${euro(disc)} bonus en korting</p>`;
+}
+
+function renderBars() {
+    const max = Math.max(1, ...data.weeks.map(w => w.total));
+    const wrap = $("spend-bars");
+    wrap.innerHTML = "";
+    $("spend-range").textContent = `${day(data.weeks[0].week)} – nu`;
+    data.weeks.forEach(w => {
+        const b = document.createElement("button");
+        b.type = "button"; b.className = "spend-bar" + (data.detail && data.detail.week === w.week ? " on" : ""); b.setAttribute("role", "listitem");
+        const h = w.trips ? Math.max(4, Math.round(100 * w.total / max)) : 0;
+        b.innerHTML = `<span class="spend-amt">${w.trips ? euro(w.total) : ""}${w.unknown ? "*" : ""}</span>
+            <span class="spend-col"><span class="spend-fill" style="height:${h}%"></span></span>
+            <span class="spend-lbl">${esc(day(w.week))}</span>`;
+        b.setAttribute("aria-label", `Week van ${day(w.week)}: ${w.trips ? euro(w.total) + " in " + w.trips + " ritten" : "geen ritten"}`);
+        b.onclick = () => load(w.week);
+        wrap.appendChild(b);
+    });
+}
+
+function renderDetail(d) {
+    $("spend-detail").hidden = false;
+    $("spend-detail-title").textContent = `Week van ${day(d.week)}`;
+    const total = d.trips.reduce((a, t) => a + (t.total || 0), 0), disc = d.trips.reduce((a, t) => a + (t.discount || 0), 0);
+    $("spend-detail-sub").textContent = d.trips.length
+        ? `${d.trips.length} ${d.trips.length === 1 ? "rit" : "ritten"} (${d.trips.map(t => `${t.source} ${day(t.date)}`).join(", ")}) · ${euro(total)}${disc ? ` · ${euro(disc)} korting` : ""}`
+        : "Geen bestellingen of bonnen in deze week.";
+    $("spend-top").innerHTML = d.top.map(r => `<tr><td>${esc(r.name)}${r.bonus ? ' <span class="chip">bonus</span>' : ""}</td>
+        <td class="muted">${r.quantity % 1 ? r.quantity.toFixed(1) : r.quantity}×</td><td style="text-align:right">${euro(r.amount)}</td></tr>`).join("")
+        || `<tr><td class="muted">Geen regels met bedragen.</td></tr>`;
+    $("spend-cats").innerHTML = d.categories.map(c => `<tr><td>${esc(c.category)}</td><td style="text-align:right">${euro(c.amount)}</td></tr>`).join("")
+        || `<tr><td class="muted">–</td></tr>`;
+    $("spend-detail").scrollIntoView({behavior: "smooth", block: "nearest"});
+}
+
+load();
+})();
+</script>
+{% endif %}
+{% endblock %}

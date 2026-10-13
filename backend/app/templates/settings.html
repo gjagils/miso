@@ -79,7 +79,8 @@
 <section class="settings-section">
     <h2>Koppeling met AH</h2>
     <p><a class="btn btn-primary" href="/dekking/ontbrekend">Ontbrekende AH-producten kiezen</a>
-       <a class="btn" href="/dekking">Bekijk per recept hoeveel er gekoppeld is</a></p>
+       <a class="btn" href="/dekking">Bekijk per recept hoeveel er gekoppeld is</a>
+       <a class="btn" href="/uitgaven">Uitgaven per week</a></p>
 </section>
 
 <section class="settings-section">
@@ -122,6 +123,13 @@
 </script>
 
 {% if ah_refresh_set or ah_token_set %}
+<section class="settings-section" id="ah-sync">
+    <h2>Je bestellingen en kassabonnen</h2>
+    <p class="muted">Miso bewaart een kopie van je AH-bestellingen en bonnen (met bedragen) voor het uitgavenoverzicht en "waarschijnlijk op". Alleen lezen; er wordt nooit iets besteld. Dit gebeurt elke dag vanzelf.</p>
+    <p id="sync-status" class="muted">Status ophalen…</p>
+    <p><button class="btn btn-ah" type="button" id="sync-btn">Nu bijwerken</button></p>
+</section>
+
 <section class="settings-section" id="ah-data">
     <h2>Je AH-lijsten</h2>
     <p class="muted" id="ah-lists-status">Lijsten ophalen bij AH...</p>
@@ -183,6 +191,20 @@
 (() => {
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+
+const showSync = st => {
+    const when = st.last_run ? new Date(st.last_run).toLocaleString("nl-NL", {dateStyle: "medium", timeStyle: "short"}) : "nog nooit";
+    const errs = (st.errors || []).length ? ` · ${st.errors.length} fout${st.errors.length === 1 ? "" : "en"}: ${esc(st.errors[0])}` : "";
+    $("sync-status").textContent = `${st.trips_total || 0} ritten bewaard, ${st.prices_total || 0} prijzen, ${st.bonus_periods || 0} bonusperiodes · laatst bijgewerkt: ${when}${errs}`;
+};
+fetch("/api/ah/sync/status").then(r => r.json()).then(showSync).catch(() => { $("sync-status").textContent = "Status niet beschikbaar."; });
+$("sync-btn").onclick = async () => {
+    const b = $("sync-btn"); b.disabled = true; b.textContent = "Bezig… (dit kan even duren)";
+    let r; try { r = await (await fetch("/api/ah/sync", {method: "POST"})).json(); } catch (e) { r = {ok: false}; }
+    b.disabled = false; b.textContent = "Nu bijwerken";
+    if (r.ok) { showSync(r.status); $("sync-status").textContent = `${r.added} nieuwe ritten opgehaald. ` + $("sync-status").textContent; }
+    else $("sync-status").textContent = r.error || "Bijwerken is mislukt.";
+};
 
 (async () => {
     let r;

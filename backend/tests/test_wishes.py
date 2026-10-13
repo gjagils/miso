@@ -88,3 +88,22 @@ def test_change_day_replaces_only_on_apply(db):
     client.post("/api/plan/apply", json={"week": str(monday), "choices": [
         {"date": day, "kind": "recipe", "recipe_id": b.id, "replace": True}]})
     assert [e.recipe_id for e in db.query(PlanEntry).all()] == [b.id]
+
+
+def test_propose_prefers_bonus_of_planned_week(db):  # noqa: F811
+    """Twee gelijke rijstrecepten: het recept met een ingrediënt in de bonus van die week komt bovenaan,
+    en de optie draagt de besparing (voor de chip in Plannen). Geen AH-call: alles uit de datalaag."""
+    from app import ah_sync
+
+    plain = _recipe(db, "Rijst met kip", [_ing("300 g rijst", 1), _ing("kip", 2)])
+    _profile(db, plain, "rijst")
+    deal = _recipe(db, "Rijst met garnalen", [_ing("300 g rijst", 1), _ing("garnalen", 3)])
+    _profile(db, deal, "rijst")
+    monday = routes.monday_of(date.today()) + timedelta(days=7)
+    ah_sync.record_bonus(db, {"start": str(monday), "end": str(monday + timedelta(days=6)), "personal": 0, "groups": 0,
+                              "products": {3: {"id": 3, "title": "Garnalen", "now": 4.0, "was": 6.0, "saving": 2.0,
+                                               "mechanism": "33%"}}}, False)
+    out = wishes.propose(db, monday, {str(monday): "rijst"}, today=date.today())
+    options = out[0]["options"]
+    assert options[0]["recipe_id"] == deal.id and options[0]["bonus_saving"] == 2.0 and options[0]["wished"] is False
+    assert options[1]["recipe_id"] == plain.id and options[1]["bonus_saving"] == 0
