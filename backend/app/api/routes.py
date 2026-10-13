@@ -560,14 +560,16 @@ def learn_pref(db: Session, ing: dict) -> None:
         db.add(ProductPreference(term=term, product_json=json.dumps(product, ensure_ascii=False)))
 
 
-async def find_product(term: str, text: str = "", sem: asyncio.Semaphore | None = None) -> dict | None:
-    """Zoek het beste AH-product voor een ingrediënt (zelfde regels als het automatisch koppelen)."""
+async def search_candidates(term: str, text: str = "", sem: asyncio.Semaphore | None = None
+                            ) -> tuple[list[dict], str, set, dict | None]:
+    """Alle AH-producten die bij een ingrediënt kunnen passen, plus de zoekterm, vlaggen en benodigde hoeveelheid
+    (voor `choose` en `score`). Zelfde zoekopdrachten als het automatisch koppelen."""
     sem = sem or asyncio.Semaphore(4)
     # De volledige regel bevat meer informatie ("1/2 tl paprika" = poeder) dan Mealie's naam ("paprika")
     query, _, flags = query_terms(text) if text and query_terms(text)[0] else query_terms(term)
     need = needed(text or term)
     if not query:
-        return None
+        return [], "", flags, need
     products: list[dict] = []
     seen: set = set()
     for q in search_queries(query, flags):
@@ -582,6 +584,14 @@ async def find_product(term: str, text: str = "", sem: asyncio.Semaphore | None 
             if key not in seen:
                 seen.add(key)
                 products.append(p)
+    return products, query, flags, need
+
+
+async def find_product(term: str, text: str = "", sem: asyncio.Semaphore | None = None) -> dict | None:
+    """Zoek het beste AH-product voor een ingrediënt (zelfde regels als het automatisch koppelen)."""
+    products, query, flags, need = await search_candidates(term, text, sem)
+    if not query:
+        return None
     return choose(products, query, flags, need)
 
 

@@ -15,6 +15,7 @@ struct RecipeDetailView: View {
     @State private var plannedMessage: String?
     @State private var editingIngredient: IngredientSelection?
     @State private var editing = false
+    @State private var showingCheaper = false
     @State private var confirmDelete = false
     @State private var deleting = false
     /// Melding boven het recept (bijv. koppelen mislukt of recept was intussen gewijzigd).
@@ -146,6 +147,8 @@ struct RecipeDetailView: View {
                                 }
                             }
                         }
+                        Button("Zoek goedkopere producten", systemImage: "eurosign.arrow.circlepath") { showingCheaper = true }
+                            .buttonStyle(.misoSecondary)
                     } header: {
                         Text("Ingrediënten").misoSectionHeader()
                     } footer: {
@@ -227,6 +230,9 @@ struct RecipeDetailView: View {
             if let recipe {
                 RecipeEditView(recipe: recipe, onSaved: edited)
             }
+        }
+        .sheet(isPresented: $showingCheaper) {
+            CheaperSheet(recipeID: recipeID, onChanged: { Task { await load() } })
         }
         .task { await load() }
     }

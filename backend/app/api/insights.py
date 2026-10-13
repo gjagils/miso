@@ -146,3 +146,17 @@ async def api_replenish_out(payload: OutPayload, db: Session = Depends(get_db)):
         known = next((r for r in replenish.predict(trips) if r["product_id"] == payload.product_id), None)
         replenish.snooze(db, payload.product_id, max(7, (known or {}).get("interval_days") or 14))
     return result
+
+
+@router.post("/recipes/{recipe_id}/cheaper")
+async def api_recipe_cheaper(recipe_id: int, db: Session = Depends(get_db)):
+    """Goedkopere AH-producten voor dit recept (zoekt bij AH, dus met een POST: niet vooraf ophalen).
+    Wijzigt niets; kiezen gaat via `POST /api/recipes/{id}/ingredients/{index}`."""
+    from app import cheaper
+
+    recipe = db.get(Recipe, recipe_id)
+    if not recipe:
+        return JSONResponse({"ok": False, "error": "Recept niet gevonden."}, status_code=404)
+    suggestions = await cheaper.cheaper_for(recipe, routes.search_candidates)
+    return {"ok": True, "recipe_id": recipe.id, "suggestions": suggestions,
+            "total_saving": round(sum(x["saving"] for x in suggestions), 2)}

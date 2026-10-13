@@ -886,3 +886,7 @@ img.who-avatar { object-fit: cover; }
 .budget-bar > span { display: block; height: 100%; background: var(--miso-orange); border-radius: 999px; }
 .budget-bar.over > span { background: #C0392B; }
 .out-btn { margin-left: 0.5rem; }
+
+.cheaper-list { list-style: none; padding: 0; margin: 0.5rem 0 0; }
+.cheaper-list li { display: flex; gap: 0.75rem; align-items: center; justify-content: space-between; padding: 0.5rem 0; border-top: 1px solid var(--border); }
+.cheaper-list li:first-child { border-top: 0; }

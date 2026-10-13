@@ -39,4 +39,9 @@ extension API {
     func markOut(productID: Int, name: String) async throws -> InsightResult {
         try await post("api/replenish/out", json: OutBody(productId: productID, name: name, quantity: 1))
     }
+
+    /// Goedkopere AH-producten voor een recept (zoekt bij AH; kan even duren). Wijzigt niets.
+    func cheaper(recipeID: Int) async throws -> CheaperResponse {
+        try await post("api/recipes/\(recipeID)/cheaper", form: [:])
+    }
 }

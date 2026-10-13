@@ -124,3 +124,38 @@ struct BudgetAndPantryTests {
         #expect(String(data: body, encoding: .utf8)?.contains("\"product_id\":7") == true)
     }
 }
+
+struct CheaperDecodingTests {
+    private func decode<T: Decodable>(_ type: T.Type, _ json: String) throws -> T {
+        try API.decoder.decode(type, from: Data(json.utf8))
+    }
+
+    @Test func cheaperResponse() throws {
+        let r = try decode(CheaperResponse.self, #"""
+        {"ok": true, "recipe_id": 1, "total_saving": 1.5, "suggestions": [
+          {"index": 0, "text": "500 g kipfilet", "manual": false, "saving": 1.5,
+           "current": {"id": 1, "name": "A-merk kipfilet", "unit_size": "500 g", "price": "6.00", "cost": 6.0, "packs": 1},
+           "alternative": {"id": 2, "name": "AH Kipfilet", "unit_size": "500 g", "price": "4.50", "image_url": "https://x/y.jpg",
+                           "brand": "AH", "category": "Vlees", "available": true, "organic": false, "unit_price": "", "nix18": false,
+                           "cost": 4.5, "packs": 1}}]}
+        """#)
+        #expect(r.ok && r.suggestions.count == 1 && r.totalSaving == 1.5)
+        let s = r.suggestions[0]
+        #expect(s.index == 0 && s.saving == 1.5 && !s.manual)
+        #expect(s.alternative.product.id == 2 && s.alternative.product.name == "AH Kipfilet" && s.alternative.cost == 4.5)
+        #expect(s.current.product.unitSize == "500 g" && s.current.cost == 6.0 && s.current.packs == 1)
+        // Het gekozen product gaat met snake_case-sleutels terug naar de server
+        let body = IngredientUpdateBody.choose(s.alternative.product, text: s.text)
+        let json = try #require(JSONSerialization.jsonObject(with: JSONEncoder().encode(body)) as? [String: Any])
+        let product = try #require(json["product"] as? [String: Any])
+        #expect(product["id"] as? Int == 2 && product["unit_size"] as? String == "500 g" && product["image_url"] as? String == "https://x/y.jpg")
+        #expect(json["text"] as? String == "500 g kipfilet")
+    }
+
+    @Test func emptyAndFailedResponses() throws {
+        let empty = try decode(CheaperResponse.self, #"{"ok": true, "suggestions": [], "total_saving": 0}"#)
+        #expect(empty.ok && empty.suggestions.isEmpty && empty.totalSaving == 0)
+        let failed = try decode(CheaperResponse.self, #"{"ok": false, "error": "Recept niet gevonden."}"#)
+        #expect(!failed.ok && failed.error == "Recept niet gevonden." && failed.suggestions.isEmpty)
+    }
+}

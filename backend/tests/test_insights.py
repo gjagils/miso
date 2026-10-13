@@ -245,3 +245,78 @@ def test_kids_cannot_press_out_or_sync(db, monkeypatch):  # noqa: F811
     client = TestClient(app, headers={"X-Miso-Member": "hannah"})
     for path in ("/api/replenish/out", "/api/replenish/snooze", "/api/ah/sync"):
         assert client.post(path, json={"product_id": 1}).status_code == 403, path
+
+
+# ── Goedkoper alternatief (B4) ─────────────────────────────────────────
+
+
+def _kip_recipe(db, price="6.00", manual=False):  # noqa: F811
+    r = _recipe(db, "Kip", [_ing("500 g kipfilet", 1), _ing("zout", skip=True)])
+    ings = r.ingredients
+    ings[0]["product"].update(name="A-merk kipfilet", price=price, unit_size="500 g")
+    ings[0]["manual"] = manual
+    r.ingredients = ings
+    db.commit()
+    return r
+
+
+def test_cheaper_suggests_same_product_for_less(db, monkeypatch):  # noqa: F811
+    r = _kip_recipe(db)
+    searched = []
+
+    async def fake_search(q, size=10):
+        searched.append(q)
+        return [
+            {"id": 1, "name": "A-merk kipfilet", "unit_size": "500 g", "price": "6.00", "brand": "Merk", "available": True},
+            {"id": 2, "name": "AH Kipfilet", "unit_size": "500 g", "price": "4.50", "brand": "AH", "available": True,
+             "category": "Vlees"},
+            {"id": 3, "name": "AH Kipfilet bio", "unit_size": "500 g", "price": "5.90", "brand": "AH", "available": True},
+            {"id": 4, "name": "AH Kippendij", "unit_size": "500 g", "price": "2.00", "brand": "AH", "available": True},
+            {"id": 5, "name": "AH Kipfilet", "unit_size": "500 g", "price": "3.00", "brand": "AH", "available": False},
+            {"id": 6, "name": "AH Kipfilet reepjes", "unit_size": "500 g", "price": "", "brand": "AH", "available": True},
+        ]
+    monkeypatch.setattr(routes.ah_client, "search_products", fake_search)
+    resp = TestClient(app).post(f"/api/recipes/{r.id}/cheaper").json()
+    assert resp["ok"] and len(resp["suggestions"]) == 1 and resp["total_saving"] == 1.5
+    s = resp["suggestions"][0]
+    assert s["index"] == 0 and s["text"] == "500 g kipfilet" and s["manual"] is False
+    assert s["current"]["id"] == 1 and s["current"]["cost"] == 6.0
+    assert s["alternative"]["id"] == 2 and s["alternative"]["cost"] == 4.5 and s["saving"] == 1.5
+    assert s["alternative"]["name"] == "AH Kipfilet" and s["alternative"]["unit_size"] == "500 g"  # klaar om te kiezen
+    assert searched  # er is echt gezocht
+    assert TestClient(app).post("/api/recipes/999/cheaper").status_code == 404
+
+
+def test_cheaper_ignores_small_savings_and_other_products(db, monkeypatch):  # noqa: F811
+    r = _kip_recipe(db, price="4.60")
+
+    async def fake_search(q, size=10):
+        return [{"id": 2, "name": "AH Kipfilet", "unit_size": "500 g", "price": "4.50", "available": True},  # maar 10 cent
+                {"id": 4, "name": "AH Kippendij", "unit_size": "500 g", "price": "1.00", "available": True}]  # ander product
+    monkeypatch.setattr(routes.ah_client, "search_products", fake_search)
+    resp = TestClient(app).post(f"/api/recipes/{r.id}/cheaper").json()
+    assert resp["ok"] and resp["suggestions"] == [] and resp["total_saving"] == 0
+
+
+def test_cheaper_counts_packs_not_just_price(db, monkeypatch):  # noqa: F811
+    """Een goedkoper pak dat te klein is, is niet goedkoper: 2 kleine pakken kosten meer dan 1 groot."""
+    r = _kip_recipe(db, price="6.00")
+
+    async def fake_search(q, size=10):
+        return [{"id": 2, "name": "AH Kipfilet", "unit_size": "250 g", "price": "3.50", "available": True}]  # 2 x 3,50 = 7,00
+    monkeypatch.setattr(routes.ah_client, "search_products", fake_search)
+    resp = TestClient(app).post(f"/api/recipes/{r.id}/cheaper").json()
+    assert resp["suggestions"] == []
+
+
+def test_kids_cannot_search_cheaper(db, monkeypatch):  # noqa: F811
+    from sqlalchemy.orm import sessionmaker
+
+    from app import database
+    from app.api import family
+
+    factory = sessionmaker(bind=db.get_bind())
+    monkeypatch.setattr(database, "SessionLocal", factory)
+    monkeypatch.setattr(family, "SessionLocal", factory)
+    r = _kip_recipe(db)
+    assert TestClient(app, headers={"X-Miso-Member": "hannah"}).post(f"/api/recipes/{r.id}/cheaper").status_code == 403
