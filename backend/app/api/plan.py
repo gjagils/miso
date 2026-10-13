@@ -12,7 +12,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app import planning, week_templates
+from app import bonushint, planning, week_templates
 from app.api import routes
 from app.database import get_db
 from app.models import FreezerItem, PlanEntry, Recipe, WeekTemplate
@@ -279,6 +279,7 @@ async def delete_entry(entry_id: int, db: Session = Depends(get_db)):
 def next_week_status(db: Session, today: date | None = None) -> dict:
     overview = planning.next_week_overview(db, today)
     status = routes.week_status(db, date.fromisoformat(overview["week"]))
+    overview["bonus_hint"] = bonushint.next_week(db, today)
     overview["list_status"] = {
         "needed": status["needed"],
         "missing_count": status["missing_count"],

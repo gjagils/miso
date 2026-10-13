@@ -18,5 +18,6 @@
     {% if not ready %}<a class="nw-link" href="/plannen?week={{ nws.week }}">Plan volgende week</a>{% else %}<a class="nw-link" href="/weekmenu?week={{ nws.week }}">Bekijk</a>{% endif %}
     {% endif %}
 </section>
+{% if nws.bonus_hint and nws.bonus_hint.message %}<p class="nw-bonus muted">{{ nws.bonus_hint.message }}</p>{% endif %}
 
 {% endif %}

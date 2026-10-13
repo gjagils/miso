@@ -226,7 +226,7 @@ testen zonder AH.
 | A2 | "Recepten in de bonus" met besparing in euro's op Kiezen, web en iOS | M | ja | 1 | ✅ web + iOS |
 | A3 | Bonus-term in de voorstelscore met uitleg | S | ja | 2 | ✅ |
 | A4 | "Koop er één bij" uit `recommendationsMissingBonus` in het boodschappenoverzicht | M | na F6 | 3 | ⏳ na F6 |
-| A5 | Vrijdagbericht "N recepten in de bonus volgende week" | S | ja | 3 | open |
+| A5 | Vrijdagbericht "N recepten in de bonus volgende week" | S | ja | 3 | ✅ iOS-melding vrijdag 17:00 + zin op de website (web kan niet pushen) |
 | A6 | Persoonlijke bonus en Bonus Box tonen bij producten in het weekmenu | M | na F6 | 4 | ⏳ na F6 |
 
 ### B. Uitgaven en budget
@@ -323,14 +323,19 @@ smaak per persoon met voorgestelde afkeer uit 👎 (D3/D4), en op iOS: uitgaven,
 en een bonusgroep in Zelf kiezen. De Definition of Done (app én website) is daarmee voor alles hierboven gehaald,
 behalve de onderdelen die op AH wachten.
 
+**Daarna ook gebouwd:** vriezer-houdbaarheid (C6), timers in de kookmodus (F10), weeksjablonen (F9), koken met wat er
+is (F11), kids-kookavond (D8) en het vrijdagbericht over de bonus (A5), allemaal website én iOS, met tests, API-doc en
+handleiding.
+
 **Nog open:**
 
 - **Wacht op AH:** F6 live-sessie (daarna A4 "koop er één bij", A6 persoonlijke bonus, B6 Premium-besparing, C5
   AH-vergeetsignalen, en E5 compleet).
-- **Nu bouwbaar:** A5 vrijdagbericht over de bonus van volgende week, C6 houdbaarheid van vriezer en koelkast, D7 stemmen op
-  kandidaten, D8 kids-kookavond, F9 week opslaan als sjabloon, F10 timers in de kookmodus, F11 koken met wat er is.
-- **Uit de analyse:** matching rekent nog met vast 4 personen voor "per persoon"-regels; de login-proxy op poort 9928
-  draait permanent.
+- **Bewust niet gedaan:** D7 stemmen op kandidaten (groot; vraagt een eigen ontwerp voor wie wanneer stemt), F7 de laatste
+  schermen met directe AH-calls (kan pas goed met de live-sessie erbij), koelkast-houdbaarheid (C6, vraagt een voorraadmodel
+  voor de koelkast dat er niet is).
+- **Uit de analyse:** matching rekent voor "per persoon"-regels met 4 personen en markeert dat met `for_persons`, zodat
+  er later niet nog eens geschaald wordt (geen bug, wel een aanname); de login-proxy op poort 9928 draait permanent.
 
 ## Bronnen
 

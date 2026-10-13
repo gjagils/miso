@@ -18,6 +18,7 @@ enum OrderReminderScheduler {
         if let status {  // wekelijkse "geef je wensen door"-melding op de besteldag om 12:00
             let isKid = Session.defaults.string(forKey: "memberRole") == MemberRole.kind.rawValue
             await WishDayReminder.schedule(orderDay: status.orderDay, dayName: status.orderDayName, isKid: isKid)
+            await BonusHintReminder.refresh(status: status)
         }
         guard isEnabled, let status else {
             if !isEnabled { cancel() }

@@ -8,6 +8,7 @@ struct ReminderSettingsSection: View {
     @Environment(\.openURL) private var openURL
     @AppStorage(OrderReminderScheduler.enabledKey) private var enabled = false
     @AppStorage(WishDayReminder.enabledKey) private var wishDay = true
+    @AppStorage(BonusHintReminder.enabledKey) private var bonusHint = true
     @State private var explaining = false
     @State private var denied = false
 
@@ -20,6 +21,15 @@ struct ReminderSettingsSection: View {
                 .onChange(of: wishDay) { _, _ in
                     Task {
                         if !wishDay { WishDayReminder.cancel() } else { await WishDayReminder.askOnce(); await refresh() }
+                    }
+                }
+            Toggle("Vrijdag: bonus van volgende week", isOn: $bonusHint)
+                .tint(Color.misoOrange)
+                .foregroundStyle(Color.misoBlue)
+                .frame(minHeight: 44)
+                .onChange(of: bonusHint) { _, isOn in
+                    Task {
+                        if !isOn { BonusHintReminder.cancel() } else { await refresh() }
                     }
                 }
             Toggle("Herinner me voor de besteldag", isOn: $enabled)
@@ -40,7 +50,7 @@ struct ReminderSettingsSection: View {
         } header: {
             Text("Herinnering").misoSectionHeader()
         } footer: {
-            Text("Op de besteldag om 12:00 vraagt Miso iedereen om wensen door te geven (ouders: bekijk ze en bestel). De avond vóór de besteldag om 19:00 krijg je een melding als het weekmenu voor volgende week nog niet compleet is. Alleen op dit toestel.")
+            Text("Op de besteldag om 12:00 vraagt Miso iedereen om wensen door te geven (ouders: bekijk ze en bestel). Op vrijdag om 17:00 hoor je hoeveel van je recepten volgende week in de bonus zitten. De avond vóór de besteldag om 19:00 krijg je een melding als het weekmenu voor volgende week nog niet compleet is. Alleen op dit toestel.")
         }
         .misoRow()
         .alert("Herinnering voor de besteldag", isPresented: $explaining) {

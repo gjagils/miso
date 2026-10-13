@@ -209,9 +209,16 @@ rest-dagen mee. Nieuwe clients: gebruik de entry-endpoints.
   "prominent": true,                     // days_until_order <= 2: toon groot
   "message": "Volgende week: 4 van 7 dagen gepland · nog 2 dagen tot zondag (besteldag)",
   "list_status": {"needed": 6, "missing_count": 6, "missing": [{"name": "…", "quantity": 2}],
-                  "unmatched_count": 0, "complete": false}
+                  "unmatched_count": 0, "complete": false},
+  "bonus_hint": {"count": 2, "saving": 3.0, "names": ["Garnalen met rijst", "Kip met rijst"],
+                 "message": "2 recepten van jullie zitten volgende week in de bonus (samen ongeveer €3,00 voordeel): …"}
 }
 ```
+
+`bonus_hint` (A5): eigen recepten waarvan een ingrediënt volgende week in de bonus zit (minstens €0,50 voordeel, uit
+`ah_bonus_periods`; `message` is leeg als er geen bonus bekend is). De website toont de zin onder de banner "Volgende week";
+de iOS-app plant er een lokale melding van op vrijdag 17:00 (alleen als die vrijdag nog vóór de maandag van `week` valt).
+Code: `backend/app/bonushint.py`.
 
 `message` varianten: "… · morgen is het zondag (besteldag)", "… · vandaag is het zondag (besteldag)".
 Acties in de UI: "Plan volgende week" (web: `/kiezen?week=next`) en "Laat Miso voorstellen"
