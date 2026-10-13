@@ -242,3 +242,29 @@ def cook_hints(recipe) -> dict:
         est = listed_min + oven_min  # opgegeven tijd is vaak alleen het snijwerk
     return {"minutes": est or None, "oven_min": oven_min or None, "oven_temp": temp.group(1) if temp else None,
             "longer": bool(est and listed_min and est > listed_min + 5)}
+
+
+# ── Vriezer: hoe lang al ───────────────────────────────────────────────
+
+FREEZER_SOON_DAYS = 60  # vanaf hier: "snel opeten"
+FREEZER_OLD_DAYS = 90  # restjes zijn in de vriezer na ~3 maanden minder lekker
+
+
+def age_days(added_on: str, today: date | None = None) -> int | None:
+    """Dagen sinds `added_on` (YYYY-MM-DD); None als de datum ontbreekt of onleesbaar is."""
+    try:
+        return max(0, ((today or date.today()) - date.fromisoformat(added_on)).days)
+    except (TypeError, ValueError):
+        return None
+
+
+def age_label(days: int | None) -> str:
+    """"5 dagen", "3 weken", "4 maanden"; leeg als onbekend."""
+    if days is None:
+        return ""
+    if days < 14:
+        return f"{days} {'dag' if days == 1 else 'dagen'}"
+    if days < 60:
+        return f"{days // 7} weken"
+    months = days // 30
+    return f"{months} maanden"

@@ -183,3 +183,22 @@ struct BonusDecodingTests {
         #expect(!failed.ok && failed.recipes.isEmpty)
     }
 }
+
+struct FreezerAgeTests {
+    private func decode<T: Decodable>(_ type: T.Type, _ json: String) throws -> T {
+        try API.decoder.decode(type, from: Data(json.utf8))
+    }
+
+    @Test func ageStates() throws {
+        let old = try decode(FreezerItem.self, #"""
+        {"id": 1, "name": "Oude bolognese", "portions": 2, "added_on": "2026-06-10", "age_days": 125, "age_label": "4 maanden", "age_state": "old"}
+        """#)
+        #expect(old.isOld && old.isGettingOld && old.ageWarning == "al 4 maanden: snel opeten")
+        let soon = try decode(FreezerItem.self, #"{"id": 2, "name": "Lasagne", "portions": 1, "age_label": "2 maanden", "age_state": "soon"}"#)
+        #expect(!soon.isOld && soon.isGettingOld && soon.ageWarning == "2 maanden in de vriezer")
+        let fresh = try decode(FreezerItem.self, #"{"id": 3, "name": "Soep", "portions": 4, "age_label": "5 dagen", "age_state": ""}"#)
+        #expect(!fresh.isGettingOld && fresh.ageWarning == nil)
+        let legacy = try decode(FreezerItem.self, #"{"id": 4, "name": "Oud", "portions": 1}"#)  // oudere server
+        #expect(legacy.ageState == "" && legacy.ageWarning == nil && legacy.ageLabel == nil)
+    }
+}

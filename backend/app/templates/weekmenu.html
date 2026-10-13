@@ -235,7 +235,8 @@ async function loadFreezer() {
     $("fz-empty").hidden = items.length > 0;
     items.forEach(it => {
         const li = document.createElement("li");
-        li.innerHTML = `<div class="fz-main"><span class="fz-name">${esc(it.name)}</span>
+        const ageChip = it.age_state ? ` <span class="chip ${it.age_state === "old" ? "chip-old" : "chip-warn"}">${it.age_state === "old" ? "al " + esc(it.age_label) + ": snel opeten" : esc(it.age_label) + " in de vriezer"}</span>` : "";
+        li.innerHTML = `<div class="fz-main"><span class="fz-name">${esc(it.name)}${ageChip}</span>
             <span class="muted">${plural(it.portions, "portie", "porties")}${it.added_on ? " · sinds " + esc(MisoPlan.dayLabel(it.added_on).replace(/^\S+ /, "")) : ""}</span></div>
             <button type="button" class="btn btn-sm" data-plan>Plan in</button>
             <button type="button" class="btn btn-sm btn-muted" data-min aria-label="Eén portie minder van ${esc(it.name)}">−1</button>`;

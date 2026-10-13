@@ -19,6 +19,13 @@ struct FreezerRow: View {
                     .font(.system(.body, design: .rounded).weight(.semibold))
                     .foregroundStyle(Color.misoBlue)
                 Text(detail).font(.misoCaption).foregroundStyle(.secondary)
+                if let warning = item.ageWarning {
+                    Label(warning, systemImage: item.isOld ? "exclamationmark.triangle.fill" : "clock")
+                        .font(.system(.caption, design: .rounded).weight(.semibold))
+                        .foregroundStyle(Color.misoInk)
+                        .padding(.horizontal, 8).padding(.vertical, 3)
+                        .background(Color.misoOrange.opacity(item.isOld ? 0.5 : 0.25), in: Capsule())
+                }
             }
             Spacer(minLength: 0)
             Button("Plan in", action: onPlan)
@@ -39,5 +46,6 @@ struct FreezerRow: View {
             .accessibilityLabel("Eén portie minder van \(item.name)")
         }
         .buttonStyle(.borderless)
+        .accessibilityElement(children: .contain)
     }
 }

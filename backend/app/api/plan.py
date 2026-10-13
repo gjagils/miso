@@ -326,8 +326,14 @@ async def patch_plan_settings(payload: PlanSettings, db: Session = Depends(get_d
 
 
 def freezer_item_json(item: FreezerItem) -> dict:
+    """`age_days`/`age_label`: hoe lang al in de vriezer; `age_state`: "" | "soon" (vanaf 60 dagen: snel opeten)
+    | "old" (vanaf 90 dagen: echt aan de beurt)."""
+    days = planning.age_days(item.added_on)
+    state = "old" if days is not None and days >= planning.FREEZER_OLD_DAYS else \
+        "soon" if days is not None and days >= planning.FREEZER_SOON_DAYS else ""
     return {"id": item.id, "name": item.name, "portions": item.portions, "added_on": item.added_on,
-            "from_recipe_id": item.from_recipe_id}
+            "from_recipe_id": item.from_recipe_id, "age_days": days, "age_label": planning.age_label(days),
+            "age_state": state}
 
 
 @router.get("/freezer")

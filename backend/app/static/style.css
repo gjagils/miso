@@ -903,3 +903,6 @@ img.who-avatar { object-fit: cover; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .chip-avoid { background: rgba(255, 138, 0, 0.2); color: #FFB04D; } }
 :root[data-theme="dark"] .chip-avoid { background: rgba(255, 138, 0, 0.2); color: #FFB04D; }
 .chip-x { background: none; border: 0; padding: 0 0 0 0.2rem; font-size: 1rem; line-height: 1; cursor: pointer; color: inherit; min-width: 24px; min-height: 24px; }
+.chip-old { background: #FFE3BD; color: #7A3B00; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .chip-old { background: rgba(255, 138, 0, 0.2); color: #FFB04D; } }
+:root[data-theme="dark"] .chip-old { background: rgba(255, 138, 0, 0.2); color: #FFB04D; }

@@ -487,3 +487,24 @@ def test_cook_hints_oven_time():
     r.instructions = ["Snijd de groenten.", "Bak de lasagne in ca. 30 min. in de oven op 200 °C goudbruin."]
     h = planning.cook_hints(r)
     assert h["oven_min"] == 30 and h["oven_temp"] == "200" and h["minutes"] == 55 and h["longer"]
+
+
+def test_freezer_age_and_warning_states(db):  # noqa: F811
+    from datetime import date, timedelta
+
+    from app import planning
+
+    today = date(2026, 10, 13)
+    assert planning.age_days("2026-10-03", today) == 10 and planning.age_days("", today) is None
+    assert planning.age_days("2027-01-01", today) == 0  # in de toekomst: 0, niet negatief
+    assert [planning.age_label(d) for d in (None, 1, 5, 13, 14, 28, 59, 60, 95, 200)] == \
+        ["", "1 dag", "5 dagen", "13 dagen", "2 weken", "4 weken", "8 weken", "2 maanden", "3 maanden", "6 maanden"]
+
+    client = TestClient(app)
+    for name, days in (("Verse soep", 5), ("Lasagne", 70), ("Oude bolognese", 120)):
+        client.post("/api/freezer", json={"name": name, "portions": 2, "added_on": str(date.today() - timedelta(days=days))})
+    items = {i["name"]: i for i in client.get("/api/freezer").json()["items"]}
+    assert items["Verse soep"]["age_state"] == "" and items["Verse soep"]["age_label"] == "5 dagen"
+    assert items["Lasagne"]["age_state"] == "soon" and items["Lasagne"]["age_days"] == 70
+    assert items["Oude bolognese"]["age_state"] == "old" and items["Oude bolognese"]["age_label"] == "4 maanden"
+    assert [i["name"] for i in client.get("/api/freezer").json()["items"]][0] == "Oude bolognese"  # oudste eerst
