@@ -44,4 +44,11 @@ extension API {
     func cheaper(recipeID: Int) async throws -> CheaperResponse {
         try await post("api/recipes/\(recipeID)/cheaper", form: [:])
     }
+
+    /// Eigen recepten met ingrediënten in de bonus van de periode waarin `week` valt (nil = deze week).
+    func bonusRecipes(week: String?, limit: Int = 6) async throws -> BonusRecipesResponse {
+        var query = [URLQueryItem(name: "limit", value: String(limit))]
+        if let week, !week.isEmpty { query.append(URLQueryItem(name: "week", value: week)) }
+        return try await get("api/bonus/recipes", query: query)
+    }
 }

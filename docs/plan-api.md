@@ -193,8 +193,8 @@ voorstel `POST /api/plan/entries`).
 
 ## Instellingen
 
-- `GET /api/plan/settings` → `{"ok": true, "household_size": 4, "order_weekday": 6, "order_weekday_name": "zondag"}`
-- `PATCH /api/plan/settings {"household_size": 5, "order_weekday": 0}` (beide optioneel; 1–20 en 0=ma … 6=zo)
+- `GET /api/plan/settings` → `{"ok": true, "household_size": 4, "order_weekday": 6, "order_weekday_name": "zondag", "week_budget": 0}`
+- `PATCH /api/plan/settings {"household_size": 5, "order_weekday": 0, "week_budget": 120}` (alles optioneel; 1–20, 0=ma … 6=zo, en 0–9999 euro per week met 0 = geen budget)
   → zelfde vorm. Web: formulier "Gezin en besteldag" op `/settings`.
 
 ## Vriezer
@@ -243,12 +243,33 @@ Schermen lezen hieruit; alleen de sync en de bonus-ophaling praten met AH. Dagel
 | `GET /api/bonus?period=next` | bonus van volgende week zodra AH die toont |
 | `GET /api/bonus/recipes?week=` | recepten in de bonus van de periode waarin die week valt (volgende week zodra AH die toont); anders `period=current\|next` |
 | `GET /api/staples` | bevat nu ook "waarschijnlijk op" (`source: "ritme"`, met `status`, `due_on`, `interval_days`) vooraan; de rest heeft `source: "vaak"`; `source_counts.waarschijnlijk_op` |
-| `GET /api/week/cost?week=` | geschatte kosten van het weekmenu: `{"total", "bonus_saving", "per_meal", "meals", "unknown", "known_count", "lines", "bonus_period"}` |
+| `GET /api/week/cost?week=` | geschatte kosten van het weekmenu: `{"total", "bonus_saving", "per_meal", "meals", "unknown", "known_count", "lines", "bonus_period", "budget", "budget_pct", "actual", "actual_pct"}`; `budget` is null zonder weekbudget, `actual` = wat er die week echt is uitgegeven (null zonder ritten) |
 | `GET /api/recipes/{id}/cost?persons=` | idem per recept, met `per_person` en `complete` |
 | `GET /api/spend?weeks=12&detail=YYYY-MM-DD` | uitgaven per week uit `ah_trips`: `{"weeks": [{"week", "total", "discount", "trips", "unknown"}], "average_week", "average_per_person_day"}`; met `detail` ook `{"detail": {"week", "trips", "top": [10 grootste regels], "categories"}}`. Web: `/uitgaven` |
-| `GET /api/replenish?week=` | "waarschijnlijk op": producten die volgens het koopritme aan de beurt zijn (≥3 keer gekocht, mediaan interval ≤120 dagen), minus de boodschappen van de week → `{"due": [{"product_id", "name", "status": "op"\|"binnenkort", "interval_days", "last_bought", "due_on", "days_left", "avg_quantity"}], "later": [...]}` |
+| `GET /api/replenish?week=` | "waarschijnlijk op": producten die volgens het koopritme aan de beurt zijn (≥3 keer gekocht, mediaan interval ≤120 dagen; basisvoorraad uit de recepten — olie, bloem — ≥2 keer, met `basis: true`), minus de boodschappen van de week → `{"due": [{"product_id", "name", "status": "op"\|"binnenkort", "interval_days", "last_bought", "due_on", "days_left", "avg_quantity"}], "later": [...]}` |
 | `POST /api/replenish/snooze` | `{"product_id", "days": 14}` = "hebben we nog": pas weer tonen na `days` dagen |
+| `POST /api/replenish/out` | `{"product_id", "name", "quantity": 1}` = "dit is op" (tijdens het koken): op het AH-lijstje en de voorspelling even met rust → `{"ok", "added"}`; zonder AH `{"ok": false, "error"}`. Alleen ouders |
+| `POST /api/recipes/{id}/cheaper` | goedkopere AH-producten voor dit recept (zoekt bij AH, dus POST): `{"ok", "suggestions": [{"index", "text", "manual", "current": {…, "cost", "packs"}, "alternative": {…product…, "cost", "packs"}, "saving"}], "total_saving"}`. Wijzigt niets; kiezen = `POST /api/recipes/{id}/ingredients/{index}` met `{"text", "product": alternative}`. Alleen producten die volgens `matching.score` even goed passen en minstens € 0,20 goedkoper zijn (aantal pakken telt mee). Alleen ouders |
 
 Prijzen: bij elke zoekopdracht en elke koppeling wordt een prijssnapshot per product per dag bewaard; de kosten
 gebruiken de prijs van de koppeling, anders het laatste snapshot, en de bonusprijs als het product in de bonus
 van die week zit.
+
+## Smaak per persoon
+
+Code: `backend/app/tastes.py`, `backend/app/api/tastes.py`. Gezinsleden zijn die van `app/members.py` (tekst-ids).
+
+| | |
+|---|---|
+| `GET /api/preferences` | `{"ok", "members": [{"id", "name", "role", "color", "preferences": [{"id", "member_id", "term", "kind": "dislike"\|"like"}]}], "suggestions": [{"member_id", "name", "term", "down", "up"}]}` |
+| `POST /api/members/{member_id}/preferences` | `{"term": "paprika", "kind": "dislike"}` → overzicht zoals hierboven (+ `preference`); term wordt kleine letters, minimaal 2 tekens; zelfde term opnieuw zet de soort om |
+| `DELETE /api/members/{member_id}/preferences/{id}` | → overzicht; 404 als het niet van dit lid is |
+| `POST /api/preferences/dismiss` | `{"member_id", "term"}` = "nee, dat klopt niet": niet meer voorstellen → overzicht |
+
+Een term matcht in de ingrediënttekst: korte termen ("ui") alleen aan het begin van een woord, termen van 5+ letters
+overal ("paprika" ~ "puntpaprika's"). **Voorgestelde afkeer** (`suggestions`): een ingrediënt dat in minstens 2 recepten
+zit waar die persoon netto 👎 voor gaf, en in minder dan de helft zoveel 👍-recepten. Alleen ouders mogen wijzigen.
+
+Gebruik in de voorstellen: `POST /api/week/suggest` krijgt de redenen "Hannah lust geen paprika" / "Suze is dol op kip";
+in Plannen (`propose`) krijgt een optie `avoid: ["Hannah lust geen paprika"]` en zakt ze 14 punten per persoon.
+Ook de kooktijd telt mee (`app/cooktime.py`): ma–do boven 45 min gaat er af (max −20), tot 30 min +4; za/zo vanaf 60 min +4.

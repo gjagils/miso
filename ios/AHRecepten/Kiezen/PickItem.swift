@@ -18,8 +18,15 @@ struct PickItem: Identifiable, Hashable {
     var favorite = false
     /// AH-maaltijdpakket (label op de kaart).
     var mealKit = false
+    /// Extra label op de kaart, bijv. "3 in de bonus".
+    var chip = ""
 
     var id: String { key }
+
+    static func bonus(_ r: BonusRecipe) -> PickItem {
+        PickItem(key: "own:\(r.id)", kind: .own, recipeID: r.id, name: r.name, imageUrl: r.imageUrl, meta: r.meta,
+                 chip: "\(r.bonusCount) in de bonus")
+    }
 
     static func own(_ r: RecipeSummary) -> PickItem {
         PickItem(key: "own:\(r.id)", kind: .own, recipeID: r.id, name: r.name, imageUrl: r.imageUrl,

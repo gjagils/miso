@@ -159,3 +159,27 @@ struct CheaperDecodingTests {
         #expect(!failed.ok && failed.error == "Recept niet gevonden." && failed.suggestions.isEmpty)
     }
 }
+
+struct BonusDecodingTests {
+    private func decode<T: Decodable>(_ type: T.Type, _ json: String) throws -> T {
+        try API.decoder.decode(type, from: Data(json.utf8))
+    }
+
+    @Test func bonusRecipes() throws {
+        let r = try decode(BonusRecipesResponse.self, #"""
+        {"ok": true, "period": {"start": "2026-10-19", "end": "2026-10-25"}, "bonus_count": 40,
+         "recipes": [{"id": 3, "name": "Rijst met garnalen", "image_url": "/image/3", "servings": "4 personen", "total_time": "25 min",
+                      "bonus_count": 2, "linked_count": 4, "coverage": 0.5, "saving": 2.8, "items": []},
+                     {"id": 4, "name": "Soep", "bonus_count": 1, "saving": null}]}
+        """#)
+        #expect(r.ok && r.recipes.count == 2 && r.recipes[0].bonusCount == 2)
+        #expect(r.recipes[0].meta.contains("voordeel") && r.recipes[1].meta.isEmpty)
+        #expect(r.isNextWeek(today: "2026-10-13") && r.title(today: "2026-10-13") == "Volgende week in de bonus")
+        #expect(!r.isNextWeek(today: "2026-10-20") && r.title(today: "2026-10-20") == "Deze week in de bonus")
+        #expect(r.subtitle(today: "2026-10-13").hasPrefix("Aanbiedingen van") && r.subtitle(today: "2026-10-20").hasPrefix("Aanbiedingen t/m"))
+        let item = PickItem.bonus(r.recipes[0])
+        #expect(item.key == "own:3" && item.chip == "2 in de bonus" && item.kind == .own)
+        let failed = try decode(BonusRecipesResponse.self, #"{"ok": false, "error": "AH niet gekoppeld."}"#)
+        #expect(!failed.ok && failed.recipes.isEmpty)
+    }
+}

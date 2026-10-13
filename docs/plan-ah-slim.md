@@ -201,87 +201,87 @@ weekpraktijk tunen met echte beoordelingen.
 ## 5. Backlog
 
 **Definition of Done** (geldt voor elk item): app en website samen bij, tests groen, backlog in dit document
-bijgewerkt, `docs/plan-api.md` en `CLAUDE.md` bijgewerkt, `docs/handleiding.md` bijgewerkt. Zie `CLAUDE.md`.
+bijgewerkt, `docs/plan-api.md` en `CLAUDE.md` bijgewerkt, de handleiding (`/hulp`) bijgewerkt. Zie `CLAUDE.md`.
 
 Prioriteit: 1 eerst. Grootte: S is een dagdeel, M een dag of twee, L meer. Offline: te bouwen en te
 testen zonder AH.
 
 ### Fundament
 
-| # | Item | Grootte | Offline | Prio |
-|---|---|---|---|---|
-| F1 | Tabellen `ah_trips`, `ah_prices`, `ah_bonus_periods` plus migraties | S | ja | 1 |
-| F2 | Parsers voor orderdetails, `orderFulfillments`, `posReceiptDetails` met prijzen; fixtures | M | ja | 1 |
-| F3 | `AHSync`-module: cache per endpoint, backoff bij 429, semafoor, alleen nieuwe ritten | M | ja | 1 |
-| F4 | Prijssnapshot schrijven bij elke zoekopdracht en bonus-ophaling | S | ja | 1 |
-| F5 | Sync-statusblok op Instellingen; dagelijkse job | S | ja | 2 |
-| F6 | Live-sessie: schema-only queries proberen, fixtures vastleggen, clientId `appie-ios` | M | nee | 1 zodra AH terug |
-| F7 | Bestaande schermen van directe AH-calls afhalen; lezen uit de datalaag | M | ja | 2 |
+| # | Item | Grootte | Offline | Prio | Status |
+|---|---|---|---|---|---|
+| F1 | Tabellen `ah_trips`, `ah_prices`, `ah_bonus_periods` plus migraties | S | ja | 1 | ✅ |
+| F2 | Parsers voor orderdetails, `orderFulfillments`, `posReceiptDetails` met prijzen; fixtures | M | ja | 1 | ✅ |
+| F3 | `AHSync`-module: cache per endpoint, backoff bij 429, semafoor, alleen nieuwe ritten | M | ja | 1 | ✅ |
+| F4 | Prijssnapshot schrijven bij elke zoekopdracht en bonus-ophaling | S | ja | 1 | ✅ |
+| F5 | Sync-statusblok op Instellingen; dagelijkse job | S | ja | 2 | ✅ |
+| F6 | Live-sessie: schema-only queries proberen, fixtures vastleggen, clientId `appie-ios` | M | nee | 1 zodra AH terug | ⏳ wacht op AH |
+| F7 | Bestaande schermen van directe AH-calls afhalen; lezen uit de datalaag | M | ja | 2 | deels (bonus, kosten, uitgaven, ritme lezen uit de datalaag) |
 
 ### A. Bonus-slim koken
 
-| # | Item | Grootte | Offline | Prio |
-|---|---|---|---|---|
-| A1 | Volgende bonusperiode ophalen en tonen zodra zichtbaar | S | ja | 1 |
-| A2 | "Recepten in de bonus" met besparing in euro's op Kiezen, web en iOS | M | ja | 1 |
-| A3 | Bonus-term in de voorstelscore met uitleg | S | ja | 2 |
-| A4 | "Koop er één bij" uit `recommendationsMissingBonus` in het boodschappenoverzicht | M | na F6 | 3 |
-| A5 | Vrijdagbericht "N recepten in de bonus volgende week" | S | ja | 3 |
-| A6 | Persoonlijke bonus en Bonus Box tonen bij producten in het weekmenu | M | na F6 | 4 |
+| # | Item | Grootte | Offline | Prio | Status |
+|---|---|---|---|---|---|
+| A1 | Volgende bonusperiode ophalen en tonen zodra zichtbaar | S | ja | 1 | ✅ |
+| A2 | "Recepten in de bonus" met besparing in euro's op Kiezen, web en iOS | M | ja | 1 | ✅ web + iOS |
+| A3 | Bonus-term in de voorstelscore met uitleg | S | ja | 2 | ✅ |
+| A4 | "Koop er één bij" uit `recommendationsMissingBonus` in het boodschappenoverzicht | M | na F6 | 3 | ⏳ na F6 |
+| A5 | Vrijdagbericht "N recepten in de bonus volgende week" | S | ja | 3 | open |
+| A6 | Persoonlijke bonus en Bonus Box tonen bij producten in het weekmenu | M | na F6 | 4 | ⏳ na F6 |
 
 ### B. Uitgaven en budget
 
-| # | Item | Grootte | Offline | Prio |
-|---|---|---|---|---|
-| B1 | Uitgavenpagina: per week en maand, bonuskorting, per persoon per dag, 12-weken-trend | M | ja | 1 |
-| B2 | Top-10 regels en kosten per categorie per week | S | ja | 2 |
-| B3 | Geschatte kosten van het weekmenu en prijs per portie op het recept | M | ja | 1 |
-| B4 | Goedkoper alternatief per gekoppeld product | M | ja | 2 |
-| B5 | Weekbudget-instelling met balk geschat versus doel versus werkelijk | S | ja | 3 |
-| B6 | Premium-besparing tonen uit `subscriptionPremiumSavingsV2` | S | na F6 | 4 |
+| # | Item | Grootte | Offline | Prio | Status |
+|---|---|---|---|---|---|
+| B1 | Uitgavenpagina: per week en maand, bonuskorting, per persoon per dag, 12-weken-trend | M | ja | 1 | ✅ web + iOS |
+| B2 | Top-10 regels en kosten per categorie per week | S | ja | 2 | ✅ web + iOS |
+| B3 | Geschatte kosten van het weekmenu en prijs per portie op het recept | M | ja | 1 | ✅ web + iOS |
+| B4 | Goedkoper alternatief per gekoppeld product | M | ja | 2 | ✅ web + iOS |
+| B5 | Weekbudget-instelling met balk geschat versus doel versus werkelijk | S | ja | 3 | ✅ web + iOS |
+| B6 | Premium-besparing tonen uit `subscriptionPremiumSavingsV2` | S | na F6 | 4 | ⏳ na F6 |
 
 ### C. Voorraad, licht
 
-| # | Item | Grootte | Offline | Prio |
-|---|---|---|---|---|
-| C1 | Herbestel-voorspelling per product: interval, laatste aankoop, hoeveelheid | M | ja | 1 |
-| C2 | Blok "Waarschijnlijk op" op besteldag met toevoegen of hebben-we-nog; antwoord schuift voorspelling op | M | ja | 1 |
-| C3 | Basisvoorraad uit recepten koppelen aan de voorspelling | S | ja | 2 |
-| C4 | "Op"-knop in kookmodus en op product | S | ja | 2 |
-| C5 | AH's vergeet-signalen als extra kandidaten met bronlabel | S | na F6 | 3 |
-| C6 | Houdbaarheidswaarschuwing voor vriezer en koelkast | M | ja | 4 |
+| # | Item | Grootte | Offline | Prio | Status |
+|---|---|---|---|---|---|
+| C1 | Herbestel-voorspelling per product: interval, laatste aankoop, hoeveelheid | M | ja | 1 | ✅ |
+| C2 | Blok "Waarschijnlijk op" op besteldag met toevoegen of hebben-we-nog; antwoord schuift voorspelling op | M | ja | 1 | ✅ web + iOS |
+| C3 | Basisvoorraad uit recepten koppelen aan de voorspelling | S | ja | 2 | ✅ |
+| C4 | "Op"-knop in kookmodus en op product | S | ja | 2 | ✅ web + iOS |
+| C5 | AH's vergeet-signalen als extra kandidaten met bronlabel | S | na F6 | 3 | ⏳ na F6 |
+| C6 | Houdbaarheidswaarschuwing voor vriezer en koelkast | M | ja | 4 | open |
 
 ### D. Gezin en kinderen
 
-| # | Item | Grootte | Offline | Prio |
-|---|---|---|---|---|
-| D1 | Tabel `household_members`; personen beheren in Instellingen; "wie eet mee" op planregel | M | ja | 1 |
-| D2 | Beoordelen na het eten op Vandaag, per persoon; tabel `meal_ratings` | M | ja | 1 |
-| D3 | Voorkeuren en afkeer per persoon op ingrediëntniveau, handmatig | M | ja | 2 |
-| D4 | Afkeer afleiden uit beoordelingen met bevestigingsvraag | M | ja | 3 |
-| D5 | Kindertoken met alleen lees- en wensrechten | S | ja | 2 |
-| D6 | Wensenlijst-scherm voor kinderen; wensen bij Kiezen en in het voorstel | M | ja | 2 |
-| D7 | Stemmen op kandidaten; uitslag vult lege dagen | M | ja | 3 |
-| D8 | Tag "makkelijk met kinderen" en vaste kids-kookavond | S | ja | 3 |
+| # | Item | Grootte | Offline | Prio | Status |
+|---|---|---|---|---|---|
+| D1 | Tabel `household_members`; personen beheren in Instellingen; "wie eet mee" op planregel | M | ja | 1 | vervalt (main: Wie ben jij?) |
+| D2 | Beoordelen na het eten op Vandaag, per persoon; tabel `meal_ratings` | M | ja | 1 | vervalt (main: Lekker? per persoon) |
+| D3 | Voorkeuren en afkeer per persoon op ingrediëntniveau, handmatig | M | ja | 2 | ✅ web + iOS |
+| D4 | Afkeer afleiden uit beoordelingen met bevestigingsvraag | M | ja | 3 | ✅ web + iOS |
+| D5 | Kindertoken met alleen lees- en wensrechten | S | ja | 2 | vervalt (main: rol kind) |
+| D6 | Wensenlijst-scherm voor kinderen; wensen bij Kiezen en in het voorstel | M | ja | 2 | vervalt (main: wensen) |
+| D7 | Stemmen op kandidaten; uitslag vult lege dagen | M | ja | 3 | open |
+| D8 | Tag "makkelijk met kinderen" en vaste kids-kookavond | S | ja | 3 | open |
 
 ### E. Aanbevelen
 
-| # | Item | Grootte | Offline | Prio |
-|---|---|---|---|---|
-| E1 | Voorstelscore herschrijven als gewogen termen met uitlegregel per suggestie | M | ja | 1 |
-| E2 | Termen: beoordelingen, wensen, afkeer, kooktijd per weekdag, kids-avond | M | ja | 2 |
-| E3 | Termen: bonus, kosten per portie, gebruikt restjes en vriezer | S | ja | 2 |
-| E4 | Profielen aanmaken bij import zodat elk recept kandidaat is | S | ja | 1 |
-| E5 | "Vergeet je niet" samenvoegen: standaardboodschappen, waarschijnlijk-op, AH-signaal, met bron | S | ja | 3 |
+| # | Item | Grootte | Offline | Prio | Status |
+|---|---|---|---|---|---|
+| E1 | Voorstelscore herschrijven als gewogen termen met uitlegregel per suggestie | M | ja | 1 | ✅ |
+| E2 | Termen: beoordelingen, wensen, afkeer, kooktijd per weekdag, kids-avond | M | ja | 2 | ✅ kooktijd; kids-avond open |
+| E3 | Termen: bonus, kosten per portie, gebruikt restjes en vriezer | S | ja | 2 | ✅ |
+| E4 | Profielen aanmaken bij import zodat elk recept kandidaat is | S | ja | 1 | vervalt (main: profile_later) |
+| E5 | "Vergeet je niet" samenvoegen: standaardboodschappen, waarschijnlijk-op, AH-signaal, met bron | S | ja | 3 | deels (ritme + vaak; AH-signaal wacht) |
 
 ### F. Van populaire apps
 
-| # | Item | Grootte | Offline | Prio |
-|---|---|---|---|---|
-| F8 | Kooklijst "wil ik binnenkort maken", ook als input voor het voorstel | S | ja | 2 |
-| F9 | Week opslaan en terugzetten als sjabloon | S | ja | 3 |
-| F10 | Kookstand: timers uit stappen, hoeveelheid in de stap | M | ja | 3 |
-| F11 | Koken met wat er is: restjes, vriezer, nog-in-huis tegen eigen recepten | M | ja | 4 |
+| # | Item | Grootte | Offline | Prio | Status |
+|---|---|---|---|---|---|
+| F8 | Kooklijst "wil ik binnenkort maken", ook als input voor het voorstel | S | ja | 2 | vervalt (main: wensen met recept) |
+| F9 | Week opslaan en terugzetten als sjabloon | S | ja | 3 | open |
+| F10 | Kookstand: timers uit stappen, hoeveelheid in de stap | M | ja | 3 | open |
+| F11 | Koken met wat er is: restjes, vriezer, nog-in-huis tegen eigen recepten | M | ja | 4 | open |
 
 ### Voorgestelde eerste sprint, volledig offline
 
@@ -317,14 +317,20 @@ Oude branch met alles: `backup/sprint1-2-op-oude-basis`.
 import (→ `maintenance.profile_later`), F8 kooklijst (→ wensen met een recept). D3 voorkeuren per persoon op
 ingrediëntniveau en D4 (afleiden uit beoordelingen) blijven open, maar dan op de `ratings`-tabel van `main`.
 
-**Nog open:** F6 live-sessie zodra AH terug is (daarna A4, A6, B6, C5), D3/D4 op de nieuwe basis, D5 (kindertoken
-bestaat deels als rol "kind"), E2 (kooktijd per weekdag, kids-avond), F9/F10/F11, B4 goedkoper alternatief, B5
-weekbudget.
+**Daarna gebouwd (zelfde dag, ook iOS):** weekbudget (B5), "Is op" tijdens het koken (C4), basisvoorraad in
+waarschijnlijk-op (C3), kooktijd per weekdag in beide voorstellen (E2), goedkoper alternatief per product (B4),
+smaak per persoon met voorgestelde afkeer uit 👎 (D3/D4), en op iOS: uitgaven, waarschijnlijk-op, kosten, bonus-chip
+en een bonusgroep in Zelf kiezen. De Definition of Done (app én website) is daarmee voor alles hierboven gehaald,
+behalve de onderdelen die op AH wachten.
 
-**App en website gelijktrekken (Definition of Done):** uitgaven, waarschijnlijk-op, kosten en de bonus-chip zijn nu
-website-only en staan zo in `/hulp`. Voor iOS: uitgaven-scherm onder Meer (M), "Vergeet je deze niet?" met
-waarschijnlijk-op in de laatste stap van Wat eten we? (M), kosten op het recept en in Plannen (S), bonus-chip in
-Plannen (S).
+**Nog open:**
+
+- **Wacht op AH:** F6 live-sessie (daarna A4 "koop er één bij", A6 persoonlijke bonus, B6 Premium-besparing, C5
+  AH-vergeetsignalen, en E5 compleet).
+- **Nu bouwbaar:** A5 vrijdagbericht over de bonus van volgende week, C6 houdbaarheid van vriezer en koelkast, D7 stemmen op
+  kandidaten, D8 kids-kookavond, F9 week opslaan als sjabloon, F10 timers in de kookmodus, F11 koken met wat er is.
+- **Uit de analyse:** matching rekent nog met vast 4 personen voor "per persoon"-regels; de login-proxy op poort 9928
+  draait permanent.
 
 ## Bronnen
 

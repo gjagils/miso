@@ -14,6 +14,9 @@ struct PickCard: View {
                     if item.mealKit {
                         Text("Maaltijdpakket").misoChip(.misoOrange)
                     }
+                    if !item.chip.isEmpty {
+                        Text(item.chip).misoChip(.misoOrange)
+                    }
                     Text(item.favorite ? "♥ \(item.name)" : item.name)
                         .font(.system(.subheadline, design: .rounded).bold())
                         .foregroundStyle(Color.misoBlue)
@@ -58,6 +61,7 @@ struct PickCard: View {
         var parts = [item.name]
         if item.favorite { parts.append("favoriet") }
         if item.mealKit { parts.append("maaltijdpakket") }
+        if !item.chip.isEmpty { parts.append(item.chip) }
         if !item.meta.isEmpty { parts.append(item.meta) }
         return parts.joined(separator: ", ")
     }
