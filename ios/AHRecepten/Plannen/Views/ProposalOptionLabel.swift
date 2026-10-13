@@ -39,6 +39,9 @@ struct ProposalOptionLabel: View {
                     if option.allerhande {
                         Text("Allerhande").misoChip(.misoLilac)
                     }
+                    if option.bonusSaving > 0 {
+                        Text("bonus \(Euro.saving(option.bonusSaving))").misoChip(.misoOrange)
+                    }
                 }
             }
             Spacer(minLength: 0)
@@ -53,6 +56,7 @@ struct ProposalOptionLabel: View {
         if option.pack { parts.append("maaltijdpakket") }
         if !option.totalTime.isEmpty { parts.append(option.totalTime) }
         if option.allerhande { parts.append("uit Allerhande") }
+        if option.bonusSaving > 0 { parts.append("in de bonus, voordeel \(Euro.format(option.bonusSaving))") }
         return parts.joined(separator: ", ")
     }
 }

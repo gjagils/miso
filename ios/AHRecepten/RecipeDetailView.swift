@@ -46,6 +46,7 @@ struct RecipeDetailView: View {
                         RecipeImage(path: recipe.imageUrl, size: 200)
                         let meta = [recipe.servings, recipe.totalTime].filter { !$0.isEmpty }.joined(separator: " · ")
                         if !meta.isEmpty { Text(meta).font(.misoCaption).foregroundStyle(.secondary) }
+                        if !isKid { RecipeCostLine(recipeID: recipe.id) }
                         if recipe.showsMealKitTag || recipe.isArchived {
                             HStack(spacing: 6) {
                                 if recipe.showsMealKitTag { MealKitBadge() }

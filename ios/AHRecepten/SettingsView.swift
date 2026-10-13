@@ -106,6 +106,15 @@ struct SettingsView: View {
                                 .frame(minHeight: 44)
                         }
                         .accessibilityHint("Ingrediënten zonder AH-product koppelen of op niet nodig zetten")
+                        NavigationLink {
+                            SpendView()
+                        } label: {
+                            Label("Uitgaven", systemImage: "eurosign.circle")
+                                .font(.misoButton)
+                                .foregroundStyle(Color.misoBlue)
+                                .frame(minHeight: 44)
+                        }
+                        .accessibilityHint("Wat jullie per week bij AH uitgeven")
                     }
                     .misoRow()
                 }

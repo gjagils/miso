@@ -70,8 +70,9 @@ struct PlanView: View {
                     .listRowBackground(Color.clear)
                 }
                 if family.isParent {
-                    GroceriesSection(status: week.status, pushing: model.pushing, result: model.pushResult,
+                    GroceriesSection(status: week.status, week: week.week, pushing: model.pushing, result: model.pushResult,
                                      onPush: pushToList)
+                    ReplenishSection(week: week.week)
                 }
 
                 if let health = model.health, health.dagen > 0 {
