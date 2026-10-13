@@ -17,6 +17,7 @@ from app import llm
 from app.config import settings
 from app.models import PlanEntry, Recipe
 from app.nutrition import get_profile
+from app.cooktime import minutes, time_fit
 from app.usage import plan_stats, preference_score
 
 # chip -> (profielvoorwaarden, woorden in naam/ingrediënten)
@@ -63,13 +64,6 @@ def normalize(wish: str) -> str:
             if words[0] == chip or words[0].rstrip("s") == chip.rstrip("s"):  # "lasagne" blijft een gerecht
                 return chip
     return w  # gerecht als tekst ("lasagne", "nasi goreng")
-
-
-def minutes(total_time: str) -> int | None:
-    nums = [int(n) for n in re.findall(r"\d+", total_time or "")]
-    if not nums:
-        return None
-    return nums[0] * 60 if "uur" in (total_time or "").lower() and nums[0] < 5 else nums[0]
 
 
 def matches(recipe: Recipe, profile: dict | None, wish: str) -> bool:
@@ -219,6 +213,7 @@ def propose(db: Session, monday: date, wishes: dict[str, str], per_day: int = 3,
                 s += 25  # iemand in het gezin wil dit graag
             if bonus.get(r.id):
                 s += min(15, 3 * bonus[r.id])  # in de bonus deze week: per euro voordeel, tot 15
+            s += time_fit(r.total_time, day)[0]  # doordeweeks snel, in het weekend mag het langer
             if r.favorite and favorites_chosen >= 2:
                 s -= 30  # hooguit twee favorieten per week, anders steeds hetzelfde
             if prev_cuisine and p.get("keuken") == prev_cuisine and prev_cuisine != "overig":

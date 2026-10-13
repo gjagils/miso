@@ -67,7 +67,8 @@ struct SettingsView: View {
                 }
                 if family.isParent {
                     HouseholdSettingsSection(settings: planSettings.settings, errorText: planSettings.errorText,
-                                             onHouseholdSize: setHouseholdSize, onOrderWeekday: setOrderWeekday)
+                                             onHouseholdSize: setHouseholdSize, onOrderWeekday: setOrderWeekday,
+                                             onWeekBudget: setWeekBudget)
                     ReminderSettingsSection()
                 }
                 Section {
@@ -162,6 +163,11 @@ struct SettingsView: View {
     private func setHouseholdSize(_ value: Int) {
         guard let api = session.api else { return }
         planSettings.setHouseholdSize(value, api: api)
+    }
+
+    private func setWeekBudget(_ value: Int) {
+        guard let api = session.api else { return }
+        planSettings.setWeekBudget(value, api: api)
     }
 
     private func setOrderWeekday(_ weekday: Int) {

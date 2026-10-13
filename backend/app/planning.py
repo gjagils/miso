@@ -58,6 +58,11 @@ def household_size(db: Session) -> int:
     return _int_setting(db, "household_size", DEFAULT_HOUSEHOLD, 1, MAX_PERSONS)
 
 
+def week_budget(db: Session) -> int:
+    """Doel voor de boodschappen per week in hele euro's; 0 = geen budget ingesteld."""
+    return _int_setting(db, "week_budget", 0, 0, 9999)
+
+
 def order_weekday(db: Session) -> int:
     return _int_setting(db, "order_weekday", DEFAULT_ORDER_WEEKDAY, 0, 6)
 

@@ -131,3 +131,117 @@ def test_replenish_endpoint_excludes_week_cart_and_snoozes(db):  # noqa: F811
     assert client.post("/api/replenish/snooze", json={"product_id": 10, "days": 14}).json()["snoozed_until"] == str(TODAY + timedelta(days=14))
     resp = client.get(f"/api/replenish?week={monday}").json()
     assert resp["due"] == [] and resp["later"][0]["product_id"] == 10
+
+
+# ── Weekbudget, kooktijd per weekdag, basisvoorraad, "dit is op" ───────
+
+
+def test_week_budget_in_settings_and_cost(db):  # noqa: F811
+    client = TestClient(app)
+    assert client.get("/api/plan/settings").json()["week_budget"] == 0
+    assert client.patch("/api/plan/settings", json={"week_budget": 120}).json()["week_budget"] == 120
+    assert client.patch("/api/plan/settings", json={"week_budget": -5}).status_code == 422
+
+    r = _recipe(db, "Pasta", [_ing("pasta", 5, qty=2)])
+    ings = r.ingredients
+    ings[0]["product"]["price"] = "30.00"
+    r.ingredients = ings
+    db.commit()
+    monday = routes.monday_of(TODAY) + timedelta(days=7)
+    db.add(PlanEntry(date=str(monday), recipe_id=r.id, kind="recipe"))
+    db.commit()
+    c = client.get(f"/api/week/cost?week={monday}").json()
+    assert c["total"] == 60.0 and c["budget"] == 120 and c["budget_pct"] == 50
+    assert c["actual"] is None and c["actual_pct"] is None
+    _trip(db, "bestelling", 1, str(monday + timedelta(days=2)), [(5, "Pasta", 2)], total=90.0)
+    c = client.get(f"/api/week/cost?week={monday}").json()
+    assert c["actual"] == 90.0 and c["actual_pct"] == 75
+    client.patch("/api/plan/settings", json={"week_budget": 0})
+    c = client.get(f"/api/week/cost?week={monday}").json()
+    assert c["budget"] is None and c["budget_pct"] is None
+
+    # webformulier bewaart het ook
+    resp = client.post("/settings/plan", data={"household_size": 4, "order_weekday": 6, "week_budget": 150})
+    assert resp.status_code == 200 and client.get("/api/plan/settings").json()["week_budget"] == 150
+    assert "9999" in client.post("/settings/plan", data={"household_size": 4, "order_weekday": 6, "week_budget": 99999}).text
+
+
+def test_cooktime_fits_the_weekday():
+    from app.cooktime import minutes, time_fit
+
+    assert minutes("45 min") == 45 and minutes("1 uur") == 60 and minutes("1,5 uur") == 90 and minutes("") is None
+    monday, friday, saturday = "2026-10-12", "2026-10-16", "2026-10-17"
+    assert time_fit("20 min", monday) == (4.0, "snel klaar")
+    assert time_fit("30 min", monday)[0] == 4.0 and time_fit("45 min", monday)[0] == 0.0
+    assert time_fit("1 uur", monday) == (-7.5, "duurt 60 min, lang voor doordeweeks")
+    assert time_fit("3 uur", monday)[0] == -20.0  # maximale straf
+    assert time_fit("1 uur", friday)[0] == 0.0 and time_fit("15 min", friday)[0] == 0.0  # vrijdag neutraal
+    assert time_fit("1 uur", saturday) == (4.0, "heeft tijd in het weekend") and time_fit("20 min", saturday)[0] == 0.0
+    assert time_fit("onbekend", monday) == (0.0, "")
+
+
+def test_pantry_items_need_two_purchases_and_are_flagged():
+    from app import replenish
+
+    trips = [{"source": "kassabon", "date": D(n), "lines": [{"product_id": 7, "name": "AH Olijfolie extra vergine", "quantity": 1},
+                                                           {"product_id": 8, "name": "AH Chips", "quantity": 1}]} for n in (60, 30)]
+    assert replenish.predict(trips, today=TODAY) == []  # twee keer is te weinig zonder basisvoorraad
+    rows = replenish.predict(trips, today=TODAY, pantry={"olijfolie", "bloem"})
+    assert [r["product_id"] for r in rows] == [7] and rows[0]["basis"] is True and rows[0]["status"] == "op"
+    assert replenish.is_pantry("AH Bloem", {"bloem"}) and not replenish.is_pantry("AH Chips", {"bloem"})
+
+
+def test_pantry_terms_from_skipped_ingredients(db):  # noqa: F811
+    from app import replenish
+
+    r = _recipe(db, "Soep", [_ing("2 el olijfolie", None), _ing("zout"), _ing("ui", 3)])
+    ings = r.ingredients
+    for i in ings[:2]:
+        i["auto_skip"] = True
+    r.ingredients = ings
+    db.commit()
+    terms = replenish.pantry_terms([r])
+    assert "olijfolie" in terms and "zout" in terms and "uien" not in terms
+
+
+def test_replenish_endpoint_flags_pantry_and_out_button(db, monkeypatch):  # noqa: F811
+    from app.api import ah_data as ahapi
+    from app.api import shopping
+
+    r = _recipe(db, "Soep", [_ing("olijfolie", None)])
+    ings = r.ingredients
+    ings[0]["auto_skip"] = True
+    r.ingredients = ings
+    db.commit()
+    for n in (70, 35):
+        _trip(db, "kassabon", f"o{n}", D(n), [(7, "AH Olijfolie", 1)])
+    client = TestClient(app)
+    due = client.get("/api/replenish").json()["due"]
+    assert [d["product_id"] for d in due] == [7] and due[0]["basis"] is True
+
+    # "Dit is op": zonder AH-koppeling een nette melding, met koppeling op het lijstje + rust voor de voorspelling
+    assert client.post("/api/replenish/out", json={"product_id": 7, "name": "Olijfolie"}).json()["ok"] is False
+    pushed = []
+
+    async def fake_put(list_ids, products):
+        pushed.append(products)
+        return {"ok": True, "added": len(products)}
+    monkeypatch.setattr(shopping, "_use_user_tokens", lambda _db: True)
+    monkeypatch.setattr(ahapi, "_put_on_list", fake_put)
+    resp = client.post("/api/replenish/out", json={"product_id": 7, "name": "Olijfolie", "quantity": 2}).json()
+    assert resp["ok"] and pushed == [[{"product_id": 7, "name": "Olijfolie", "quantity": 2}]]
+    assert client.get("/api/replenish").json()["due"] == []  # even met rust gelaten
+
+
+def test_kids_cannot_press_out_or_sync(db, monkeypatch):  # noqa: F811
+    from sqlalchemy.orm import sessionmaker
+
+    from app import database
+    from app.api import family
+
+    factory = sessionmaker(bind=db.get_bind())  # zelfde (in-memory) database als de test
+    monkeypatch.setattr(database, "SessionLocal", factory)
+    monkeypatch.setattr(family, "SessionLocal", factory)
+    client = TestClient(app, headers={"X-Miso-Member": "hannah"})
+    for path in ("/api/replenish/out", "/api/replenish/snooze", "/api/ah/sync"):
+        assert client.post(path, json={"product_id": 1}).status_code == 403, path

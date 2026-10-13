@@ -14,8 +14,11 @@ struct ReplenishSection: View {
                         .font(.callout).foregroundStyle(.secondary)
                     ForEach(model.items) { item in
                         VStack(alignment: .leading, spacing: 6) {
-                            Text(item.name).font(.system(.body, design: .rounded).weight(.semibold))
-                                .foregroundStyle(Color.misoBlue)
+                            HStack(spacing: 6) {
+                                Text(item.name).font(.system(.body, design: .rounded).weight(.semibold))
+                                    .foregroundStyle(Color.misoBlue)
+                                if item.basis { Text("basis").misoChip(.misoMint) }
+                            }
                             Text("\(item.whenText) · elke \(item.intervalDays) dagen")
                                 .font(.misoCaption).foregroundStyle(.secondary)
                             HStack(spacing: 10) {

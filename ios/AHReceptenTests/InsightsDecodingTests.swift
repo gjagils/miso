@@ -85,3 +85,42 @@ struct InsightsDecodingTests {
         #expect(Euro.saving(2.8).hasPrefix("−") && Euro.saving(2.8).contains("2,80"))
     }
 }
+
+struct BudgetAndPantryTests {
+    private func decode<T: Decodable>(_ type: T.Type, _ json: String) throws -> T {
+        try API.decoder.decode(type, from: Data(json.utf8))
+    }
+
+    @Test func weekCostWithBudget() throws {
+        let c = try decode(WeekCost.self, #"""
+        {"ok": true, "total": 60.0, "known_count": 3, "unknown": [], "budget": 120, "budget_pct": 50, "actual": 90.0, "actual_pct": 75}
+        """#)
+        #expect(c.budget == 120 && c.budgetPct == 50 && c.actual == 90.0 && !c.overBudget)
+        #expect(c.budgetText?.contains("geschat 50%") == true && c.budgetText?.contains("werkelijk") == true)
+        let over = try decode(WeekCost.self, #"{"total": 150.0, "known_count": 2, "budget": 100, "budget_pct": 150, "actual": null}"#)
+        #expect(over.overBudget && over.budgetText?.contains("werkelijk") == false)
+        let none = try decode(WeekCost.self, #"{"total": 10.0, "known_count": 2, "budget": null, "budget_pct": null}"#)
+        #expect(none.budgetText == nil && !none.overBudget)
+    }
+
+    @Test func settingsWithBudget() throws {
+        let s = try decode(PlanSettings.self, #"{"ok": true, "household_size": 4, "order_weekday": 6, "order_weekday_name": "zondag", "week_budget": 150}"#)
+        #expect(s.weekBudget == 150)
+        let old = try decode(PlanSettings.self, #"{"household_size": 4, "order_weekday": 6}"#)
+        #expect(old.weekBudget == 0)
+        let body = try JSONEncoder().encode(PlanSettingsPatchBody(weekBudget: 120))
+        let json = try #require(JSONSerialization.jsonObject(with: body) as? [String: Any])
+        #expect(json["week_budget"] as? Int == 120 && json["household_size"] == nil)
+    }
+
+    @Test func pantryFlagAndOutBody() throws {
+        let r = try decode(ReplenishResponse.self, #"""
+        {"due": [{"product_id": 7, "name": "AH Olijfolie", "status": "op", "interval_days": 35, "last_bought": "2026-08-01", "days_left": -3, "basis": true}]}
+        """#)
+        #expect(r.due[0].basis)
+        let old = try decode(ReplenishItem.self, #"{"product_id": 8, "name": "Melk"}"#)
+        #expect(!old.basis)
+        let body = try JSONEncoder().encode(OutBody(productId: 7, name: "Olijfolie", quantity: 1))
+        #expect(String(data: body, encoding: .utf8)?.contains("\"product_id\":7") == true)
+    }
+}

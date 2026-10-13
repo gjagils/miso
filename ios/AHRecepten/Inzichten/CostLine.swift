@@ -33,9 +33,23 @@ struct WeekCostLine: View {
     var body: some View {
         Group {
             if let cost, cost.isUsable {
-                Label(cost.summary, systemImage: "eurosign.circle")
-                    .font(.callout)
-                    .foregroundStyle(Color.misoBlue)
+                VStack(alignment: .leading, spacing: 6) {
+                    Label(cost.summary, systemImage: "eurosign.circle")
+                        .font(.callout)
+                        .foregroundStyle(Color.misoBlue)
+                    if let budgetText = cost.budgetText {
+                        Text(budgetText).font(.misoCaption).foregroundStyle(.secondary)
+                        GeometryReader { proxy in
+                            Capsule().fill(Color.misoCream)
+                                .overlay(alignment: .leading) {
+                                    Capsule().fill(cost.overBudget ? Color.red : Color.misoOrange)
+                                        .frame(width: proxy.size.width * min(1, Double(cost.budgetPct ?? 0) / 100))
+                                }
+                        }
+                        .frame(height: 8)
+                        .accessibilityHidden(true)
+                    }
+                }
             }
         }
         .task(id: "\(week)/\(version)") {

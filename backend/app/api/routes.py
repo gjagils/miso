@@ -1164,11 +1164,12 @@ async def settings_page(request: Request, db: Session = Depends(get_db)):
 
 @router.post("/settings/plan")
 async def save_plan_settings(request: Request, household_size: int = Form(...), order_weekday: int = Form(...),
-                             db: Session = Depends(get_db)):
-    if not (1 <= household_size <= planning.MAX_PERSONS and 0 <= order_weekday <= 6):
-        return _render_settings(request, db, plan_result="Kies 1 tot 20 personen en een dag van de week.")
+                             week_budget: int = Form(0), db: Session = Depends(get_db)):
+    if not (1 <= household_size <= planning.MAX_PERSONS and 0 <= order_weekday <= 6 and 0 <= week_budget <= 9999):
+        return _render_settings(request, db, plan_result="Kies 1 tot 20 personen, een dag van de week en een budget tot 9999 euro.")
     planning.set_setting(db, "household_size", str(household_size))
     planning.set_setting(db, "order_weekday", str(order_weekday))
+    planning.set_setting(db, "week_budget", str(week_budget))
     return _render_settings(request, db, plan_result="Opgeslagen.")
 
 
@@ -1207,6 +1208,7 @@ def _render_settings(
         request, "settings.html", {"ah_token_set": bool(_get_setting(db, "ah_user_token")),
             "household_size": planning.household_size(db),
             "order_weekday": planning.order_weekday(db),
+            "week_budget": planning.week_budget(db),
             "weekdays": planning.WEEKDAYS,
             "plan_result": plan_result,
             "ah_refresh_set": bool(_get_setting(db, "ah_refresh_token")),

@@ -98,7 +98,13 @@ async function loadCost() {
     if (c.per_meal) parts.push(`${euro(c.per_meal)} per bord`);
     if (c.bonus_saving) parts.push(`waarvan ${euro(c.bonus_saving)} bonusvoordeel`);
     if (c.unknown.length) parts.push(`${plural(c.unknown.length, "product", "producten")} zonder prijs`);
-    el.innerHTML = esc(parts.join(" · ")) + (HAS_TOKEN ? ` · <a href="/uitgaven">uitgaven</a>` : "");
+    let bar = "";
+    if (c.budget) {
+        const pct = Math.min(100, c.budget_pct || 0), over = (c.budget_pct || 0) > 100;
+        bar = `<span class="budget-line">Budget ${euro(c.budget)} · geschat ${c.budget_pct}%${c.actual != null ? ` · werkelijk ${euro(c.actual)} (${c.actual_pct}%)` : ""}</span>
+            <span class="budget-bar${over ? " over" : ""}" role="img" aria-label="Geschat ${c.budget_pct} procent van het budget"><span style="width:${pct}%"></span></span>`;
+    }
+    el.innerHTML = esc(parts.join(" · ")) + (HAS_TOKEN ? ` · <a href="/uitgaven">uitgaven</a>` : "") + bar;
     el.hidden = false;
 }
 
@@ -114,7 +120,7 @@ async function loadReplenish() {
     due.forEach(p => {
         const li = document.createElement("li");
         const when = p.status === "op" ? "waarschijnlijk op" : `over ${p.days_left} ${p.days_left === 1 ? "dag" : "dagen"} op`;
-        li.innerHTML = `<div class="fz-main"><span class="fz-name">${esc(p.name || "Product " + p.product_id)}</span>
+        li.innerHTML = `<div class="fz-main"><span class="fz-name">${esc(p.name || "Product " + p.product_id)}${p.basis ? ' <span class="chip">basis</span>' : ""}</span>
             <span class="muted">${when} · elke ${p.interval_days} dagen · laatst ${esc(MisoPlan.dayLabel(p.last_bought).replace(/^\S+ /, ""))}</span></div>
             <button type="button" class="btn btn-sm" data-add>Op het lijstje</button>
             <button type="button" class="btn btn-sm btn-muted" data-have>Hebben we nog</button>`;

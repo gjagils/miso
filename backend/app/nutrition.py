@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 from app.clients.extractor import _parse_json
 from app import llm
 from app.config import settings
+from app.cooktime import time_fit
 from app.logging_config import logger
 from app.models import PlanEntry, Recipe, RecipeProfile
 
@@ -241,6 +242,10 @@ def suggest_week(planned: list[dict], candidates: list[tuple[Recipe, dict]], emp
                 why.append("veel groente")
             extra, extra_why = _ctx_terms(context.get(recipe.id) or {}, today) if recipe.id in context else (0.0, [])
             s += extra
+            fit, fit_why = time_fit(recipe.total_time, day)  # doordeweeks snel, in het weekend mag het langer
+            s += fit
+            if fit_why:
+                extra_why = extra_why + [fit_why]
             if s > best_score:
                 best, best_score, best_why = (recipe, prof), s, why + extra_why
         if not best:

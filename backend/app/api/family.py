@@ -23,7 +23,7 @@ KID_BLOCKED = [("DELETE", "/api/recipes/"), ("POST", "/recipe/"), ("DELETE", "/a
                ("PATCH", "/api/plan/entries/"), ("POST", "/api/plan/sync"), ("POST", "/api/plan/apply"),
                ("POST", "/api/basket/"), ("POST", "/api/cart/"), ("POST", "/api/packs/"), ("PUT", "/api/members"),
                ("POST", "/api/missing/assign"), ("POST", "/api/recipes/"), ("POST", "/api/wishes/"),
-               ("POST", "/api/members/")]
+               ("POST", "/api/members/"), ("POST", "/api/replenish/"), ("POST", "/api/ah/")]
 KID_ALLOWED = ("/feedback", "/cooked", "/photo")  # binnen POST /api/recipes/...
 
 

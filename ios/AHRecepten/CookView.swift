@@ -57,6 +57,7 @@ struct CookView: View {
                             .misoChip(.misoMint)
                     }
                     ForEach(Array(recipe.ingredients.enumerated()), id: \.offset) { index, ingredient in
+                        HStack(alignment: .center, spacing: 8) {
                         Button {
                             toggle(&checked, index)
                         } label: {
@@ -78,6 +79,10 @@ struct CookView: View {
                         .frame(minHeight: 44)
                         .accessibilityAddTraits(checked.contains(index) ? .isSelected : [])
                         .accessibilityHint(checked.contains(index) ? "Tik om het vinkje weg te halen" : "Tik om af te vinken")
+                            if family.isParent, let productID = ingredient.productId {
+                                OutButton(productID: productID, name: ingredient.product ?? ingredient.text)
+                            }
+                        }
                     }
                 } header: { Text("Ingrediënten").misoSectionHeader() }
                 .misoRow()

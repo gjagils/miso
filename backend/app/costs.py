@@ -5,7 +5,7 @@ Staat het product in de bonus van de periode, dan rekenen we met de bonusprijs e
 Schatting: verpakkingen x prijs; wat overblijft van een pak telt gewoon mee (dat koop je immers).
 """
 
-from datetime import date
+from datetime import date, timedelta
 
 from sqlalchemy.orm import Session
 
@@ -96,6 +96,16 @@ def week_cost(db: Session, monday: date) -> dict:
     entries = planning.week_entries(db, monday)
     household = planning.household_size(db)
     meals = sum(planning.entry_persons(e, household) for e in entries if e.kind in ("recipe", "leftover"))
+    budget = planning.week_budget(db)
+    actual = week_actual(db, monday)
     return {**priced, "week": str(monday), "unmatched_count": len(unmatched), "meals": meals,
             "per_meal": round(priced["total"] / meals, 2) if meals and priced["known_count"] else None,
-            "bonus_period": {"start": bonus.start, "end": bonus.end} if bonus else None}
+            "bonus_period": {"start": bonus.start, "end": bonus.end} if bonus else None,
+            "budget": budget or None, "budget_pct": round(100 * priced["total"] / budget) if budget else None,
+            "actual": actual, "actual_pct": round(100 * actual / budget) if budget and actual is not None else None}
+
+
+def week_actual(db: Session, monday: date) -> float | None:
+    """Wat er in die week echt is uitgegeven (bestellingen en bonnen met bekend bedrag); None zonder ritten."""
+    trips = [t for t in ah_sync.trips_since(db, monday) if t.date <= str(monday + timedelta(days=6)) and t.total is not None]
+    return round(sum(t.total for t in trips), 2) if trips else None

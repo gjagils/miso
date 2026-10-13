@@ -54,10 +54,20 @@ struct WeekCost: Decodable, Equatable, Sendable {
     let perMeal: Double?
     let knownCount: Int
     let unknown: [String]
+    /// Weekbudget in euro's (nil = geen), en hoeveel procent de schatting en wat er echt is uitgegeven daarvan is.
+    let budget: Int?
+    let budgetPct: Int?
+    let actual: Double?
+    let actualPct: Int?
 
-    enum CodingKeys: String, CodingKey { case total, bonusSaving, perMeal, knownCount, unknown }
+    enum CodingKeys: String, CodingKey { case total, bonusSaving, perMeal, knownCount, unknown, budget, budgetPct, actual, actualPct }
 
-    init(total: Double = 0, bonusSaving: Double = 0, perMeal: Double? = nil, knownCount: Int = 0, unknown: [String] = []) {
+    init(total: Double = 0, bonusSaving: Double = 0, perMeal: Double? = nil, knownCount: Int = 0, unknown: [String] = [],
+         budget: Int? = nil, budgetPct: Int? = nil, actual: Double? = nil, actualPct: Int? = nil) {
+        self.budget = budget
+        self.budgetPct = budgetPct
+        self.actual = actual
+        self.actualPct = actualPct
         self.total = total
         self.bonusSaving = bonusSaving
         self.perMeal = perMeal
@@ -72,9 +82,22 @@ struct WeekCost: Decodable, Equatable, Sendable {
         perMeal = c.lenient(Double.self, .perMeal)
         knownCount = c.lenientInt(.knownCount) ?? 0
         unknown = c.lenient([String].self, .unknown) ?? []
+        budget = c.lenientInt(.budget)
+        budgetPct = c.lenientInt(.budgetPct)
+        actual = c.lenient(Double.self, .actual)
+        actualPct = c.lenientInt(.actualPct)
     }
 
     var isUsable: Bool { knownCount > 0 }
+
+    /// "Budget € 120,00 · geschat 45% · werkelijk € 90,00 (75%)"; nil zonder budget.
+    var budgetText: String? {
+        guard let budget, let budgetPct else { return nil }
+        var text = "Budget \(Euro.format(Double(budget))) · geschat \(budgetPct)%"
+        if let actual, let actualPct { text += " · werkelijk \(Euro.format(actual)) (\(actualPct)%)" }
+        return text
+    }
+    var overBudget: Bool { (budgetPct ?? 0) > 100 }
 
     /// "Geschat € 54,20 voor deze week · € 2,10 per bord · waarvan € 3,00 bonusvoordeel · 2 producten zonder prijs"
     var summary: String {
@@ -258,14 +281,17 @@ struct ReplenishItem: Decodable, Identifiable, Equatable, Sendable {
     let lastBought: String
     let daysLeft: Int
     let avgQuantity: Double
+    /// Basisvoorraad uit de recepten (olie, bloem): al na twee aankopen voorgesteld.
+    let basis: Bool
 
     var id: Int { productId }
     var isOverdue: Bool { status == "op" }
 
-    enum CodingKeys: String, CodingKey { case productId, name, status, intervalDays, lastBought, daysLeft, avgQuantity }
+    enum CodingKeys: String, CodingKey { case productId, name, status, intervalDays, lastBought, daysLeft, avgQuantity, basis }
 
     init(productId: Int, name: String, status: String = "op", intervalDays: Int = 7, lastBought: String = "",
-         daysLeft: Int = 0, avgQuantity: Double = 1) {
+         daysLeft: Int = 0, avgQuantity: Double = 1, basis: Bool = false) {
+        self.basis = basis
         self.productId = productId
         self.name = name
         self.status = status
@@ -284,6 +310,7 @@ struct ReplenishItem: Decodable, Identifiable, Equatable, Sendable {
         lastBought = c.lenient(String.self, .lastBought) ?? ""
         daysLeft = c.lenientInt(.daysLeft) ?? 0
         avgQuantity = c.lenient(Double.self, .avgQuantity) ?? 1
+        basis = c.lenient(Bool.self, .basis) ?? false
     }
 
     /// Hoeveel er op het lijstje gaat: het gebruikelijke aantal, minimaal 1.
@@ -317,7 +344,7 @@ struct InsightResult: Decodable, Sendable {
 
 // MARK: Request-bodies
 
-struct ExtrasProduct: Encodable, Equatable {
+struct ExtrasProduct: Encodable, Equatable, Sendable {
     let productId: Int
     let name: String
     let quantity: Int
@@ -344,6 +371,17 @@ struct SnoozeBody: Encodable, Equatable {
 
     enum CodingKeys: String, CodingKey {
         case days
+        case productId = "product_id"
+    }
+}
+
+struct OutBody: Encodable, Equatable {
+    let productId: Int
+    let name: String
+    let quantity: Int
+
+    enum CodingKeys: String, CodingKey {
+        case name, quantity
         case productId = "product_id"
     }
 }

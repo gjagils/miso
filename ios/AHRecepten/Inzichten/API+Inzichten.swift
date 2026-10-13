@@ -34,4 +34,9 @@ extension API {
     func addToList(_ products: [ExtrasProduct]) async throws -> InsightResult {
         try await post("api/ah-extras/to-list", json: ExtrasBody(products: products))
     }
+
+    /// "Dit is op" (tijdens het koken): op het AH-lijstje en de voorspelling even met rust laten. Bestelt niets.
+    func markOut(productID: Int, name: String) async throws -> InsightResult {
+        try await post("api/replenish/out", json: OutBody(productId: productID, name: name, quantity: 1))
+    }
 }

@@ -32,6 +32,19 @@ final class PlanSettingsModel {
         }
     }
 
+    /// Direct tonen, na een korte pauze opslaan (stappen van 10 euro).
+    func setWeekBudget(_ value: Int, api: API) {
+        guard var current = settings else { return }
+        current.weekBudget = min(max(value, 0), 9999)
+        settings = current
+        saveTask?.cancel()
+        saveTask = Task {
+            try? await Task.sleep(for: .milliseconds(600))
+            if Task.isCancelled { return }
+            await save(PlanSettingsPatchBody(weekBudget: current.weekBudget), api: api)
+        }
+    }
+
     func setOrderWeekday(_ weekday: Int, api: API) async {
         guard var current = settings, current.orderWeekday != weekday else { return }
         current.orderWeekday = weekday

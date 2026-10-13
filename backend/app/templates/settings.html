@@ -12,6 +12,8 @@
         <select id="order_weekday" name="order_weekday">
             {% for d in weekdays %}<option value="{{ loop.index0 }}" {% if loop.index0 == order_weekday %}selected{% endif %}>{{ d|capitalize }}</option>{% endfor %}
         </select>
+        <label for="week_budget">Wat mogen de boodschappen per week ongeveer kosten? (euro, 0 = geen budget)</label>
+        <input type="number" id="week_budget" name="week_budget" min="0" max="9999" step="5" value="{{ week_budget }}" inputmode="numeric">
         <p class="muted">Boodschappen worden per recept omgerekend naar het aantal personen. Vanaf twee dagen voor de besteldag herinnert Miso je aan volgende week.</p>
         <p><button type="submit" class="btn btn-primary">Opslaan</button></p>
     </form>
