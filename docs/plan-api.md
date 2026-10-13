@@ -121,6 +121,21 @@ kookdag terug op `null` (niet meer dubbel inkopen).
 {"ok": true, "deleted": [12, 13], "status": {…}}
 ```
 
+## Weeksjablonen (F9)
+
+Een week bewaren en op een andere week terugzetten. Bewaard worden recept- en voorraadregels met weekdag,
+personen en "morgen opeten" (`rest`); vriezer-effecten niet. Kinderen kunnen alleen lezen
+(`POST /api/plan/templates` en `DELETE /api/plan/templates/…` staan in `KID_BLOCKED`). Tabel `week_templates`.
+
+- `GET /api/plan/templates` → `{ok, templates: [{id, name, created_on, count, days: [{weekday 0-6, label, missing}]}]}`.
+  `missing` = het recept bestaat niet meer.
+- `POST /api/plan/templates` `{name, week?}` bewaart de week (ISO-datum erin, leeg = deze week). Zelfde naam
+  overschrijft. Lege week: `{ok:false, error}`. Maximaal 30 sjablonen.
+- `POST /api/plan/templates/{id}/apply` `{week?, replace?}` (`week`: ISO-datum of `"next"`) →
+  `{ok, placed, skipped_busy, skipped_gone, week, entries, status}`. Bezette dagen (recept of voorraad) blijven staan
+  tenzij `replace`. Een restje dat buiten de week zou vallen wordt weggelaten.
+- `DELETE /api/plan/templates/{id}` → `{ok}`; onbekend id geeft 404.
+
 ## Week (bestaand, uitgebreid)
 
 ### `GET /api/week?week=YYYY-MM-DD|next`

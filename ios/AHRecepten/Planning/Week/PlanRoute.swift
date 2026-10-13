@@ -4,5 +4,6 @@ import Foundation
 enum PlanRoute: Hashable {
     case recipe(Int)
     case freezer
+    case templates
     case missing
 }

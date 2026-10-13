@@ -103,6 +103,31 @@ class PlanEntry(Base):
         self.extras_json = json.dumps(value, ensure_ascii=False)
 
 
+class WeekTemplate(Base):
+    """Een opgeslagen week ("standaardweek", "schoolvakantie") om met één tik terug te zetten.
+    `items_json`: lijst van {"weekday" 0-6, "kind" recipe|stock, "recipe_id", "persons", "text", "extras", "rest"}
+    waarbij `rest` betekent dat de volgende dag een restje is. Vriezer-effecten worden bewust niet bewaard."""
+
+    __tablename__ = "week_templates"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(80))
+    items_json: Mapped[str] = mapped_column(Text, default="[]", server_default="[]")
+    created_on: Mapped[str] = mapped_column(String(10), default="")
+
+    @property
+    def items(self) -> list[dict]:
+        try:
+            value = json.loads(self.items_json or "[]")
+        except ValueError:
+            return []
+        return value if isinstance(value, list) else []
+
+    @items.setter
+    def items(self, value: list[dict]) -> None:
+        self.items_json = json.dumps(value, ensure_ascii=False)
+
+
 class FreezerItem(Base):
     """Wat er in de vriezer ligt (simpel: naam + porties)."""
 

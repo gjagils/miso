@@ -12,10 +12,10 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app import planning
+from app import planning, week_templates
 from app.api import routes
 from app.database import get_db
-from app.models import FreezerItem, PlanEntry, Recipe
+from app.models import FreezerItem, PlanEntry, Recipe, WeekTemplate
 
 router = APIRouter(prefix="/api")
 
@@ -393,5 +393,61 @@ async def delete_freezer(item_id: int, db: Session = Depends(get_db)):
     if not item:
         return _err("Dit staat niet (meer) in de vriezer.", 404)
     db.delete(item)
+    db.commit()
+    return {"ok": True}
+
+
+# ── Weeksjablonen (F9) ─────────────────────────────────────────────────
+
+
+class TemplateSave(BaseModel):
+    name: str = Field(..., min_length=1, max_length=80)
+    week: str | None = None  # ISO-datum in de te bewaren week; leeg = deze week
+
+
+class TemplateApply(BaseModel):
+    week: str | None = None  # ISO-datum in de doelweek; "next" = volgende week
+    replace: bool = False
+
+
+@router.get("/plan/templates")
+async def list_templates(db: Session = Depends(get_db)):
+    rows = db.execute(select(WeekTemplate).order_by(WeekTemplate.name)).scalars().all()
+    return {"ok": True, "templates": [week_templates.describe(db, t) for t in rows]}
+
+
+@router.post("/plan/templates")
+async def save_template(payload: TemplateSave, db: Session = Depends(get_db)):
+    name = payload.name.strip()
+    if not name:
+        return _err("Geef het sjabloon een naam.")
+    monday = routes.parse_week(payload.week)
+    count = db.execute(select(WeekTemplate)).scalars().all()
+    if len(count) >= week_templates.MAX_TEMPLATES and not any(t.name == name for t in count):
+        return _err("Er zijn al te veel sjablonen; gooi er eerst een weg.")
+    tpl = week_templates.save(db, name, monday)
+    if not tpl:
+        return _err("Deze week is nog leeg, dus er valt niets te bewaren.")
+    return {"ok": True, "template": week_templates.describe(db, tpl)}
+
+
+@router.post("/plan/templates/{template_id}/apply")
+async def apply_template(template_id: int, payload: TemplateApply, db: Session = Depends(get_db)):
+    tpl = db.get(WeekTemplate, template_id)
+    if not tpl:
+        return _err("Dit sjabloon bestaat niet (meer).", 404)
+    monday = routes.parse_week(payload.week)
+    result = week_templates.apply(db, tpl, monday, payload.replace)
+    return {"ok": True, **result, "week": str(monday),
+            "entries": entries_json(db, planning.week_entries(db, monday)),
+            "status": routes.week_status(db, monday)}
+
+
+@router.delete("/plan/templates/{template_id}")
+async def delete_template(template_id: int, db: Session = Depends(get_db)):
+    tpl = db.get(WeekTemplate, template_id)
+    if not tpl:
+        return _err("Dit sjabloon bestaat niet (meer).", 404)
+    db.delete(tpl)
     db.commit()
     return {"ok": True}

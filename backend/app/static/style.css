@@ -917,3 +917,12 @@ img.who-avatar { object-fit: cover; }
 .timer-row.done .timer-left { color: var(--accent-ink); animation: timer-blink 1s steps(2) infinite; }
 @keyframes timer-blink { 50% { opacity: 0.35; } }
 @media (prefers-reduced-motion: reduce) { .timer-row.done .timer-left { animation: none; } }
+
+/* Weeksjablonen */
+.wm-templates summary { cursor: pointer; font-weight: 800; }
+.tpl-list { list-style: none; margin: 0.6rem 0; padding: 0; display: grid; gap: 0.5rem; }
+.tpl-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.tpl-main { flex: 1 1 14rem; display: grid; gap: 0.15rem; min-width: 0; }
+.tpl-main .muted { font-size: 0.85rem; overflow-wrap: anywhere; }
+.tpl-add { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+.tpl-add .form-input { flex: 1 1 12rem; }

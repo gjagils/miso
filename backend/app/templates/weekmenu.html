@@ -24,6 +24,18 @@
     {% endfor %}
 </div>
 
+<details class="status-box wm-templates" id="templates">
+    <summary>Week als sjabloon</summary>
+    <p class="muted">Bewaar deze week en zet hem met één tik op een andere week terug, bijvoorbeeld een standaardweek of een schoolvakantieweek. Bezette dagen blijven staan.</p>
+    <ul class="tpl-list" id="tpl-list"></ul>
+    <p class="muted" id="tpl-empty" hidden>Nog geen sjablonen.</p>
+    <form class="tpl-add" id="tpl-add" autocomplete="off">
+        <input class="form-input" name="name" placeholder="Naam, bijv. Standaardweek" aria-label="Naam van het sjabloon" maxlength="80" required>
+        <button class="btn" type="submit">Bewaar deze week</button>
+    </form>
+    <p class="muted" id="tpl-msg" role="status"></p>
+</details>
+
 <section class="status-box wm-groceries" id="groceries" aria-labelledby="gr-title">
     <h2 id="gr-title">Boodschappen</h2>
     <p id="gr-line" class="gr-line" role="status"></p>
@@ -226,6 +238,50 @@ $("push-btn").onclick = async () => {
     msg.style.color = r.ok ? "" : "var(--red)";
 };
 
+// ── Weeksjablonen ───────────────────────────────────────
+const SHORT = ["ma", "di", "wo", "do", "vr", "za", "zo"];
+async function loadTemplates() {
+    const r = await api("GET", "/api/plan/templates");
+    const ul = $("tpl-list");
+    ul.innerHTML = "";
+    const list = r.templates || [];
+    $("tpl-empty").hidden = list.length > 0;
+    list.forEach(t => {
+        const li = document.createElement("li");
+        const summary = t.days.map(d => `${SHORT[d.weekday]} ${esc(d.label)}`).join(" · ");
+        li.innerHTML = `<div class="tpl-main"><strong>${esc(t.name)}</strong><span class="muted">${esc(summary)}</span></div>
+            <button type="button" class="btn btn-sm" data-use>Zet op deze week</button>
+            <button type="button" class="btn btn-sm btn-muted" data-del aria-label="Verwijder sjabloon ${esc(t.name)}">Weg</button>`;
+        li.querySelector("[data-use]").onclick = async () => {
+            const busy = entries.some(e => e.kind !== "leftover");
+            let replace = false;
+            if (busy) replace = confirm("Er staat al iets in deze week.\nOK = bezette dagen vervangen, Annuleer = alleen lege dagen vullen.");
+            const out = await api("POST", `/api/plan/templates/${t.id}/apply`, {week: WEEK, replace});
+            if (!out.ok) { $("tpl-msg").textContent = out.error || "Terugzetten mislukt."; return; }
+            const bits = [`${plural(out.placed, "dag", "dagen")} gevuld`];
+            if (out.skipped_busy) bits.push(`${plural(out.skipped_busy, "bezette dag", "bezette dagen")} overgeslagen`);
+            if (out.skipped_gone) bits.push(`${plural(out.skipped_gone, "verwijderd recept", "verwijderde recepten")} overgeslagen`);
+            $("tpl-msg").textContent = bits.join(", ") + ".";
+            reload();
+        };
+        li.querySelector("[data-del]").onclick = async () => {
+            if (!confirm(`Sjabloon "${t.name}" weggooien?`)) return;
+            await api("DELETE", `/api/plan/templates/${t.id}`);
+            loadTemplates();
+        };
+        ul.appendChild(li);
+    });
+}
+$("tpl-add").onsubmit = async ev => {
+    ev.preventDefault();
+    const f = ev.target;
+    const name = f.name.value.trim();
+    if (!name) return;
+    const r = await api("POST", "/api/plan/templates", {name, week: WEEK});
+    $("tpl-msg").textContent = r.ok ? `"${name}" bewaard.` : (r.error || "Bewaren mislukt.");
+    if (r.ok) { f.name.value = ""; loadTemplates(); }
+};
+
 // ── Vriezer ─────────────────────────────────────────────
 async function loadFreezer() {
     const r = await api("GET", "/api/freezer");
@@ -299,7 +355,7 @@ if (sb) sb.onclick = async () => {
     };
 };
 
-renderDays(); renderGroceries(); loadFreezer(); loadHealth(); loadCost(); loadReplenish();
+renderDays(); renderGroceries(); loadFreezer(); loadHealth(); loadCost(); loadReplenish(); loadTemplates();
 })();
 </script>
 {% endblock %}
