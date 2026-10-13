@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// ♥ Favoriet, "Ken ik uit mijn hoofd" en Opruimen/Terugzetten op het recept, plus het gebruik.
+/// ♥ Favoriet, "Ken ik uit mijn hoofd", "Makkelijk met kinderen" en Opruimen/Terugzetten op het recept, plus het gebruik.
 struct RecipeFlagsBar: View {
     let recipe: RecipeDetail
     let busy: Bool
@@ -10,6 +10,7 @@ struct RecipeFlagsBar: View {
     var isKid = false
     let onFavorite: () -> Void
     let onByHeart: () -> Void
+    let onKidFriendly: () -> Void
     let onArchive: () -> Void
 
     /// "3× gekookt · 👍 2 · 👎 0" of "Nog niet gekookt met Miso".
@@ -34,6 +35,9 @@ struct RecipeFlagsBar: View {
                 }
             }
             if !isKid {
+                toggle(title: "Makkelijk met kinderen", systemImage: "figure.and.child.holdinghands",
+                       on: recipe.isKidFriendly, action: onKidFriendly,
+                       hint: "Op de kids-kookavond stelt Miso dit recept voor")
                 Button(action: onArchive) {
                     Label(recipe.isArchived ? "Terugzetten" : "Opruimen",
                           systemImage: recipe.isArchived ? "arrow.uturn.backward" : "archivebox")

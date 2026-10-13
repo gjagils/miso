@@ -74,7 +74,8 @@ struct RecipeDetailView: View {
                                 .buttonStyle(.misoSecondary)
                         }
                         RecipeFlagsBar(recipe: recipe, busy: savingFlags, favoriteOn: favoriteOn, isKid: isKid,
-                                       onFavorite: toggleFavorite, onByHeart: toggleByHeart, onArchive: toggleArchived)
+                                       onFavorite: toggleFavorite, onByHeart: toggleByHeart, onKidFriendly: toggleKidFriendly,
+                                       onArchive: toggleArchived)
                         if !isKid {
                             wishButton
                                 .font(.system(.subheadline, design: .rounded).weight(.semibold))
@@ -254,6 +255,11 @@ struct RecipeDetailView: View {
         saveFlags(RecipeFlagsBody(byHeart: !recipe.isByHeart))
     }
 
+    private func toggleKidFriendly() {
+        guard let recipe else { return }
+        saveFlags(RecipeFlagsBody(kidFriendly: !recipe.isKidFriendly))
+    }
+
     private func toggleArchived() {
         guard let recipe else { return }
         saveFlags(RecipeFlagsBody(archived: !recipe.isArchived))
@@ -270,6 +276,7 @@ struct RecipeDetailView: View {
                 withAnimation {
                     recipe?.favorite = summary?.favorite ?? body.favorite ?? recipe?.favorite
                     recipe?.byHeart = summary?.byHeart ?? body.byHeart ?? recipe?.byHeart
+                    recipe?.kidFriendly = summary?.kidFriendly ?? body.kidFriendly ?? recipe?.kidFriendly
                     recipe?.archived = summary?.archived ?? body.archived ?? recipe?.archived
                     if let fans = summary?.fans { recipe?.fans = fans }
                 }

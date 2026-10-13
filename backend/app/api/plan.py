@@ -298,12 +298,14 @@ class PlanSettings(BaseModel):
     household_size: int | None = Field(None, ge=1, le=planning.MAX_PERSONS)
     order_weekday: int | None = Field(None, ge=0, le=6)
     week_budget: int | None = Field(None, ge=0, le=9999)  # euro's per week; 0 = geen budget
+    kids_weekday: int | None = Field(None, ge=-1, le=6)  # vaste kids-kookavond; -1 = geen
 
 
 def plan_settings(db: Session) -> dict:
     wd = planning.order_weekday(db)
     return {"household_size": planning.household_size(db), "order_weekday": wd,
-            "order_weekday_name": planning.WEEKDAYS[wd], "week_budget": planning.week_budget(db)}
+            "order_weekday_name": planning.WEEKDAYS[wd], "week_budget": planning.week_budget(db),
+            "kids_weekday": planning.kids_weekday(db)}
 
 
 @router.get("/plan/settings")
@@ -319,6 +321,8 @@ async def patch_plan_settings(payload: PlanSettings, db: Session = Depends(get_d
         planning.set_setting(db, "order_weekday", str(payload.order_weekday))
     if payload.week_budget is not None:
         planning.set_setting(db, "week_budget", str(payload.week_budget))
+    if payload.kids_weekday is not None:
+        planning.set_setting(db, "kids_weekday", str(payload.kids_weekday))
     return {"ok": True, **plan_settings(db)}
 
 

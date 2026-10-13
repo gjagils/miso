@@ -21,16 +21,23 @@ struct ProposalOption: Decodable, Hashable, Sendable {
     let wished: Bool
     /// Waarschuwingen: "Hannah lust geen paprika". Leeg = niets aan de hand.
     let avoid: [String]
+    /// "Makkelijk met kinderen" gemarkeerd.
+    let kidFriendly: Bool
+    /// Dit is de vaste kids-kookavond en het recept is makkelijk met kinderen.
+    let kidsNight: Bool
 
     enum CodingKeys: String, CodingKey {
         case recipeId, ahRecipeId, name, imageUrl, totalTime, favorite, allerhande, pack, eiwit, keuken, basis
-        case bonusSaving, wished, avoid
+        case bonusSaving, wished, avoid, kidFriendly, kidsNight
     }
 
     init(recipeId: Int? = nil, ahRecipeId: Int? = nil, name: String, imageUrl: String = "", totalTime: String = "",
          favorite: Bool = false, allerhande: Bool = false, pack: Bool = false,
-         eiwit: String = "", keuken: String = "", basis: String = "", bonusSaving: Double = 0, wished: Bool = false, avoid: [String] = []) {
+         eiwit: String = "", keuken: String = "", basis: String = "", bonusSaving: Double = 0, wished: Bool = false, avoid: [String] = [],
+         kidFriendly: Bool = false, kidsNight: Bool = false) {
         self.avoid = avoid
+        self.kidFriendly = kidFriendly
+        self.kidsNight = kidsNight
         self.bonusSaving = bonusSaving
         self.wished = wished
         self.eiwit = eiwit
@@ -62,6 +69,8 @@ struct ProposalOption: Decodable, Hashable, Sendable {
         bonusSaving = c.lenient(Double.self, .bonusSaving) ?? 0
         wished = c.lenient(Bool.self, .wished) ?? false
         avoid = c.lenient([String].self, .avoid) ?? []
+        kidFriendly = c.lenient(Bool.self, .kidFriendly) ?? false
+        kidsNight = c.lenient(Bool.self, .kidsNight) ?? false
     }
 
     /// "25 min · Allerhande"

@@ -146,7 +146,8 @@ function optionHTML(o, main) {
     const img = o.image_url ? `<img src="${esc(o.image_url)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<span class="opt-ph"></span>`;
     const bonus = o.bonus_saving ? `<span class="chip chip-bonus">bonus −€${Number(o.bonus_saving).toFixed(2).replace(".", ",")}</span>` : "";
     const avoid = (o.avoid || []).map(a => `<span class="chip chip-avoid">⚠︎ ${esc(a)}</span>`).join("");
-    return `${img}<span class="opt-name">${o.favorite ? '<span class="fav">♥</span> ' : ""}${esc(o.name)}${bonus}${avoid}</span>
+    const kids = o.kids_night ? `<span class="chip chip-kids">kids-avond</span>` : "";
+    return `${img}<span class="opt-name">${o.favorite ? '<span class="fav">♥</span> ' : ""}${esc(o.name)}${bonus}${kids}${avoid}</span>
         <span class="muted">${esc(o.total_time || "")}${o.allerhande ? (o.total_time ? " · " : "") + "Allerhande" : ""}</span>`;
 }
 function weekCheck() {

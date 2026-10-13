@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 from app.clients.extractor import _parse_json
 from app import llm
 from app.config import settings
+from app import kidsnight
 from app.cooktime import time_fit
 from app.logging_config import logger
 from app.models import PlanEntry, Recipe, RecipeProfile
@@ -218,7 +219,8 @@ def _ctx_terms(ctx: dict, today: date) -> tuple[float, list[str]]:
 
 def suggest_week(planned: list[dict], candidates: list[tuple[Recipe, dict]], empty_days: list[str],
                  recent_ids: set[int] | None = None, prefs: dict[int, float] | None = None,
-                 context: dict[int, dict] | None = None, today: date | None = None) -> list[dict]:
+                 context: dict[int, dict] | None = None, today: date | None = None,
+                 kids_weekday: int | None = None) -> list[dict]:
     """Vul lege dagen met recepten die de week gevarieerd, gezond, lekker en voordelig maken (greedy).
 
     `prefs[recipe_id]`: usage.preference_score (favorieten, 👍/👎, vaak gekozen, recent gegeten).
@@ -254,6 +256,10 @@ def suggest_week(planned: list[dict], candidates: list[tuple[Recipe, dict]], emp
             s += fit
             if fit_why:
                 extra_why = extra_why + [fit_why]
+            kid, kid_why = kidsnight.fit(recipe, day, kids_weekday, kidsnight.BONUS_WEEK)
+            s += kid
+            if kid_why:
+                extra_why = extra_why + [kid_why]
             if s > best_score:
                 best, best_score, best_why = (recipe, prof), s, why + extra_why
         if not best:

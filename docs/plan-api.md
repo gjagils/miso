@@ -220,8 +220,16 @@ voorstel `POST /api/plan/entries`).
 
 ## Instellingen
 
-- `GET /api/plan/settings` → `{"ok": true, "household_size": 4, "order_weekday": 6, "order_weekday_name": "zondag", "week_budget": 0}`
-- `PATCH /api/plan/settings {"household_size": 5, "order_weekday": 0, "week_budget": 120}` (alles optioneel; 1–20, 0=ma … 6=zo, en 0–9999 euro per week met 0 = geen budget)
+- `GET /api/plan/settings` → `{"ok": true, "household_size": 4, "order_weekday": 6, "order_weekday_name": "zondag", "week_budget": 0, "kids_weekday": null}`
+- `PATCH /api/plan/settings {"household_size": 5, "order_weekday": 0, "week_budget": 120, "kids_weekday": 2}` (alles optioneel; 1–20, 0=ma … 6=zo, 0–9999 euro per week met 0 = geen budget, en `kids_weekday` 0=ma … 6=zo of -1 voor geen; GET geeft `null` bij geen)
+
+### Kids-kookavond (D8)
+
+Eén vaste weekdag (`kids_weekday`) waarop de kinderen meekoken. Recepten met de vlag `kid_friendly` ("makkelijk met kinderen")
+krijgen op die dag voorrang: in `POST /api/week/suggest` (reden "makkelijk met kinderen") en in `POST /api/plan/propose`
+(optievelden `kid_friendly` en `kids_night`; `kids_night` is waar als het recept de vlag heeft en de dag de kids-avond is).
+De vlag staat in elke receptsamenvatting (`kid_friendly`) en wordt gezet met `PATCH /api/recipes/{id}/flags {"kid_friendly": true}`
+(alleen ouders; kinderen krijgen 403). Kolom `recipes.kid_friendly` (migratie). Code: `backend/app/kidsnight.py`.
   → zelfde vorm. Web: formulier "Gezin en besteldag" op `/settings`.
 
 ## Vriezer

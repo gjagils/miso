@@ -42,6 +42,9 @@ struct ProposalOptionLabel: View {
                     if option.bonusSaving > 0 {
                         Text("bonus \(Euro.saving(option.bonusSaving))").misoChip(.misoOrange)
                     }
+                    if option.kidsNight {
+                        Text("kids-avond").misoChip(.misoMint)
+                    }
                     ForEach(option.avoid, id: \.self) { warning in
                         Label(warning, systemImage: "exclamationmark.triangle.fill")
                             .font(.system(.caption, design: .rounded).weight(.semibold))
@@ -64,6 +67,7 @@ struct ProposalOptionLabel: View {
         if !option.totalTime.isEmpty { parts.append(option.totalTime) }
         if option.allerhande { parts.append("uit Allerhande") }
         if option.bonusSaving > 0 { parts.append("in de bonus, voordeel \(Euro.format(option.bonusSaving))") }
+        if option.kidsNight { parts.append("makkelijk met kinderen, voor de kids-kookavond") }
         parts.append(contentsOf: option.avoid)
         return parts.joined(separator: ", ")
     }

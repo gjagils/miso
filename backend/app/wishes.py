@@ -13,7 +13,7 @@ import anthropic
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app import llm
+from app import kidsnight, llm, planning
 from app.config import settings
 from app.models import PlanEntry, Recipe
 from app.nutrition import get_profile
@@ -175,6 +175,7 @@ def propose(db: Session, monday: date, wishes: dict[str, str], per_day: int = 3,
 
     wished = {w.recipe_id for w in db.execute(select(Wish).where(Wish.done_on.is_(None),
                                                                  Wish.recipe_id.is_not(None))).scalars()}
+    kids_day = planning.kids_weekday(db)
     bonus = _bonus_savings(db, recipes, monday)  # recipe_id -> geschatte besparing in de bonus van die week
     from app import members as members_mod, tastes
 
@@ -217,6 +218,7 @@ def propose(db: Session, monday: date, wishes: dict[str, str], per_day: int = 3,
             if bonus.get(r.id):
                 s += min(15, 3 * bonus[r.id])  # in de bonus deze week: per euro voordeel, tot 15
             s += time_fit(r.total_time, day)[0]  # doordeweeks snel, in het weekend mag het langer
+            s += kidsnight.fit(r, day, kids_day, kidsnight.BONUS_PROPOSE)[0]  # kids-kookavond
             hit = taste.get(r.id) or {}
             s -= 14 * len(hit.get("dislikes", [])) - 4 * len(hit.get("likes", []))  # smaak per persoon
             if r.favorite and favorites_chosen >= 2:
@@ -239,6 +241,8 @@ def propose(db: Session, monday: date, wishes: dict[str, str], per_day: int = 3,
                             "pack": r.collection == "maaltijdpakket", "eiwit": p.get("eiwit", ""),
                             "keuken": p.get("keuken", ""), "basis": p.get("basis", ""),
                             "bonus_saving": bonus.get(r.id) or 0, "wished": r.id in wished,
+                            "kid_friendly": bool(r.kid_friendly),
+                            "kids_night": bool(r.kid_friendly) and kidsnight.is_kids_day(day, kids_day),
                             "avoid": [f"{n} lust geen {t}" for n, t in (taste.get(r.id) or {}).get("dislikes", [])]})
             if len(options) == per_day:
                 break

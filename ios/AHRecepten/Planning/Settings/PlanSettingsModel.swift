@@ -54,6 +54,14 @@ final class PlanSettingsModel {
         await OrderReminderScheduler.refresh(api: api)
     }
 
+    /// nil = geen vaste kids-kookavond.
+    func setKidsWeekday(_ weekday: Int?, api: API) async {
+        guard var current = settings, current.kidsWeekday != weekday else { return }
+        current.kidsWeekday = weekday
+        settings = current
+        await save(PlanSettingsPatchBody(kidsWeekday: weekday ?? -1), api: api)
+    }
+
     private func save(_ body: PlanSettingsPatchBody, api: API) async {
         do {
             settings = try await api.updatePlanSettings(body)

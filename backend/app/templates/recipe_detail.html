@@ -16,6 +16,8 @@
     <button class="btn flag-btn" type="button" data-flag="favorite" aria-pressed="{{ 'true' if (me and me.initial in fans) or (not me and recipe.favorite) else 'false' }}">♥ Favoriet{% if fans %} <small class="fans">{{ fans|join(" ") }}</small>{% endif %}</button>
     <button class="btn" type="button" id="wish-btn">Ik wil dit graag</button>
     {% if not kid %}
+    <button class="btn flag-btn" type="button" data-flag="kid_friendly" aria-pressed="{{ 'true' if recipe.kid_friendly else 'false' }}"
+            title="Voor de kids-kookavond: recepten die kinderen makkelijk mee kunnen helpen">Makkelijk met kinderen</button>
     <button class="btn flag-btn" type="button" data-flag="by_heart" aria-pressed="{{ 'true' if recipe.by_heart else 'false' }}"
             title="Je kent de bereiding; Miso bewaart alleen de ingrediënten voor de boodschappen">Ken ik uit mijn hoofd</button>
     <button class="btn flag-btn" type="button" data-flag="archived" aria-pressed="{{ 'true' if recipe.archived else 'false' }}"
@@ -111,7 +113,7 @@ document.querySelectorAll(".flag-btn").forEach(btn => btn.addEventListener("clic
     const r = await fetch(`/api/recipes/${RECIPE_ID}/flags`, {method: "PATCH", headers: {"Content-Type": "application/json"},
         body: JSON.stringify({[btn.dataset.flag]: on})}).then(x => x.json()).catch(() => ({}));
     if (!r.ok) return;
-    if (btn.dataset.flag === "favorite") btn.setAttribute("aria-pressed", String(on));
+    if (btn.dataset.flag === "favorite" || btn.dataset.flag === "kid_friendly") btn.setAttribute("aria-pressed", String(on));
     else location.reload();  // uit mijn hoofd / opruimen veranderen de pagina
 }));
 document.getElementById("photo-save").addEventListener("click", async () => {

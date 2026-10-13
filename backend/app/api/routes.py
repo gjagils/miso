@@ -1177,12 +1177,14 @@ async def settings_page(request: Request, db: Session = Depends(get_db)):
 
 @router.post("/settings/plan")
 async def save_plan_settings(request: Request, household_size: int = Form(...), order_weekday: int = Form(...),
-                             week_budget: int = Form(0), db: Session = Depends(get_db)):
-    if not (1 <= household_size <= planning.MAX_PERSONS and 0 <= order_weekday <= 6 and 0 <= week_budget <= 9999):
+                             week_budget: int = Form(0), kids_weekday: int = Form(-1), db: Session = Depends(get_db)):
+    if not (1 <= household_size <= planning.MAX_PERSONS and 0 <= order_weekday <= 6 and 0 <= week_budget <= 9999
+            and -1 <= kids_weekday <= 6):
         return _render_settings(request, db, plan_result="Kies 1 tot 20 personen, een dag van de week en een budget tot 9999 euro.")
     planning.set_setting(db, "household_size", str(household_size))
     planning.set_setting(db, "order_weekday", str(order_weekday))
     planning.set_setting(db, "week_budget", str(week_budget))
+    planning.set_setting(db, "kids_weekday", str(kids_weekday))
     return _render_settings(request, db, plan_result="Opgeslagen.")
 
 
@@ -1222,6 +1224,7 @@ def _render_settings(
             "household_size": planning.household_size(db),
             "order_weekday": planning.order_weekday(db),
             "week_budget": planning.week_budget(db),
+            "kids_weekday": planning.kids_weekday(db),
             "weekdays": planning.WEEKDAYS,
             "plan_result": plan_result,
             "ah_refresh_set": bool(_get_setting(db, "ah_refresh_token")),

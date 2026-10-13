@@ -35,6 +35,7 @@ class Recipe(Base):
     favorite: Mapped[bool] = mapped_column(Boolean, default=False)
     archived: Mapped[bool] = mapped_column(Boolean, default=False)  # opgeruimd: niet in lijsten/voorstellen
     by_heart: Mapped[bool] = mapped_column(Boolean, default=False)  # "ken ik uit mijn hoofd": alleen voor boodschappen
+    kid_friendly: Mapped[bool] = mapped_column(Boolean, default=False)  # "makkelijk met kinderen": voor de kids-kookavond
     thumbs_up: Mapped[int] = mapped_column(Integer, default=0)
     thumbs_down: Mapped[int] = mapped_column(Integer, default=0)
     cooked_count: Mapped[int] = mapped_column(Integer, default=0)

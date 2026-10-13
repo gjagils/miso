@@ -262,14 +262,14 @@ testen zonder AH.
 | D5 | Kindertoken met alleen lees- en wensrechten | S | ja | 2 | vervalt (main: rol kind) |
 | D6 | Wensenlijst-scherm voor kinderen; wensen bij Kiezen en in het voorstel | M | ja | 2 | vervalt (main: wensen) |
 | D7 | Stemmen op kandidaten; uitslag vult lege dagen | M | ja | 3 | open |
-| D8 | Tag "makkelijk met kinderen" en vaste kids-kookavond | S | ja | 3 | open |
+| D8 | Tag "makkelijk met kinderen" en vaste kids-kookavond | S | ja | 3 | ✅ web + iOS |
 
 ### E. Aanbevelen
 
 | # | Item | Grootte | Offline | Prio | Status |
 |---|---|---|---|---|---|
 | E1 | Voorstelscore herschrijven als gewogen termen met uitlegregel per suggestie | M | ja | 1 | ✅ |
-| E2 | Termen: beoordelingen, wensen, afkeer, kooktijd per weekdag, kids-avond | M | ja | 2 | ✅ kooktijd; kids-avond open |
+| E2 | Termen: beoordelingen, wensen, afkeer, kooktijd per weekdag, kids-avond | M | ja | 2 | ✅ web + iOS (kids-avond meegenomen) |
 | E3 | Termen: bonus, kosten per portie, gebruikt restjes en vriezer | S | ja | 2 | ✅ |
 | E4 | Profielen aanmaken bij import zodat elk recept kandidaat is | S | ja | 1 | vervalt (main: profile_later) |
 | E5 | "Vergeet je niet" samenvoegen: standaardboodschappen, waarschijnlijk-op, AH-signaal, met bron | S | ja | 3 | deels (ritme + vaak; AH-signaal wacht) |

@@ -930,3 +930,4 @@ img.who-avatar { object-fit: cover; }
 /* Koken met wat er is */
 .rp-main { flex: 1 1 14rem; display: grid; gap: 0.15rem; min-width: 0; }
 .rp-main .muted { font-size: 0.85rem; }
+.chip-kids { background: var(--miso-mint, #b9e4c9); color: var(--miso-blue); margin-left: 0.4rem; font-size: 0.7rem; vertical-align: middle; }

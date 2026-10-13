@@ -43,3 +43,34 @@ struct TasteDecodingTests {
         #expect(old.avoid.isEmpty)
     }
 }
+
+struct KidsNightTests {
+    private func decode<T: Decodable>(_ type: T.Type, _ json: String) throws -> T {
+        try API.decoder.decode(type, from: Data(json.utf8))
+    }
+
+    @Test func settingsDecodeWithAndWithoutKidsWeekday() throws {
+        let some = try decode(PlanSettings.self, #"{"ok": true, "household_size": 4, "order_weekday": 6, "kids_weekday": 2}"#)
+        #expect(some.kidsWeekday == 2)
+        let none = try decode(PlanSettings.self, #"{"ok": true, "household_size": 4, "order_weekday": 6, "kids_weekday": null}"#)
+        #expect(none.kidsWeekday == nil)
+        let old = try decode(PlanSettings.self, #"{"household_size": 4, "order_weekday": 6}"#)
+        #expect(old.kidsWeekday == nil)
+    }
+
+    @Test func patchBodyAndFlagsEncode() throws {
+        let off = try JSONSerialization.jsonObject(with: JSONEncoder().encode(PlanSettingsPatchBody(kidsWeekday: -1))) as? [String: Any]
+        #expect(off?["kids_weekday"] as? Int == -1 && off?["week_budget"] == nil)
+        let flag = try JSONSerialization.jsonObject(with: JSONEncoder().encode(RecipeFlagsBody(kidFriendly: true))) as? [String: Any]
+        #expect(flag?["kid_friendly"] as? Bool == true && flag?.count == 1)
+    }
+
+    @Test func optionAndRecipeCarryTheFlag() throws {
+        let o = try decode(ProposalOption.self, #"{"recipe_id": 3, "name": "Pannenkoeken", "kid_friendly": true, "kids_night": true}"#)
+        #expect(o.kidFriendly && o.kidsNight)
+        let plain = try decode(ProposalOption.self, #"{"recipe_id": 4, "name": "Stoofpot"}"#)
+        #expect(!plain.kidFriendly && !plain.kidsNight)
+        let summary = try decode(RecipeSummary.self, #"{"id": 1, "name": "A", "servings": "4 personen", "total_time": "30 min", "image_url": "", "gf_mode": "none", "kid_friendly": true}"#)
+        #expect(summary.isKidFriendly)
+    }
+}

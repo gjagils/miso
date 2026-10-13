@@ -324,7 +324,7 @@ def test_next_week_status(db):
 def test_plan_settings_api_and_form(db):
     client = TestClient(app)
     assert client.get("/api/plan/settings").json() == {"ok": True, "household_size": 4, "order_weekday": 6,
-                                                       "order_weekday_name": "zondag", "week_budget": 0}
+                                                       "order_weekday_name": "zondag", "week_budget": 0, "kids_weekday": None}
     got = client.patch("/api/plan/settings", json={"household_size": 5, "order_weekday": 0}).json()
     assert got["household_size"] == 5 and got["order_weekday_name"] == "maandag"
     assert client.patch("/api/plan/settings", json={"household_size": 0}).status_code == 422

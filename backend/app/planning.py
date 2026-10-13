@@ -64,6 +64,12 @@ def week_budget(db: Session) -> int:
     return _int_setting(db, "week_budget", 0, 0, 9999)
 
 
+def kids_weekday(db: Session) -> int | None:
+    """Vaste kids-kookavond: weekdag 0-6 (ma-zo); None = geen. Opgeslagen als -1 voor "geen"."""
+    value = _int_setting(db, "kids_weekday", -1, -1, 6)
+    return None if value < 0 else value
+
+
 def order_weekday(db: Session) -> int:
     return _int_setting(db, "order_weekday", DEFAULT_ORDER_WEEKDAY, 0, 6)
 

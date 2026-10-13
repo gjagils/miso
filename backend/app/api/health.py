@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app import planning
 from app.api import routes
 from app.database import SessionLocal, get_db
 from app.logging_config import logger
@@ -68,7 +69,8 @@ async def week_suggest(payload: SuggestPayload, db: Session = Depends(get_db)):
     prefs = {r.id: preference_score(r, stats.get(r.id)) for r, _ in candidates}
     plan = [{"recipe_id": r.id, "profiel": get_profile(db, r.id)} for _, r in planned]
     chosen = suggest_week(plan, candidates, empty, set(last_weeks), prefs,
-                          suggest_context(db, [r for r, _ in candidates], monday, stats))
+                          suggest_context(db, [r for r, _ in candidates], monday, stats),
+                          kids_weekday=planning.kids_weekday(db))
     missing = db.query(Recipe).count() - len(candidates)
     return {"ok": True, "voorstel": chosen, "zonder_profiel": missing,
             "analyse": analyze_week([(e.date, get_profile(db, r.id)) for e, r in planned] +
