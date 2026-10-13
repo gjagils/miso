@@ -11,12 +11,17 @@ struct StepTimerButtons: View {
             FlowLayout(spacing: 8) {
                 ForEach(timers) { timer in
                     Button { onStart(timer) } label: {
-                        Label(timer.label, systemImage: "timer")
-                            .font(.system(.subheadline, design: .rounded).weight(.bold))
-                            .foregroundStyle(Color.misoInk)
-                            .padding(.horizontal, 12)
-                            .frame(minHeight: 44)
-                            .background(Color.misoMint, in: Capsule())
+                        // Bewust geen `Label`: in een List-rij toonde dat alleen het icoon, in een smalle, hoge knop.
+                        HStack(spacing: 6) {
+                            Image(systemName: "timer").accessibilityHidden(true)
+                            Text(timer.label)
+                        }
+                        .font(.system(.subheadline, design: .rounded).weight(.bold))
+                        .foregroundStyle(Color.misoInk)
+                        .fixedSize()
+                        .padding(.horizontal, 14)
+                        .frame(minHeight: 44)
+                        .background(Color.misoMint, in: Capsule())
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Start timer van \(timer.label)")
