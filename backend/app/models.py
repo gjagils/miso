@@ -35,6 +35,7 @@ class Recipe(Base):
     favorite: Mapped[bool] = mapped_column(Boolean, default=False)
     archived: Mapped[bool] = mapped_column(Boolean, default=False)  # opgeruimd: niet in lijsten/voorstellen
     by_heart: Mapped[bool] = mapped_column(Boolean, default=False)  # "ken ik uit mijn hoofd": alleen voor boodschappen
+    kid_friendly: Mapped[bool] = mapped_column(Boolean, default=False)  # "makkelijk met kinderen": voor de kids-kookavond
     thumbs_up: Mapped[int] = mapped_column(Integer, default=0)
     thumbs_down: Mapped[int] = mapped_column(Integer, default=0)
     cooked_count: Mapped[int] = mapped_column(Integer, default=0)
@@ -101,6 +102,66 @@ class PlanEntry(Base):
     @extras.setter
     def extras(self, value: list[dict]) -> None:
         self.extras_json = json.dumps(value, ensure_ascii=False)
+
+
+class WeekTemplate(Base):
+    """Een opgeslagen week ("standaardweek", "schoolvakantie") om met één tik terug te zetten.
+    `items_json`: lijst van {"weekday" 0-6, "kind" recipe|stock, "recipe_id", "persons", "text", "extras", "rest"}
+    waarbij `rest` betekent dat de volgende dag een restje is. Vriezer-effecten worden bewust niet bewaard."""
+
+    __tablename__ = "week_templates"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(80))
+    items_json: Mapped[str] = mapped_column(Text, default="[]", server_default="[]")
+    created_on: Mapped[str] = mapped_column(String(10), default="")
+
+    @property
+    def items(self) -> list[dict]:
+        try:
+            value = json.loads(self.items_json or "[]")
+        except ValueError:
+            return []
+        return value if isinstance(value, list) else []
+
+    @items.setter
+    def items(self, value: list[dict]) -> None:
+        self.items_json = json.dumps(value, ensure_ascii=False)
+
+
+class VotePoll(Base):
+    """Eén stemronde per week (D7): ouders zetten kandidaten klaar, iedereen stemt, de uitslag vult lege dagen."""
+
+    __tablename__ = "vote_polls"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    week: Mapped[str] = mapped_column(String(10), unique=True)  # maandag, JJJJ-MM-DD
+    candidates_json: Mapped[str] = mapped_column(Text, default="[]")  # [recipe_id, ...]
+    created_on: Mapped[str] = mapped_column(String(10), default="")
+
+    @property
+    def candidates(self) -> list[int]:
+        try:
+            value = json.loads(self.candidates_json or "[]")
+        except ValueError:
+            return []
+        return [int(x) for x in value] if isinstance(value, list) else []
+
+    @candidates.setter
+    def candidates(self, value: list[int]) -> None:
+        self.candidates_json = json.dumps([int(x) for x in value])
+
+
+class Vote(Base):
+    """Een stem van een gezinslid (`app.members`-id) op een kandidaat van de stemronde van die week."""
+
+    __tablename__ = "votes"
+    __table_args__ = (UniqueConstraint("week", "recipe_id", "member_id", name="uq_vote_week_recipe_member"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    week: Mapped[str] = mapped_column(String(10), index=True)
+    recipe_id: Mapped[int] = mapped_column(Integer)
+    member_id: Mapped[str] = mapped_column(String(40))
 
 
 class FreezerItem(Base):
@@ -205,6 +266,19 @@ class Rating(Base):
     member_id: Mapped[str] = mapped_column(String(40), default="")
     day: Mapped[str] = mapped_column(String(10), default="")
     rating: Mapped[str] = mapped_column(String(4), default="")
+
+
+class MemberPreference(Base):
+    """Smaak per gezinslid op ingrediëntniveau: "Hannah lust geen paprika", "Suze is dol op kip".
+    `member_id` is de id uit `app.members` (tekst); `term` is een woord uit de ingrediënttekst (kleine letters)."""
+
+    __tablename__ = "member_preferences"
+    __table_args__ = (UniqueConstraint("member_id", "term", name="uq_member_pref_term"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    member_id: Mapped[str] = mapped_column(String(40), index=True)
+    term: Mapped[str] = mapped_column(String(100))
+    kind: Mapped[str] = mapped_column(String(10), default="dislike")  # "dislike" | "like"
 
 
 # ── AH-datalaag ────────────────────────────────────────────────────────

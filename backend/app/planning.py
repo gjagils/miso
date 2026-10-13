@@ -14,6 +14,7 @@ from datetime import date, timedelta
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app import cooktime
 from app.models import AppSetting, PlanEntry, Recipe
 
 DEFAULT_HOUSEHOLD = 4
@@ -56,6 +57,17 @@ def _int_setting(db: Session, key: str, default: int, lo: int, hi: int) -> int:
 
 def household_size(db: Session) -> int:
     return _int_setting(db, "household_size", DEFAULT_HOUSEHOLD, 1, MAX_PERSONS)
+
+
+def week_budget(db: Session) -> int:
+    """Doel voor de boodschappen per week in hele euro's; 0 = geen budget ingesteld."""
+    return _int_setting(db, "week_budget", 0, 0, 9999)
+
+
+def kids_weekday(db: Session) -> int | None:
+    """Vaste kids-kookavond: weekdag 0-6 (ma-zo); None = geen. Opgeslagen als -1 voor "geen"."""
+    value = _int_setting(db, "kids_weekday", -1, -1, 6)
+    return None if value < 0 else value
 
 
 def order_weekday(db: Session) -> int:
@@ -227,13 +239,39 @@ def cook_hints(recipe) -> dict:
     temp = re.search(r"(\d{3})\s*(?:°|graden)", text)
     oven_min = 0
     for sentence in (x.lower() for x in re.split(r"(?<=[.!?])\s+(?=[A-Z])", raw)):  # "ca. 30 min." breekt niet
-        if "oven" in sentence:
+        if re.search(r"\boven", sentence):  # "oven", "ovenschaal"; niet "stoven" of "bovenop"
             mins = [int(m) for m in re.findall(r"(\d{1,3})\s*(?:-\s*\d+\s*)?min", sentence)]
-            oven_min = max([oven_min, *mins])
-    listed = re.search(r"\d+", recipe.total_time or "")
-    listed_min = int(listed.group(0)) if listed else 0
+            hours = [round(float(h.replace(",", ".")) * 60) for h in re.findall(r"(\d+(?:[.,]\d+)?)\s*uur", sentence)]
+            oven_min = max([oven_min, *mins, *hours])
+    listed_min = cooktime.minutes(recipe.total_time or "") or 0  # "2 uur" is 120 min, niet 2
     est = listed_min
     if oven_min and listed_min < oven_min + 10:
         est = listed_min + oven_min  # opgegeven tijd is vaak alleen het snijwerk
     return {"minutes": est or None, "oven_min": oven_min or None, "oven_temp": temp.group(1) if temp else None,
             "longer": bool(est and listed_min and est > listed_min + 5)}
+
+
+# ── Vriezer: hoe lang al ───────────────────────────────────────────────
+
+FREEZER_SOON_DAYS = 60  # vanaf hier: "snel opeten"
+FREEZER_OLD_DAYS = 90  # restjes zijn in de vriezer na ~3 maanden minder lekker
+
+
+def age_days(added_on: str, today: date | None = None) -> int | None:
+    """Dagen sinds `added_on` (YYYY-MM-DD); None als de datum ontbreekt of onleesbaar is."""
+    try:
+        return max(0, ((today or date.today()) - date.fromisoformat(added_on)).days)
+    except (TypeError, ValueError):
+        return None
+
+
+def age_label(days: int | None) -> str:
+    """"5 dagen", "3 weken", "4 maanden"; leeg als onbekend."""
+    if days is None:
+        return ""
+    if days < 14:
+        return f"{days} {'dag' if days == 1 else 'dagen'}"
+    if days < 60:
+        return f"{days // 7} weken"
+    months = days // 30
+    return f"{months} maanden"

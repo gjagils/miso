@@ -2,6 +2,7 @@
 {% block title %}Weekmenu - Miso{% include "_list_status.html" %}
 {% endblock %}
 {% block content %}
+{% set me = who(request) %}{% set kid = me and me.role == "kind" %}
 <div class="page-head"><img src="/static/miso/miso-idea.webp" alt="" width="76" height="76" loading="lazy"><h1>Weekmenu</h1></div>
 {% include "_next_week.html" %}
 <div class="week-nav">
@@ -24,6 +25,28 @@
     {% endfor %}
 </div>
 
+<section class="status-box wm-vote" id="vote" aria-labelledby="vt-title" hidden>
+    <h2 id="vt-title">Stemronde</h2>
+    <p class="muted" id="vt-intro"></p>
+    <ul class="vt-list" id="vt-list"></ul>
+    <div class="vt-actions" id="vt-actions"></div>
+    <p class="muted" id="vt-msg" role="status"></p>
+</section>
+
+{% if not kid %}
+<details class="status-box wm-templates" id="templates">
+    <summary>Week als sjabloon</summary>
+    <p class="muted">Bewaar deze week en zet hem met één tik op een andere week terug, bijvoorbeeld een standaardweek of een schoolvakantieweek. Bezette dagen blijven staan.</p>
+    <ul class="tpl-list" id="tpl-list"></ul>
+    <p class="muted" id="tpl-empty" hidden>Nog geen sjablonen.</p>
+    <form class="tpl-add" id="tpl-add" autocomplete="off">
+        <input class="form-input" name="name" placeholder="Naam, bijv. Standaardweek" aria-label="Naam van het sjabloon" maxlength="80" required>
+        <button class="btn" type="submit">Bewaar deze week</button>
+    </form>
+    <p class="muted" id="tpl-msg" role="status"></p>
+</details>
+{% endif %}
+
 <section class="status-box wm-groceries" id="groceries" aria-labelledby="gr-title">
     <h2 id="gr-title">Boodschappen</h2>
     <p id="gr-line" class="gr-line" role="status"></p>
@@ -39,6 +62,12 @@
     <p class="muted">Op basis van hoe vaak jullie dit kopen. Zet het op je lijstje, of zeg dat je het nog hebt.</p>
     <ul class="rp-list" id="rp-list"></ul>
     <p class="muted" id="rp-msg" role="status"></p>
+</section>
+
+<section class="status-box wm-cookwith" id="cookwith" aria-labelledby="cw-title" hidden>
+    <h2 id="cw-title">Koken met wat er is</h2>
+    <p class="muted">Recepten van jullie zelf die grotendeels kunnen van wat in de vriezer ligt en wat jullie de laatste dagen kochten.</p>
+    <ul class="rp-list" id="cw-list"></ul>
 </section>
 
 <section class="settings-section wm-freezer" id="freezer" aria-labelledby="fz-title">
@@ -65,6 +94,7 @@
 {% endblock %}
 
 {% block scripts %}
+{% set me = who(request) %}{% set kid = me and me.role == "kind" %}
 <script src="/static/plan.js?v=2"></script>
 <script>
 (() => {
@@ -84,7 +114,7 @@ async function reload() {
     if (!w.ok) return;
     entries = w.days.flatMap(d => d.entries);
     status = w.status;
-    renderDays(); renderGroceries(); loadHealth(); loadFreezer(); loadCost(); loadReplenish();
+    renderDays(); renderGroceries(); loadHealth(); loadFreezer(); loadCost(); loadReplenish(); loadCookWith(); loadVote();
 }
 
 // ── Kosten (schatting uit gekoppelde AH-producten) ───────
@@ -98,7 +128,13 @@ async function loadCost() {
     if (c.per_meal) parts.push(`${euro(c.per_meal)} per bord`);
     if (c.bonus_saving) parts.push(`waarvan ${euro(c.bonus_saving)} bonusvoordeel`);
     if (c.unknown.length) parts.push(`${plural(c.unknown.length, "product", "producten")} zonder prijs`);
-    el.innerHTML = esc(parts.join(" · ")) + (HAS_TOKEN ? ` · <a href="/uitgaven">uitgaven</a>` : "");
+    let bar = "";
+    if (c.budget) {
+        const pct = Math.min(100, c.budget_pct || 0), over = (c.budget_pct || 0) > 100;
+        bar = `<span class="budget-line">Budget ${euro(c.budget)} · geschat ${c.budget_pct}%${c.actual != null ? ` · werkelijk ${euro(c.actual)} (${c.actual_pct}%)` : ""}</span>
+            <span class="budget-bar${over ? " over" : ""}" role="img" aria-label="Geschat ${c.budget_pct} procent van het budget"><span style="width:${pct}%"></span></span>`;
+    }
+    el.innerHTML = esc(parts.join(" · ")) + (HAS_TOKEN ? ` · <a href="/uitgaven">uitgaven</a>` : "") + bar;
     el.hidden = false;
 }
 
@@ -114,7 +150,7 @@ async function loadReplenish() {
     due.forEach(p => {
         const li = document.createElement("li");
         const when = p.status === "op" ? "waarschijnlijk op" : `over ${p.days_left} ${p.days_left === 1 ? "dag" : "dagen"} op`;
-        li.innerHTML = `<div class="fz-main"><span class="fz-name">${esc(p.name || "Product " + p.product_id)}</span>
+        li.innerHTML = `<div class="fz-main"><span class="fz-name">${esc(p.name || "Product " + p.product_id)}${p.basis ? ' <span class="chip">basis</span>' : ""}</span>
             <span class="muted">${when} · elke ${p.interval_days} dagen · laatst ${esc(MisoPlan.dayLabel(p.last_bought).replace(/^\S+ /, ""))}</span></div>
             <button type="button" class="btn btn-sm" data-add>Op het lijstje</button>
             <button type="button" class="btn btn-sm btn-muted" data-have>Hebben we nog</button>`;
@@ -220,6 +256,133 @@ $("push-btn").onclick = async () => {
     msg.style.color = r.ok ? "" : "var(--red)";
 };
 
+// ── Koken met wat er is ─────────────────────────────────
+async function loadCookWith() {
+    const box = $("cookwith");
+    if (!box) return;
+    const r = await api("GET", "/api/cook-with");
+    const list = (r.ok && r.suggestions) || [];
+    box.hidden = !list.length;
+    const ul = $("cw-list");
+    ul.innerHTML = "";
+    list.forEach(s => {
+        const li = document.createElement("li");
+        const have = s.matches.map(m => `${esc(m.ingredient)} <span class="chip">${m.source === "vriezer" ? "vriezer" : "gekocht"}</span>`).join(", ");
+        li.innerHTML = `<div class="rp-main"><a href="/recipe/${s.recipe_id}"><strong>${esc(s.name)}</strong></a>
+            <span class="muted">${s.missing_count ? `Nog ${plural(s.missing_count, "ingrediënt", "ingrediënten")} nodig · ` : "Alles al in huis · "}${s.total_time ? esc(s.total_time) : ""}</span>
+            <span class="muted">Heb je al: ${have}</span></div>
+            <button type="button" class="btn btn-sm" data-plan>Plan in</button>`;
+        li.querySelector("[data-plan]").onclick = () => MisoPlan.open({
+            recipe: {id: s.recipe_id, name: s.name, image_url: s.image_url || "", servings: s.servings || ""},
+            start: WEEK, date: DAYS.map(d => d.date).find(d => d >= TODAY && !entries.some(e => e.date === d)) || "",
+            onDone: reload});
+        ul.appendChild(li);
+    });
+}
+
+// ── Stemronde ───────────────────────────────────────────
+const IS_KID = {{ 'true' if kid else 'false' }};
+async function loadVote() {
+    const box = $("vote");
+    if (!box) return;
+    const v = await api("GET", `/api/vote-poll?week=${WEEK}`);
+    renderVote(v);
+}
+function renderVote(v) {
+    const box = $("vote");
+    if (!v.ok) return;
+    box.hidden = !v.open && IS_KID;
+    const ul = $("vt-list"), actions = $("vt-actions");
+    ul.innerHTML = ""; actions.innerHTML = "";
+    $("vt-intro").textContent = v.open
+        ? `Stem op maximaal ${v.max_votes} recepten die je graag wilt eten. ${v.voted_count} van ${v.members_total} hebben gestemd; jij gaf ${v.my_votes} van ${v.max_votes} stemmen.`
+        : "Laat het gezin kiezen: Miso zet een paar recepten klaar, iedereen stemt, en de uitslag vult de lege dagen.";
+    v.candidates.forEach(c => {
+        const li = document.createElement("li");
+        li.innerHTML = `<div class="vt-main"><a href="/recipe/${c.recipe_id}">${esc(c.name)}</a>
+            <span class="muted">${esc(c.total_time || "")}${c.total_time ? " · " : ""}${plural(c.votes, "stem", "stemmen")}${c.voters.length ? " (" + esc(c.voters.join(" ")) + ")" : ""}</span></div>
+            <button type="button" class="btn btn-sm flag-btn" aria-pressed="${c.mine}">${c.mine ? "✓ Mijn stem" : "Stem"}</button>`;
+        li.querySelector("button").onclick = async () => {
+            const r = await api("POST", "/api/votes", {week: WEEK, recipe_id: c.recipe_id, on: !c.mine});
+            if (!r.ok) { $("vt-msg").textContent = r.error || "Stemmen mislukt."; return; }
+            $("vt-msg").textContent = "";
+            renderVote(r);
+        };
+        ul.appendChild(li);
+    });
+    if (IS_KID) return;
+    const add = (label, cls, fn) => { const b = document.createElement("button"); b.type = "button"; b.className = cls; b.textContent = label; b.onclick = fn; actions.appendChild(b); };
+    if (!v.open) {
+        add("Start een stemronde", "btn", async () => {
+            const r = await api("POST", "/api/vote-poll", {week: WEEK});
+            if (!r.ok) { $("vt-msg").textContent = r.error || "Starten mislukt."; return; }
+            $("vt-msg").textContent = "";
+            renderVote(r);
+        });
+    } else {
+        add("Sluit en vul de week", "btn btn-primary", async () => {
+            const r = await api("POST", "/api/vote-poll/close", {week: WEEK});
+            if (!r.ok) { $("vt-msg").textContent = r.error || "Sluiten mislukt."; return; }
+            const bits = [`${plural(r.placed, "dag", "dagen")} gevuld`];
+            if (r.no_room) bits.push(`${plural(r.no_room, "recept", "recepten")} kon er niet meer bij`);
+            if (r.no_votes) bits.push(`${plural(r.no_votes, "recept", "recepten")} zonder stem overgeslagen`);
+            $("vt-msg").textContent = bits.join(", ") + ".";
+            await reload();
+            loadVote();
+        });
+        add("Stop de stemronde", "btn btn-muted", async () => {
+            if (!confirm("De stemmen gaan verloren. Doorgaan?")) return;
+            await api("DELETE", `/api/vote-poll?week=${WEEK}`);
+            loadVote();
+        });
+    }
+}
+
+// ── Weeksjablonen ───────────────────────────────────────
+const SHORT = ["ma", "di", "wo", "do", "vr", "za", "zo"];
+async function loadTemplates() {
+    if (!$("tpl-list")) return;  // kinderen zien de sjablonen niet
+    const r = await api("GET", "/api/plan/templates");
+    const ul = $("tpl-list");
+    ul.innerHTML = "";
+    const list = r.templates || [];
+    $("tpl-empty").hidden = list.length > 0;
+    list.forEach(t => {
+        const li = document.createElement("li");
+        const summary = t.days.map(d => `${SHORT[d.weekday]} ${esc(d.label)}`).join(" · ");
+        li.innerHTML = `<div class="tpl-main"><strong>${esc(t.name)}</strong><span class="muted">${esc(summary)}</span></div>
+            <button type="button" class="btn btn-sm" data-use>Zet op deze week</button>
+            <button type="button" class="btn btn-sm btn-muted" data-del aria-label="Verwijder sjabloon ${esc(t.name)}">Weg</button>`;
+        li.querySelector("[data-use]").onclick = async () => {
+            const busy = entries.some(e => e.kind !== "leftover");
+            let replace = false;
+            if (busy) replace = confirm("Er staat al iets in deze week.\nOK = bezette dagen vervangen, Annuleer = alleen lege dagen vullen.");
+            const out = await api("POST", `/api/plan/templates/${t.id}/apply`, {week: WEEK, replace});
+            if (!out.ok) { $("tpl-msg").textContent = out.error || "Terugzetten mislukt."; return; }
+            const bits = [`${plural(out.placed, "dag", "dagen")} gevuld`];
+            if (out.skipped_busy) bits.push(`${plural(out.skipped_busy, "bezette dag", "bezette dagen")} overgeslagen`);
+            if (out.skipped_gone) bits.push(`${plural(out.skipped_gone, "verwijderd recept", "verwijderde recepten")} overgeslagen`);
+            $("tpl-msg").textContent = bits.join(", ") + ".";
+            reload();
+        };
+        li.querySelector("[data-del]").onclick = async () => {
+            if (!confirm(`Sjabloon "${t.name}" weggooien?`)) return;
+            await api("DELETE", `/api/plan/templates/${t.id}`);
+            loadTemplates();
+        };
+        ul.appendChild(li);
+    });
+}
+if ($("tpl-add")) $("tpl-add").onsubmit = async ev => {
+    ev.preventDefault();
+    const f = ev.target;
+    const name = f.name.value.trim();
+    if (!name) return;
+    const r = await api("POST", "/api/plan/templates", {name, week: WEEK});
+    $("tpl-msg").textContent = r.ok ? `"${name}" bewaard.` : (r.error || "Bewaren mislukt.");
+    if (r.ok) { f.name.value = ""; loadTemplates(); }
+};
+
 // ── Vriezer ─────────────────────────────────────────────
 async function loadFreezer() {
     const r = await api("GET", "/api/freezer");
@@ -229,7 +392,8 @@ async function loadFreezer() {
     $("fz-empty").hidden = items.length > 0;
     items.forEach(it => {
         const li = document.createElement("li");
-        li.innerHTML = `<div class="fz-main"><span class="fz-name">${esc(it.name)}</span>
+        const ageChip = it.age_state ? ` <span class="chip ${it.age_state === "old" ? "chip-old" : "chip-warn"}">${it.age_state === "old" ? "al " + esc(it.age_label) + ": snel opeten" : esc(it.age_label) + " in de vriezer"}</span>` : "";
+        li.innerHTML = `<div class="fz-main"><span class="fz-name">${esc(it.name)}${ageChip}</span>
             <span class="muted">${plural(it.portions, "portie", "porties")}${it.added_on ? " · sinds " + esc(MisoPlan.dayLabel(it.added_on).replace(/^\S+ /, "")) : ""}</span></div>
             <button type="button" class="btn btn-sm" data-plan>Plan in</button>
             <button type="button" class="btn btn-sm btn-muted" data-min aria-label="Eén portie minder van ${esc(it.name)}">−1</button>`;
@@ -292,7 +456,7 @@ if (sb) sb.onclick = async () => {
     };
 };
 
-renderDays(); renderGroceries(); loadFreezer(); loadHealth(); loadCost(); loadReplenish();
+renderDays(); renderGroceries(); loadFreezer(); loadHealth(); loadCost(); loadReplenish(); loadCookWith(); loadVote(); loadTemplates();
 })();
 </script>
 {% endblock %}

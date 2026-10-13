@@ -11,6 +11,7 @@ struct PlanView: View {
     @Environment(FamilyModel.self) private var family
     @State private var model = WeekPlanModel()
     @State private var listStatus = ListStatusModel()
+    @State private var insights = WeekInsightsModel()
     @State private var recipeToOpen: Int?
     @State private var planRequest: PlanSheetRequest?
     @State private var pendingDelete: PlanItem?
@@ -70,8 +71,11 @@ struct PlanView: View {
                     .listRowBackground(Color.clear)
                 }
                 if family.isParent {
-                    GroceriesSection(status: week.status, pushing: model.pushing, result: model.pushResult,
+                    GroceriesSection(status: week.status, cost: insights.cost, pushing: model.pushing, result: model.pushResult,
                                      onPush: pushToList)
+                    ReplenishSection(model: insights.replenish, week: week.week)
+                    CookWithSection(suggestions: insights.cookWith, onOpen: { openRecipe($0.recipeId) },
+                                    onPlan: planCookWith)
                 }
 
                 if let health = model.health, health.dagen > 0 {
@@ -81,6 +85,18 @@ struct PlanView: View {
                 Section {
                     NavigationLink(value: PlanRoute.freezer) {
                         Label("Vriezer", systemImage: "snowflake")
+                            .font(.misoButton)
+                            .foregroundStyle(Color.misoBlue)
+                            .frame(minHeight: 44)
+                    }
+                    NavigationLink(value: PlanRoute.vote) {
+                        Label("Stemronde", systemImage: "hand.thumbsup")
+                            .font(.misoButton)
+                            .foregroundStyle(Color.misoBlue)
+                            .frame(minHeight: 44)
+                    }
+                    NavigationLink(value: PlanRoute.templates) {
+                        Label("Week als sjabloon", systemImage: "square.on.square")
                             .font(.misoButton)
                             .foregroundStyle(Color.misoBlue)
                             .frame(minHeight: 44)
@@ -108,12 +124,17 @@ struct PlanView: View {
             switch route {
             case .recipe(let id): RecipeDetailView(recipeID: id)
             case .freezer: FreezerView(week: model.week?.week, firstFreeDay: model.firstFreeDay)
+            case .vote: VoteView(week: model.week?.week ?? "")
+            case .templates:
+                TemplatesView(week: model.week?.week ?? "",
+                              weekHasEntries: model.week.map { w in w.days.contains { !model.items(for: $0).isEmpty } } ?? false)
             case .missing: MissingView()
             }
         }
         .refreshable { await reload() }
         .task { await load() }
         .task(id: model.week?.week) { await loadListStatus() }
+        .task(id: model.week?.week) { await loadInsights() }
         // Elders ingepland of een recept gekoppeld/bewerkt/verwijderd: weekmenu en boodschappen verversen.
         .onChange(of: router.planVersion) { Task { await reload() } }
         .onChange(of: router.recipesVersion) { Task { await load() } }
@@ -150,6 +171,7 @@ struct PlanView: View {
         guard let api = session.api else { return }
         await model.afterChange(api: api)
         await loadListStatus()
+        await loadInsights()
     }
 
     private func previousWeek() {
@@ -168,6 +190,12 @@ struct PlanView: View {
 
     private func add(on day: PlanDay) {
         planRequest = PlanSheetRequest(showTabs: true, date: day.date, start: model.week?.week)
+    }
+
+    private func planCookWith(_ suggestion: CookWithSuggestion) {
+        let choice = PlanRecipeChoice(source: .own, recipeID: suggestion.recipeId, name: suggestion.name,
+                                      imageUrl: suggestion.imageUrl, meta: suggestion.detail)
+        planRequest = PlanSheetRequest(recipe: choice, date: model.firstFreeDay, start: model.week?.week)
     }
 
     private func move(_ item: PlanItem) {
@@ -199,7 +227,14 @@ struct PlanView: View {
         Task {
             await model.pushToList(api: api)
             await loadListStatus()
+            await loadInsights()
         }
+    }
+
+    /// Kosten en "waarschijnlijk op" voor de getoonde week; alleen voor ouders (kinderen zien geen boodschappen).
+    private func loadInsights() async {
+        guard family.isParent, let api = session.api, let week = model.week?.week else { return }
+        await insights.load(week: week, api: api)
     }
 
     private func loadListStatus() async {

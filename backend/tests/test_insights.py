@@ -131,3 +131,256 @@ def test_replenish_endpoint_excludes_week_cart_and_snoozes(db):  # noqa: F811
     assert client.post("/api/replenish/snooze", json={"product_id": 10, "days": 14}).json()["snoozed_until"] == str(TODAY + timedelta(days=14))
     resp = client.get(f"/api/replenish?week={monday}").json()
     assert resp["due"] == [] and resp["later"][0]["product_id"] == 10
+
+
+# ── Weekbudget, kooktijd per weekdag, basisvoorraad, "dit is op" ───────
+
+
+def test_week_budget_in_settings_and_cost(db):  # noqa: F811
+    client = TestClient(app)
+    assert client.get("/api/plan/settings").json()["week_budget"] == 0
+    assert client.patch("/api/plan/settings", json={"week_budget": 120}).json()["week_budget"] == 120
+    assert client.patch("/api/plan/settings", json={"week_budget": -5}).status_code == 422
+
+    r = _recipe(db, "Pasta", [_ing("pasta", 5, qty=2)])
+    ings = r.ingredients
+    ings[0]["product"]["price"] = "30.00"
+    r.ingredients = ings
+    db.commit()
+    monday = routes.monday_of(TODAY) + timedelta(days=7)
+    db.add(PlanEntry(date=str(monday), recipe_id=r.id, kind="recipe"))
+    db.commit()
+    c = client.get(f"/api/week/cost?week={monday}").json()
+    assert c["total"] == 60.0 and c["budget"] == 120 and c["budget_pct"] == 50
+    assert c["actual"] is None and c["actual_pct"] is None
+    _trip(db, "bestelling", 1, str(monday + timedelta(days=2)), [(5, "Pasta", 2)], total=90.0)
+    c = client.get(f"/api/week/cost?week={monday}").json()
+    assert c["actual"] == 90.0 and c["actual_pct"] == 75
+    client.patch("/api/plan/settings", json={"week_budget": 0})
+    c = client.get(f"/api/week/cost?week={monday}").json()
+    assert c["budget"] is None and c["budget_pct"] is None
+
+    # webformulier bewaart het ook
+    resp = client.post("/settings/plan", data={"household_size": 4, "order_weekday": 6, "week_budget": 150})
+    assert resp.status_code == 200 and client.get("/api/plan/settings").json()["week_budget"] == 150
+    assert "9999" in client.post("/settings/plan", data={"household_size": 4, "order_weekday": 6, "week_budget": 99999}).text
+
+
+def test_cooktime_fits_the_weekday():
+    from app.cooktime import minutes, time_fit
+
+    assert minutes("45 min") == 45 and minutes("1 uur") == 60 and minutes("1,5 uur") == 90 and minutes("") is None
+    monday, friday, saturday = "2026-10-12", "2026-10-16", "2026-10-17"
+    assert time_fit("20 min", monday) == (4.0, "snel klaar")
+    assert time_fit("30 min", monday)[0] == 4.0 and time_fit("45 min", monday)[0] == 0.0
+    assert time_fit("1 uur", monday) == (-7.5, "duurt 60 min, lang voor doordeweeks")
+    assert time_fit("3 uur", monday)[0] == -20.0  # maximale straf
+    assert time_fit("1 uur", friday)[0] == 0.0 and time_fit("15 min", friday)[0] == 0.0  # vrijdag neutraal
+    assert time_fit("1 uur", saturday) == (4.0, "heeft tijd in het weekend") and time_fit("20 min", saturday)[0] == 0.0
+    assert time_fit("onbekend", monday) == (0.0, "")
+
+
+def test_pantry_items_need_two_purchases_and_are_flagged():
+    from app import replenish
+
+    trips = [{"source": "kassabon", "date": D(n), "lines": [{"product_id": 7, "name": "AH Olijfolie extra vergine", "quantity": 1},
+                                                           {"product_id": 8, "name": "AH Chips", "quantity": 1}]} for n in (60, 30)]
+    assert replenish.predict(trips, today=TODAY) == []  # twee keer is te weinig zonder basisvoorraad
+    rows = replenish.predict(trips, today=TODAY, pantry={"olijfolie", "bloem"})
+    assert [r["product_id"] for r in rows] == [7] and rows[0]["basis"] is True and rows[0]["status"] == "op"
+    assert replenish.is_pantry("AH Bloem", {"bloem"}) and not replenish.is_pantry("AH Chips", {"bloem"})
+
+
+def test_pantry_terms_from_skipped_ingredients(db):  # noqa: F811
+    from app import replenish
+
+    r = _recipe(db, "Soep", [_ing("2 el olijfolie", None), _ing("zout"), _ing("ui", 3)])
+    ings = r.ingredients
+    for i in ings[:2]:
+        i["auto_skip"] = True
+    r.ingredients = ings
+    db.commit()
+    terms = replenish.pantry_terms([r])
+    assert "olijfolie" in terms and "zout" in terms and "uien" not in terms
+
+
+def test_replenish_endpoint_flags_pantry_and_out_button(db, monkeypatch):  # noqa: F811
+    from app.api import ah_data as ahapi
+    from app.api import shopping
+
+    r = _recipe(db, "Soep", [_ing("olijfolie", None)])
+    ings = r.ingredients
+    ings[0]["auto_skip"] = True
+    r.ingredients = ings
+    db.commit()
+    for n in (70, 35):
+        _trip(db, "kassabon", f"o{n}", D(n), [(7, "AH Olijfolie", 1)])
+    client = TestClient(app)
+    due = client.get("/api/replenish").json()["due"]
+    assert [d["product_id"] for d in due] == [7] and due[0]["basis"] is True
+
+    # "Dit is op": zonder AH-koppeling een nette melding, met koppeling op het lijstje + rust voor de voorspelling
+    assert client.post("/api/replenish/out", json={"product_id": 7, "name": "Olijfolie"}).json()["ok"] is False
+    pushed = []
+
+    async def fake_put(list_ids, products):
+        pushed.append(products)
+        return {"ok": True, "added": len(products)}
+    monkeypatch.setattr(shopping, "_use_user_tokens", lambda _db: True)
+    monkeypatch.setattr(ahapi, "_put_on_list", fake_put)
+    resp = client.post("/api/replenish/out", json={"product_id": 7, "name": "Olijfolie", "quantity": 2}).json()
+    assert resp["ok"] and pushed == [[{"product_id": 7, "name": "Olijfolie", "quantity": 2}]]
+    assert client.get("/api/replenish").json()["due"] == []  # even met rust gelaten
+
+
+def test_kids_cannot_press_out_or_sync(db, monkeypatch):  # noqa: F811
+    from sqlalchemy.orm import sessionmaker
+
+    from app import database
+    from app.api import family
+
+    factory = sessionmaker(bind=db.get_bind())  # zelfde (in-memory) database als de test
+    monkeypatch.setattr(database, "SessionLocal", factory)
+    monkeypatch.setattr(family, "SessionLocal", factory)
+    client = TestClient(app, headers={"X-Miso-Member": "hannah"})
+    for path in ("/api/replenish/out", "/api/replenish/snooze", "/api/ah/sync"):
+        assert client.post(path, json={"product_id": 1}).status_code == 403, path
+
+
+# ── Goedkoper alternatief (B4) ─────────────────────────────────────────
+
+
+def _kip_recipe(db, price="6.00", manual=False):  # noqa: F811
+    r = _recipe(db, "Kip", [_ing("500 g kipfilet", 1), _ing("zout", skip=True)])
+    ings = r.ingredients
+    ings[0]["product"].update(name="A-merk kipfilet", price=price, unit_size="500 g")
+    ings[0]["manual"] = manual
+    r.ingredients = ings
+    db.commit()
+    return r
+
+
+def test_cheaper_suggests_same_product_for_less(db, monkeypatch):  # noqa: F811
+    r = _kip_recipe(db)
+    searched = []
+
+    async def fake_search(q, size=10):
+        searched.append(q)
+        return [
+            {"id": 1, "name": "A-merk kipfilet", "unit_size": "500 g", "price": "6.00", "brand": "Merk", "available": True},
+            {"id": 2, "name": "AH Kipfilet", "unit_size": "500 g", "price": "4.50", "brand": "AH", "available": True,
+             "category": "Vlees"},
+            {"id": 3, "name": "AH Kipfilet bio", "unit_size": "500 g", "price": "5.90", "brand": "AH", "available": True},
+            {"id": 4, "name": "AH Kippendij", "unit_size": "500 g", "price": "2.00", "brand": "AH", "available": True},
+            {"id": 5, "name": "AH Kipfilet", "unit_size": "500 g", "price": "3.00", "brand": "AH", "available": False},
+            {"id": 6, "name": "AH Kipfilet reepjes", "unit_size": "500 g", "price": "", "brand": "AH", "available": True},
+        ]
+    monkeypatch.setattr(routes.ah_client, "search_products", fake_search)
+    resp = TestClient(app).post(f"/api/recipes/{r.id}/cheaper").json()
+    assert resp["ok"] and len(resp["suggestions"]) == 1 and resp["total_saving"] == 1.5
+    s = resp["suggestions"][0]
+    assert s["index"] == 0 and s["text"] == "500 g kipfilet" and s["manual"] is False
+    assert s["current"]["id"] == 1 and s["current"]["cost"] == 6.0
+    assert s["alternative"]["id"] == 2 and s["alternative"]["cost"] == 4.5 and s["saving"] == 1.5
+    assert s["alternative"]["name"] == "AH Kipfilet" and s["alternative"]["unit_size"] == "500 g"  # klaar om te kiezen
+    assert searched  # er is echt gezocht
+    assert TestClient(app).post("/api/recipes/999/cheaper").status_code == 404
+
+
+def test_cheaper_ignores_small_savings_and_other_products(db, monkeypatch):  # noqa: F811
+    r = _kip_recipe(db, price="4.60")
+
+    async def fake_search(q, size=10):
+        return [{"id": 2, "name": "AH Kipfilet", "unit_size": "500 g", "price": "4.50", "available": True},  # maar 10 cent
+                {"id": 4, "name": "AH Kippendij", "unit_size": "500 g", "price": "1.00", "available": True}]  # ander product
+    monkeypatch.setattr(routes.ah_client, "search_products", fake_search)
+    resp = TestClient(app).post(f"/api/recipes/{r.id}/cheaper").json()
+    assert resp["ok"] and resp["suggestions"] == [] and resp["total_saving"] == 0
+
+
+def test_cheaper_counts_packs_not_just_price(db, monkeypatch):  # noqa: F811
+    """Een goedkoper pak dat te klein is, is niet goedkoper: 2 kleine pakken kosten meer dan 1 groot."""
+    r = _kip_recipe(db, price="6.00")
+
+    async def fake_search(q, size=10):
+        return [{"id": 2, "name": "AH Kipfilet", "unit_size": "250 g", "price": "3.50", "available": True}]  # 2 x 3,50 = 7,00
+    monkeypatch.setattr(routes.ah_client, "search_products", fake_search)
+    resp = TestClient(app).post(f"/api/recipes/{r.id}/cheaper").json()
+    assert resp["suggestions"] == []
+
+
+def test_kids_cannot_search_cheaper(db, monkeypatch):  # noqa: F811
+    from sqlalchemy.orm import sessionmaker
+
+    from app import database
+    from app.api import family
+
+    factory = sessionmaker(bind=db.get_bind())
+    monkeypatch.setattr(database, "SessionLocal", factory)
+    monkeypatch.setattr(family, "SessionLocal", factory)
+    r = _kip_recipe(db)
+    assert TestClient(app, headers={"X-Miso-Member": "hannah"}).post(f"/api/recipes/{r.id}/cheaper").status_code == 403
+
+
+def test_cheaper_says_so_when_ah_gives_nothing(db, monkeypatch):  # noqa: F811
+    """AH offline: niet "al een goede keuze" zeggen, maar dat er geen antwoord kwam."""
+    r = _kip_recipe(db)
+
+    async def fake_search(q, size=10):
+        raise RuntimeError("AH is offline")
+    monkeypatch.setattr(routes.ah_client, "search_products", fake_search)
+    resp = TestClient(app).post(f"/api/recipes/{r.id}/cheaper").json()
+    assert resp["ok"] is False and resp["unreachable"] is True and resp["suggestions"] == []
+    assert "geen antwoord" in resp["error"]
+
+    async def fake_empty(q, size=10):
+        return []
+    monkeypatch.setattr(routes.ah_client, "search_products", fake_empty)
+    assert TestClient(app).post(f"/api/recipes/{r.id}/cheaper").json()["unreachable"] is True  # leeg = ook geen antwoord
+
+    # Eén ingrediënt zonder resultaat tussen andere die wel antwoord gaven telt niet als onbereikbaar
+    r2 = _recipe(db, "Mix", [_ing("500 g kipfilet", 1), _ing("500 g gehakt", 2)])
+    ings = r2.ingredients
+    for i in ings:
+        i["product"].update(price="6.00", unit_size="500 g")
+    r2.ingredients = ings
+    db.commit()
+
+    async def partial(q, size=10):
+        return [{"id": 9, "name": "AH Kipfilet", "unit_size": "500 g", "price": "4.00", "available": True}] if "kip" in q else []
+    monkeypatch.setattr(routes.ah_client, "search_products", partial)
+    resp = TestClient(app).post(f"/api/recipes/{r2.id}/cheaper").json()
+    assert resp["ok"] and resp["unreachable"] is False and len(resp["suggestions"]) == 1
+
+
+def test_step_timers_parse_times_from_steps():
+    from app.cooktime import step_timers
+
+    t = lambda s: [(x["seconds"], x["label"]) for x in step_timers(s)]  # noqa: E731
+    assert t("Laat 20 minuten sudderen.") == [(1200, "20 min")]
+    assert t("Bak 15-20 minuten op middelhoog vuur.") == [(1200, "20 min")]  # bovengrens
+    assert t("Bak 3 tot 4 min. per kant") == [(240, "4 min")]
+    assert t("Laat 1 uur rusten") == [(3600, "1 uur")] and t("Stoof 1,5 uur") == [(5400, "1 uur 30 min")]
+    assert t("Kook 90 seconden") == [(90, "90 sec")] and t("Even 30 sec. roeren") == [(30, "30 sec")]
+    assert t("Laat een half uur staan") == [(1800, "half uur")] and t("Een kwartier laten rusten") == [(900, "kwartier")]
+    assert t("Bak 5 minuten, draai om en bak nog 3 minuten") == [(300, "5 min"), (180, "3 min")]
+    assert t("Bak 5 minuten en daarna weer 5 minuten") == [(300, "5 min")]  # dubbel telt één keer
+    assert t("Verwarm de oven voor op 180 graden en snijd 5 cm blokjes") == []
+    assert t("Meng alles goed") == [] and t("") == []
+    assert t("Laat 12 uur marineren") == []  # geen kooktimer
+    assert t("Bak 2 minuten, laat 10 min. rusten") == [(120, "2 min"), (600, "10 min")]
+    assert t("Laat een kwartier rusten en bak daarna 4 minuten") == [(900, "kwartier"), (240, "4 min")]  # volgorde van de tekst
+
+
+def test_cook_page_and_recipe_json_carry_step_timers(db):  # noqa: F811
+    r = _recipe(db, "Soep", [_ing("ui", 1)])
+    r.instructions = ["Snijd de ui.", "Laat 20 minuten sudderen.", "Bak 3-4 min. en laat een kwartier rusten."]
+    db.commit()
+    client = TestClient(app)
+    html = client.get(f"/recipe/{r.id}/koken").text
+    assert 'data-timer="1200"' in html and 'data-label="20 min"' in html
+    assert 'data-timer="240"' in html and 'data-timer="900"' in html and "timer-tray" in html
+    assert html.count("data-timer=") == 3  # de eerste stap heeft geen tijd
+    got = client.get(f"/api/recipes/{r.id}").json()
+    assert got["step_timers"] == [[], [{"seconds": 1200, "label": "20 min"}],
+                                  [{"seconds": 240, "label": "4 min"}, {"seconds": 900, "label": "kwartier"}]]

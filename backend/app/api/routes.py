@@ -272,8 +272,11 @@ async def cook_mode(request: Request, recipe_id: int, personen: int | None = Non
     base = planning.recipe_servings(recipe)
     factor = (personen / base) if personen and base else 1.0
     lines = [{**i, "text": planning.scale_line(i.get("text", ""), factor)} for i in recipe.ingredients]
+    from app.cooktime import step_timers
+
+    steps = [{"text": text, "timers": step_timers(text)} for text in recipe.instructions]
     return templates.TemplateResponse(request, "cook.html", {
-        "recipe": recipe, "today_iso": str(date.today()), "lines": lines,
+        "recipe": recipe, "today_iso": str(date.today()), "lines": lines, "steps": steps,
         "personen": personen if abs(factor - 1) > 0.01 else None, "base_servings": base})
 
 
@@ -560,14 +563,16 @@ def learn_pref(db: Session, ing: dict) -> None:
         db.add(ProductPreference(term=term, product_json=json.dumps(product, ensure_ascii=False)))
 
 
-async def find_product(term: str, text: str = "", sem: asyncio.Semaphore | None = None) -> dict | None:
-    """Zoek het beste AH-product voor een ingrediënt (zelfde regels als het automatisch koppelen)."""
+async def search_candidates(term: str, text: str = "", sem: asyncio.Semaphore | None = None
+                            ) -> tuple[list[dict], str, set, dict | None]:
+    """Alle AH-producten die bij een ingrediënt kunnen passen, plus de zoekterm, vlaggen en benodigde hoeveelheid
+    (voor `choose` en `score`). Zelfde zoekopdrachten als het automatisch koppelen."""
     sem = sem or asyncio.Semaphore(4)
     # De volledige regel bevat meer informatie ("1/2 tl paprika" = poeder) dan Mealie's naam ("paprika")
     query, _, flags = query_terms(text) if text and query_terms(text)[0] else query_terms(term)
     need = needed(text or term)
     if not query:
-        return None
+        return [], "", flags, need
     products: list[dict] = []
     seen: set = set()
     for q in search_queries(query, flags):
@@ -582,6 +587,14 @@ async def find_product(term: str, text: str = "", sem: asyncio.Semaphore | None 
             if key not in seen:
                 seen.add(key)
                 products.append(p)
+    return products, query, flags, need
+
+
+async def find_product(term: str, text: str = "", sem: asyncio.Semaphore | None = None) -> dict | None:
+    """Zoek het beste AH-product voor een ingrediënt (zelfde regels als het automatisch koppelen)."""
+    products, query, flags, need = await search_candidates(term, text, sem)
+    if not query:
+        return None
     return choose(products, query, flags, need)
 
 
@@ -1164,11 +1177,14 @@ async def settings_page(request: Request, db: Session = Depends(get_db)):
 
 @router.post("/settings/plan")
 async def save_plan_settings(request: Request, household_size: int = Form(...), order_weekday: int = Form(...),
-                             db: Session = Depends(get_db)):
-    if not (1 <= household_size <= planning.MAX_PERSONS and 0 <= order_weekday <= 6):
-        return _render_settings(request, db, plan_result="Kies 1 tot 20 personen en een dag van de week.")
+                             week_budget: int = Form(0), kids_weekday: int = Form(-1), db: Session = Depends(get_db)):
+    if not (1 <= household_size <= planning.MAX_PERSONS and 0 <= order_weekday <= 6 and 0 <= week_budget <= 9999
+            and -1 <= kids_weekday <= 6):
+        return _render_settings(request, db, plan_result="Kies 1 tot 20 personen, een dag van de week en een budget tot 9999 euro.")
     planning.set_setting(db, "household_size", str(household_size))
     planning.set_setting(db, "order_weekday", str(order_weekday))
+    planning.set_setting(db, "week_budget", str(week_budget))
+    planning.set_setting(db, "kids_weekday", str(kids_weekday))
     return _render_settings(request, db, plan_result="Opgeslagen.")
 
 
@@ -1207,6 +1223,8 @@ def _render_settings(
         request, "settings.html", {"ah_token_set": bool(_get_setting(db, "ah_user_token")),
             "household_size": planning.household_size(db),
             "order_weekday": planning.order_weekday(db),
+            "week_budget": planning.week_budget(db),
+            "kids_weekday": planning.kids_weekday(db),
             "weekdays": planning.WEEKDAYS,
             "plan_result": plan_result,
             "ah_refresh_set": bool(_get_setting(db, "ah_refresh_token")),

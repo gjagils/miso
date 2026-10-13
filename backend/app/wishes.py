@@ -13,10 +13,11 @@ import anthropic
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app import llm
+from app import kidsnight, llm, planning
 from app.config import settings
 from app.models import PlanEntry, Recipe
 from app.nutrition import get_profile
+from app.cooktime import minutes, time_fit
 from app.usage import plan_stats, preference_score
 
 # chip -> (profielvoorwaarden, woorden in naam/ingrediënten)
@@ -63,13 +64,6 @@ def normalize(wish: str) -> str:
             if words[0] == chip or words[0].rstrip("s") == chip.rstrip("s"):  # "lasagne" blijft een gerecht
                 return chip
     return w  # gerecht als tekst ("lasagne", "nasi goreng")
-
-
-def minutes(total_time: str) -> int | None:
-    nums = [int(n) for n in re.findall(r"\d+", total_time or "")]
-    if not nums:
-        return None
-    return nums[0] * 60 if "uur" in (total_time or "").lower() and nums[0] < 5 else nums[0]
 
 
 def matches(recipe: Recipe, profile: dict | None, wish: str) -> bool:
@@ -181,7 +175,11 @@ def propose(db: Session, monday: date, wishes: dict[str, str], per_day: int = 3,
 
     wished = {w.recipe_id for w in db.execute(select(Wish).where(Wish.done_on.is_(None),
                                                                  Wish.recipe_id.is_not(None))).scalars()}
+    kids_day = planning.kids_weekday(db)
     bonus = _bonus_savings(db, recipes, monday)  # recipe_id -> geschatte besparing in de bonus van die week
+    from app import members as members_mod, tastes
+
+    taste = tastes.taste_hits(db, recipes, members_mod.all_members(db))  # wie lust wat niet / is er dol op
     chosen_profiles = [profiles.get(rid) or (guessed_profile(by_id[rid]) if rid in by_id else {}) for rid in week_ids]
     used: set[int] = set(week_ids)
     used_dishes = {dish_key(by_id[rid].name) for rid in week_ids if rid in by_id}
@@ -219,6 +217,10 @@ def propose(db: Session, monday: date, wishes: dict[str, str], per_day: int = 3,
                 s += 25  # iemand in het gezin wil dit graag
             if bonus.get(r.id):
                 s += min(15, 3 * bonus[r.id])  # in de bonus deze week: per euro voordeel, tot 15
+            s += time_fit(r.total_time, day)[0]  # doordeweeks snel, in het weekend mag het langer
+            s += kidsnight.fit(r, day, kids_day, kidsnight.BONUS_PROPOSE)[0]  # kids-kookavond
+            hit = taste.get(r.id) or {}
+            s -= 14 * len(hit.get("dislikes", [])) - 4 * len(hit.get("likes", []))  # smaak per persoon
             if r.favorite and favorites_chosen >= 2:
                 s -= 30  # hooguit twee favorieten per week, anders steeds hetzelfde
             if prev_cuisine and p.get("keuken") == prev_cuisine and prev_cuisine != "overig":
@@ -238,7 +240,10 @@ def propose(db: Session, monday: date, wishes: dict[str, str], per_day: int = 3,
                             "total_time": r.total_time, "favorite": bool(r.favorite),
                             "pack": r.collection == "maaltijdpakket", "eiwit": p.get("eiwit", ""),
                             "keuken": p.get("keuken", ""), "basis": p.get("basis", ""),
-                            "bonus_saving": bonus.get(r.id) or 0, "wished": r.id in wished})
+                            "bonus_saving": bonus.get(r.id) or 0, "wished": r.id in wished,
+                            "kid_friendly": bool(r.kid_friendly),
+                            "kids_night": bool(r.kid_friendly) and kidsnight.is_kids_day(day, kids_day),
+                            "avoid": [f"{n} lust geen {t}" for n, t in (taste.get(r.id) or {}).get("dislikes", [])]})
             if len(options) == per_day:
                 break
         item["options"] = options

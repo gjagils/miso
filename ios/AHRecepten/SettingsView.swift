@@ -61,13 +61,23 @@ struct SettingsView: View {
                                     .frame(minHeight: 44)
                             }
                             .accessibilityHint("Namen en rol (ouder of kind)")
+                            NavigationLink {
+                                TasteView()
+                            } label: {
+                                Label("Smaak per persoon", systemImage: "heart.text.square")
+                                    .font(.misoButton)
+                                    .foregroundStyle(Color.misoBlue)
+                                    .frame(minHeight: 44)
+                            }
+                            .accessibilityHint("Wat iemand niet lust of heel lekker vindt")
                         }
                     } header: { Text("Wie ben jij?").misoSectionHeader() }
                     .misoRow()
                 }
                 if family.isParent {
                     HouseholdSettingsSection(settings: planSettings.settings, errorText: planSettings.errorText,
-                                             onHouseholdSize: setHouseholdSize, onOrderWeekday: setOrderWeekday)
+                                             onHouseholdSize: setHouseholdSize, onOrderWeekday: setOrderWeekday,
+                                             onWeekBudget: setWeekBudget, onKidsWeekday: setKidsWeekday)
                     ReminderSettingsSection()
                 }
                 Section {
@@ -106,6 +116,15 @@ struct SettingsView: View {
                                 .frame(minHeight: 44)
                         }
                         .accessibilityHint("Ingrediënten zonder AH-product koppelen of op niet nodig zetten")
+                        NavigationLink {
+                            SpendView()
+                        } label: {
+                            Label("Uitgaven", systemImage: "eurosign.circle")
+                                .font(.misoButton)
+                                .foregroundStyle(Color.misoBlue)
+                                .frame(minHeight: 44)
+                        }
+                        .accessibilityHint("Wat jullie per week bij AH uitgeven")
                     }
                     .misoRow()
                 }
@@ -153,6 +172,16 @@ struct SettingsView: View {
     private func setHouseholdSize(_ value: Int) {
         guard let api = session.api else { return }
         planSettings.setHouseholdSize(value, api: api)
+    }
+
+    private func setWeekBudget(_ value: Int) {
+        guard let api = session.api else { return }
+        planSettings.setWeekBudget(value, api: api)
+    }
+
+    private func setKidsWeekday(_ weekday: Int?) {
+        guard let api = session.api else { return }
+        Task { await planSettings.setKidsWeekday(weekday, api: api) }
     }
 
     private func setOrderWeekday(_ weekday: Int) {

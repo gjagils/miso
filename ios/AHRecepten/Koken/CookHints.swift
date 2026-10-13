@@ -14,6 +14,17 @@ struct CookHints: Equatable, Sendable {
     private static let temp = try! NSRegularExpression(pattern: #"(\d{3})\s*(?:°|graden)"#)
     private static let sentenceBreak = try! NSRegularExpression(pattern: #"(?<=[.!?])\s+(?=[A-Z])"#)
     private static let mins = try! NSRegularExpression(pattern: #"(\d{1,3})\s*(?:-\s*\d+\s*)?min"#)
+    private static let hours = try! NSRegularExpression(pattern: #"(\d+(?:[.,]\d+)?)\s*uur"#)
+
+    /// "45 min" -> 45, "2 uur" -> 120, "1,5 uur" -> 90; geen getal -> 0 (zoals `cooktime.minutes` op de server).
+    static func listedMinutes(_ total: String) -> Int {
+        let lower = total.lowercased()
+        guard let range = lower.range(of: #"\d+(?:[.,]\d+)?"#, options: .regularExpression) else { return 0 }
+        let number = lower[range].replacingOccurrences(of: ",", with: ".")
+        guard let value = Double(number) else { return 0 }
+        if lower.contains("uur") && value < 5 { return Int((value * 60).rounded()) }
+        return Int(value)
+    }
 
     init(minutes: Int?, ovenMinutes: Int?, ovenTemperature: String?, longer: Bool) {
         self.minutes = minutes
@@ -31,13 +42,18 @@ struct CookHints: Equatable, Sendable {
         var oven = 0
         for sentence in Self.sentences(raw) {
             let s = sentence.lowercased()
-            guard s.contains("oven") else { continue }
+            // "oven", "ovenschaal"; niet "stoven" of "bovenop"
+            guard s.range(of: #"\boven"#, options: .regularExpression) != nil else { continue }
             let sns = s as NSString
             for m in Self.mins.matches(in: s, range: NSRange(location: 0, length: sns.length)) {
                 oven = max(oven, Int(sns.substring(with: m.range(at: 1))) ?? 0)
             }
+            for m in Self.hours.matches(in: s, range: NSRange(location: 0, length: sns.length)) {
+                let hours = Double(sns.substring(with: m.range(at: 1)).replacingOccurrences(of: ",", with: ".")) ?? 0
+                oven = max(oven, Int((hours * 60).rounded()))
+            }
         }
-        let listed = totalTime.range(of: #"\d+"#, options: .regularExpression).flatMap { Int(totalTime[$0]) } ?? 0
+        let listed = Self.listedMinutes(totalTime)
         var estimate = listed
         if oven > 0 && listed < oven + 10 { estimate = listed + oven } // opgegeven tijd is vaak alleen het snijwerk
         minutes = estimate > 0 ? estimate : nil

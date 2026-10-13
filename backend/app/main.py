@@ -16,6 +16,8 @@ from app.api.plan import router as plan_router
 from app.api.wishes import router as wishes_router
 from app.api.family import router as family_router
 from app.api.insights import router as insights_router
+from app.api.tastes import router as tastes_router
+from app.api.votes import router as votes_router
 from app.config import settings
 from app.database import Base, engine
 from app.logging_config import setup_logging
@@ -93,4 +95,6 @@ app.include_router(plan_router)
 app.include_router(wishes_router)
 app.include_router(family_router)
 app.include_router(insights_router)
+app.include_router(tastes_router)
+app.include_router(votes_router)
 app.include_router(router)

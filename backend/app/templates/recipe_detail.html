@@ -16,6 +16,8 @@
     <button class="btn flag-btn" type="button" data-flag="favorite" aria-pressed="{{ 'true' if (me and me.initial in fans) or (not me and recipe.favorite) else 'false' }}">♥ Favoriet{% if fans %} <small class="fans">{{ fans|join(" ") }}</small>{% endif %}</button>
     <button class="btn" type="button" id="wish-btn">Ik wil dit graag</button>
     {% if not kid %}
+    <button class="btn flag-btn" type="button" data-flag="kid_friendly" aria-pressed="{{ 'true' if recipe.kid_friendly else 'false' }}"
+            title="Voor de kids-kookavond: recepten die kinderen makkelijk mee kunnen helpen">Makkelijk met kinderen</button>
     <button class="btn flag-btn" type="button" data-flag="by_heart" aria-pressed="{{ 'true' if recipe.by_heart else 'false' }}"
             title="Je kent de bereiding; Miso bewaart alleen de ingrediënten voor de boodschappen">Ken ik uit mijn hoofd</button>
     <button class="btn flag-btn" type="button" data-flag="archived" aria-pressed="{{ 'true' if recipe.archived else 'false' }}"
@@ -75,8 +77,10 @@
     <div class="week-actions" style="margin-bottom: 0.75rem;">
         <button class="btn" id="automatch-btn">Koppel aan AH-producten</button>
         <button class="btn btn-primary" id="cart-btn" {% if not has_token %}disabled title="Koppel eerst AH in Instellingen"{% endif %}>Zet op AH-lijstje</button>
+        <button class="btn" id="cheaper-btn" type="button">Zoek goedkopere producten</button>
         <span id="status" class="muted"></span>
     </div>
+    <div id="cheaper" class="status-box" hidden aria-live="polite"></div>
     <table class="settings-table" id="ingredients"></table>
 </section>
 
@@ -109,7 +113,7 @@ document.querySelectorAll(".flag-btn").forEach(btn => btn.addEventListener("clic
     const r = await fetch(`/api/recipes/${RECIPE_ID}/flags`, {method: "PATCH", headers: {"Content-Type": "application/json"},
         body: JSON.stringify({[btn.dataset.flag]: on})}).then(x => x.json()).catch(() => ({}));
     if (!r.ok) return;
-    if (btn.dataset.flag === "favorite") btn.setAttribute("aria-pressed", String(on));
+    if (btn.dataset.flag === "favorite" || btn.dataset.flag === "kid_friendly") btn.setAttribute("aria-pressed", String(on));
     else location.reload();  // uit mijn hoofd / opruimen veranderen de pagina
 }));
 document.getElementById("photo-save").addEventListener("click", async () => {
@@ -223,6 +227,30 @@ document.getElementById("automatch-btn").onclick = async () => {
     const r = await (await fetch(`/api/recipe/${RECIPE_ID}/automatch`, {method: "POST"})).json();
     ingredients = r.ingredients; render();
     say(`${r.matched} producten gekoppeld`);
+};
+
+// Goedkoper alternatief: zoekt bij AH (kan even duren); kiezen koppelt het product handmatig (en Miso onthoudt het).
+const cheaperBox = document.getElementById("cheaper");
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+const eur = n => "€" + Number(n).toFixed(2).replace(".", ",");
+document.getElementById("cheaper-btn").onclick = async e => {
+    const btn = e.target; btn.disabled = true; say("Miso zoekt goedkopere producten…");
+    const r = await fetch(`/api/recipes/${RECIPE_ID}/cheaper`, {method: "POST"}).then(x => x.json()).catch(() => ({}));
+    btn.disabled = false; say("");
+    cheaperBox.hidden = false;
+    if (!r.ok) { cheaperBox.innerHTML = `<p class="msg-err">${esc(r.error || "Zoeken is niet gelukt. Probeer het zo nog eens.")}</p>`; return; }
+    if (!r.suggestions.length) { cheaperBox.innerHTML = `<p>Niets gevonden dat net zo goed past en merkbaar goedkoper is.</p>`; return; }
+    cheaperBox.innerHTML = `<p><strong>Je kunt ${eur(r.total_saving)} besparen.</strong></p><ul class="cheaper-list">` + r.suggestions.map(s => `<li>
+        <div><strong>${esc(s.text)}</strong><br><span class="muted">${esc(s.current.name)} (${eur(s.current.cost)}) → <strong>${esc(s.alternative.name)}</strong>
+        ${s.alternative.unit_size ? esc(s.alternative.unit_size) : ""} (${eur(s.alternative.cost)}) · scheelt ${eur(s.saving)}${s.manual ? " · je had dit zelf gekozen" : ""}</span></div>
+        <button type="button" class="btn btn-sm" data-pick="${s.index}">Kies deze</button></li>`).join("") + `</ul>`;
+    cheaperBox.querySelectorAll("[data-pick]").forEach(b => b.onclick = async () => {
+        const s = r.suggestions.find(x => String(x.index) === b.dataset.pick);
+        b.disabled = true;
+        const res = await fetch(`/api/recipes/${RECIPE_ID}/ingredients/${s.index}`, {method: "POST", headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({text: s.text, product: s.alternative})}).then(x => x.json()).catch(() => ({}));
+        if (res.ok) location.reload(); else { b.disabled = false; b.textContent = res.error || "Mislukt"; }
+    });
 };
 
 document.getElementById("cart-btn").onclick = async () => {

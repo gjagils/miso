@@ -12,6 +12,7 @@ struct KiezenView: View {
     @State private var own: [RecipeSummary] = []
     @State private var ownError: String?
     @State private var ownLoaded = false
+    @State private var bonus: BonusRecipesResponse?
     @State private var ahHits: [AHRecipeHit] = []
     @State private var ahStatus: String?
     @State private var ahSearching = false
@@ -40,6 +41,7 @@ struct KiezenView: View {
                             .foregroundStyle(Color.misoBlue)
                     }
                     if !model.picked.isEmpty { pickedChips }
+                    bonusSection
                     ownSection
                     ahSection
                 }
@@ -59,6 +61,7 @@ struct KiezenView: View {
             .searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always),
                         prompt: "Zoek: pasta, curry, stamppot...")
             .task(id: query) { await search() }
+            .task(id: model.week) { await loadBonus() }
             .refreshable { await search(debounce: false) }
             .safeAreaInset(edge: .bottom) { bar }
             .alert("Niet gelukt om op te halen", isPresented: $showImportError, presenting: importError) { _ in
@@ -121,6 +124,27 @@ struct KiezenView: View {
         .padding(.top, 6)
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isHeader)
+    }
+
+    /// Recepten met aanbiedingen van de week waarvoor je plant (verborgen zonder AH-koppeling of tijdens zoeken).
+    @ViewBuilder
+    private var bonusSection: some View {
+        if trimmed.isEmpty, let bonus, !bonus.recipes.isEmpty {
+            let today = KiezenDates.today
+            VStack(alignment: .leading, spacing: 2) {
+                header(bonus.title(today: today), count: 0)
+                Text(bonus.subtitle(today: today)).font(.misoCaption).foregroundStyle(.secondary)
+            }
+            grid(bonus.recipes.map(PickItem.bonus))
+        }
+    }
+
+    private func loadBonus() async {
+        guard let api = session.api else { return }
+        let week = model.week.isEmpty ? nil : model.week
+        // Zonder AH-koppeling (of een oudere server) is er geen bonus: dan geen sectie.
+        let result = try? await api.bonusRecipes(week: week)
+        bonus = (result?.ok ?? false) ? result : nil
     }
 
     @ViewBuilder

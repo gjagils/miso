@@ -12,6 +12,13 @@
         <select id="order_weekday" name="order_weekday">
             {% for d in weekdays %}<option value="{{ loop.index0 }}" {% if loop.index0 == order_weekday %}selected{% endif %}>{{ d|capitalize }}</option>{% endfor %}
         </select>
+        <label for="week_budget">Wat mogen de boodschappen per week ongeveer kosten? (euro, 0 = geen budget)</label>
+        <input type="number" id="week_budget" name="week_budget" min="0" max="9999" step="5" value="{{ week_budget }}" inputmode="numeric">
+        <label for="kids_weekday">Is er een vaste kids-kookavond? Dan stelt Miso die avond recepten voor die "makkelijk met kinderen" zijn.</label>
+        <select id="kids_weekday" name="kids_weekday">
+            <option value="-1" {% if kids_weekday is none %}selected{% endif %}>Geen vaste avond</option>
+            {% for d in weekdays %}<option value="{{ loop.index0 }}" {% if loop.index0 == kids_weekday %}selected{% endif %}>{{ d|capitalize }}</option>{% endfor %}
+        </select>
         <p class="muted">Boodschappen worden per recept omgerekend naar het aantal personen. Vanaf twee dagen voor de besteldag herinnert Miso je aan volgende week.</p>
         <p><button type="submit" class="btn btn-primary">Opslaan</button></p>
     </form>
@@ -49,6 +56,47 @@
         const r = await fetch("/api/members", {method: "PUT", headers: {"Content-Type": "application/json"}, body: JSON.stringify({members})}).then(x => x.json()).catch(() => ({}));
         document.getElementById("members-msg").textContent = r.ok ? "Opgeslagen." : (r.error || "Opslaan lukte niet.");
     };
+})();
+</script>
+
+<section class="settings-section" id="smaak">
+    <h2>Smaak per persoon</h2>
+    <p class="muted">Wat lust iemand niet, of vindt iemand heel lekker? Het weekvoorstel houdt er rekening mee en waarschuwt als een recept iets bevat dat iemand niet lust.</p>
+    <div id="taste-suggestions" class="status-box" hidden aria-live="polite"></div>
+    <div id="taste-list" class="taste-list"></div>
+</section>
+<script>
+(() => {
+    const box = document.getElementById("taste-list"), sug = document.getElementById("taste-suggestions");
+    const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+    const call = (method, url, body) => fetch(url, {method, headers: {"Content-Type": "application/json"}, body: body ? JSON.stringify(body) : undefined}).then(r => r.json()).catch(() => ({}));
+    const render = data => {
+        const people = data.members || [];
+        box.innerHTML = people.map(m => `<div class="taste-row" data-id="${esc(m.id)}"><strong>${esc(m.name)}</strong>
+            <span class="taste-chips">${m.preferences.map(p => `<span class="chip ${p.kind === "dislike" ? "chip-warn" : ""}">${p.kind === "dislike" ? "lust geen" : "dol op"} ${esc(p.term)}
+                <button type="button" class="chip-x" data-del="${p.id}" aria-label="${esc(p.term)} weghalen">×</button></span>`).join("")}</span>
+            <form class="taste-add" autocomplete="off"><select name="kind" aria-label="Soort"><option value="dislike">lust geen</option><option value="like">is dol op</option></select>
+            <input class="form-input" name="term" placeholder="bijv. paprika" maxlength="100" aria-label="Ingrediënt"><button class="btn btn-sm" type="submit">+</button></form></div>`).join("");
+        box.querySelectorAll(".taste-row").forEach(row => {
+            const id = row.dataset.id;
+            row.querySelector("form").onsubmit = async ev => {
+                ev.preventDefault();
+                const f = ev.target, term = f.term.value.trim();
+                if (!term) return;
+                const r = await call("POST", `/api/members/${encodeURIComponent(id)}/preferences`, {term, kind: f.kind.value});
+                if (r.ok) render(r); else alert(r.error || "Toevoegen mislukt.");
+            };
+            row.querySelectorAll("[data-del]").forEach(b => b.onclick = async () => { const r = await call("DELETE", `/api/members/${encodeURIComponent(id)}/preferences/${b.dataset.del}`); if (r.ok) render(r); });
+        });
+        const s = data.suggestions || [];
+        sug.hidden = !s.length;
+        sug.innerHTML = s.length ? `<p><strong>Klopt dit?</strong> Op basis van 👎 denkt Miso dat:</p><ul class="taste-sug">` + s.map((x, i) => `<li>${esc(x.name)} waarschijnlijk geen <strong>${esc(x.term)}</strong> lust
+            <span class="muted">(${x.down}× 👎${x.up ? `, ${x.up}× 👍` : ""})</span>
+            <button type="button" class="btn btn-sm" data-yes="${i}">Ja, klopt</button> <button type="button" class="btn btn-sm btn-muted" data-no="${i}">Nee</button></li>`).join("") + `</ul>` : "";
+        sug.querySelectorAll("[data-yes]").forEach(b => b.onclick = async () => { const x = s[b.dataset.yes]; const r = await call("POST", `/api/members/${encodeURIComponent(x.member_id)}/preferences`, {term: x.term, kind: "dislike"}); if (r.ok) render(r); });
+        sug.querySelectorAll("[data-no]").forEach(b => b.onclick = async () => { const x = s[b.dataset.no]; const r = await call("POST", "/api/preferences/dismiss", {member_id: x.member_id, term: x.term}); if (r.ok) render(r); });
+    };
+    fetch("/api/preferences").then(r => r.json()).then(render).catch(() => { box.textContent = "Smaak niet beschikbaar."; });
 })();
 </script>
 

@@ -879,3 +879,63 @@ img.who-avatar { object-fit: cover; }
 .recipe-facts { margin: 0 0 0.75rem; }
 .recipe-facts:empty { display: none; }
 .chip-bonus { background: var(--miso-orange); color: var(--miso-blue); margin-left: 0.4rem; font-size: 0.7rem; vertical-align: middle; }
+
+/* Weekbudget */
+.budget-line { display: block; margin-top: 0.35rem; }
+.budget-bar { display: block; height: 8px; border-radius: 999px; background: var(--surface-2); overflow: hidden; margin-top: 0.25rem; }
+.budget-bar > span { display: block; height: 100%; background: var(--miso-orange); border-radius: 999px; }
+.budget-bar.over > span { background: #C0392B; }
+.out-btn { margin-left: 0.5rem; }
+
+.cheaper-list { list-style: none; padding: 0; margin: 0.5rem 0 0; }
+.cheaper-list li { display: flex; gap: 0.75rem; align-items: center; justify-content: space-between; padding: 0.5rem 0; border-top: 1px solid var(--border); }
+.cheaper-list li:first-child { border-top: 0; }
+
+/* Smaak per persoon */
+.taste-row { padding: 0.6rem 0; border-top: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 0.4rem 0.6rem; align-items: center; }
+.taste-row:first-child { border-top: 0; }
+.taste-chips { display: inline-flex; flex-wrap: wrap; gap: 0.3rem; }
+.taste-add { display: flex; gap: 0.4rem; align-items: center; flex-basis: 100%; }
+.taste-add .form-input { flex: 1; min-width: 100px; }
+.taste-sug { list-style: none; padding: 0; margin: 0.4rem 0 0; }
+.taste-sug li { padding: 0.35rem 0; }
+.chip-avoid { background: #FFE3BD; color: #7A3B00; margin-left: 0.4rem; font-size: 0.7rem; vertical-align: middle; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .chip-avoid { background: rgba(255, 138, 0, 0.2); color: #FFB04D; } }
+:root[data-theme="dark"] .chip-avoid { background: rgba(255, 138, 0, 0.2); color: #FFB04D; }
+.chip-x { background: none; border: 0; padding: 0 0 0 0.2rem; font-size: 1rem; line-height: 1; cursor: pointer; color: inherit; min-width: 24px; min-height: 24px; }
+.chip-old { background: #FFE3BD; color: #7A3B00; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .chip-old { background: rgba(255, 138, 0, 0.2); color: #FFB04D; } }
+:root[data-theme="dark"] .chip-old { background: rgba(255, 138, 0, 0.2); color: #FFB04D; }
+
+/* Timers in de kookmodus */
+.step-timers { display: inline-flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.25rem 0 0 0; }
+.timer-tray { position: sticky; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 5; background: var(--surface); border: 2px solid var(--miso-orange);
+    border-radius: 16px; padding: 0.5rem 0.75rem; margin: 0.75rem 0; box-shadow: var(--shadow); }
+.timer-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.25rem 0; }
+.timer-name { flex: 1; font-weight: 600; }
+.timer-left { font-variant-numeric: tabular-nums; font-size: 1.25rem; }
+.timer-row.done .timer-left { color: var(--accent-ink); animation: timer-blink 1s steps(2) infinite; }
+@keyframes timer-blink { 50% { opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) { .timer-row.done .timer-left { animation: none; } }
+
+/* Weeksjablonen */
+.wm-templates summary { cursor: pointer; font-weight: 800; }
+.tpl-list { list-style: none; margin: 0.6rem 0; padding: 0; display: grid; gap: 0.5rem; }
+.tpl-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.tpl-main { flex: 1 1 14rem; display: grid; gap: 0.15rem; min-width: 0; }
+.tpl-main .muted { font-size: 0.85rem; overflow-wrap: anywhere; }
+.tpl-add { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+.tpl-add .form-input { flex: 1 1 12rem; }
+
+/* Koken met wat er is */
+.rp-main { flex: 1 1 14rem; display: grid; gap: 0.15rem; min-width: 0; }
+.rp-main .muted { font-size: 0.85rem; }
+.chip-kids { background: var(--miso-mint, #b9e4c9); color: var(--miso-blue); margin-left: 0.4rem; font-size: 0.7rem; vertical-align: middle; }
+.nw-bonus { margin: -0.5rem 0 1rem; font-size: 0.85rem; }
+
+/* Stemronde */
+.vt-list { list-style: none; margin: 0.6rem 0; padding: 0; display: grid; gap: 0.5rem; }
+.vt-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.vt-main { flex: 1 1 14rem; display: grid; gap: 0.15rem; min-width: 0; }
+.vt-main .muted { font-size: 0.85rem; }
+.vt-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }

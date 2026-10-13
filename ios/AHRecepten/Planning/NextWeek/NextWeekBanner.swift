@@ -20,6 +20,9 @@ struct NextWeekBanner: View {
                             PlannedDots(planned: status.progressPlanned, total: status.progressTotal)
                         }
                     }
+                    if let hint = status.bonusHint, hint.isUseful {
+                        Text(hint.message).font(.footnote).foregroundStyle(.secondary)
+                    }
                     Button("Plan volgende week", action: onPlan)
                         .buttonStyle(.misoPrimary)
                 }
@@ -32,6 +35,9 @@ struct NextWeekBanner: View {
                     VStack(alignment: .leading, spacing: 4) {
                         PlannedDots(planned: status.progressPlanned, total: status.progressTotal)
                         Text(status.message).font(.footnote).foregroundStyle(Color.misoBlue)
+                        if let hint = status.bonusHint, hint.isUseful {
+                            Text(hint.message).font(.caption).foregroundStyle(.secondary)
+                        }
                     }
                     Spacer(minLength: 0)
                     if !status.isComplete {

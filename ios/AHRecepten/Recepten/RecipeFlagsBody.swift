@@ -5,12 +5,15 @@ struct RecipeFlagsBody: Encodable, Equatable {
     var favorite: Bool?
     var archived: Bool?
     var byHeart: Bool?
+    /// "Makkelijk met kinderen": voorrang op de kids-kookavond.
+    var kidFriendly: Bool?
     /// "Bewaren" in de opruimlijst: een half jaar niet meer vragen.
     var reviewed: Bool?
 
     enum CodingKeys: String, CodingKey {
         case favorite, archived, reviewed
         case byHeart = "by_heart"
+        case kidFriendly = "kid_friendly"
     }
 
     func encode(to encoder: Encoder) throws {
@@ -18,6 +21,7 @@ struct RecipeFlagsBody: Encodable, Equatable {
         try c.encodeIfPresent(favorite, forKey: .favorite)
         try c.encodeIfPresent(archived, forKey: .archived)
         try c.encodeIfPresent(byHeart, forKey: .byHeart)
+        try c.encodeIfPresent(kidFriendly, forKey: .kidFriendly)
         try c.encodeIfPresent(reviewed, forKey: .reviewed)
     }
 

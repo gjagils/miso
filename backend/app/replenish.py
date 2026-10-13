@@ -7,6 +7,7 @@ voorspelling op (`snooze`, bewaard in de instellingen).
 """
 
 import json
+import re
 import statistics
 from datetime import date, timedelta
 
@@ -39,17 +40,42 @@ def product_stats(trips: list[dict]) -> dict[int, dict]:
     return stats
 
 
+MIN_TIMES_PANTRY = 2  # basisvoorraad (olie, bloem) koop je zelden: twee keer is al een ritme
+
+
+def pantry_terms(recipes: list) -> set[str]:
+    """Woorden van de basisvoorraad uit de recepten (de ingrediënten die Miso zelf overslaat: olie, bloem, zout)."""
+    from app.clients.mealie import clean_search
+
+    terms: set[str] = set()
+    for r in recipes:
+        for ing in r.ingredients:
+            if not ing.get("auto_skip"):
+                continue
+            term = clean_search(ing.get("search") or ing.get("text", "")).lower().strip()
+            for word in re.findall(r"[a-zà-ÿ]{4,}", term):
+                terms.add(word)
+    return terms
+
+
+def is_pantry(name: str, terms: set[str] | None) -> bool:
+    low = (name or "").lower()
+    return bool(terms) and any(t in low for t in terms)
+
+
 def predict(trips: list[dict], today: date | None = None, snooze: dict[int, str] | None = None,
-            exclude: set[int] | None = None) -> list[dict]:
+            exclude: set[int] | None = None, pantry: set[str] | None = None) -> list[dict]:
     """Producten met een koopritme, gesorteerd op urgentie. Status: "op" (over tijd), "binnenkort"
-    (binnen een week), "ok". `exclude`: zit al in de boodschappen van de week."""
+    (binnen een week), "ok". `exclude`: zit al in de boodschappen van de week. `pantry`: woorden van de
+    basisvoorraad uit de recepten; zulke producten tellen na twee aankopen al (`basis: true`)."""
     today = today or date.today()
     out = []
     for pid, s in product_stats(trips).items():
         if exclude and pid in exclude:
             continue
         dates = sorted(date.fromisoformat(d) for d in s["dates"])
-        if len(dates) < MIN_TIMES:
+        basis = is_pantry(s["name"], pantry)
+        if len(dates) < (MIN_TIMES_PANTRY if basis else MIN_TIMES):
             continue
         gaps = [(b - a).days for a, b in zip(dates, dates[1:]) if (b - a).days > 0]
         if not gaps:
@@ -66,7 +92,7 @@ def predict(trips: list[dict], today: date | None = None, snooze: dict[int, str]
         status = "op" if days_left <= 0 else "binnenkort" if days_left <= HORIZON_DAYS else "ok"
         out.append({"product_id": pid, "name": s["name"], "category": s["category"], "times": len(dates),
                     "interval_days": interval, "last_bought": str(last), "due_on": str(due),
-                    "days_left": days_left, "status": status,
+                    "days_left": days_left, "status": status, "basis": basis,
                     "avg_quantity": round(statistics.mean(s["qty"]), 1) if s["qty"] else 1.0,
                     "snoozed_until": until if until and until >= str(today) else None})
     out.sort(key=lambda x: (x["days_left"], -x["times"], x["name"].lower()))

@@ -15,6 +15,7 @@ COLUMNS: dict[str, dict[str, str]] = {
         "favorite": "BOOLEAN NOT NULL DEFAULT 0",
         "archived": "BOOLEAN NOT NULL DEFAULT 0",
         "by_heart": "BOOLEAN NOT NULL DEFAULT 0",
+        "kid_friendly": "BOOLEAN NOT NULL DEFAULT 0",
         "thumbs_up": "INTEGER NOT NULL DEFAULT 0",
         "thumbs_down": "INTEGER NOT NULL DEFAULT 0",
         "cooked_count": "INTEGER NOT NULL DEFAULT 0",

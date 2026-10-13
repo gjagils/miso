@@ -15,14 +15,31 @@ struct ProposalOption: Decodable, Hashable, Sendable {
     let eiwit: String
     let keuken: String
     let basis: String
+    /// Geschat voordeel in euro's als ingrediënten in de bonus van die week zitten; 0 = geen bonus.
+    let bonusSaving: Double
+    /// Iemand in het gezin wil dit graag (open wens).
+    let wished: Bool
+    /// Waarschuwingen: "Hannah lust geen paprika". Leeg = niets aan de hand.
+    let avoid: [String]
+    /// "Makkelijk met kinderen" gemarkeerd.
+    let kidFriendly: Bool
+    /// Dit is de vaste kids-kookavond en het recept is makkelijk met kinderen.
+    let kidsNight: Bool
 
     enum CodingKeys: String, CodingKey {
         case recipeId, ahRecipeId, name, imageUrl, totalTime, favorite, allerhande, pack, eiwit, keuken, basis
+        case bonusSaving, wished, avoid, kidFriendly, kidsNight
     }
 
     init(recipeId: Int? = nil, ahRecipeId: Int? = nil, name: String, imageUrl: String = "", totalTime: String = "",
          favorite: Bool = false, allerhande: Bool = false, pack: Bool = false,
-         eiwit: String = "", keuken: String = "", basis: String = "") {
+         eiwit: String = "", keuken: String = "", basis: String = "", bonusSaving: Double = 0, wished: Bool = false, avoid: [String] = [],
+         kidFriendly: Bool = false, kidsNight: Bool = false) {
+        self.avoid = avoid
+        self.kidFriendly = kidFriendly
+        self.kidsNight = kidsNight
+        self.bonusSaving = bonusSaving
+        self.wished = wished
         self.eiwit = eiwit
         self.keuken = keuken
         self.basis = basis
@@ -49,6 +66,11 @@ struct ProposalOption: Decodable, Hashable, Sendable {
         eiwit = c.lenient(String.self, .eiwit) ?? ""
         keuken = c.lenient(String.self, .keuken) ?? ""
         basis = c.lenient(String.self, .basis) ?? ""
+        bonusSaving = c.lenient(Double.self, .bonusSaving) ?? 0
+        wished = c.lenient(Bool.self, .wished) ?? false
+        avoid = c.lenient([String].self, .avoid) ?? []
+        kidFriendly = c.lenient(Bool.self, .kidFriendly) ?? false
+        kidsNight = c.lenient(Bool.self, .kidsNight) ?? false
     }
 
     /// "25 min · Allerhande"

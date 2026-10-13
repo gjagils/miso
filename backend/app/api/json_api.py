@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.api import routes
 from app.clients.ah import ah_client
 from app.config import settings
+from app.cooktime import step_timers
 from app.database import get_db
 from app.logging_config import logger
 from app.models import Recipe
@@ -23,6 +24,7 @@ def _summary(r: Recipe, fans: dict | None = None) -> dict:
         "id": r.id, "name": r.name, "servings": r.servings, "total_time": r.total_time,
         "image_url": r.image_url, "gf_mode": r.gf_mode,
         "favorite": bool(r.favorite), "by_heart": bool(r.by_heart), "archived": bool(r.archived),
+        "kid_friendly": bool(r.kid_friendly),
         "collection": r.collection or "",
     }
 
@@ -72,6 +74,7 @@ class RecipeFlags(BaseModel):
     favorite: bool | None = None
     archived: bool | None = None
     by_heart: bool | None = None
+    kid_friendly: bool | None = None  # "makkelijk met kinderen"
     reviewed: bool | None = None  # "bewaren" in de opruimlijst: een half jaar niet meer vragen
 
 
@@ -87,7 +90,9 @@ async def api_recipe_flags(recipe_id: int, payload: RecipeFlags, request: Reques
         return JSONResponse({"ok": False, "error": "Vraag dit even aan papa of mama."}, status_code=403)
     if payload.favorite is not None:
         set_favorite(db, r, members.current(request, db), payload.favorite)  # per persoon
-    for field in ("archived", "by_heart"):
+    if members.is_kid(request, db) and payload.kid_friendly is not None:
+        return JSONResponse({"ok": False, "error": "Vraag dit even aan papa of mama."}, status_code=403)
+    for field in ("archived", "by_heart", "kid_friendly"):
         value = getattr(payload, field)
         if value is not None:
             setattr(r, field, value)
@@ -173,6 +178,8 @@ async def api_recipe(recipe_id: int, db: Session = Depends(get_db)):
         "source_url": r.source_url,
         "gf_note": r.gf_note,
         "instructions": r.instructions,
+        # per stap de tijden die erin staan, als timers: [[{"seconds": 1200, "label": "20 min"}], [], ...]
+        "step_timers": [step_timers(step) for step in r.instructions],
         "ingredients": [_ing_json(i, idx) for idx, i in enumerate(r.ingredients)],
     }
 

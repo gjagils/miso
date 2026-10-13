@@ -18,6 +18,7 @@ struct CookView: View {
     @State private var rated = false
     /// Bij "Klaar" zonder Lekker?: nog even vragen (één tik).
     @State private var askingTaste = false
+    @State private var timers = CookTimers()
 
     private var hints: CookHints { CookHints(instructions: recipe.instructions, totalTime: recipe.totalTime) }
 
@@ -57,6 +58,7 @@ struct CookView: View {
                             .misoChip(.misoMint)
                     }
                     ForEach(Array(recipe.ingredients.enumerated()), id: \.offset) { index, ingredient in
+                        HStack(alignment: .center, spacing: 8) {
                         Button {
                             toggle(&checked, index)
                         } label: {
@@ -78,11 +80,16 @@ struct CookView: View {
                         .frame(minHeight: 44)
                         .accessibilityAddTraits(checked.contains(index) ? .isSelected : [])
                         .accessibilityHint(checked.contains(index) ? "Tik om het vinkje weg te halen" : "Tik om af te vinken")
+                            if family.isParent, let productID = ingredient.productId {
+                                OutButton(productID: productID, name: ingredient.product ?? ingredient.text)
+                            }
+                        }
                     }
                 } header: { Text("Ingrediënten").misoSectionHeader() }
                 .misoRow()
                 Section {
                     ForEach(Array(recipe.instructions.enumerated()), id: \.offset) { index, step in
+                        VStack(alignment: .leading, spacing: 6) {
                         Button {
                             toggle(&done, index)
                             markCookedIfHalfway()
@@ -110,6 +117,9 @@ struct CookView: View {
                         .accessibilityValue(done.contains(index) ? "klaar" : "")
                         .accessibilityAddTraits(done.contains(index) ? [.isButton, .isSelected] : .isButton)
                         .accessibilityHint(done.contains(index) ? "Tik om als niet klaar te markeren" : "Tik om als klaar te markeren")
+                        StepTimerButtons(timers: stepTimers(at: index)) { timers.start($0, recipeName: recipe.displayName) }
+                            .padding(.leading, 28)
+                        }
                     }
                 } header: { Text("Bereiding").misoSectionHeader() }
                 .misoRow()
@@ -121,6 +131,7 @@ struct CookView: View {
                 .misoRow()
             }
             .misoScreen()
+            .safeAreaInset(edge: .bottom) { TimerTray(timers: timers) }
             .navigationTitle("Koken")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -136,7 +147,13 @@ struct CookView: View {
         }
         .task { await findPlannedPersons() }
         .onAppear { setScreenAlwaysOn(true) }
-        .onDisappear { setScreenAlwaysOn(false) }
+        .onDisappear { setScreenAlwaysOn(false); timers.stopAll() }
+    }
+
+    /// De tijden uit stap `index` (leeg bij een oudere server).
+    private func stepTimers(at index: Int) -> [StepTimer] {
+        guard let all = recipe.stepTimers, all.indices.contains(index) else { return [] }
+        return all[index]
     }
 
     private var effectivePersons: Int? { persons ?? plannedPersons }

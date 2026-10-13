@@ -29,6 +29,8 @@ struct RecipeSummary: Decodable, Identifiable, Hashable {
     var favorite: Bool? = nil
     var byHeart: Bool? = nil
     var archived: Bool? = nil
+    /// "Makkelijk met kinderen": voor de kids-kookavond (nieuwere servers).
+    var kidFriendly: Bool? = nil
     /// "maaltijdpakket" voor AH-maaltijdpakketten, anders leeg.
     var collection: String? = nil
     /// Initialen van de gezinsleden die dit een favoriet vinden (nieuwere servers).
@@ -36,6 +38,7 @@ struct RecipeSummary: Decodable, Identifiable, Hashable {
 
     var isFavorite: Bool { favorite ?? false }
     var isByHeart: Bool { byHeart ?? false }
+    var isKidFriendly: Bool { kidFriendly ?? false }
     var isMealKit: Bool { collection == "maaltijdpakket" }
 }
 
@@ -123,7 +126,10 @@ struct RecipeDetail: Decodable, Identifiable {
     var favorite: Bool? = nil
     var byHeart: Bool? = nil
     var archived: Bool? = nil
+    var kidFriendly: Bool? = nil
     var collection: String? = nil
+    /// Per bereidingsstap de tijden die erin staan als timers (nieuwere servers); zelfde index als `instructions`.
+    var stepTimers: [[StepTimer]]? = nil
     var cookedCount: Int? = nil
     var thumbsUp: Int? = nil
     var thumbsDown: Int? = nil
@@ -133,6 +139,7 @@ struct RecipeDetail: Decodable, Identifiable {
     var isFavorite: Bool { favorite ?? false }
     var isByHeart: Bool { byHeart ?? false }
     var isArchived: Bool { archived ?? false }
+    var isKidFriendly: Bool { kidFriendly ?? false }
     var isMealKit: Bool { collection == "maaltijdpakket" }
 }
 

@@ -12,10 +12,10 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app import planning
+from app import bonushint, planning, week_templates
 from app.api import routes
 from app.database import get_db
-from app.models import FreezerItem, PlanEntry, Recipe
+from app.models import FreezerItem, PlanEntry, Recipe, WeekTemplate
 
 router = APIRouter(prefix="/api")
 
@@ -279,6 +279,7 @@ async def delete_entry(entry_id: int, db: Session = Depends(get_db)):
 def next_week_status(db: Session, today: date | None = None) -> dict:
     overview = planning.next_week_overview(db, today)
     status = routes.week_status(db, date.fromisoformat(overview["week"]))
+    overview["bonus_hint"] = bonushint.next_week(db, today)
     overview["list_status"] = {
         "needed": status["needed"],
         "missing_count": status["missing_count"],
@@ -297,12 +298,15 @@ async def api_next_week_status(db: Session = Depends(get_db)):
 class PlanSettings(BaseModel):
     household_size: int | None = Field(None, ge=1, le=planning.MAX_PERSONS)
     order_weekday: int | None = Field(None, ge=0, le=6)
+    week_budget: int | None = Field(None, ge=0, le=9999)  # euro's per week; 0 = geen budget
+    kids_weekday: int | None = Field(None, ge=-1, le=6)  # vaste kids-kookavond; -1 = geen
 
 
 def plan_settings(db: Session) -> dict:
     wd = planning.order_weekday(db)
     return {"household_size": planning.household_size(db), "order_weekday": wd,
-            "order_weekday_name": planning.WEEKDAYS[wd]}
+            "order_weekday_name": planning.WEEKDAYS[wd], "week_budget": planning.week_budget(db),
+            "kids_weekday": planning.kids_weekday(db)}
 
 
 @router.get("/plan/settings")
@@ -316,6 +320,10 @@ async def patch_plan_settings(payload: PlanSettings, db: Session = Depends(get_d
         planning.set_setting(db, "household_size", str(payload.household_size))
     if payload.order_weekday is not None:
         planning.set_setting(db, "order_weekday", str(payload.order_weekday))
+    if payload.week_budget is not None:
+        planning.set_setting(db, "week_budget", str(payload.week_budget))
+    if payload.kids_weekday is not None:
+        planning.set_setting(db, "kids_weekday", str(payload.kids_weekday))
     return {"ok": True, **plan_settings(db)}
 
 
@@ -323,8 +331,14 @@ async def patch_plan_settings(payload: PlanSettings, db: Session = Depends(get_d
 
 
 def freezer_item_json(item: FreezerItem) -> dict:
+    """`age_days`/`age_label`: hoe lang al in de vriezer; `age_state`: "" | "soon" (vanaf 60 dagen: snel opeten)
+    | "old" (vanaf 90 dagen: echt aan de beurt)."""
+    days = planning.age_days(item.added_on)
+    state = "old" if days is not None and days >= planning.FREEZER_OLD_DAYS else \
+        "soon" if days is not None and days >= planning.FREEZER_SOON_DAYS else ""
     return {"id": item.id, "name": item.name, "portions": item.portions, "added_on": item.added_on,
-            "from_recipe_id": item.from_recipe_id}
+            "from_recipe_id": item.from_recipe_id, "age_days": days, "age_label": planning.age_label(days),
+            "age_state": state}
 
 
 @router.get("/freezer")
@@ -384,5 +398,61 @@ async def delete_freezer(item_id: int, db: Session = Depends(get_db)):
     if not item:
         return _err("Dit staat niet (meer) in de vriezer.", 404)
     db.delete(item)
+    db.commit()
+    return {"ok": True}
+
+
+# ── Weeksjablonen (F9) ─────────────────────────────────────────────────
+
+
+class TemplateSave(BaseModel):
+    name: str = Field(..., min_length=1, max_length=80)
+    week: str | None = None  # ISO-datum in de te bewaren week; leeg = deze week
+
+
+class TemplateApply(BaseModel):
+    week: str | None = None  # ISO-datum in de doelweek; "next" = volgende week
+    replace: bool = False
+
+
+@router.get("/plan/templates")
+async def list_templates(db: Session = Depends(get_db)):
+    rows = db.execute(select(WeekTemplate).order_by(WeekTemplate.name)).scalars().all()
+    return {"ok": True, "templates": [week_templates.describe(db, t) for t in rows]}
+
+
+@router.post("/plan/templates")
+async def save_template(payload: TemplateSave, db: Session = Depends(get_db)):
+    name = payload.name.strip()
+    if not name:
+        return _err("Geef het sjabloon een naam.")
+    monday = routes.parse_week(payload.week)
+    count = db.execute(select(WeekTemplate)).scalars().all()
+    if len(count) >= week_templates.MAX_TEMPLATES and not any(t.name == name for t in count):
+        return _err("Er zijn al te veel sjablonen; gooi er eerst een weg.")
+    tpl = week_templates.save(db, name, monday)
+    if not tpl:
+        return _err("Deze week is nog leeg, dus er valt niets te bewaren.")
+    return {"ok": True, "template": week_templates.describe(db, tpl)}
+
+
+@router.post("/plan/templates/{template_id}/apply")
+async def apply_template(template_id: int, payload: TemplateApply, db: Session = Depends(get_db)):
+    tpl = db.get(WeekTemplate, template_id)
+    if not tpl:
+        return _err("Dit sjabloon bestaat niet (meer).", 404)
+    monday = routes.parse_week(payload.week)
+    result = week_templates.apply(db, tpl, monday, payload.replace)
+    return {"ok": True, **result, "week": str(monday),
+            "entries": entries_json(db, planning.week_entries(db, monday)),
+            "status": routes.week_status(db, monday)}
+
+
+@router.delete("/plan/templates/{template_id}")
+async def delete_template(template_id: int, db: Session = Depends(get_db)):
+    tpl = db.get(WeekTemplate, template_id)
+    if not tpl:
+        return _err("Dit sjabloon bestaat niet (meer).", 404)
+    db.delete(tpl)
     db.commit()
     return {"ok": True}

@@ -65,6 +65,19 @@ struct CookLogicTests {
         #expect(!h.longer)
     }
 
+    @Test func hoursAreNotMinutes() {
+        let stew = CookHints(instructions: ["Laat 2 uur stoven."], totalTime: "2 uur")
+        #expect(stew.minutes == 120 && stew.ovenMinutes == nil && !stew.longer && stew.timeText == "± 120 min")
+        let oven = CookHints(instructions: ["Zet het 2,5 uur in de oven op 150 graden."], totalTime: "30 min")
+        #expect(oven.ovenMinutes == 150 && oven.ovenTemperature == "150" && oven.minutes == 180 && oven.longer)
+        #expect(CookHints.listedMinutes("1,5 uur") == 90 && CookHints.listedMinutes("45 min") == 45)
+        #expect(CookHints.listedMinutes("") == 0 && CookHints.listedMinutes("20") == 20)
+        // "stoven" en "bovenop" bevatten "oven" maar zijn geen oven
+        let notOven = CookHints(instructions: ["Laat 40 min. stoven.", "Strooi de kaas bovenop en bak 10 min."], totalTime: "20 min")
+        #expect(notOven.ovenMinutes == nil && notOven.minutes == 20)
+        #expect(CookHints(instructions: ["Zet de ovenschaal 25 min. in de oven."], totalTime: "20 min").ovenMinutes == 25)
+    }
+
     @Test func unknownTime() {
         let h = CookHints(instructions: [], totalTime: "")
         #expect(h.minutes == nil)

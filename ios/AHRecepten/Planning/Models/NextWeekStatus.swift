@@ -18,15 +18,18 @@ struct NextWeekStatus: Decodable, Equatable, Sendable {
     /// Nieuwere servers: doordeweekse dagen (ma-vr) gepland, en of die alle vijf staan.
     let weekdaysPlanned: Int?
     let ready: Bool?
+    /// Eigen recepten die volgende week in de bonus zitten (nieuwere servers).
+    let bonusHint: BonusHint?
 
     enum CodingKeys: String, CodingKey {
         case orderDay, orderDayName, daysUntilOrder, week, plannedDays, totalDays, missingDates, prominent, message
-        case listStatus, weekdaysPlanned, ready
+        case listStatus, weekdaysPlanned, ready, bonusHint
     }
 
     init(orderDay: Int = 6, orderDayName: String = "zondag", daysUntilOrder: Int, week: String, plannedDays: Int,
          totalDays: Int = 7, missingDates: [String] = [], prominent: Bool = false, message: String = "",
-         listStatus: NextWeekListStatus? = nil, weekdaysPlanned: Int? = nil, ready: Bool? = nil) {
+         listStatus: NextWeekListStatus? = nil, weekdaysPlanned: Int? = nil, ready: Bool? = nil, bonusHint: BonusHint? = nil) {
+        self.bonusHint = bonusHint
         self.orderDay = orderDay
         self.orderDayName = orderDayName
         self.daysUntilOrder = daysUntilOrder
@@ -55,6 +58,7 @@ struct NextWeekStatus: Decodable, Equatable, Sendable {
         listStatus = c.lenient(NextWeekListStatus.self, .listStatus)
         weekdaysPlanned = c.lenientInt(.weekdaysPlanned)
         ready = c.lenient(Bool.self, .ready)
+        bonusHint = c.lenient(BonusHint.self, .bonusHint)
     }
 
     /// Klaar: ma-vr staan erin (nieuwere servers), anders alle dagen van de week.

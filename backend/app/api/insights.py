@@ -9,9 +9,10 @@ from datetime import date, timedelta
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app import ah_sync, costs, planning, replenish
+from app import ah_sync, cookwith, costs, planning, replenish
 from app.api import routes
 from app.database import get_db
 from app.models import Recipe
@@ -19,6 +20,12 @@ from app.models import Recipe
 router = APIRouter(prefix="/api")
 
 HISTORY_WEEKS = 52
+
+
+@router.get("/cook-with")
+async def api_cook_with(db: Session = Depends(get_db)):
+    """Koken met wat er is: eigen recepten die passen bij de vriezer en de laatst gekochte producten."""
+    return {"ok": True, **cookwith.suggest(db)}
 
 
 @router.get("/week/cost")
@@ -104,7 +111,8 @@ async def api_replenish(week: str | None = None, db: Session = Depends(get_db)):
     trips = ah_sync.trips_as_dicts(ah_sync.trips_since(db, date.today() - timedelta(weeks=HISTORY_WEEKS)))
     cart, _ = routes.week_cart(db, monday)
     exclude = {int(c["product_id"]) for c in cart if c.get("product_id")}
-    rows = replenish.predict(trips, snooze=replenish.load_snooze(db), exclude=exclude)
+    pantry = replenish.pantry_terms(db.execute(select(Recipe)).scalars().all())
+    rows = replenish.predict(trips, snooze=replenish.load_snooze(db), exclude=exclude, pantry=pantry)
     due = [r for r in rows if r["status"] in ("op", "binnenkort")]
     return {"ok": True, "week": str(monday), "trips": len(trips), "due": due,
             "due_count": len(due), "tracked": len(rows), "later": [r for r in rows if r["status"] == "ok"][:20]}
@@ -120,3 +128,45 @@ async def api_replenish_snooze(payload: SnoozePayload, db: Session = Depends(get
     """"Hebben we nog": dit product pas weer tonen na `days` dagen."""
     until = replenish.snooze(db, payload.product_id, payload.days)
     return {"ok": True, "product_id": payload.product_id, "snoozed_until": until}
+
+
+class OutPayload(BaseModel):
+    product_id: int
+    name: str = Field("", max_length=200)
+    quantity: int = Field(1, ge=1, le=20)
+
+
+@router.post("/replenish/out")
+async def api_replenish_out(payload: OutPayload, db: Session = Depends(get_db)):
+    """"Dit is op" (bijv. tijdens het koken): op het AH-lijstje en de voorspelling even met rust laten.
+    Alleen ouders (zie `family.KID_BLOCKED`). Bestelt niets."""
+    from app.api.ah_data import NOT_LINKED, _fail, _put_on_list
+    from app.api.shopping import _use_user_tokens
+
+    if not _use_user_tokens(db):
+        return _fail(NOT_LINKED)
+    result = await _put_on_list([], [{"product_id": payload.product_id, "name": payload.name,
+                                      "quantity": payload.quantity}])
+    if result.get("ok"):
+        trips = ah_sync.trips_as_dicts(ah_sync.trips_since(db, date.today() - timedelta(weeks=HISTORY_WEEKS)))
+        known = next((r for r in replenish.predict(trips) if r["product_id"] == payload.product_id), None)
+        replenish.snooze(db, payload.product_id, max(7, (known or {}).get("interval_days") or 14))
+    return result
+
+
+@router.post("/recipes/{recipe_id}/cheaper")
+async def api_recipe_cheaper(recipe_id: int, db: Session = Depends(get_db)):
+    """Goedkopere AH-producten voor dit recept (zoekt bij AH, dus met een POST: niet vooraf ophalen).
+    Wijzigt niets; kiezen gaat via `POST /api/recipes/{id}/ingredients/{index}`."""
+    from app import cheaper
+
+    recipe = db.get(Recipe, recipe_id)
+    if not recipe:
+        return JSONResponse({"ok": False, "error": "Recept niet gevonden."}, status_code=404)
+    found = await cheaper.cheaper_for(recipe, routes.search_candidates)
+    if found["unreachable"]:  # AH gaf nergens antwoord: niet doen alsof er niets goedkopers is
+        return {"ok": False, "unreachable": True, "recipe_id": recipe.id, "suggestions": [], "total_saving": 0,
+                "error": "AH gaf geen antwoord. Probeer het later nog eens."}
+    suggestions = found["suggestions"]
+    return {"ok": True, "unreachable": False, "recipe_id": recipe.id, "suggestions": suggestions,
+            "total_saving": round(sum(x["saving"] for x in suggestions), 2)}

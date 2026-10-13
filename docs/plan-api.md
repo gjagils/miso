@@ -121,6 +121,53 @@ kookdag terug op `null` (niet meer dubbel inkopen).
 {"ok": true, "deleted": [12, 13], "status": {…}}
 ```
 
+## Stemmen op kandidaten (D7)
+
+Een stemronde per week. Ouders zetten kandidaten klaar, iedereen in het gezin stemt (maximaal 3 stemmen per persoon, per
+gezinslid via `x-miso-member` of de cookie `miso_member`), en de uitslag vult de lege dagen. Tabellen `vote_polls` en
+`votes`. Kinderen mogen stemmen en lezen; starten, sluiten en stoppen zijn ouders (`POST /api/vote-poll…` en
+`DELETE /api/vote-poll` staan in `KID_BLOCKED`). Code: `backend/app/voting.py`, `backend/app/api/votes.py`.
+
+- `GET /api/vote-poll?week=` → `{ok, week, open, max_votes, candidates: [{recipe_id, name, image_url, total_time, votes,
+  voters: ["G","N"], mine}], my_votes, voted_count, members_total}`. `open` is false zonder ronde; kandidaten staan
+  gesorteerd op stemmen.
+- `POST /api/vote-poll` `{week?, recipe_ids?}` start een ronde (een bestaande voor die week wordt vervangen, stemmen gaan weg).
+  Zonder `recipe_ids` kiest Miso de vijf gewildste recepten die die week nog niet op het menu staan. Minder dan twee
+  kandidaten: `{ok:false, error}`.
+- `POST /api/votes` `{week?, recipe_id, on}` zet of haalt een stem weg. Fouten (`ok:false`): geen ronde, geen kandidaat,
+  al 3 stemmen, of nog niet gekozen wie je bent. Geeft de nieuwe stand terug (zelfde vorm als GET).
+- `POST /api/vote-poll/close` `{week?}` → `{ok, placed, no_room, no_votes, week, entries, status}`. Winnaars (meeste stemmen,
+  daarna voorkeursscore) komen op lege dagen vanaf vandaag, doordeweeks eerst. Een dag met een recept, voorraadregel of
+  restje is bezet. Recepten zonder stem komen er niet in. De ronde is daarna weg. 404 zonder ronde.
+- `DELETE /api/vote-poll?week=` stopt de ronde zonder iets te plannen; 404 zonder ronde.
+
+## Koken met wat er is (F11)
+
+`GET /api/cook-with` → `{ok, suggestions, inventory}`. Leest alleen lokale gegevens: de vriezerlijst en de
+boodschappenrondes van de laatste 4 dagen uit `ah_trips` (basisvoorraad uitgezonderd). Een eigen recept (niet gearchiveerd,
+niet al gepland in de komende 7 dagen, niet net uit de vriezer gehaald) wordt voorgesteld als minstens 2 ingrediënten gedekt
+zijn. Sortering: meeste gedekt, dan minste ontbrekend. Maximaal 6.
+
+- `suggestions[]`: `{recipe_id, name, image_url, total_time, servings, covered, total, missing_count,
+  matches: [{ingredient, from, source: "vriezer"|"gekocht"}]}`.
+- `inventory`: `{freezer: [naam], bought: [{name, date}]}` (waar de voorstellen op gebaseerd zijn).
+- Code: `backend/app/cookwith.py`. Restjes zijn al planregels en doen hier niet mee.
+
+## Weeksjablonen (F9)
+
+Een week bewaren en op een andere week terugzetten. Bewaard worden recept- en voorraadregels met weekdag,
+personen en "morgen opeten" (`rest`); vriezer-effecten niet. Kinderen kunnen alleen lezen
+(`POST /api/plan/templates` en `DELETE /api/plan/templates/…` staan in `KID_BLOCKED`). Tabel `week_templates`.
+
+- `GET /api/plan/templates` → `{ok, templates: [{id, name, created_on, count, days: [{weekday 0-6, label, missing}]}]}`.
+  `missing` = het recept bestaat niet meer.
+- `POST /api/plan/templates` `{name, week?}` bewaart de week (ISO-datum erin, leeg = deze week). Zelfde naam
+  overschrijft. Lege week: `{ok:false, error}`. Maximaal 30 sjablonen.
+- `POST /api/plan/templates/{id}/apply` `{week?, replace?}` (`week`: ISO-datum of `"next"`) →
+  `{ok, placed, skipped_busy, skipped_gone, week, entries, status}`. Bezette dagen (recept of voorraad) blijven staan
+  tenzij `replace`; een dag met een restje blijft altijd staan. Een restje dat buiten de week zou vallen wordt weggelaten.
+- `DELETE /api/plan/templates/{id}` → `{ok}`; onbekend id geeft 404.
+
 ## Week (bestaand, uitgebreid)
 
 ### `GET /api/week?week=YYYY-MM-DD|next`
@@ -182,9 +229,16 @@ rest-dagen mee. Nieuwe clients: gebruik de entry-endpoints.
   "prominent": true,                     // days_until_order <= 2: toon groot
   "message": "Volgende week: 4 van 7 dagen gepland · nog 2 dagen tot zondag (besteldag)",
   "list_status": {"needed": 6, "missing_count": 6, "missing": [{"name": "…", "quantity": 2}],
-                  "unmatched_count": 0, "complete": false}
+                  "unmatched_count": 0, "complete": false},
+  "bonus_hint": {"count": 2, "saving": 3.0, "names": ["Garnalen met rijst", "Kip met rijst"],
+                 "message": "2 recepten van jullie zitten volgende week in de bonus (samen ongeveer €3,00 voordeel): …"}
 }
 ```
+
+`bonus_hint` (A5): eigen recepten waarvan een ingrediënt volgende week in de bonus zit (minstens €0,50 voordeel, uit
+`ah_bonus_periods`; `message` is leeg als er geen bonus bekend is). De website toont de zin onder de banner "Volgende week";
+de iOS-app plant er een lokale melding van op vrijdag 17:00 (alleen als die vrijdag nog vóór de maandag van `week` valt).
+Code: `backend/app/bonushint.py`.
 
 `message` varianten: "… · morgen is het zondag (besteldag)", "… · vandaag is het zondag (besteldag)".
 Acties in de UI: "Plan volgende week" (web: `/kiezen?week=next`) en "Laat Miso voorstellen"
@@ -193,8 +247,16 @@ voorstel `POST /api/plan/entries`).
 
 ## Instellingen
 
-- `GET /api/plan/settings` → `{"ok": true, "household_size": 4, "order_weekday": 6, "order_weekday_name": "zondag"}`
-- `PATCH /api/plan/settings {"household_size": 5, "order_weekday": 0}` (beide optioneel; 1–20 en 0=ma … 6=zo)
+- `GET /api/plan/settings` → `{"ok": true, "household_size": 4, "order_weekday": 6, "order_weekday_name": "zondag", "week_budget": 0, "kids_weekday": null}`
+- `PATCH /api/plan/settings {"household_size": 5, "order_weekday": 0, "week_budget": 120, "kids_weekday": 2}` (alles optioneel; 1–20, 0=ma … 6=zo, 0–9999 euro per week met 0 = geen budget, en `kids_weekday` 0=ma … 6=zo of -1 voor geen; GET geeft `null` bij geen)
+
+### Kids-kookavond (D8)
+
+Eén vaste weekdag (`kids_weekday`) waarop de kinderen meekoken. Recepten met de vlag `kid_friendly` ("makkelijk met kinderen")
+krijgen op die dag voorrang: in `POST /api/week/suggest` (reden "makkelijk met kinderen") en in `POST /api/plan/propose`
+(optievelden `kid_friendly` en `kids_night`; `kids_night` is waar als het recept de vlag heeft en de dag de kids-avond is).
+De vlag staat in elke receptsamenvatting (`kid_friendly`) en wordt gezet met `PATCH /api/recipes/{id}/flags {"kid_friendly": true}`
+(alleen ouders; kinderen krijgen 403). Kolom `recipes.kid_friendly` (migratie). Code: `backend/app/kidsnight.py`.
   → zelfde vorm. Web: formulier "Gezin en besteldag" op `/settings`.
 
 ## Vriezer
@@ -243,12 +305,33 @@ Schermen lezen hieruit; alleen de sync en de bonus-ophaling praten met AH. Dagel
 | `GET /api/bonus?period=next` | bonus van volgende week zodra AH die toont |
 | `GET /api/bonus/recipes?week=` | recepten in de bonus van de periode waarin die week valt (volgende week zodra AH die toont); anders `period=current\|next` |
 | `GET /api/staples` | bevat nu ook "waarschijnlijk op" (`source: "ritme"`, met `status`, `due_on`, `interval_days`) vooraan; de rest heeft `source: "vaak"`; `source_counts.waarschijnlijk_op` |
-| `GET /api/week/cost?week=` | geschatte kosten van het weekmenu: `{"total", "bonus_saving", "per_meal", "meals", "unknown", "known_count", "lines", "bonus_period"}` |
+| `GET /api/week/cost?week=` | geschatte kosten van het weekmenu: `{"total", "bonus_saving", "per_meal", "meals", "unknown", "known_count", "lines", "bonus_period", "budget", "budget_pct", "actual", "actual_pct"}`; `budget` is null zonder weekbudget, `actual` = wat er die week echt is uitgegeven (null zonder ritten) |
 | `GET /api/recipes/{id}/cost?persons=` | idem per recept, met `per_person` en `complete` |
 | `GET /api/spend?weeks=12&detail=YYYY-MM-DD` | uitgaven per week uit `ah_trips`: `{"weeks": [{"week", "total", "discount", "trips", "unknown"}], "average_week", "average_per_person_day"}`; met `detail` ook `{"detail": {"week", "trips", "top": [10 grootste regels], "categories"}}`. Web: `/uitgaven` |
-| `GET /api/replenish?week=` | "waarschijnlijk op": producten die volgens het koopritme aan de beurt zijn (≥3 keer gekocht, mediaan interval ≤120 dagen), minus de boodschappen van de week → `{"due": [{"product_id", "name", "status": "op"\|"binnenkort", "interval_days", "last_bought", "due_on", "days_left", "avg_quantity"}], "later": [...]}` |
+| `GET /api/replenish?week=` | "waarschijnlijk op": producten die volgens het koopritme aan de beurt zijn (≥3 keer gekocht, mediaan interval ≤120 dagen; basisvoorraad uit de recepten — olie, bloem — ≥2 keer, met `basis: true`), minus de boodschappen van de week → `{"due": [{"product_id", "name", "status": "op"\|"binnenkort", "interval_days", "last_bought", "due_on", "days_left", "avg_quantity"}], "later": [...]}` |
 | `POST /api/replenish/snooze` | `{"product_id", "days": 14}` = "hebben we nog": pas weer tonen na `days` dagen |
+| `POST /api/replenish/out` | `{"product_id", "name", "quantity": 1}` = "dit is op" (tijdens het koken): op het AH-lijstje en de voorspelling even met rust → `{"ok", "added"}`; zonder AH `{"ok": false, "error"}`. Alleen ouders |
+| `POST /api/recipes/{id}/cheaper` | goedkopere AH-producten voor dit recept (zoekt bij AH, dus POST): `{"ok", "suggestions": [{"index", "text", "manual", "current": {…, "cost", "packs"}, "alternative": {…product…, "cost", "packs"}, "saving"}], "total_saving"}`. Wijzigt niets; kiezen = `POST /api/recipes/{id}/ingredients/{index}` met `{"text", "product": alternative}`. Alleen producten die volgens `matching.score` even goed passen en minstens € 0,20 goedkoper zijn (aantal pakken telt mee). Gaf AH bij elk ingrediënt niets terug (offline), dan `{"ok": false, "unreachable": true, "error": "AH gaf geen antwoord…"}` in plaats van "niets goedkopers". Alleen ouders |
 
 Prijzen: bij elke zoekopdracht en elke koppeling wordt een prijssnapshot per product per dag bewaard; de kosten
 gebruiken de prijs van de koppeling, anders het laatste snapshot, en de bonusprijs als het product in de bonus
 van die week zit.
+
+## Smaak per persoon
+
+Code: `backend/app/tastes.py`, `backend/app/api/tastes.py`. Gezinsleden zijn die van `app/members.py` (tekst-ids).
+
+| | |
+|---|---|
+| `GET /api/preferences` | `{"ok", "members": [{"id", "name", "role", "color", "preferences": [{"id", "member_id", "term", "kind": "dislike"\|"like"}]}], "suggestions": [{"member_id", "name", "term", "down", "up"}]}` |
+| `POST /api/members/{member_id}/preferences` | `{"term": "paprika", "kind": "dislike"}` → overzicht zoals hierboven (+ `preference`); term wordt kleine letters, minimaal 2 tekens; zelfde term opnieuw zet de soort om |
+| `DELETE /api/members/{member_id}/preferences/{id}` | → overzicht; 404 als het niet van dit lid is |
+| `POST /api/preferences/dismiss` | `{"member_id", "term"}` = "nee, dat klopt niet": niet meer voorstellen → overzicht |
+
+Een term matcht in de ingrediënttekst: korte termen ("ui") alleen aan het begin van een woord, termen van 5+ letters
+overal ("paprika" ~ "puntpaprika's"). **Voorgestelde afkeer** (`suggestions`): een ingrediënt dat in minstens 2 recepten
+zit waar die persoon netto 👎 voor gaf, en in minder dan de helft zoveel 👍-recepten. Alleen ouders mogen wijzigen.
+
+Gebruik in de voorstellen: `POST /api/week/suggest` krijgt de redenen "Hannah lust geen paprika" / "Suze is dol op kip";
+in Plannen (`propose`) krijgt een optie `avoid: ["Hannah lust geen paprika"]` en zakt ze 14 punten per persoon.
+Ook de kooktijd telt mee (`app/cooktime.py`): ma–do boven 45 min gaat er af (max −20), tot 30 min +4; za/zo vanaf 60 min +4.

@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app import planning
 from app.api import routes
 from app.database import SessionLocal, get_db
 from app.logging_config import logger
@@ -68,7 +69,8 @@ async def week_suggest(payload: SuggestPayload, db: Session = Depends(get_db)):
     prefs = {r.id: preference_score(r, stats.get(r.id)) for r, _ in candidates}
     plan = [{"recipe_id": r.id, "profiel": get_profile(db, r.id)} for _, r in planned]
     chosen = suggest_week(plan, candidates, empty, set(last_weeks), prefs,
-                          suggest_context(db, [r for r, _ in candidates], monday, stats))
+                          suggest_context(db, [r for r, _ in candidates], monday, stats),
+                          kids_weekday=planning.kids_weekday(db))
     missing = db.query(Recipe).count() - len(candidates)
     return {"ok": True, "voorstel": chosen, "zonder_profiel": missing,
             "analyse": analyze_week([(e.date, get_profile(db, r.id)) for e, r in planned] +
@@ -98,6 +100,10 @@ def suggest_context(db: Session, recipes: list[Recipe], monday: date, stats: dic
         eaten = last_eaten(r, stats.get(r.id), today)
         c["last_cooked"] = eaten
         c["never_cooked"] = not eaten and not (stats.get(r.id) or {}).get("planned") and not r.cooked_count
+    from app import tastes
+
+    for rid, hit in tastes.taste_hits(db, recipes, members.all_members(db)).items():
+        ctx[rid].update(dislike_terms=hit["dislikes"], like_terms=hit["likes"])
     for w in db.execute(select(Wish).where(Wish.done_on.is_(None), Wish.recipe_id.is_not(None))).scalars():
         if w.recipe_id in ctx:
             ctx[w.recipe_id].setdefault("wishes", []).append(member_names.get(w.member_id, w.member_id or "iemand"))

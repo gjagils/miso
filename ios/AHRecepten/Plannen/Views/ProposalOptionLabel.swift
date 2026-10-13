@@ -39,6 +39,19 @@ struct ProposalOptionLabel: View {
                     if option.allerhande {
                         Text("Allerhande").misoChip(.misoLilac)
                     }
+                    if option.bonusSaving > 0 {
+                        Text("bonus \(Euro.saving(option.bonusSaving))").misoChip(.misoOrange)
+                    }
+                    if option.kidsNight {
+                        Text("kids-avond").misoChip(.misoMint)
+                    }
+                    ForEach(option.avoid, id: \.self) { warning in
+                        Label(warning, systemImage: "exclamationmark.triangle.fill")
+                            .font(.system(.caption, design: .rounded).weight(.semibold))
+                            .foregroundStyle(Color.misoInk)
+                            .padding(.horizontal, 8).padding(.vertical, 3)
+                            .background(Color.misoOrange.opacity(0.35), in: Capsule())
+                    }
                 }
             }
             Spacer(minLength: 0)
@@ -53,6 +66,9 @@ struct ProposalOptionLabel: View {
         if option.pack { parts.append("maaltijdpakket") }
         if !option.totalTime.isEmpty { parts.append(option.totalTime) }
         if option.allerhande { parts.append("uit Allerhande") }
+        if option.bonusSaving > 0 { parts.append("in de bonus, voordeel \(Euro.format(option.bonusSaving))") }
+        if option.kidsNight { parts.append("makkelijk met kinderen, voor de kids-kookavond") }
+        parts.append(contentsOf: option.avoid)
         return parts.joined(separator: ", ")
     }
 }
