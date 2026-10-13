@@ -489,6 +489,26 @@ def test_cook_hints_oven_time():
     assert h["oven_min"] == 30 and h["oven_temp"] == "200" and h["minutes"] == 55 and h["longer"]
 
 
+def test_cook_hints_understand_hours():
+    from app.models import Recipe as R
+
+    r = R(name="Stoofpot", total_time="2 uur")
+    r.instructions = ["Laat 2 uur stoven."]
+    h = planning.cook_hints(r)
+    assert h["minutes"] == 120 and h["oven_min"] is None and not h["longer"]  # niet "± 2 min"
+    r = R(name="Draadjesvlees", total_time="30 min")
+    r.instructions = ["Zet het 2,5 uur in de oven op 150 graden."]
+    h = planning.cook_hints(r)
+    assert h["oven_min"] == 150 and h["oven_temp"] == "150" and h["minutes"] == 180 and h["longer"]
+    assert planning.cook_hints(R(name="X", total_time="1,5 uur"))["minutes"] == 90
+    # "stoven" en "bovenop" bevatten "oven" maar zijn geen oven
+    r = R(name="Stoof", total_time="20 min")
+    r.instructions = ["Laat 40 min. stoven.", "Strooi de kaas bovenop en bak 10 min."]
+    assert planning.cook_hints(r)["oven_min"] is None
+    r.instructions = ["Zet de ovenschaal 25 min. in de oven."]
+    assert planning.cook_hints(r)["oven_min"] == 25
+
+
 def test_freezer_age_and_warning_states(db):  # noqa: F811
     from datetime import date, timedelta
 

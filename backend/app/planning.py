@@ -14,6 +14,7 @@ from datetime import date, timedelta
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app import cooktime
 from app.models import AppSetting, PlanEntry, Recipe
 
 DEFAULT_HOUSEHOLD = 4
@@ -232,11 +233,11 @@ def cook_hints(recipe) -> dict:
     temp = re.search(r"(\d{3})\s*(?:°|graden)", text)
     oven_min = 0
     for sentence in (x.lower() for x in re.split(r"(?<=[.!?])\s+(?=[A-Z])", raw)):  # "ca. 30 min." breekt niet
-        if "oven" in sentence:
+        if re.search(r"\boven", sentence):  # "oven", "ovenschaal"; niet "stoven" of "bovenop"
             mins = [int(m) for m in re.findall(r"(\d{1,3})\s*(?:-\s*\d+\s*)?min", sentence)]
-            oven_min = max([oven_min, *mins])
-    listed = re.search(r"\d+", recipe.total_time or "")
-    listed_min = int(listed.group(0)) if listed else 0
+            hours = [round(float(h.replace(",", ".")) * 60) for h in re.findall(r"(\d+(?:[.,]\d+)?)\s*uur", sentence)]
+            oven_min = max([oven_min, *mins, *hours])
+    listed_min = cooktime.minutes(recipe.total_time or "") or 0  # "2 uur" is 120 min, niet 2
     est = listed_min
     if oven_min and listed_min < oven_min + 10:
         est = listed_min + oven_min  # opgegeven tijd is vaak alleen het snijwerk
