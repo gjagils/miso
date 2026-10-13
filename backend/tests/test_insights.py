@@ -320,3 +320,34 @@ def test_kids_cannot_search_cheaper(db, monkeypatch):  # noqa: F811
     monkeypatch.setattr(family, "SessionLocal", factory)
     r = _kip_recipe(db)
     assert TestClient(app, headers={"X-Miso-Member": "hannah"}).post(f"/api/recipes/{r.id}/cheaper").status_code == 403
+
+
+def test_cheaper_says_so_when_ah_gives_nothing(db, monkeypatch):  # noqa: F811
+    """AH offline: niet "al een goede keuze" zeggen, maar dat er geen antwoord kwam."""
+    r = _kip_recipe(db)
+
+    async def fake_search(q, size=10):
+        raise RuntimeError("AH is offline")
+    monkeypatch.setattr(routes.ah_client, "search_products", fake_search)
+    resp = TestClient(app).post(f"/api/recipes/{r.id}/cheaper").json()
+    assert resp["ok"] is False and resp["unreachable"] is True and resp["suggestions"] == []
+    assert "geen antwoord" in resp["error"]
+
+    async def fake_empty(q, size=10):
+        return []
+    monkeypatch.setattr(routes.ah_client, "search_products", fake_empty)
+    assert TestClient(app).post(f"/api/recipes/{r.id}/cheaper").json()["unreachable"] is True  # leeg = ook geen antwoord
+
+    # Eén ingrediënt zonder resultaat tussen andere die wel antwoord gaven telt niet als onbereikbaar
+    r2 = _recipe(db, "Mix", [_ing("500 g kipfilet", 1), _ing("500 g gehakt", 2)])
+    ings = r2.ingredients
+    for i in ings:
+        i["product"].update(price="6.00", unit_size="500 g")
+    r2.ingredients = ings
+    db.commit()
+
+    async def partial(q, size=10):
+        return [{"id": 9, "name": "AH Kipfilet", "unit_size": "500 g", "price": "4.00", "available": True}] if "kip" in q else []
+    monkeypatch.setattr(routes.ah_client, "search_products", partial)
+    resp = TestClient(app).post(f"/api/recipes/{r2.id}/cheaper").json()
+    assert resp["ok"] and resp["unreachable"] is False and len(resp["suggestions"]) == 1

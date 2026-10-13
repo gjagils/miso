@@ -26,19 +26,27 @@ def _product_view(p: dict) -> dict:
                                   "organic", "unit_price", "nix18")}
 
 
-async def cheaper_for(recipe, search_candidates) -> list[dict]:
-    """[{"index", "text", "manual", "current": {...}, "alternative": {...}, "saving"}], grootste besparing eerst.
+async def cheaper_for(recipe, search_candidates) -> dict:
+    """{"suggestions": [{"index", "text", "manual", "current": {...}, "alternative": {...}, "saving"}] (grootste
+    besparing eerst), "unreachable": bool}. `unreachable` = er viel niets te zoeken: bij elk ingrediënt gaf AH geen
+    enkel product terug (offline of geblokkeerd), dus "niets goedkopers" zou een verkeerde conclusie zijn.
     `search_candidates` is `routes.search_candidates` (meegegeven zodat tests AH kunnen vervangen)."""
     sem = asyncio.Semaphore(4)
     todo = [(i, ing) for i, ing in enumerate(recipe.ingredients)
             if not ing.get("skip") and not ing.get("auto_skip") and (ing.get("product") or {}).get("id")
             and _num((ing.get("product") or {}).get("price")) is not None][:MAX_INGREDIENTS]
 
+    empty = 0
+
     async def one(index: int, ing: dict) -> dict | None:
+        nonlocal empty
         text = ing.get("text", "")
         current = ing["product"]
         products, query, flags, need = await search_candidates(ing.get("search") or text, text, sem)
         if not query:
+            return None
+        if not products:
+            empty += 1
             return None
         base_packs = max(1, int(ing.get("quantity") or 1))
         cur_cost, cur_packs = _cost(_num(current["price"]), need, current.get("unit_size", ""), base_packs)
@@ -61,4 +69,4 @@ async def cheaper_for(recipe, search_candidates) -> list[dict]:
 
     found = [r for r in await asyncio.gather(*(one(i, ing) for i, ing in todo)) if r]
     found.sort(key=lambda r: -r["saving"])
-    return found
+    return {"suggestions": found, "unreachable": bool(todo) and empty == len(todo)}

@@ -157,6 +157,10 @@ async def api_recipe_cheaper(recipe_id: int, db: Session = Depends(get_db)):
     recipe = db.get(Recipe, recipe_id)
     if not recipe:
         return JSONResponse({"ok": False, "error": "Recept niet gevonden."}, status_code=404)
-    suggestions = await cheaper.cheaper_for(recipe, routes.search_candidates)
-    return {"ok": True, "recipe_id": recipe.id, "suggestions": suggestions,
+    found = await cheaper.cheaper_for(recipe, routes.search_candidates)
+    if found["unreachable"]:  # AH gaf nergens antwoord: niet doen alsof er niets goedkopers is
+        return {"ok": False, "unreachable": True, "recipe_id": recipe.id, "suggestions": [], "total_saving": 0,
+                "error": "AH gaf geen antwoord. Probeer het later nog eens."}
+    suggestions = found["suggestions"]
+    return {"ok": True, "unreachable": False, "recipe_id": recipe.id, "suggestions": suggestions,
             "total_saving": round(sum(x["saving"] for x in suggestions), 2)}
