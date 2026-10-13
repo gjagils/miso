@@ -74,6 +74,8 @@ struct PlanView: View {
                     GroceriesSection(status: week.status, cost: insights.cost, pushing: model.pushing, result: model.pushResult,
                                      onPush: pushToList)
                     ReplenishSection(model: insights.replenish, week: week.week)
+                    CookWithSection(suggestions: insights.cookWith, onOpen: { openRecipe($0.recipeId) },
+                                    onPlan: planCookWith)
                 }
 
                 if let health = model.health, health.dagen > 0 {
@@ -181,6 +183,12 @@ struct PlanView: View {
 
     private func add(on day: PlanDay) {
         planRequest = PlanSheetRequest(showTabs: true, date: day.date, start: model.week?.week)
+    }
+
+    private func planCookWith(_ suggestion: CookWithSuggestion) {
+        let choice = PlanRecipeChoice(source: .own, recipeID: suggestion.recipeId, name: suggestion.name,
+                                      imageUrl: suggestion.imageUrl, meta: suggestion.detail)
+        planRequest = PlanSheetRequest(recipe: choice, date: model.firstFreeDay, start: model.week?.week)
     }
 
     private func move(_ item: PlanItem) {

@@ -281,7 +281,7 @@ testen zonder AH.
 | F8 | Kooklijst "wil ik binnenkort maken", ook als input voor het voorstel | S | ja | 2 | vervalt (main: wensen met recept) |
 | F9 | Week opslaan en terugzetten als sjabloon | S | ja | 3 | ✅ web + iOS |
 | F10 | Kookstand: timers uit stappen, hoeveelheid in de stap | M | ja | 3 | ✅ web + iOS |
-| F11 | Koken met wat er is: restjes, vriezer, nog-in-huis tegen eigen recepten | M | ja | 4 | open |
+| F11 | Koken met wat er is: restjes, vriezer, nog-in-huis tegen eigen recepten | M | ja | 4 | ✅ web + iOS (vriezer + gekocht; restjes zijn al planregels) |
 
 ### Voorgestelde eerste sprint, volledig offline
 

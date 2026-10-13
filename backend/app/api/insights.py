@@ -12,7 +12,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app import ah_sync, costs, planning, replenish
+from app import ah_sync, cookwith, costs, planning, replenish
 from app.api import routes
 from app.database import get_db
 from app.models import Recipe
@@ -20,6 +20,12 @@ from app.models import Recipe
 router = APIRouter(prefix="/api")
 
 HISTORY_WEEKS = 52
+
+
+@router.get("/cook-with")
+async def api_cook_with(db: Session = Depends(get_db)):
+    """Koken met wat er is: eigen recepten die passen bij de vriezer en de laatst gekochte producten."""
+    return {"ok": True, **cookwith.suggest(db)}
 
 
 @router.get("/week/cost")

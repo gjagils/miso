@@ -53,6 +53,12 @@
     <p class="muted" id="rp-msg" role="status"></p>
 </section>
 
+<section class="status-box wm-cookwith" id="cookwith" aria-labelledby="cw-title" hidden>
+    <h2 id="cw-title">Koken met wat er is</h2>
+    <p class="muted">Recepten van jullie zelf die grotendeels kunnen van wat in de vriezer ligt en wat jullie de laatste dagen kochten.</p>
+    <ul class="rp-list" id="cw-list"></ul>
+</section>
+
 <section class="settings-section wm-freezer" id="freezer" aria-labelledby="fz-title">
     <div class="fz-head"><img src="/static/miso/miso-chill.webp" alt="" width="56" height="56" loading="lazy"><h2 id="fz-title">Vriezer</h2></div>
     <ul class="fz-list" id="fz-list"></ul>
@@ -96,7 +102,7 @@ async function reload() {
     if (!w.ok) return;
     entries = w.days.flatMap(d => d.entries);
     status = w.status;
-    renderDays(); renderGroceries(); loadHealth(); loadFreezer(); loadCost(); loadReplenish();
+    renderDays(); renderGroceries(); loadHealth(); loadFreezer(); loadCost(); loadReplenish(); loadCookWith();
 }
 
 // ── Kosten (schatting uit gekoppelde AH-producten) ───────
@@ -238,6 +244,30 @@ $("push-btn").onclick = async () => {
     msg.style.color = r.ok ? "" : "var(--red)";
 };
 
+// ── Koken met wat er is ─────────────────────────────────
+async function loadCookWith() {
+    const box = $("cookwith");
+    if (!box) return;
+    const r = await api("GET", "/api/cook-with");
+    const list = (r.ok && r.suggestions) || [];
+    box.hidden = !list.length;
+    const ul = $("cw-list");
+    ul.innerHTML = "";
+    list.forEach(s => {
+        const li = document.createElement("li");
+        const have = s.matches.map(m => `${esc(m.ingredient)} <span class="chip">${m.source === "vriezer" ? "vriezer" : "gekocht"}</span>`).join(", ");
+        li.innerHTML = `<div class="rp-main"><a href="/recipe/${s.recipe_id}"><strong>${esc(s.name)}</strong></a>
+            <span class="muted">${s.missing_count ? `Nog ${plural(s.missing_count, "ingrediënt", "ingrediënten")} nodig · ` : "Alles al in huis · "}${s.total_time ? esc(s.total_time) : ""}</span>
+            <span class="muted">Heb je al: ${have}</span></div>
+            <button type="button" class="btn btn-sm" data-plan>Plan in</button>`;
+        li.querySelector("[data-plan]").onclick = () => MisoPlan.open({
+            recipe: {id: s.recipe_id, name: s.name, image_url: s.image_url || "", servings: s.servings || ""},
+            start: WEEK, date: DAYS.map(d => d.date).find(d => d >= TODAY && !entries.some(e => e.date === d)) || "",
+            onDone: reload});
+        ul.appendChild(li);
+    });
+}
+
 // ── Weeksjablonen ───────────────────────────────────────
 const SHORT = ["ma", "di", "wo", "do", "vr", "za", "zo"];
 async function loadTemplates() {
@@ -355,7 +385,7 @@ if (sb) sb.onclick = async () => {
     };
 };
 
-renderDays(); renderGroceries(); loadFreezer(); loadHealth(); loadCost(); loadReplenish(); loadTemplates();
+renderDays(); renderGroceries(); loadFreezer(); loadHealth(); loadCost(); loadReplenish(); loadCookWith(); loadTemplates();
 })();
 </script>
 {% endblock %}

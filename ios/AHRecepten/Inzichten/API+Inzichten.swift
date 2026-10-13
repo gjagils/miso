@@ -7,6 +7,11 @@ extension API {
         try await get("api/recipes/\(id)/cost")
     }
 
+    func cookWith() async throws -> [CookWithSuggestion] {
+        let result: CookWithResponse = try await get("api/cook-with")
+        return result.suggestions
+    }
+
     func weekCost(_ week: String) async throws -> WeekCost {
         try await get("api/week/cost", query: [URLQueryItem(name: "week", value: week)])
     }

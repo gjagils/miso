@@ -121,6 +121,18 @@ kookdag terug op `null` (niet meer dubbel inkopen).
 {"ok": true, "deleted": [12, 13], "status": {…}}
 ```
 
+## Koken met wat er is (F11)
+
+`GET /api/cook-with` → `{ok, suggestions, inventory}`. Leest alleen lokale gegevens: de vriezerlijst en de
+boodschappenrondes van de laatste 4 dagen uit `ah_trips` (basisvoorraad uitgezonderd). Een eigen recept (niet gearchiveerd,
+niet al gepland in de komende 7 dagen, niet net uit de vriezer gehaald) wordt voorgesteld als minstens 2 ingrediënten gedekt
+zijn. Sortering: meeste gedekt, dan minste ontbrekend. Maximaal 6.
+
+- `suggestions[]`: `{recipe_id, name, image_url, total_time, servings, covered, total, missing_count,
+  matches: [{ingredient, from, source: "vriezer"|"gekocht"}]}`.
+- `inventory`: `{freezer: [naam], bought: [{name, date}]}` (waar de voorstellen op gebaseerd zijn).
+- Code: `backend/app/cookwith.py`. Restjes zijn al planregels en doen hier niet mee.
+
 ## Weeksjablonen (F9)
 
 Een week bewaren en op een andere week terugzetten. Bewaard worden recept- en voorraadregels met weekdag,

@@ -926,3 +926,7 @@ img.who-avatar { object-fit: cover; }
 .tpl-main .muted { font-size: 0.85rem; overflow-wrap: anywhere; }
 .tpl-add { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
 .tpl-add .form-input { flex: 1 1 12rem; }
+
+/* Koken met wat er is */
+.rp-main { flex: 1 1 14rem; display: grid; gap: 0.15rem; min-width: 0; }
+.rp-main .muted { font-size: 0.85rem; }
