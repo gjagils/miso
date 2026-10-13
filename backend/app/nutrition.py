@@ -166,6 +166,8 @@ WEIGHTS = {
     "nooit": 6,          # nog nooit gekookt: ook eens proberen
     "kosten": 2,         # straf per euro per persoon boven 4 euro
     "wens": 10,          # per persoon die dit wenst, tot 20
+    "afkeer": 14,        # per persoon die een ingrediënt niet lust
+    "smaak": 4,          # per persoon die dol is op een ingrediënt
 }
 VEGA = ("vega", "vegan", "peulvruchten")
 
@@ -205,6 +207,12 @@ def _ctx_terms(ctx: dict, today: date) -> tuple[float, list[str]]:
     if wishes:
         s += min(20, WEIGHTS["wens"] * len(wishes))
         why.append(f"wens van {', '.join(wishes[:3])}")
+    for name, term in (ctx.get("dislike_terms") or [])[:3]:
+        s -= WEIGHTS["afkeer"]
+        why.append(f"{name} lust geen {term}")
+    for name, term in (ctx.get("like_terms") or [])[:3]:
+        s += WEIGHTS["smaak"]
+        why.append(f"{name} is dol op {term}")
     return s, why
 
 

@@ -98,6 +98,10 @@ def suggest_context(db: Session, recipes: list[Recipe], monday: date, stats: dic
         eaten = last_eaten(r, stats.get(r.id), today)
         c["last_cooked"] = eaten
         c["never_cooked"] = not eaten and not (stats.get(r.id) or {}).get("planned") and not r.cooked_count
+    from app import tastes
+
+    for rid, hit in tastes.taste_hits(db, recipes, members.all_members(db)).items():
+        ctx[rid].update(dislike_terms=hit["dislikes"], like_terms=hit["likes"])
     for w in db.execute(select(Wish).where(Wish.done_on.is_(None), Wish.recipe_id.is_not(None))).scalars():
         if w.recipe_id in ctx:
             ctx[w.recipe_id].setdefault("wishes", []).append(member_names.get(w.member_id, w.member_id or "iemand"))

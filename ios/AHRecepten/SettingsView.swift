@@ -61,6 +61,15 @@ struct SettingsView: View {
                                     .frame(minHeight: 44)
                             }
                             .accessibilityHint("Namen en rol (ouder of kind)")
+                            NavigationLink {
+                                TasteView()
+                            } label: {
+                                Label("Smaak per persoon", systemImage: "heart.text.square")
+                                    .font(.misoButton)
+                                    .foregroundStyle(Color.misoBlue)
+                                    .frame(minHeight: 44)
+                            }
+                            .accessibilityHint("Wat iemand niet lust of heel lekker vindt")
                         }
                     } header: { Text("Wie ben jij?").misoSectionHeader() }
                     .misoRow()

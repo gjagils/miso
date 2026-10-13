@@ -207,6 +207,19 @@ class Rating(Base):
     rating: Mapped[str] = mapped_column(String(4), default="")
 
 
+class MemberPreference(Base):
+    """Smaak per gezinslid op ingrediëntniveau: "Hannah lust geen paprika", "Suze is dol op kip".
+    `member_id` is de id uit `app.members` (tekst); `term` is een woord uit de ingrediënttekst (kleine letters)."""
+
+    __tablename__ = "member_preferences"
+    __table_args__ = (UniqueConstraint("member_id", "term", name="uq_member_pref_term"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    member_id: Mapped[str] = mapped_column(String(40), index=True)
+    term: Mapped[str] = mapped_column(String(100))
+    kind: Mapped[str] = mapped_column(String(10), default="dislike")  # "dislike" | "like"
+
+
 # ── AH-datalaag ────────────────────────────────────────────────────────
 # Lokale kopie van wat AH over ons weet, zodat schermen nooit rechtstreeks AH hoeven te vragen.
 # Gevuld door `app.ah_sync`. Nooit code hier die iets bij AH bestelt.

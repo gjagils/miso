@@ -176,6 +176,9 @@ def propose(db: Session, monday: date, wishes: dict[str, str], per_day: int = 3,
     wished = {w.recipe_id for w in db.execute(select(Wish).where(Wish.done_on.is_(None),
                                                                  Wish.recipe_id.is_not(None))).scalars()}
     bonus = _bonus_savings(db, recipes, monday)  # recipe_id -> geschatte besparing in de bonus van die week
+    from app import members as members_mod, tastes
+
+    taste = tastes.taste_hits(db, recipes, members_mod.all_members(db))  # wie lust wat niet / is er dol op
     chosen_profiles = [profiles.get(rid) or (guessed_profile(by_id[rid]) if rid in by_id else {}) for rid in week_ids]
     used: set[int] = set(week_ids)
     used_dishes = {dish_key(by_id[rid].name) for rid in week_ids if rid in by_id}
@@ -214,6 +217,8 @@ def propose(db: Session, monday: date, wishes: dict[str, str], per_day: int = 3,
             if bonus.get(r.id):
                 s += min(15, 3 * bonus[r.id])  # in de bonus deze week: per euro voordeel, tot 15
             s += time_fit(r.total_time, day)[0]  # doordeweeks snel, in het weekend mag het langer
+            hit = taste.get(r.id) or {}
+            s -= 14 * len(hit.get("dislikes", [])) - 4 * len(hit.get("likes", []))  # smaak per persoon
             if r.favorite and favorites_chosen >= 2:
                 s -= 30  # hooguit twee favorieten per week, anders steeds hetzelfde
             if prev_cuisine and p.get("keuken") == prev_cuisine and prev_cuisine != "overig":
@@ -233,7 +238,8 @@ def propose(db: Session, monday: date, wishes: dict[str, str], per_day: int = 3,
                             "total_time": r.total_time, "favorite": bool(r.favorite),
                             "pack": r.collection == "maaltijdpakket", "eiwit": p.get("eiwit", ""),
                             "keuken": p.get("keuken", ""), "basis": p.get("basis", ""),
-                            "bonus_saving": bonus.get(r.id) or 0, "wished": r.id in wished})
+                            "bonus_saving": bonus.get(r.id) or 0, "wished": r.id in wished,
+                            "avoid": [f"{n} lust geen {t}" for n, t in (taste.get(r.id) or {}).get("dislikes", [])]})
             if len(options) == per_day:
                 break
         item["options"] = options

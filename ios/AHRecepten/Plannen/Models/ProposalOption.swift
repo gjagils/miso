@@ -19,15 +19,18 @@ struct ProposalOption: Decodable, Hashable, Sendable {
     let bonusSaving: Double
     /// Iemand in het gezin wil dit graag (open wens).
     let wished: Bool
+    /// Waarschuwingen: "Hannah lust geen paprika". Leeg = niets aan de hand.
+    let avoid: [String]
 
     enum CodingKeys: String, CodingKey {
         case recipeId, ahRecipeId, name, imageUrl, totalTime, favorite, allerhande, pack, eiwit, keuken, basis
-        case bonusSaving, wished
+        case bonusSaving, wished, avoid
     }
 
     init(recipeId: Int? = nil, ahRecipeId: Int? = nil, name: String, imageUrl: String = "", totalTime: String = "",
          favorite: Bool = false, allerhande: Bool = false, pack: Bool = false,
-         eiwit: String = "", keuken: String = "", basis: String = "", bonusSaving: Double = 0, wished: Bool = false) {
+         eiwit: String = "", keuken: String = "", basis: String = "", bonusSaving: Double = 0, wished: Bool = false, avoid: [String] = []) {
+        self.avoid = avoid
         self.bonusSaving = bonusSaving
         self.wished = wished
         self.eiwit = eiwit
@@ -58,6 +61,7 @@ struct ProposalOption: Decodable, Hashable, Sendable {
         basis = c.lenient(String.self, .basis) ?? ""
         bonusSaving = c.lenient(Double.self, .bonusSaving) ?? 0
         wished = c.lenient(Bool.self, .wished) ?? false
+        avoid = c.lenient([String].self, .avoid) ?? []
     }
 
     /// "25 min · Allerhande"
