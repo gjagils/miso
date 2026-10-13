@@ -16,6 +16,7 @@ struct RecipeDetailView: View {
     @State private var editingIngredient: IngredientSelection?
     @State private var editing = false
     @State private var showingCheaper = false
+    @State private var cost: RecipeCost?
     @State private var confirmDelete = false
     @State private var deleting = false
     /// Melding boven het recept (bijv. koppelen mislukt of recept was intussen gewijzigd).
@@ -47,7 +48,7 @@ struct RecipeDetailView: View {
                         RecipeImage(path: recipe.imageUrl, size: 200)
                         let meta = [recipe.servings, recipe.totalTime].filter { !$0.isEmpty }.joined(separator: " · ")
                         if !meta.isEmpty { Text(meta).font(.misoCaption).foregroundStyle(.secondary) }
-                        if !isKid { RecipeCostLine(recipeID: recipe.id) }
+                        if !isKid { RecipeCostLine(cost: cost) }
                         if recipe.showsMealKitTag || recipe.isArchived {
                             HStack(spacing: 6) {
                                 if recipe.showsMealKitTag { MealKitBadge() }
@@ -408,6 +409,7 @@ struct RecipeDetailView: View {
             let result = try await api.recipe(id: recipeID)
             recipe = result
             errorText = nil
+            if !isKid { cost = try? await api.recipeCost(recipeID) }  // prijzen mogen ontbreken: dan geen regel
             let me = session.memberID
             if let wishes = try? await api.familyWishes() {
                 wishSent = wishes.contains { $0.recipeId == recipeID && $0.memberId == me && !me.isEmpty }

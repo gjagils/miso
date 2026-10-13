@@ -4,8 +4,8 @@ import SwiftUI
 /// Er wordt nooit iets besteld.
 struct GroceriesSection: View {
     let status: WeekStatus
-    /// Maandag van de week, voor de kostenregel.
-    var week = ""
+    /// Geschatte kosten van de week (nil = nog niet geladen of geen prijzen).
+    var cost: WeekCost?
     let pushing: Bool
     let result: (ok: Bool, text: String)?
     let onPush: () -> Void
@@ -31,8 +31,8 @@ struct GroceriesSection: View {
             Label(statusLine, systemImage: count == 0 && !nothing ? "checkmark.circle.fill" : "cart")
                 .foregroundStyle(Color.misoBlue)
                 .accessibilityAddTraits(.updatesFrequently)
-            if !nothing && !week.isEmpty {
-                WeekCostLine(week: week, version: status.needed * 1000 + status.newCount)
+            if !nothing {
+                WeekCostLine(cost: cost)
             }
             if !nothing {
                 Button(action: onPush) {

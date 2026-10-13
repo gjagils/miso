@@ -1,10 +1,11 @@
 import SwiftUI
 
 /// Blok "Waarschijnlijk op" onder Boodschappen. Verdwijnt als er niets aan de beurt is.
+/// Het scherm laadt het model (`WeekInsightsModel`); deze weergave doet dat niet zelf.
 struct ReplenishSection: View {
     @Environment(Session.self) private var session
+    let model: ReplenishModel
     let week: String
-    @State private var model = ReplenishModel()
 
     var body: some View {
         Group {
@@ -39,10 +40,6 @@ struct ReplenishSection: View {
                 }
                 .misoRow()
             }
-        }
-        .task(id: week) {
-            guard let api = session.api else { return }
-            await model.load(week: week, api: api)
         }
     }
 
