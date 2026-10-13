@@ -124,6 +124,8 @@ struct RecipeDetail: Decodable, Identifiable {
     var byHeart: Bool? = nil
     var archived: Bool? = nil
     var collection: String? = nil
+    /// Per bereidingsstap de tijden die erin staan als timers (nieuwere servers); zelfde index als `instructions`.
+    var stepTimers: [[StepTimer]]? = nil
     var cookedCount: Int? = nil
     var thumbsUp: Int? = nil
     var thumbsDown: Int? = nil

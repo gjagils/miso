@@ -351,3 +351,36 @@ def test_cheaper_says_so_when_ah_gives_nothing(db, monkeypatch):  # noqa: F811
     monkeypatch.setattr(routes.ah_client, "search_products", partial)
     resp = TestClient(app).post(f"/api/recipes/{r2.id}/cheaper").json()
     assert resp["ok"] and resp["unreachable"] is False and len(resp["suggestions"]) == 1
+
+
+def test_step_timers_parse_times_from_steps():
+    from app.cooktime import step_timers
+
+    t = lambda s: [(x["seconds"], x["label"]) for x in step_timers(s)]  # noqa: E731
+    assert t("Laat 20 minuten sudderen.") == [(1200, "20 min")]
+    assert t("Bak 15-20 minuten op middelhoog vuur.") == [(1200, "20 min")]  # bovengrens
+    assert t("Bak 3 tot 4 min. per kant") == [(240, "4 min")]
+    assert t("Laat 1 uur rusten") == [(3600, "1 uur")] and t("Stoof 1,5 uur") == [(5400, "1 uur 30 min")]
+    assert t("Kook 90 seconden") == [(90, "90 sec")] and t("Even 30 sec. roeren") == [(30, "30 sec")]
+    assert t("Laat een half uur staan") == [(1800, "half uur")] and t("Een kwartier laten rusten") == [(900, "kwartier")]
+    assert t("Bak 5 minuten, draai om en bak nog 3 minuten") == [(300, "5 min"), (180, "3 min")]
+    assert t("Bak 5 minuten en daarna weer 5 minuten") == [(300, "5 min")]  # dubbel telt één keer
+    assert t("Verwarm de oven voor op 180 graden en snijd 5 cm blokjes") == []
+    assert t("Meng alles goed") == [] and t("") == []
+    assert t("Laat 12 uur marineren") == []  # geen kooktimer
+    assert t("Bak 2 minuten, laat 10 min. rusten") == [(120, "2 min"), (600, "10 min")]
+    assert t("Laat een kwartier rusten en bak daarna 4 minuten") == [(900, "kwartier"), (240, "4 min")]  # volgorde van de tekst
+
+
+def test_cook_page_and_recipe_json_carry_step_timers(db):  # noqa: F811
+    r = _recipe(db, "Soep", [_ing("ui", 1)])
+    r.instructions = ["Snijd de ui.", "Laat 20 minuten sudderen.", "Bak 3-4 min. en laat een kwartier rusten."]
+    db.commit()
+    client = TestClient(app)
+    html = client.get(f"/recipe/{r.id}/koken").text
+    assert 'data-timer="1200"' in html and 'data-label="20 min"' in html
+    assert 'data-timer="240"' in html and 'data-timer="900"' in html and "timer-tray" in html
+    assert html.count("data-timer=") == 3  # de eerste stap heeft geen tijd
+    got = client.get(f"/api/recipes/{r.id}").json()
+    assert got["step_timers"] == [[], [{"seconds": 1200, "label": "20 min"}],
+                                  [{"seconds": 240, "label": "4 min"}, {"seconds": 900, "label": "kwartier"}]]

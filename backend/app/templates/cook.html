@@ -24,8 +24,11 @@
 </ul>
 <h2 style="margin-top: 1rem;">Bereiding</h2>
 <ol class="cook-steps" style="padding-left: 1.25rem;">
-    {% for step in recipe.instructions %}<li><button type="button" class="step" aria-pressed="false">{{ step }}</button></li>{% endfor %}
+    {% for step in steps %}<li><button type="button" class="step" aria-pressed="false">{{ step.text }}</button>
+        {% if step.timers %}<span class="step-timers">{% for t in step.timers %}<button type="button" class="btn btn-sm timer-btn" data-timer="{{ t.seconds }}"
+            data-label="{{ t.label }}" aria-label="Start timer van {{ t.label }}">⏲ {{ t.label }}</button>{% endfor %}</span>{% endif %}</li>{% endfor %}
 </ol>
+<section class="timer-tray" id="timer-tray" aria-live="polite" aria-label="Timers" hidden></section>
 <section class="status-box tasty" aria-labelledby="tasty-h">
     <h2 id="tasty-h">Lekker?</h2>
     <p class="muted">Miso leert hiervan welke recepten jullie vaker willen.</p>
@@ -49,6 +52,32 @@ steps.forEach(b => b.onclick = () => {
     const done = steps.filter(x => x.getAttribute("aria-pressed") === "true").length;
     if (done >= Math.ceil(steps.length / 2)) markCooked();  // pas na de helft van de stappen telt het als gekookt
 });
+// ── Timers uit de stappen ("20 minuten" wordt een knop); lopen door als je de pagina herlaadt ──
+const tray = document.getElementById("timer-tray");
+const KEY = "miso-timers-{{ recipe.id }}";
+let timers = [];
+try { timers = JSON.parse(sessionStorage.getItem(KEY) || "[]").filter(t => t.end > Date.now() - 60000); } catch (e) {}
+const saveTimers = () => { try { sessionStorage.setItem(KEY, JSON.stringify(timers)); } catch (e) {} };
+const fmt = s => { s = Math.max(0, Math.round(s)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60;
+    return (h ? h + ":" + String(m).padStart(2, "0") : m) + ":" + String(x).padStart(2, "0"); };
+const beep = () => { try { const c = new (window.AudioContext || window.webkitAudioContext)(); [0, 0.3, 0.6].forEach(d => {
+    const o = c.createOscillator(), g = c.createGain(); o.connect(g); g.connect(c.destination); o.frequency.value = 880; g.gain.value = 0.2;
+    o.start(c.currentTime + d); o.stop(c.currentTime + d + 0.18); }); } catch (e) {} if (navigator.vibrate) navigator.vibrate([300, 150, 300]); };
+function drawTimers() {
+    tray.hidden = !timers.length;
+    tray.innerHTML = timers.map((t, i) => { const left = (t.end - Date.now()) / 1000, done = left <= 0;
+        return `<div class="timer-row${done ? " done" : ""}"><span class="timer-name">${t.label}</span><strong class="timer-left">${done ? "Klaar!" : fmt(left)}</strong>
+            <button type="button" class="btn btn-sm btn-muted" data-stop="${i}" aria-label="Timer van ${t.label} stoppen">${done ? "Oké" : "Stop"}</button></div>`; }).join("");
+    tray.querySelectorAll("[data-stop]").forEach(b => b.onclick = () => { timers.splice(Number(b.dataset.stop), 1); saveTimers(); drawTimers(); });
+}
+setInterval(() => { let rang = false;
+    timers.forEach(t => { if (!t.rang && t.end <= Date.now()) { t.rang = true; rang = true; } });
+    if (rang) { beep(); saveTimers(); }
+    if (timers.length) drawTimers(); }, 1000);
+document.querySelectorAll("[data-timer]").forEach(b => b.onclick = () => {
+    timers.push({label: b.dataset.label, end: Date.now() + Number(b.dataset.timer) * 1000, rang: false}); saveTimers(); drawTimers(); });
+drawTimers();
+
 document.querySelectorAll("[data-out]").forEach(b => b.onclick = async () => {
     b.disabled = true;
     const r = await fetch("/api/replenish/out", {method: "POST", headers: {"Content-Type": "application/json"},

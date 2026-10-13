@@ -272,8 +272,11 @@ async def cook_mode(request: Request, recipe_id: int, personen: int | None = Non
     base = planning.recipe_servings(recipe)
     factor = (personen / base) if personen and base else 1.0
     lines = [{**i, "text": planning.scale_line(i.get("text", ""), factor)} for i in recipe.ingredients]
+    from app.cooktime import step_timers
+
+    steps = [{"text": text, "timers": step_timers(text)} for text in recipe.instructions]
     return templates.TemplateResponse(request, "cook.html", {
-        "recipe": recipe, "today_iso": str(date.today()), "lines": lines,
+        "recipe": recipe, "today_iso": str(date.today()), "lines": lines, "steps": steps,
         "personen": personen if abs(factor - 1) > 0.01 else None, "base_servings": base})
 
 

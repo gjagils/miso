@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.api import routes
 from app.clients.ah import ah_client
 from app.config import settings
+from app.cooktime import step_timers
 from app.database import get_db
 from app.logging_config import logger
 from app.models import Recipe
@@ -173,6 +174,8 @@ async def api_recipe(recipe_id: int, db: Session = Depends(get_db)):
         "source_url": r.source_url,
         "gf_note": r.gf_note,
         "instructions": r.instructions,
+        # per stap de tijden die erin staan, als timers: [[{"seconds": 1200, "label": "20 min"}], [], ...]
+        "step_timers": [step_timers(step) for step in r.instructions],
         "ingredients": [_ing_json(i, idx) for idx, i in enumerate(r.ingredients)],
     }
 
